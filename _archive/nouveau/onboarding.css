@@ -1,0 +1,558 @@
+/**
+ * ONBOARDING STYLES
+ * Styles pour le formulaire d'onboarding et profil utilisateur
+ */
+
+/* ===== OVERLAY & MODAL ===== */
+.onboarding-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.3s ease;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.onboarding-overlay.closing {
+    animation: fadeOut 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+.onboarding-modal {
+    background: white;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== HEADER ===== */
+.onboarding-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+    position: relative;
+    border-radius: 20px 20px 0 0;
+}
+
+.onboarding-header h2 {
+    font-size: 1.8em;
+    margin-bottom: 10px;
+}
+
+.onboarding-header p {
+    opacity: 0.9;
+    font-size: 1.1em;
+}
+
+.onboarding-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 1.5em;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.onboarding-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* ===== FORM ===== */
+.onboarding-form {
+    padding: 30px;
+}
+
+.onboarding-section {
+    margin-bottom: 30px;
+    padding-bottom: 25px;
+    border-bottom: 1px solid #eee;
+}
+
+.onboarding-section:last-of-type {
+    border-bottom: none;
+    margin-bottom: 20px;
+}
+
+.onboarding-section h3 {
+    color: #667eea;
+    font-size: 1.3em;
+    margin-bottom: 15px;
+}
+
+.section-hint {
+    color: #888;
+    font-size: 0.95em;
+    margin-bottom: 15px;
+}
+
+/* ===== FORM GROUPS ===== */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.form-group input[type="text"] {
+    width: 100%;
+    padding: 14px 18px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 1em;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-group input[type="text"]:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+}
+
+.form-group small {
+    display: block;
+    color: #888;
+    font-size: 0.85em;
+    margin-top: 6px;
+}
+
+/* ===== CHECKBOX GRID (Plateformes) ===== */
+.checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+}
+
+.checkbox-grid-compact {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+}
+
+.checkbox-card {
+    cursor: pointer;
+}
+
+.checkbox-card input {
+    display: none;
+}
+
+.checkbox-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    transition: all 0.2s;
+}
+
+.checkbox-grid-compact .checkbox-content {
+    padding: 10px 12px;
+    gap: 8px;
+}
+
+.checkbox-grid-compact .checkbox-icon {
+    font-size: 1.1em;
+}
+
+.checkbox-grid-compact .checkbox-label {
+    font-size: 0.9em;
+}
+
+.checkbox-card input:checked + .checkbox-content {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+    color: white;
+}
+
+.checkbox-icon {
+    font-size: 1.3em;
+}
+
+.checkbox-label {
+    font-weight: 500;
+}
+
+.checkbox-content:hover {
+    border-color: #667eea;
+    transform: translateY(-2px);
+}
+
+/* ===== RADIO CARDS ===== */
+.radio-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.radio-cards-2col {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.radio-cards-3col {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+@media (max-width: 700px) {
+    .radio-cards-3col {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .radio-cards-2col {
+        grid-template-columns: 1fr;
+    }
+    .radio-cards-3col {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.radio-card {
+    cursor: pointer;
+}
+
+.radio-card input {
+    display: none;
+}
+
+.radio-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: #f8f9fa;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    transition: all 0.2s;
+}
+
+.radio-card-compact .radio-content {
+    padding: 10px 14px;
+    gap: 8px;
+}
+
+.radio-card-compact .radio-label {
+    font-size: 0.9em;
+}
+
+.radio-card input:checked + .radio-content {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border-color: #667eea;
+}
+
+.radio-card input:checked + .radio-content .radio-icon {
+    transform: scale(1.2);
+}
+
+.radio-content:hover {
+    border-color: #667eea;
+    transform: translateY(-2px);
+}
+
+.radio-icon {
+    font-size: 1.8em;
+    transition: transform 0.2s;
+}
+
+.radio-label {
+    font-weight: 600;
+    color: #333;
+    display: block;
+}
+
+.radio-desc {
+    font-size: 0.85em;
+    color: #666;
+    display: block;
+    margin-top: 2px;
+}
+
+/* ===== ACTIONS ===== */
+.onboarding-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    padding-top: 20px;
+}
+
+.onboarding-actions .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 16px 40px;
+    font-size: 1.1em;
+    font-weight: 600;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.onboarding-actions .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.onboarding-actions .btn-secondary {
+    background: #f0f0f0;
+    color: #666;
+    border: none;
+    padding: 16px 30px;
+    font-size: 1.1em;
+    font-weight: 500;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.onboarding-actions .btn-secondary:hover {
+    background: #e0e0e0;
+}
+
+/* ===== NOTIFICATION ===== */
+.profile-notification {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: white;
+    padding: 20px 25px;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    z-index: 10001;
+    transform: translateX(120%);
+    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    max-width: 350px;
+}
+
+.profile-notification.show {
+    transform: translateX(0);
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.notification-icon {
+    font-size: 2em;
+}
+
+.notification-content strong {
+    color: #333;
+    display: block;
+    margin-bottom: 3px;
+}
+
+.notification-content p {
+    color: #666;
+    font-size: 0.9em;
+    margin: 0;
+}
+
+/* ===== PROFILE BUTTON ===== */
+.profile-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.profile-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* ===== PROFILE BADGE (dans les contrôles) ===== */
+.profile-badge {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.profile-badge-name {
+    font-weight: 600;
+}
+
+.profile-badge-edit {
+    background: none;
+    border: none;
+    color: #667eea;
+    cursor: pointer;
+    padding: 2px 6px;
+    font-size: 0.85em;
+    text-decoration: underline;
+}
+
+.profile-badge-edit:hover {
+    color: #764ba2;
+}
+
+/* ===== SCROLLBAR CUSTOM ===== */
+.onboarding-modal::-webkit-scrollbar {
+    width: 8px;
+}
+
+.onboarding-modal::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.onboarding-modal::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 500px) {
+    .onboarding-modal {
+        border-radius: 15px;
+    }
+    
+    .onboarding-header {
+        padding: 25px 20px;
+        border-radius: 15px 15px 0 0;
+    }
+    
+    .onboarding-header h2 {
+        font-size: 1.4em;
+    }
+    
+    .onboarding-form {
+        padding: 20px;
+    }
+    
+    .checkbox-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .onboarding-actions {
+        flex-direction: column;
+    }
+    
+    .onboarding-actions .btn-primary,
+    .onboarding-actions .btn-secondary {
+        width: 100%;
+    }
+    
+    .profile-notification {
+        left: 15px;
+        right: 15px;
+        bottom: 15px;
+        max-width: none;
+    }
+}
+
+/* ===== TEXTAREA ===== */
+.form-group textarea {
+    width: 100%;
+    padding: 14px 18px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 1em;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+}
+
+/* ===== REQUIRED ===== */
+.required {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+/* ===== NOTIFICATION TOAST ===== */
+.onboarding-notif {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 16px 24px;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+    z-index: 10001;
+    font-weight: 600;
+    font-size: 1.05em;
+    transform: translateX(120%);
+    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.onboarding-notif.active {
+    transform: translateX(0);
+}
+
+@media (max-width: 500px) {
+    .onboarding-notif {
+        left: 15px;
+        right: 15px;
+        bottom: 15px;
+        text-align: center;
+    }
+}

@@ -1,0 +1,28 @@
+name = "sos-storytelling-api"
+main = "cloudflare-worker-v5.js"
+compatibility_date = "2024-01-01"
+
+# Variables d'environnement (les secrets sont ajoutés via wrangler secret)
+[vars]
+
+# ============================================
+# GUIDE DE DÉPLOIEMENT
+# ============================================
+#
+# 1. Login Cloudflare:
+#    wrangler login
+#
+# 2. Ajouter les secrets (un par un):
+#    wrangler secret put ANTHROPIC_API_KEY
+#    wrangler secret put PERPLEXITY_API_KEY
+#    wrangler secret put SUPABASE_URL
+#    wrangler secret put SUPABASE_SERVICE_KEY
+#    wrangler secret put LEMONSQUEEZY_WEBHOOK_SECRET
+#
+# 3. Déployer:
+#    wrangler deploy
+#
+# 4. Tester:
+#    curl https://sos-storytelling-api.ton-compte.workers.dev/webhook/lemonsqueezy
+#
+# ============================================

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenue ! - SOS Storytelling</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 60px 50px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .success-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            animation: bounce 1s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        h1 {
+            color: white;
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1em;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .steps {
+            text-align: left;
+            margin-bottom: 40px;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+        }
+
+        .step-number {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95em;
+        }
+
+        .step-content strong {
+            color: white;
+        }
+
+        .btn-start {
+            display: inline-block;
+            padding: 18px 40px;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(240, 147, 251, 0.4);
+        }
+
+        .note {
+            margin-top: 30px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9em;
+        }
+
+        .trial-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon">🎉</div>
+        <h1>Bienvenue dans SOS Storytelling !</h1>
+        <div class="trial-badge">✨ Ton essai de 14 jours commence maintenant</div>
+        <p class="subtitle">Ton compte est prêt. Plus qu'une étape pour commencer à créer du contenu qui captive.</p>
+
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <strong>Connecte-toi</strong> avec l'email que tu as utilisé pour t'inscrire (Google ou Magic Link)
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <strong>Crée ton profil</strong> et configure "Ma Voix" pour que l'IA apprenne ton style
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <strong>Génère ton premier contenu</strong> en moins de 30 secondes !
+                </div>
+            </div>
+        </div>
+
+        <a href="login.html" class="btn-start">Se connecter maintenant →</a>
+
+        <p class="note">Un email de confirmation a été envoyé. Vérifie aussi tes spams.</p>
+    </div>
+</body>
+</html>
