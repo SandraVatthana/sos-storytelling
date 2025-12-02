@@ -53,7 +53,8 @@
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+        html { overflow-x: hidden; }
+
         :root {
             --primary: #667eea;
             --primary-light: #764ba2;
@@ -1077,14 +1078,14 @@
         /* ============ RESPONSIVE ============ */
         @media (max-width: 768px) {
             .header { padding: 15px 20px; }
-            .nav { 
-                position: fixed; 
+            .nav {
+                position: fixed;
                 top: 0; left: 0; right: 0; bottom: 0;
-                background: rgba(10,10,15,0.98); 
-                flex-direction: column; 
+                background: rgba(10,10,15,0.98);
+                flex-direction: column;
                 justify-content: center;
-                padding: 30px; 
-                gap: 25px; 
+                padding: 30px;
+                gap: 25px;
                 transform: translateX(100%);
                 transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             }
@@ -1094,21 +1095,85 @@
             .menu-toggle.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
             .menu-toggle.active span:nth-child(2) { opacity: 0; }
             .menu-toggle.active span:nth-child(3) { transform: rotate(-45deg) translate(7px, -6px); }
-            
-            .hero { padding: 100px 20px 60px; }
-            .hero h1 { font-size: clamp(2em, 8vw, 3em); }
-            .video-placeholder { max-width: 100%; }
-            .features, #tarifs, .faq, .use-cases { padding: 80px 20px; }
+
+            .hero { padding: 100px 15px 60px; }
+            .hero h1 { font-size: clamp(1.8em, 7vw, 2.8em); }
+            .hero p { font-size: 1.1em; padding: 0 10px; }
+            .video-placeholder { max-width: 100%; margin: 0 auto 30px; }
+
+            /* Fix boutons hero */
+            .hero-cta { gap: 12px; padding: 0 10px; }
+            .btn-primary { padding: 14px 25px; font-size: 1em; width: 100%; justify-content: center; }
+            .btn-secondary { padding: 12px 20px; width: 100%; text-align: center; }
+
+            /* Fix grilles */
+            .features-grid { grid-template-columns: 1fr; gap: 20px; }
+            .use-cases-grid { grid-template-columns: 1fr; gap: 15px; }
+            .pricing-grid { grid-template-columns: 1fr; gap: 20px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+
+            .features, #tarifs, .faq, .use-cases { padding: 60px 15px; }
+            .section-title { font-size: 1.8em; padding: 0 10px; }
+            .section-subtitle { font-size: 1em; padding: 0 10px; }
+
+            .feature-card { padding: 25px 20px; }
+            .feature-card h3 { font-size: 1.2em; }
+            .feature-icon { width: 55px; height: 55px; font-size: 1.5em; }
+
+            .use-case-card { padding: 25px 20px; }
+            .use-case-card h3 { font-size: 1.1em; }
+
+            .pricing-card { padding: 30px 20px; }
             .pricing-card.popular { transform: scale(1); }
             .pricing-card.popular.visible { transform: scale(1); }
             .pricing-card.popular:hover { transform: translateY(-8px); }
-            .newsletter-form { flex-direction: column; }
-            .newsletter-form input { min-width: 100%; }
-            .sound-toggle { bottom: 20px; right: 20px; width: 44px; height: 44px; }
+            .pricing-price { font-size: 2.5em; }
+            .pricing-btn { padding: 14px; font-size: 0.95em; }
+
+            .stat-item h3 { font-size: 2.5em; }
+            .stat-item p { font-size: 0.95em; }
+
+            .faq-question { padding: 20px; font-size: 1em; }
+            .faq-item.open .faq-answer { padding: 0 20px 20px; }
+
+            .newsletter { padding: 60px 15px; }
+            .newsletter h2 { font-size: 1.6em; }
+            .newsletter p { font-size: 0.95em; padding: 0 10px; }
+            .newsletter-form { flex-direction: column; padding: 0 10px; }
+            .newsletter-form input { min-width: 100%; padding: 14px 20px; }
+            .newsletter-form button { padding: 14px 25px; width: 100%; }
+
+            .trial-banner { padding: 25px 15px; margin: 0 10px 40px; }
+            .trial-banner h3 { font-size: 1.5em; }
+            .trial-banner p { font-size: 0.95em; }
+            .trial-banner .btn-primary { padding: 14px 25px; font-size: 1em; }
+
+            .footer { padding: 40px 15px 20px; }
+            .footer-content { gap: 25px; }
+            .footer-col h4 { font-size: 1em; margin-bottom: 12px; }
+            .footer-col a, .footer-col p { font-size: 0.9em; }
+            .footer-social a { width: 42px; height: 42px; }
+
+            .sound-toggle { bottom: 15px; right: 15px; width: 42px; height: 42px; }
             .cursor-glow { display: none; }
             .floating-keywords { display: none; }
-            .marquee-item { font-size: 1em; }
-            .trial-banner { padding: 30px 20px; }
+            .marquee-item { font-size: 0.9em; gap: 40px; }
+            .marquee-content { gap: 40px; }
+
+            .badge { font-size: 0.8em; padding: 8px 16px; }
+            .scroll-indicator { bottom: 25px; }
+        }
+
+        /* Extra small screens */
+        @media (max-width: 400px) {
+            .hero h1 { font-size: 1.6em; }
+            .hero p { font-size: 1em; }
+            .btn-primary, .btn-secondary { font-size: 0.95em; padding: 12px 20px; }
+            .section-title { font-size: 1.5em; }
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 15px; }
+            .stat-item h3 { font-size: 2em; }
+            .pricing-price { font-size: 2em; }
+            .footer-content { grid-template-columns: 1fr; text-align: center; }
         }
     </style>
 </head>
@@ -1181,7 +1246,7 @@
                     <span class="word" style="animation-delay: 1.0s">30</span>
                     <span class="word" style="animation-delay: 1.1s">secondes</span>
                 </h1>
-                <p>L'IA de création de contenu pour réseaux sociaux qui comprend votre voix. Structures narratives éprouvées, calendrier éditorial intelligent, exports en un clic.</p>
+                <p>L'IA de création de contenu pour réseaux sociaux qui comprend votre ton. Structures narratives éprouvées, calendrier éditorial intelligent, exports en un clic.</p>
                 
                 <!-- Video Placeholder -->
                 <div class="video-placeholder" id="videoPlaceholder">
