@@ -7642,7 +7642,9 @@ Pour chaque suggestion :
             const userProfile = UserProfile.get();
 
             try {
-                const response = await fetch(API_URL.replace('/chat', '/visuals/generate'), {
+                // Construire l'URL correctement
+                const baseUrl = API_URL.replace(/\/$/, ''); // Enlever le slash final si présent
+                const response = await fetch(`${baseUrl}/api/visuals/generate`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
