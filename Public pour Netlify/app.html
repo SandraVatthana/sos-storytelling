@@ -114,7 +114,8 @@
         .form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #333; font-size: 0.9em; }
         .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-family: inherit; font-size: 0.95em; transition: all 0.3s; box-sizing: border-box; }
         .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 4px rgba(102,126,234,0.15); }
-        
+        .field-hint { display: block; margin-top: 6px; font-size: 0.82em; color: #888; line-height: 1.4; }
+
         /* Import Dropzone */
         .import-dropzone { position: relative; border: 3px dashed #d0d0d0; border-radius: 15px; padding: 40px; text-align: center; cursor: pointer; transition: all 0.3s; margin-bottom: 20px; }
         .import-dropzone:hover { border-color: #667eea; background: #f8f9ff; }
@@ -2273,6 +2274,7 @@ Solution  | Présenter votre solution</pre>
                                 <div class="form-group">
                                     <label for="onb-domaine">Ton domaine d'expertise</label>
                                     <input type="text" id="onb-domaine" placeholder="Ex: coaching, design, marketing digital..." value="${existingProfile?.domaine || ''}">
+                                    <small class="field-hint">💡 L'IA se basera sur ce champ pour te proposer des sujets et idées de contenu pertinents.</small>
                                 </div>
                                 <div class="form-group">
                                     <label for="onb-messageUnique">Ce qui te rend unique</label>
