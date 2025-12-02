@@ -27,99 +27,95 @@ class NewsletterModule {
   }
 
   async init() {
-    await this.loadMetadata();
-    await this.loadClients();
-    await this.loadVoices();
-    await this.loadTemplates();
+    // Charger les données locales (pas d'API)
+    this.loadLocalData();
     this.render();
     this.attachEventListeners();
   }
 
   // ============================================================
-  // CHARGEMENT DES DONNÉES
+  // CHARGEMENT DES DONNÉES LOCALES
   // ============================================================
 
-  async loadMetadata() {
-    try {
-      const [typesRes, structuresRes, tonesRes] = await Promise.all([
-        this.apiCall('/api/newsletters/types'),
-        this.apiCall('/api/newsletters/structures'),
-        this.apiCall('/api/newsletters/tones')
-      ]);
+  loadLocalData() {
+    // Utiliser directement les données par défaut (pas d'API externe)
+    this.types = this.getDefaultTypes();
+    this.structures = this.getDefaultStructures();
+    this.tones = this.getDefaultTones();
+    this.clients = [];
+    this.voices = [];
+    this.templates = this.loadLocalTemplates();
 
-      this.types = typesRes.types || [];
-      this.structures = structuresRes.structures || [];
-      this.tones = tonesRes.tones || [];
-    } catch (error) {
-      console.error('Erreur chargement métadonnées:', error);
-      // Fallback avec données locales
-      this.types = this.getDefaultTypes();
-      this.structures = this.getDefaultStructures();
-      this.tones = this.getDefaultTones();
+    // Charger MA VOIX depuis localStorage si disponible
+    this.loadSavedVoice();
+  }
+
+  loadLocalTemplates() {
+    try {
+      const saved = localStorage.getItem('sos_newsletter_templates');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
     }
   }
 
-  async loadClients() {
+  loadSavedVoice() {
+    // Charger les données MA VOIX sauvegardées
     try {
-      const res = await this.apiCall('/api/newsletters/clients');
-      this.clients = res.clients || [];
-    } catch (error) {
-      console.error('Erreur chargement clients:', error);
-      this.clients = [];
-    }
-  }
+      // Charger les échantillons de texte
+      const savedSamples = localStorage.getItem('tithot_voice_samples');
+      this.voiceSamples = savedSamples ? JSON.parse(savedSamples) : [];
 
-  async loadVoices() {
-    try {
-      // Utiliser l'API existante des voix
-      const res = await this.apiCall('/api/v1/voices');
-      this.voices = res.voices || [];
-    } catch (error) {
-      console.error('Erreur chargement voix:', error);
-      this.voices = [];
-    }
-  }
-
-  async loadTemplates() {
-    try {
-      const res = await this.apiCall('/api/newsletters/templates');
-      this.templates = res.templates || [];
-    } catch (error) {
-      console.error('Erreur chargement templates:', error);
-      this.templates = [];
-    }
-  }
-
-  // ============================================================
-  // API CALLS
-  // ============================================================
-
-  async apiCall(endpoint, options = {}) {
-    const token = await this.getAuthToken();
-
-    const response = await fetch(endpoint, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-        ...options.headers
+      // Charger le profil de voix analysé depuis UserProfile
+      const userProfileData = localStorage.getItem('tithot_user_profile');
+      if (userProfileData) {
+        const profile = JSON.parse(userProfileData);
+        this.voiceProfile = profile?.voiceProfile || null;
+      } else {
+        this.voiceProfile = null;
       }
-    });
-
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status}`);
+    } catch (e) {
+      this.voiceSamples = [];
+      this.voiceProfile = null;
     }
-
-    return response.json();
   }
 
-  async getAuthToken() {
-    // Récupérer le token Supabase de la session
-    if (window.supabase) {
-      const { data: { session } } = await window.supabase.auth.getSession();
-      return session?.access_token || '';
+  hasSavedVoice() {
+    return (this.voiceSamples && this.voiceSamples.length > 0) || this.voiceProfile;
+  }
+
+  useSavedVoice() {
+    if (!this.hasSavedVoice()) {
+      this.showError('Aucune donnée MA VOIX sauvegardée. Va dans l\'onglet MA VOIX pour entrer tes textes.');
+      return;
     }
-    return '';
+
+    // Construire une description de voix à partir des données sauvegardées
+    let voiceDescription = '';
+
+    // Utiliser le profil analysé s'il existe
+    if (this.voiceProfile) {
+      voiceDescription += '## Mon profil de voix analysé:\n';
+      if (this.voiceProfile.ton) voiceDescription += `- Ton général: ${this.voiceProfile.ton}\n`;
+      if (this.voiceProfile.longueur) voiceDescription += `- Style de phrases: ${this.voiceProfile.longueur}\n`;
+      if (this.voiceProfile.vocabulaire) voiceDescription += `- Vocabulaire: ${this.voiceProfile.vocabulaire}\n`;
+      if (this.voiceProfile.ponctuation) voiceDescription += `- Ponctuation: ${this.voiceProfile.ponctuation}\n`;
+      if (this.voiceProfile.structure) voiceDescription += `- Structure: ${this.voiceProfile.structure}\n`;
+      voiceDescription += '\n';
+    }
+
+    // Ajouter les échantillons de texte
+    if (this.voiceSamples && this.voiceSamples.length > 0) {
+      voiceDescription += '## Exemples de mon style d\'écriture:\n';
+      this.voiceSamples.slice(0, 5).forEach((sample, i) => {
+        voiceDescription += `\n--- Exemple ${i + 1} ---\n${sample}\n`;
+      });
+    }
+
+    this.formData.customVoice = voiceDescription.trim();
+    this.formData.voiceId = null; // Désélectionner les profils existants
+    this.render();
+    this.showSuccess('✨ Voix MA VOIX chargée !');
   }
 
   // ============================================================
@@ -381,6 +377,8 @@ class NewsletterModule {
   // ============================================================
 
   renderStep3Voice() {
+    const hasSavedVoice = this.hasSavedVoice();
+
     return `
       <div class="step-content">
         <h3 class="step-title">Personnalise la voix de ta newsletter</h3>
@@ -398,6 +396,32 @@ class NewsletterModule {
                 <span class="tone-desc">${tone.description}</span>
               </div>
             `).join('')}
+          </div>
+        </div>
+
+        <!-- Bouton MA VOIX -->
+        <div class="voice-section ma-voix-section">
+          <h4 class="section-label">🎤 Utiliser ta voix personnalisée</h4>
+          <div class="ma-voix-option">
+            <button class="btn-ma-voix ${hasSavedVoice ? '' : 'disabled'}"
+                    onclick="newsletterModule.useSavedVoice()"
+                    ${hasSavedVoice ? '' : 'disabled'}>
+              <span class="ma-voix-icon">🎤</span>
+              <span class="ma-voix-text">
+                <strong>Utiliser MA VOIX</strong>
+                <small>${hasSavedVoice ? 'Tes textes et ton style seront utilisés' : 'Aucune voix sauvegardée'}</small>
+              </span>
+            </button>
+            ${!hasSavedVoice ? `
+              <p class="ma-voix-hint">
+                💡 Pour utiliser cette option, va dans l'onglet <strong>MA VOIX</strong> et entre des exemples de tes textes.
+              </p>
+            ` : ''}
+            ${this.formData.customVoice && this.formData.customVoice.includes('Voici des exemples') ? `
+              <div class="ma-voix-active">
+                ✅ MA VOIX est activée pour cette newsletter
+              </div>
+            ` : ''}
           </div>
         </div>
 
@@ -779,7 +803,7 @@ class NewsletterModule {
   }
 
   // ============================================================
-  // GÉNÉRATION
+  // GÉNÉRATION (utilise callAI de l'app principale)
   // ============================================================
 
   async generate() {
@@ -788,29 +812,132 @@ class NewsletterModule {
     this.render();
 
     try {
-      const endpoint = this.isSequenceMode ? '/api/newsletters/generate-sequence' : '/api/newsletters/generate';
+      // Vérifier que callAI est disponible
+      if (typeof window.callAI !== 'function') {
+        throw new Error('La fonction callAI n\'est pas disponible');
+      }
 
-      const payload = {
-        ...this.formData,
-        clientId: this.selectedClient?.id || null
-      };
+      // Construire le prompt pour la génération
+      const prompt = this.buildGenerationPrompt();
 
-      const response = await this.apiCall(endpoint, {
-        method: 'POST',
-        body: JSON.stringify(payload)
-      });
+      // Appeler l'IA via la fonction globale de l'app
+      const response = await window.callAI(prompt);
+
+      // Parser la réponse JSON
+      const parsed = this.parseAIResponse(response);
 
       if (this.isSequenceMode) {
-        this.sequenceEmails = response.sequence || [];
-        this.generatedContent = response;
+        this.sequenceEmails = parsed.sequence || [];
+        this.generatedContent = parsed;
       } else {
-        this.generatedContent = response;
+        this.generatedContent = { newsletter: parsed };
       }
 
       this.render();
     } catch (error) {
       console.error('Erreur génération:', error);
       this.showError('Erreur lors de la génération. Réessaie !');
+    }
+  }
+
+  buildGenerationPrompt() {
+    const type = this.types.find(t => t.id === this.formData.newsletterType);
+    const structure = this.structures.find(s => s.id === this.formData.structure);
+    const tone = this.tones.find(t => t.id === this.formData.tone);
+
+    let prompt = `Tu es un expert en copywriting et email marketing. Génère une newsletter professionnelle.
+
+## PARAMÈTRES
+- Type: ${type?.name || this.formData.newsletterType} - ${type?.description || ''}
+- Structure: ${structure?.name || this.formData.structure} (${structure?.fullName || ''})
+  Étapes: ${structure?.steps?.join(' → ') || ''}
+- Ton: ${tone?.name || this.formData.tone} - ${tone?.description || ''}
+
+## DÉTAILS
+- Objectif: ${this.formData.objective || 'Non spécifié'}
+- Produit/Service: ${this.formData.productService || 'Non spécifié'}
+- Cible: ${this.formData.targetAudience || 'Non spécifié'}
+- CTA souhaité: ${this.formData.ctaText || 'Non spécifié'}
+${this.formData.anecdote ? `- Anecdote à intégrer: ${this.formData.anecdote}` : ''}
+
+## STYLE D'ÉCRITURE
+${this.formData.customVoice || 'Style professionnel et engageant'}
+
+## FORMAT DE RÉPONSE (JSON strict)
+Réponds UNIQUEMENT avec ce JSON, sans texte avant ou après:
+{
+  "subjectLines": ["Objet 1 accrocheur", "Objet 2 alternatif", "Objet 3 avec curiosité"],
+  "previewText": "Texte de prévisualisation (max 90 caractères)",
+  "body": "Corps de l'email complet avec sauts de ligne (\\n\\n pour paragraphes)",
+  "cta": "${this.formData.ctaText || 'Découvrir'}"
+}
+
+Génère une newsletter ${tone?.name || 'engageante'} qui suit la structure ${structure?.name || 'AIDA'}.`;
+
+    if (this.isSequenceMode) {
+      const count = this.formData.sequenceCount || 5;
+      prompt = `Tu es un expert en copywriting et séquences email. Génère une séquence de ${count} emails cohérents.
+
+## PARAMÈTRES
+- Type de séquence: ${type?.name || this.formData.newsletterType}
+- Structure par email: ${structure?.name || 'AIDA'}
+- Ton général: ${tone?.name || 'Chaleureux'}
+
+## DÉTAILS
+- Objectif: ${this.formData.objective || 'Non spécifié'}
+- Produit/Service: ${this.formData.productService || 'Non spécifié'}
+- Cible: ${this.formData.targetAudience || 'Non spécifié'}
+${this.formData.anecdote ? `- Anecdote à intégrer: ${this.formData.anecdote}` : ''}
+
+## STYLE D'ÉCRITURE
+${this.formData.customVoice || 'Style professionnel et engageant'}
+
+## FORMAT DE RÉPONSE (JSON strict)
+Réponds UNIQUEMENT avec ce JSON:
+{
+  "sequence": [
+    {
+      "role": "Email 1 - [Rôle dans la séquence]",
+      "sendDelay": "J+0",
+      "subjectLines": ["Objet 1", "Objet 2"],
+      "previewText": "Preview...",
+      "body": "Corps de l'email...",
+      "cta": "CTA..."
+    }
+  ]
+}
+
+Génère exactement ${count} emails avec une progression logique.`;
+    }
+
+    return prompt;
+  }
+
+  parseAIResponse(response) {
+    try {
+      // Essayer de parser directement
+      if (typeof response === 'object') {
+        return response;
+      }
+
+      // Nettoyer la réponse (enlever markdown code blocks si présents)
+      let cleaned = response.trim();
+      if (cleaned.startsWith('```json')) {
+        cleaned = cleaned.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+      } else if (cleaned.startsWith('```')) {
+        cleaned = cleaned.replace(/^```\s*/, '').replace(/\s*```$/, '');
+      }
+
+      return JSON.parse(cleaned);
+    } catch (e) {
+      console.error('Erreur parsing réponse IA:', e);
+      // Retourner une structure par défaut
+      return {
+        subjectLines: ['Sujet généré'],
+        previewText: 'Aperçu de l\'email...',
+        body: response || 'Erreur lors de la génération. Réessaie.',
+        cta: this.formData.ctaText || 'Découvrir'
+      };
     }
   }
 
@@ -826,27 +953,51 @@ class NewsletterModule {
     this.showLoading('Ajustement en cours...');
 
     try {
-      const response = await this.apiCall('/api/newsletters/regenerate', {
-        method: 'POST',
-        body: JSON.stringify({
-          originalContent: this.generatedContent.newsletter || this.generatedContent,
-          adjustments: adjustment,
-          newsletterType: this.formData.newsletterType,
-          structure: this.formData.structure,
-          tone: this.formData.tone
-        })
-      });
+      if (typeof window.callAI !== 'function') {
+        throw new Error('La fonction callAI n\'est pas disponible');
+      }
 
-      this.generatedContent = { newsletter: response.newsletter };
+      const currentEmail = this.generatedContent?.newsletter || this.generatedContent;
+
+      const prompt = `Tu es un expert copywriter. Modifie cette newsletter selon l'instruction donnée.
+
+## NEWSLETTER ACTUELLE
+Objet: ${currentEmail?.subjectLines?.[0] || ''}
+Preview: ${currentEmail?.previewText || ''}
+Corps:
+${currentEmail?.body || ''}
+
+## INSTRUCTION D'AJUSTEMENT
+Rends le texte: ${adjustment}
+
+## FORMAT DE RÉPONSE (JSON strict)
+{
+  "subjectLines": ["Objet 1 modifié", "Objet 2 modifié", "Objet 3 modifié"],
+  "previewText": "Nouveau preview...",
+  "body": "Corps modifié...",
+  "cta": "${currentEmail?.cta || 'Découvrir'}"
+}`;
+
+      const response = await window.callAI(prompt);
+      const parsed = this.parseAIResponse(response);
+
+      this.generatedContent = { newsletter: parsed };
+      this.hideLoading();
       this.render();
     } catch (error) {
       console.error('Erreur ajustement:', error);
+      this.hideLoading();
       this.showError('Erreur lors de l\'ajustement');
     }
   }
 
+  hideLoading() {
+    const loader = document.querySelector('.newsletter-loading-overlay');
+    if (loader) loader.remove();
+  }
+
   // ============================================================
-  // SAUVEGARDE
+  // SAUVEGARDE (localStorage)
   // ============================================================
 
   async saveNewsletter() {
@@ -867,17 +1018,18 @@ class NewsletterModule {
           cta: this.generatedContent.newsletter?.cta
         }];
 
-      const payload = {
+      const newsletter = {
+        id: Date.now().toString(),
         ...this.formData,
         isSequence: this.isSequenceMode,
-        clientId: this.selectedClient?.id || null,
-        emails
+        emails,
+        createdAt: new Date().toISOString()
       };
 
-      await this.apiCall('/api/newsletters', {
-        method: 'POST',
-        body: JSON.stringify(payload)
-      });
+      // Sauvegarder dans localStorage
+      const saved = JSON.parse(localStorage.getItem('sos_newsletters') || '[]');
+      saved.unshift(newsletter);
+      localStorage.setItem('sos_newsletters', JSON.stringify(saved.slice(0, 50))); // Garder max 50
 
       this.showSuccess('Newsletter sauvegardée !');
     } catch (error) {
@@ -891,23 +1043,26 @@ class NewsletterModule {
     if (!name) return;
 
     try {
-      await this.apiCall('/api/newsletters/templates', {
-        method: 'POST',
-        body: JSON.stringify({
-          name,
-          description: `Template pour ${this.getTypeName(this.formData.newsletterType)}`,
-          newsletterType: this.formData.newsletterType,
-          structure: this.formData.structure,
-          tone: this.formData.tone,
-          voiceId: this.formData.voiceId,
-          targetAudience: this.formData.targetAudience,
-          ctaType: this.formData.ctaType,
-          clientId: this.selectedClient?.id
-        })
-      });
+      const template = {
+        id: Date.now().toString(),
+        name,
+        description: `Template pour ${this.getTypeName(this.formData.newsletterType)}`,
+        newsletter_type: this.formData.newsletterType,
+        structure: this.formData.structure,
+        tone: this.formData.tone,
+        target_audience: this.formData.targetAudience,
+        cta_type: this.formData.ctaType,
+        use_count: 0,
+        createdAt: new Date().toISOString()
+      };
 
+      // Sauvegarder dans localStorage
+      const saved = JSON.parse(localStorage.getItem('sos_newsletter_templates') || '[]');
+      saved.unshift(template);
+      localStorage.setItem('sos_newsletter_templates', JSON.stringify(saved.slice(0, 20)));
+
+      this.templates = saved;
       this.showSuccess('Template créé !');
-      await this.loadTemplates();
     } catch (error) {
       console.error('Erreur création template:', error);
       this.showError('Erreur lors de la création du template');
