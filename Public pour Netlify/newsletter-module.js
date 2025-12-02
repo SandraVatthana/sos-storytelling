@@ -1019,29 +1019,67 @@ Génère exactement ${count} emails avec une progression logique.`;
 
   validateEmailStructure(obj) {
     // S'assurer que toutes les propriétés existent et sont du bon type
+    let body = obj.body;
+
+    // Si body est un objet, extraire le texte
+    if (typeof body === 'object' && body !== null) {
+      body = body.body || JSON.stringify(body);
+    }
+
+    // Nettoyer le body de tout JSON résiduel
+    if (typeof body === 'string') {
+      body = this.cleanBodyFromJson(body);
+    }
+
     return {
       subjectLines: Array.isArray(obj.subjectLines) ? obj.subjectLines : [obj.subjectLines || 'Newsletter'],
       previewText: typeof obj.previewText === 'string' ? obj.previewText : '',
-      body: typeof obj.body === 'string' ? obj.body : JSON.stringify(obj.body || '', null, 2),
+      body: body || '',
       cta: typeof obj.cta === 'string' ? obj.cta : (this.formData.ctaText || 'Découvrir')
     };
   }
 
+  cleanBodyFromJson(text) {
+    if (!text) return '';
+
+    // Supprimer les fragments JSON qui pourraient rester dans le body
+    let cleaned = text
+      // Supprimer les structures JSON de séquence qui traînent
+      .replace(/\s*\},?\s*\{[\s\S]*?"role"\s*:/g, '')
+      .replace(/\s*\},?\s*\{[\s\S]*?"sendDelay"\s*:/g, '')
+      .replace(/\s*\},?\s*\{[\s\S]*?"subjectLines"\s*:/g, '')
+      // Supprimer les fins de JSON
+      .replace(/"\s*,?\s*"cta"\s*:\s*"[^"]*"\s*\}[\s\S]*$/g, '')
+      .replace(/"\s*\}\s*\]\s*\}\s*$/g, '')
+      .replace(/\s*\]\s*\}\s*$/g, '')
+      // Supprimer les propriétés JSON orphelines
+      .replace(/"previewText"\s*:\s*"[^"]*",?\s*/g, '')
+      .replace(/"subjectLines"\s*:\s*\[[^\]]*\],?\s*/g, '')
+      .replace(/"role"\s*:\s*"[^"]*",?\s*/g, '')
+      .replace(/"sendDelay"\s*:\s*"[^"]*",?\s*/g, '')
+      // Nettoyer les caractères JSON résiduels
+      .replace(/^\s*[\{\[\]\}]\s*/g, '')
+      .replace(/\s*[\{\[\]\}]\s*$/g, '')
+      .replace(/\\n/g, '\n')
+      .replace(/\\"/g, '"')
+      .trim();
+
+    return cleaned;
+  }
+
   cleanRawResponse(text) {
     // Nettoyer une réponse brute qui n'est pas du JSON valide
-    return text
+    let cleaned = text
       .replace(/```json\s*/g, '')
-      .replace(/```\s*/g, '')
-      .replace(/^\s*\{[\s\S]*\}\s*$/g, (match) => {
-        // Si c'est du JSON, essayer de l'extraire
-        try {
-          const parsed = JSON.parse(match);
-          return parsed.body || match;
-        } catch {
-          return match;
-        }
-      })
-      .trim();
+      .replace(/```\s*/g, '');
+
+    // Essayer d'extraire le body d'un JSON
+    const bodyMatch = cleaned.match(/"body"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+    if (bodyMatch) {
+      return bodyMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"');
+    }
+
+    return this.cleanBodyFromJson(cleaned);
   }
 
   async regenerate() {
@@ -1313,11 +1351,8 @@ Rends le texte: ${adjustment}
       }
     }
 
-    // Nettoyer les caractères d'échappement JSON
-    text = text
-      .replace(/\\n/g, '\n')
-      .replace(/\\t/g, '\t')
-      .replace(/\\"/g, '"');
+    // Nettoyer tout JSON résiduel
+    text = this.cleanBodyFromJson(text);
 
     // Formater en HTML
     return text
