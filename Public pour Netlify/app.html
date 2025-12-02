@@ -819,6 +819,79 @@
         .frameworks-empty-icon { font-size: 4em; margin-bottom: 15px; opacity: 0.5; }
         .frameworks-empty h3 { color: #555; margin-bottom: 10px; }
         .frameworks-empty p { font-size: 0.95em; margin-bottom: 20px; }
+
+        /* Template Library Enhanced */
+        .template-library-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+        .template-library-actions { display: flex; gap: 8px; }
+        .btn-import-fw { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 8px 15px; border: none; border-radius: 8px; font-family: inherit; font-weight: 600; cursor: pointer; font-size: 0.85em; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+        .btn-import-fw:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102,126,234,0.3); }
+        .category-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+        .category-chip { padding: 8px 16px; border: 2px solid #e0e0e0; background: white; border-radius: 20px; cursor: pointer; font-size: 0.85em; font-weight: 500; transition: all 0.2s; }
+        .category-chip:hover { border-color: #667eea; }
+        .category-chip.active { background: linear-gradient(135deg, #667eea, #764ba2); border-color: transparent; color: white; }
+        .template-count { font-size: 0.75em; opacity: 0.8; margin-left: 5px; }
+        .template-library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+        .template-lib-card { background: white; border: 2px solid #e8e8e8; border-radius: 15px; padding: 18px; cursor: pointer; transition: all 0.2s; position: relative; }
+        .template-lib-card:hover { border-color: #667eea; transform: translateY(-3px); box-shadow: 0 8px 25px rgba(102,126,234,0.15); }
+        .template-lib-card.popular::before { content: '⭐ Populaire'; position: absolute; top: -8px; right: 15px; background: linear-gradient(135deg, #ffd700, #ffb347); color: #333; font-size: 0.7em; padding: 3px 10px; border-radius: 10px; font-weight: 700; }
+        .template-lib-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .template-lib-icon { font-size: 1.8em; }
+        .template-lib-category { font-size: 0.7em; padding: 4px 10px; border-radius: 15px; font-weight: 600; background: #f0f0f0; color: #666; }
+        .template-lib-title { font-size: 1.05em; font-weight: 700; color: #333; margin-bottom: 5px; }
+        .template-lib-desc { font-size: 0.85em; color: #666; line-height: 1.4; margin-bottom: 12px; }
+        .template-lib-steps { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
+        .template-lib-step { background: #f8f8f8; color: #555; padding: 3px 8px; border-radius: 10px; font-size: 0.7em; font-weight: 500; }
+        .template-lib-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px dashed #e0e0e0; }
+        .template-lib-meta { font-size: 0.8em; color: #888; }
+        .template-lib-actions { display: flex; gap: 5px; }
+        .template-lib-actions button { background: none; border: none; padding: 5px 8px; cursor: pointer; border-radius: 5px; transition: all 0.2s; font-size: 1em; }
+        .template-lib-actions button:hover { background: #e0e0e0; }
+        .btn-preview-template { background: #f0f0f0 !important; }
+        .btn-use-template { background: linear-gradient(135deg, #11998e, #38ef7d) !important; color: white !important; font-size: 0.8em !important; padding: 6px 12px !important; border-radius: 8px !important; font-weight: 600 !important; }
+
+        /* Preview Modal */
+        .preview-modal { max-width: 650px; max-height: 90vh; overflow-y: auto; }
+        .preview-header { padding: 25px 30px; border-radius: 20px 20px 0 0; color: white; }
+        .preview-header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .preview-icon { font-size: 2.5em; }
+        .preview-type { font-size: 0.8em; padding: 5px 12px; border-radius: 15px; background: rgba(255,255,255,0.2); }
+        .preview-title { font-size: 1.5em; font-weight: 700; margin-bottom: 5px; }
+        .preview-desc { opacity: 0.9; font-size: 0.95em; }
+        .preview-content { padding: 25px 30px; }
+        .preview-section { margin-bottom: 25px; }
+        .preview-section h4 { color: #333; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-size: 1em; }
+        .preview-steps-list { display: flex; flex-direction: column; gap: 10px; }
+        .preview-step { display: flex; gap: 12px; padding: 12px 15px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #667eea; }
+        .preview-step-number { background: linear-gradient(135deg, #667eea, #764ba2); color: white; min-width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85em; }
+        .preview-step-content { flex: 1; }
+        .preview-step-name { font-weight: 700; color: #333; margin-bottom: 3px; }
+        .preview-step-desc { font-size: 0.85em; color: #666; line-height: 1.4; }
+        .preview-instructions { background: linear-gradient(135deg, #fff9e6, #fff3cd); padding: 15px; border-radius: 10px; border-left: 4px solid #ffc107; }
+        .preview-instructions p { margin: 0; color: #856404; font-size: 0.9em; line-height: 1.5; }
+        .preview-actions { display: flex; gap: 10px; padding-top: 20px; border-top: 2px solid #e0e0e0; }
+        .preview-actions .btn { flex: 1; padding: 14px; font-size: 1em; justify-content: center; }
+
+        /* Import Modal */
+        .import-modal { max-width: 550px; }
+        .import-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .import-tab { flex: 1; padding: 12px; border: 2px solid #e0e0e0; background: white; border-radius: 10px; cursor: pointer; font-family: inherit; font-weight: 600; text-align: center; transition: all 0.2s; }
+        .import-tab:hover { border-color: #667eea; }
+        .import-tab.active { background: linear-gradient(135deg, #667eea, #764ba2); border-color: transparent; color: white; }
+        .import-dropzone-fw { border: 3px dashed #d0d0d0; border-radius: 15px; padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.3s; position: relative; }
+        .import-dropzone-fw:hover { border-color: #667eea; background: #f8f9ff; }
+        .import-dropzone-fw.dragover { border-color: #667eea; background: #f0f4ff; }
+        .import-dropzone-fw input[type="file"] { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+        .import-dropzone-icon { font-size: 3em; margin-bottom: 10px; }
+        .import-dropzone-text { color: #555; font-weight: 500; margin-bottom: 5px; }
+        .import-dropzone-hint { color: #888; font-size: 0.85em; }
+        .import-textarea { width: 100%; min-height: 200px; padding: 15px; border: 2px solid #e0e0e0; border-radius: 12px; font-family: 'Courier New', monospace; font-size: 0.85em; resize: vertical; }
+        .import-textarea:focus { outline: none; border-color: #667eea; }
+        .import-example { margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 10px; }
+        .import-example h5 { margin: 0 0 10px; color: #333; font-size: 0.9em; }
+        .import-example pre { margin: 0; font-size: 0.75em; color: #666; overflow-x: auto; white-space: pre-wrap; }
+        .import-result { margin-top: 15px; padding: 15px; border-radius: 10px; }
+        .import-result.success { background: #d4edda; color: #155724; }
+        .import-result.error { background: #f8d7da; color: #721c24; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
@@ -1620,6 +1693,119 @@
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Prévisualisation Template -->
+    <div class="modal-overlay" id="templatePreviewModal">
+        <div class="modal preview-modal">
+            <button class="modal-close" onclick="FrameworkSystem.closePreview()" style="position: absolute; right: 15px; top: 15px; z-index: 10; background: rgba(255,255,255,0.9); border-radius: 50%; width: 35px; height: 35px;">&times;</button>
+            <div class="preview-header" id="previewHeader" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                <div class="preview-header-top">
+                    <span class="preview-icon" id="previewIcon">📝</span>
+                    <span class="preview-type" id="previewType">Post</span>
+                </div>
+                <div class="preview-title" id="previewTitle">Nom du template</div>
+                <div class="preview-desc" id="previewDesc">Description du template</div>
+            </div>
+            <div class="preview-content">
+                <div class="preview-section">
+                    <h4>🔢 Structure en étapes</h4>
+                    <div class="preview-steps-list" id="previewSteps">
+                        <!-- Steps dynamically added -->
+                    </div>
+                </div>
+                <div class="preview-section" id="previewInstructionsSection">
+                    <h4>📋 Consignes globales</h4>
+                    <div class="preview-instructions">
+                        <p id="previewInstructions">Instructions...</p>
+                    </div>
+                </div>
+                <div class="preview-actions">
+                    <button class="btn" style="background: #e0e0e0; color: #333;" onclick="FrameworkSystem.closePreview()">
+                        Fermer
+                    </button>
+                    <button class="btn btn-frameworks" id="previewUseBtn" onclick="FrameworkSystem.usePreviewedTemplate()">
+                        ✅ Utiliser ce template
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Import Framework -->
+    <div class="modal-overlay" id="frameworkImportModal">
+        <div class="modal import-modal">
+            <div class="modal-header">
+                <h2 class="modal-title">📥 Importer un framework</h2>
+                <button class="modal-close" onclick="FrameworkSystem.closeImport()">&times;</button>
+            </div>
+            <div style="padding: 20px 0;">
+                <div class="import-tabs">
+                    <button class="import-tab active" onclick="FrameworkSystem.switchImportTab('json')" data-tab="json">
+                        📄 JSON
+                    </button>
+                    <button class="import-tab" onclick="FrameworkSystem.switchImportTab('csv')" data-tab="csv">
+                        📊 CSV
+                    </button>
+                </div>
+
+                <div id="importTabJson">
+                    <div class="import-dropzone-fw" id="importDropzoneJson">
+                        <input type="file" accept=".json" onchange="FrameworkSystem.handleFileImport(event, 'json')">
+                        <div class="import-dropzone-icon">📄</div>
+                        <div class="import-dropzone-text">Glissez un fichier JSON ici</div>
+                        <div class="import-dropzone-hint">ou cliquez pour sélectionner</div>
+                    </div>
+                    <p style="text-align: center; color: #888; margin: 15px 0;">ou collez directement le JSON :</p>
+                    <textarea class="import-textarea" id="importJsonText" placeholder='{"name": "Mon framework", "type": "post", "steps": [...]}'></textarea>
+                    <div class="import-example">
+                        <h5>📋 Exemple de format JSON :</h5>
+                        <pre>{
+  "name": "Mon framework",
+  "type": "post",
+  "description": "Description...",
+  "icon": "📝",
+  "steps": [
+    {"name": "Étape 1", "description": "..."},
+    {"name": "Étape 2", "description": "..."}
+  ],
+  "global_instructions": "Consignes..."
+}</pre>
+                    </div>
+                </div>
+
+                <div id="importTabCsv" style="display: none;">
+                    <div class="import-dropzone-fw" id="importDropzoneCsv">
+                        <input type="file" accept=".csv" onchange="FrameworkSystem.handleFileImport(event, 'csv')">
+                        <div class="import-dropzone-icon">📊</div>
+                        <div class="import-dropzone-text">Glissez un fichier CSV ici</div>
+                        <div class="import-dropzone-hint">ou cliquez pour sélectionner</div>
+                    </div>
+                    <p style="text-align: center; color: #888; margin: 15px 0;">ou collez directement le CSV :</p>
+                    <textarea class="import-textarea" id="importCsvText" placeholder="step_name;step_description
+Accroche;Créer le lien...
+Problème;Identifier le problème..."></textarea>
+                    <div class="import-example">
+                        <h5>📋 Exemple de format CSV :</h5>
+                        <pre>step_name;step_description
+Accroche;Créer le lien avec le prospect
+Problème;Identifier le problème principal
+Solution;Présenter la solution</pre>
+                    </div>
+                </div>
+
+                <div id="importResult" class="import-result" style="display: none;"></div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn" style="flex: 1; background: #e0e0e0; color: #333;" onclick="FrameworkSystem.closeImport()">
+                        Annuler
+                    </button>
+                    <button class="btn btn-frameworks" style="flex: 2; padding: 14px;" onclick="FrameworkSystem.processImport()">
+                        📥 Importer
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -2634,14 +2820,333 @@
                 }
             ],
 
-            // Templates pour créer rapidement des frameworks
-            templates: [
-                { name: 'Script de call découverte', icon: '📞', type: 'script_call', steps: 6 },
-                { name: 'DM de premier contact', icon: '💬', type: 'dm', steps: 4 },
-                { name: 'Email de relance', icon: '📧', type: 'email', steps: 4 },
-                { name: 'Post LinkedIn storytelling', icon: '📖', type: 'post', steps: 5 },
-                { name: 'Séquence de nurturing', icon: '📬', type: 'email', steps: 3 }
+            // Bibliothèque complète de templates
+            templateLibrary: [
+                // === SCRIPTS CALL ===
+                {
+                    id: 'tpl_call_decouverte',
+                    name: 'Script appel découverte',
+                    type: 'script_call',
+                    category: 'Scripts Call',
+                    icon: '📞',
+                    color: '#ef4444',
+                    description: 'Structurer un appel de qualification en 15-20 min',
+                    popular: true,
+                    steps: [
+                        { order: 1, name: 'Accroche', description: 'Créer le lien, référence commune, briser la glace (1-2 min)' },
+                        { order: 2, name: 'Contexte', description: 'Comprendre sa situation actuelle, son rôle, son entreprise (3-4 min)' },
+                        { order: 3, name: 'Douleur', description: 'Identifier le problème principal, les frustrations (3-4 min)' },
+                        { order: 4, name: 'Impact', description: 'Quantifier les conséquences : temps perdu, argent, stress (2-3 min)' },
+                        { order: 5, name: 'Solution', description: "Présenter comment tu peux aider, sans pitcher ton offre en détail (2-3 min)" },
+                        { order: 6, name: 'Next step', description: "Proposer l'action suivante : démo, devis, second call (1-2 min)" }
+                    ],
+                    global_instructions: 'Ton conversationnel, pas de script robotique. Poser des questions ouvertes. Écouter plus que parler (ratio 70/30).'
+                },
+                {
+                    id: 'tpl_call_demo',
+                    name: 'Script démo produit',
+                    type: 'script_call',
+                    category: 'Scripts Call',
+                    icon: '🖥️',
+                    color: '#f97316',
+                    description: 'Présenter ton produit/service de façon impactante',
+                    steps: [
+                        { order: 1, name: 'Récap besoins', description: "Résumer ce qu'on a compris de ses besoins lors du call découverte" },
+                        { order: 2, name: 'Démo ciblée', description: 'Montrer uniquement les fonctionnalités qui répondent à SES problèmes' },
+                        { order: 3, name: 'Cas client similaire', description: 'Partager un exemple concret de résultat obtenu' },
+                        { order: 4, name: 'Objections', description: 'Anticiper et répondre aux freins potentiels' },
+                        { order: 5, name: 'Proposition', description: "Présenter l'offre adaptée et le pricing" }
+                    ],
+                    global_instructions: 'Garder le prospect engagé. Poser des questions pendant la démo. Ne pas faire un monologue.'
+                },
+                {
+                    id: 'tpl_call_closing',
+                    name: 'Script closing',
+                    type: 'script_call',
+                    category: 'Scripts Call',
+                    icon: '🤝',
+                    color: '#22c55e',
+                    description: 'Conclure la vente avec confiance',
+                    steps: [
+                        { order: 1, name: 'Récap valeur', description: "Résumer les bénéfices clés qu'il va obtenir" },
+                        { order: 2, name: 'Validation', description: 'Confirmer que tout est clair, répondre aux dernières questions' },
+                        { order: 3, name: 'Proposition ferme', description: "Annoncer clairement l'offre et le prix" },
+                        { order: 4, name: 'Silence & écoute', description: 'Laisser le silence après la proposition, attendre sa réponse' }
+                    ],
+                    global_instructions: 'Confiance sans arrogance. Assumer le prix. Ne pas sur-justifier.'
+                },
+                {
+                    id: 'tpl_call_relance',
+                    name: 'Script relance prospect froid',
+                    type: 'script_call',
+                    category: 'Scripts Call',
+                    icon: '🔄',
+                    color: '#06b6d4',
+                    description: 'Réactiver un prospect qui a ghosté',
+                    steps: [
+                        { order: 1, name: 'Rappel contexte', description: "Rappeler brièvement l'échange précédent sans reproches" },
+                        { order: 2, name: 'Nouvelle valeur', description: 'Apporter un élément nouveau : cas client, actualité, insight' },
+                        { order: 3, name: 'Question ouverte', description: 'Comprendre où il en est, ce qui a changé' },
+                        { order: 4, name: 'Nouvelle proposition', description: 'Proposer une action simple et sans engagement' }
+                    ],
+                    global_instructions: 'Zéro culpabilisation. Curiosité sincère. Pas de "je voulais juste savoir si...".'
+                },
+
+                // === DM & MESSAGES ===
+                {
+                    id: 'tpl_dm_linkedin_first',
+                    name: 'DM premier contact LinkedIn',
+                    type: 'dm',
+                    category: 'DM & Messages',
+                    icon: '💬',
+                    color: '#3b82f6',
+                    description: 'Premier message après connexion LinkedIn',
+                    popular: true,
+                    steps: [
+                        { order: 1, name: 'Personnalisation', description: 'Référence à un post, un projet, ou un point commun' },
+                        { order: 2, name: 'Valeur immédiate', description: 'Partager une insight, une ressource, ou une observation utile' },
+                        { order: 3, name: 'Question ouverte', description: 'Engager la conversation sans pitcher' },
+                        { order: 4, name: 'Signature légère', description: 'Prénom uniquement, pas de pavé de signature' }
+                    ],
+                    global_instructions: 'Court (3-4 lignes max). Pas de pitch. Pas de lien. Humain et curieux.'
+                },
+                {
+                    id: 'tpl_dm_post_connexion',
+                    name: 'DM après connexion acceptée',
+                    type: 'dm',
+                    category: 'DM & Messages',
+                    icon: '🤗',
+                    color: '#8b5cf6',
+                    description: 'Message de bienvenue sans être pushy',
+                    steps: [
+                        { order: 1, name: 'Remerciement', description: 'Remercier pour la connexion de façon naturelle' },
+                        { order: 2, name: 'Contexte commun', description: "Mentionner ce qui vous a fait vous connecter (groupe, post, intérêt)" },
+                        { order: 3, name: 'Question légère', description: 'Poser une question simple sur son activité ou un sujet commun' }
+                    ],
+                    global_instructions: 'Pas de pitch. Pas de lien vers ton calendly. Juste humain.'
+                },
+                {
+                    id: 'tpl_dm_relance_soft',
+                    name: 'Message de relance soft',
+                    type: 'dm',
+                    category: 'DM & Messages',
+                    icon: '💭',
+                    color: '#ec4899',
+                    description: 'Relancer sans être lourd',
+                    steps: [
+                        { order: 1, name: 'Hook contextuel', description: "Rebondir sur une actualité, un post, ou un événement lié à lui" },
+                        { order: 2, name: 'Rappel indirect', description: 'Faire un lien subtil avec votre échange précédent' },
+                        { order: 3, name: 'Ouverture', description: 'Laisser la porte ouverte sans pression' }
+                    ],
+                    global_instructions: 'Ne pas mentionner explicitement la relance. Apporter de la valeur avant tout.'
+                },
+                {
+                    id: 'tpl_dm_instagram',
+                    name: 'DM Instagram influenceur/partenaire',
+                    type: 'dm',
+                    category: 'DM & Messages',
+                    icon: '📸',
+                    color: '#e11d48',
+                    description: 'Contacter un influenceur ou partenaire potentiel',
+                    steps: [
+                        { order: 1, name: 'Compliment sincère', description: 'Mentionner un contenu spécifique que tu as aimé' },
+                        { order: 2, name: 'Qui tu es', description: 'Te présenter en une phrase (pas un CV)' },
+                        { order: 3, name: 'Proposition claire', description: 'Expliquer ce que tu proposes (collab, interview, etc.)' },
+                        { order: 4, name: 'Bénéfice pour lui', description: "Montrer ce qu'il y gagne" }
+                    ],
+                    global_instructions: 'Court et direct. Pas de "je sais que tu es très occupé(e)...". Assumer ta demande.'
+                },
+
+                // === EMAILS ===
+                {
+                    id: 'tpl_email_cold',
+                    name: 'Email de prospection cold',
+                    type: 'email',
+                    category: 'Emails',
+                    icon: '📧',
+                    color: '#f43f5e',
+                    description: 'Premier email à un prospect froid',
+                    popular: true,
+                    steps: [
+                        { order: 1, name: 'Objet accrocheur', description: 'Objet court, personnalisé, qui donne envie d\'ouvrir' },
+                        { order: 2, name: 'Accroche personnalisée', description: 'Première phrase qui montre que tu as fait tes recherches' },
+                        { order: 3, name: 'Problème/Opportunité', description: 'Identifier un pain point ou une opportunité spécifique' },
+                        { order: 4, name: 'CTA simple', description: 'Une seule action demandée, facile à faire' }
+                    ],
+                    global_instructions: 'Max 100 mots. Pas de pièce jointe. Pas de "je me permets de...". Direct et respectueux.'
+                },
+                {
+                    id: 'tpl_email_relance',
+                    name: 'Email de relance',
+                    type: 'email',
+                    category: 'Emails',
+                    icon: '🔁',
+                    color: '#f97316',
+                    description: 'Relancer un prospect sans être insistant',
+                    steps: [
+                        { order: 1, name: 'Rappel contexte', description: "Rappeler brièvement l'échange précédent" },
+                        { order: 2, name: 'Nouvelle valeur', description: 'Apporter un élément nouveau : article, cas client, actualité' },
+                        { order: 3, name: 'CTA reformulé', description: 'Proposer une action différente ou simplifiée' }
+                    ],
+                    global_instructions: 'Pas de culpabilisation. Ton léger. Apporter de la valeur même dans la relance.'
+                },
+                {
+                    id: 'tpl_email_post_demo',
+                    name: 'Email post-démo',
+                    type: 'email',
+                    category: 'Emails',
+                    icon: '✅',
+                    color: '#22c55e',
+                    description: 'Email de suivi après une démo ou un call',
+                    steps: [
+                        { order: 1, name: 'Remerciement', description: 'Remercier pour le temps accordé' },
+                        { order: 2, name: 'Récap personnalisé', description: 'Résumer les points clés discutés et ses besoins spécifiques' },
+                        { order: 3, name: 'Ressources', description: 'Joindre les documents promis (présentation, cas client, etc.)' },
+                        { order: 4, name: 'Prochaine étape', description: 'Rappeler le next step convenu et proposer une date' }
+                    ],
+                    global_instructions: 'Envoyer dans les 2h suivant le call. Personnaliser avec des éléments de la conversation.'
+                },
+                {
+                    id: 'tpl_email_sequence',
+                    name: 'Séquence nurturing 3 emails',
+                    type: 'email',
+                    category: 'Emails',
+                    icon: '📬',
+                    color: '#8b5cf6',
+                    description: 'Séquence de 3 emails pour réchauffer un lead',
+                    steps: [
+                        { order: 1, name: 'Email 1 - Valeur pure', description: 'Donner sans rien demander : guide, checklist, conseil actionnable' },
+                        { order: 2, name: 'Email 2 - Cas client', description: 'Montrer un résultat concret obtenu par un client similaire' },
+                        { order: 3, name: 'Email 3 - Invitation', description: 'Proposer un échange : call, démo, audit gratuit' }
+                    ],
+                    global_instructions: 'Espacer de 3-4 jours entre chaque email. Personnaliser avec le prénom. Pas de pression.'
+                },
+
+                // === POSTS & CONTENUS ===
+                {
+                    id: 'tpl_post_storytelling',
+                    name: 'Post LinkedIn storytelling',
+                    type: 'post',
+                    category: 'Posts & Contenus',
+                    icon: '📝',
+                    color: '#8b5cf6',
+                    description: 'Post narratif avec une leçon business',
+                    popular: true,
+                    steps: [
+                        { order: 1, name: 'Hook', description: 'Première ligne qui arrête le scroll. Chiffre, question, ou affirmation contre-intuitive.' },
+                        { order: 2, name: 'Contexte', description: 'Planter le décor : qui, quand, où. En 2-3 lignes.' },
+                        { order: 3, name: 'Conflit/Problème', description: "La tension, l'obstacle, ce qui n'allait pas." },
+                        { order: 4, name: 'Résolution', description: 'Ce que tu as fait, appris, ou compris.' },
+                        { order: 5, name: 'Leçon + CTA', description: 'La morale applicable par le lecteur + question ou invitation à commenter.' }
+                    ],
+                    global_instructions: 'Phrases courtes. Sauts de ligne. Pas de hashtags en plein milieu. Max 1300 caractères.'
+                },
+                {
+                    id: 'tpl_post_educatif',
+                    name: 'Post LinkedIn éducatif',
+                    type: 'post',
+                    category: 'Posts & Contenus',
+                    icon: '🎓',
+                    color: '#06b6d4',
+                    description: 'Partager une expertise de façon claire',
+                    steps: [
+                        { order: 1, name: 'Hook problème', description: 'Commencer par le problème que ton audience rencontre' },
+                        { order: 2, name: 'Framework/Méthode', description: 'Présenter ta méthode en 3-5 étapes claires' },
+                        { order: 3, name: 'Exemple concret', description: 'Illustrer avec un cas réel ou un exemple parlant' },
+                        { order: 4, name: 'CTA engagement', description: 'Inviter à sauvegarder, commenter, ou partager' }
+                    ],
+                    global_instructions: 'Utiliser des émojis comme puces. Numéroter les étapes. Facile à scanner.'
+                },
+                {
+                    id: 'tpl_carousel',
+                    name: 'Carrousel LinkedIn',
+                    type: 'carousel',
+                    category: 'Posts & Contenus',
+                    icon: '🎠',
+                    color: '#f97316',
+                    description: 'Carrousel éducatif en 6-8 slides',
+                    steps: [
+                        { order: 1, name: 'Slide 1 - Cover', description: 'Titre accrocheur + promesse de valeur' },
+                        { order: 2, name: 'Slide 2 - Problème', description: 'Identifier le problème ou la frustration' },
+                        { order: 3, name: 'Slides 3-5 - Contenu', description: 'Les points clés, un par slide, avec visuel' },
+                        { order: 4, name: 'Slide 6 - Récap', description: 'Résumer les points clés en une liste' },
+                        { order: 5, name: 'Slide 7 - CTA', description: 'Appel à l\'action + rappel de qui tu es' },
+                        { order: 6, name: 'Texte du post', description: 'Accroche + contexte + invitation à swiper' }
+                    ],
+                    global_instructions: 'Max 30 mots par slide. Visuel cohérent. Chaque slide doit donner envie de voir la suivante.'
+                },
+                {
+                    id: 'tpl_thread_twitter',
+                    name: 'Thread Twitter/X',
+                    type: 'post',
+                    category: 'Posts & Contenus',
+                    icon: '🧵',
+                    color: '#1d9bf0',
+                    description: 'Thread viral en 5-7 tweets',
+                    steps: [
+                        { order: 1, name: 'Tweet 1 - Hook', description: 'Promesse forte + "Thread 🧵"' },
+                        { order: 2, name: 'Tweet 2 - Contexte', description: 'Pourquoi ce sujet est important' },
+                        { order: 3, name: 'Tweets 3-5 - Contenu', description: 'Les points clés, un par tweet, numérotés' },
+                        { order: 4, name: 'Tweet 6 - Récap', description: 'Résumer en une liste' },
+                        { order: 5, name: 'Tweet 7 - CTA', description: 'Demander RT + follow si utile' }
+                    ],
+                    global_instructions: 'Chaque tweet doit avoir de la valeur seul. Utiliser des émojis comme puces.'
+                },
+
+                // === AUTRES ===
+                {
+                    id: 'tpl_pitch_elevator',
+                    name: 'Pitch elevator 30 sec',
+                    type: 'other',
+                    category: 'Autres',
+                    icon: '🎯',
+                    color: '#ec4899',
+                    description: 'Se présenter efficacement en 30 secondes',
+                    steps: [
+                        { order: 1, name: 'Accroche', description: 'Une phrase qui capte l\'attention (stat, question, constat)' },
+                        { order: 2, name: 'Problème', description: 'Le problème que tu résous pour ta cible' },
+                        { order: 3, name: 'Solution', description: 'Ce que tu fais en une phrase simple' },
+                        { order: 4, name: 'Preuve', description: 'Un résultat concret ou client notable' }
+                    ],
+                    global_instructions: 'Max 50 mots. Pas de jargon. Doit être compris par un enfant de 10 ans.'
+                },
+                {
+                    id: 'tpl_video_courte',
+                    name: 'Script vidéo courte (Reel/TikTok)',
+                    type: 'other',
+                    category: 'Autres',
+                    icon: '🎬',
+                    color: '#ef4444',
+                    description: 'Script pour vidéo de 30-60 secondes',
+                    steps: [
+                        { order: 1, name: 'Hook (0-3s)', description: 'Phrase choc ou question qui stoppe le scroll' },
+                        { order: 2, name: 'Setup (3-10s)', description: 'Poser le contexte ou le problème' },
+                        { order: 3, name: 'Contenu (10-45s)', description: 'Les 2-3 points clés avec exemples' },
+                        { order: 4, name: 'CTA (45-60s)', description: 'Appel à l\'action : follow, like, commentaire' }
+                    ],
+                    global_instructions: 'Parler vite mais clairement. Couper les silences. Sous-titres obligatoires.'
+                },
+                {
+                    id: 'tpl_newsletter',
+                    name: 'Structure newsletter',
+                    type: 'newsletter',
+                    category: 'Autres',
+                    icon: '📰',
+                    color: '#9c27b0',
+                    description: 'Newsletter hebdomadaire engageante',
+                    steps: [
+                        { order: 1, name: 'Objet + Preview', description: 'Objet accrocheur + texte de preview qui donne envie d\'ouvrir' },
+                        { order: 2, name: 'Intro personnelle', description: 'Anecdote, actualité perso, ou clin d\'oeil à la communauté' },
+                        { order: 3, name: 'Contenu principal', description: 'Le sujet de la semaine : conseil, méthode, analyse' },
+                        { order: 4, name: 'Ressource bonus', description: 'Un outil, un lien, un template offert' },
+                        { order: 5, name: 'CTA + PS', description: 'Action à faire + PS avec info bonus ou rappel' }
+                    ],
+                    global_instructions: 'Écrire comme à un ami. Utiliser "tu". Pas de formalités excessives.'
+                }
             ],
+
+            // Catégories pour les filtres
+            categories: ['Scripts Call', 'DM & Messages', 'Emails', 'Posts & Contenus', 'Autres'],
 
             typeLabels: {
                 'script_call': '📞 Script Call',
@@ -2771,16 +3276,66 @@
                 `;
             },
 
+            currentCategory: 'all',
+            previewingTemplate: null,
+            importTab: 'json',
+
             renderTemplates(container) {
+                const filteredTemplates = this.currentCategory === 'all'
+                    ? this.templateLibrary
+                    : this.templateLibrary.filter(t => t.category === this.currentCategory);
+
+                const categoryCounts = {};
+                this.templateLibrary.forEach(t => {
+                    categoryCounts[t.category] = (categoryCounts[t.category] || 0) + 1;
+                });
+
                 container.innerHTML = `
                     <div style="grid-column: 1/-1;">
-                        <p style="color: #666; margin-bottom: 20px;">Utilisez ces templates comme point de départ pour créer vos propres frameworks.</p>
-                        <div class="template-cards">
-                            ${this.templates.map(t => `
-                                <div class="template-card" onclick="FrameworkSystem.useTemplate('${t.type}')">
-                                    <div class="template-card-icon">${t.icon}</div>
-                                    <div class="template-card-name">${t.name}</div>
-                                    <div class="template-card-steps">${t.steps} étapes</div>
+                        <div class="template-library-header">
+                            <p style="color: #666; margin: 0;">
+                                📚 <strong>${this.templateLibrary.length} templates</strong> prêts à l'emploi
+                            </p>
+                            <div class="template-library-actions">
+                                <button class="btn-import-fw" onclick="FrameworkSystem.showImport()">
+                                    📥 Importer
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="category-filters">
+                            <span class="category-chip ${this.currentCategory === 'all' ? 'active' : ''}"
+                                  onclick="FrameworkSystem.filterByCategory('all')">
+                                Tous<span class="template-count">(${this.templateLibrary.length})</span>
+                            </span>
+                            ${this.categories.map(cat => `
+                                <span class="category-chip ${this.currentCategory === cat ? 'active' : ''}"
+                                      onclick="FrameworkSystem.filterByCategory('${cat}')">
+                                    ${cat}<span class="template-count">(${categoryCounts[cat] || 0})</span>
+                                </span>
+                            `).join('')}
+                        </div>
+
+                        <div class="template-library-grid">
+                            ${filteredTemplates.map(t => `
+                                <div class="template-lib-card ${t.popular ? 'popular' : ''}" data-id="${t.id}">
+                                    <div class="template-lib-header">
+                                        <span class="template-lib-icon">${t.icon}</span>
+                                        <span class="template-lib-category">${t.category}</span>
+                                    </div>
+                                    <div class="template-lib-title">${t.name}</div>
+                                    <div class="template-lib-desc">${t.description}</div>
+                                    <div class="template-lib-steps">
+                                        ${t.steps.slice(0, 4).map(s => `<span class="template-lib-step">${s.name}</span>`).join('')}
+                                        ${t.steps.length > 4 ? `<span class="template-lib-step">+${t.steps.length - 4}</span>` : ''}
+                                    </div>
+                                    <div class="template-lib-footer">
+                                        <span class="template-lib-meta">${t.steps.length} étapes</span>
+                                        <div class="template-lib-actions">
+                                            <button class="btn-preview-template" onclick="event.stopPropagation(); FrameworkSystem.showPreview('${t.id}')" title="Prévisualiser">👁️</button>
+                                            <button class="btn-use-template" onclick="event.stopPropagation(); FrameworkSystem.useTemplateFromLibrary('${t.id}')">Utiliser</button>
+                                        </div>
+                                    </div>
                                 </div>
                             `).join('')}
                         </div>
@@ -2788,14 +3343,248 @@
                 `;
             },
 
+            filterByCategory(category) {
+                this.currentCategory = category;
+                this.renderLibrary();
+            },
+
             filterFrameworks(query) {
-                const cards = document.querySelectorAll('.framework-card');
+                const cards = document.querySelectorAll('.framework-card, .template-lib-card');
                 const q = query.toLowerCase();
                 cards.forEach(card => {
-                    const title = card.querySelector('.framework-card-title').textContent.toLowerCase();
-                    const desc = card.querySelector('.framework-card-desc').textContent.toLowerCase();
-                    card.style.display = (title.includes(q) || desc.includes(q)) ? 'block' : 'none';
+                    const title = card.querySelector('.framework-card-title, .template-lib-title')?.textContent.toLowerCase() || '';
+                    const desc = card.querySelector('.framework-card-desc, .template-lib-desc')?.textContent.toLowerCase() || '';
+                    card.style.display = (title.includes(q) || desc.includes(q)) ? '' : 'none';
                 });
+            },
+
+            // ==================== PREVIEW ====================
+
+            showPreview(templateId) {
+                const template = this.templateLibrary.find(t => t.id === templateId);
+                if (!template) return;
+
+                this.previewingTemplate = template;
+
+                // Update header
+                document.getElementById('previewHeader').style.background = `linear-gradient(135deg, ${template.color || '#667eea'}, ${this.adjustColor(template.color || '#667eea', -20)})`;
+                document.getElementById('previewIcon').textContent = template.icon;
+                document.getElementById('previewType').textContent = this.typeLabels[template.type] || template.type;
+                document.getElementById('previewTitle').textContent = template.name;
+                document.getElementById('previewDesc').textContent = template.description;
+
+                // Update steps
+                document.getElementById('previewSteps').innerHTML = template.steps.map((step, i) => `
+                    <div class="preview-step">
+                        <div class="preview-step-number">${i + 1}</div>
+                        <div class="preview-step-content">
+                            <div class="preview-step-name">${step.name}</div>
+                            <div class="preview-step-desc">${step.description}</div>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Update instructions
+                if (template.global_instructions) {
+                    document.getElementById('previewInstructionsSection').style.display = 'block';
+                    document.getElementById('previewInstructions').textContent = template.global_instructions;
+                } else {
+                    document.getElementById('previewInstructionsSection').style.display = 'none';
+                }
+
+                document.getElementById('templatePreviewModal').classList.add('show');
+            },
+
+            closePreview() {
+                document.getElementById('templatePreviewModal').classList.remove('show');
+                this.previewingTemplate = null;
+            },
+
+            usePreviewedTemplate() {
+                if (this.previewingTemplate) {
+                    this.useTemplateFromLibrary(this.previewingTemplate.id);
+                    this.closePreview();
+                }
+            },
+
+            useTemplateFromLibrary(templateId) {
+                const template = this.templateLibrary.find(t => t.id === templateId);
+                if (!template) return;
+
+                const newFramework = {
+                    id: 'fw_' + Date.now(),
+                    name: template.name,
+                    type: template.type,
+                    description: template.description,
+                    icon: template.icon,
+                    color: template.color,
+                    steps: [...template.steps],
+                    global_instructions: template.global_instructions,
+                    is_default: false,
+                    usage_count: 0,
+                    created_at: new Date().toISOString()
+                };
+
+                const frameworks = this.getUserFrameworks();
+                frameworks.unshift(newFramework);
+                this.saveUserFrameworks(frameworks);
+                this.showTab('my');
+                this.closePreview();
+                showToast('✅ Template ajouté à vos frameworks !');
+            },
+
+            adjustColor(color, amount) {
+                const clamp = (val) => Math.min(255, Math.max(0, val));
+                const hex = color.replace('#', '');
+                const r = clamp(parseInt(hex.substr(0, 2), 16) + amount);
+                const g = clamp(parseInt(hex.substr(2, 2), 16) + amount);
+                const b = clamp(parseInt(hex.substr(4, 2), 16) + amount);
+                return `rgb(${r}, ${g}, ${b})`;
+            },
+
+            // ==================== IMPORT ====================
+
+            showImport() {
+                document.getElementById('importJsonText').value = '';
+                document.getElementById('importCsvText').value = '';
+                document.getElementById('importResult').style.display = 'none';
+                this.switchImportTab('json');
+                document.getElementById('frameworkImportModal').classList.add('show');
+            },
+
+            closeImport() {
+                document.getElementById('frameworkImportModal').classList.remove('show');
+            },
+
+            switchImportTab(tab) {
+                this.importTab = tab;
+                document.querySelectorAll('.import-tab').forEach(t => t.classList.remove('active'));
+                document.querySelector(`.import-tab[data-tab="${tab}"]`).classList.add('active');
+                document.getElementById('importTabJson').style.display = tab === 'json' ? 'block' : 'none';
+                document.getElementById('importTabCsv').style.display = tab === 'csv' ? 'block' : 'none';
+                document.getElementById('importResult').style.display = 'none';
+            },
+
+            handleFileImport(event, type) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const content = e.target.result;
+                    if (type === 'json') {
+                        document.getElementById('importJsonText').value = content;
+                    } else {
+                        document.getElementById('importCsvText').value = content;
+                    }
+                };
+                reader.readAsText(file);
+            },
+
+            processImport() {
+                const resultEl = document.getElementById('importResult');
+                resultEl.style.display = 'none';
+
+                try {
+                    let framework;
+                    if (this.importTab === 'json') {
+                        framework = this.parseJsonImport();
+                    } else {
+                        framework = this.parseCsvImport();
+                    }
+
+                    if (!framework) {
+                        throw new Error('Aucune donnée à importer');
+                    }
+
+                    // Validate
+                    if (!framework.name) framework.name = 'Framework importé';
+                    if (!framework.type) framework.type = 'other';
+                    if (!framework.steps || framework.steps.length === 0) {
+                        throw new Error('Le framework doit contenir au moins une étape');
+                    }
+
+                    // Complete the framework
+                    framework.id = 'fw_' + Date.now();
+                    framework.is_default = false;
+                    framework.usage_count = 0;
+                    framework.created_at = new Date().toISOString();
+                    framework.icon = framework.icon || '📝';
+                    framework.color = framework.color || '#667eea';
+
+                    // Save
+                    const frameworks = this.getUserFrameworks();
+                    frameworks.unshift(framework);
+                    this.saveUserFrameworks(frameworks);
+
+                    resultEl.className = 'import-result success';
+                    resultEl.innerHTML = `✅ Framework "${framework.name}" importé avec succès ! (${framework.steps.length} étapes)`;
+                    resultEl.style.display = 'block';
+
+                    setTimeout(() => {
+                        this.closeImport();
+                        this.showTab('my');
+                        this.renderLibrary();
+                    }, 1500);
+
+                } catch (error) {
+                    resultEl.className = 'import-result error';
+                    resultEl.innerHTML = `❌ Erreur : ${error.message}`;
+                    resultEl.style.display = 'block';
+                }
+            },
+
+            parseJsonImport() {
+                const text = document.getElementById('importJsonText').value.trim();
+                if (!text) return null;
+
+                const data = JSON.parse(text);
+
+                // Normalize steps
+                if (data.steps) {
+                    data.steps = data.steps.map((s, i) => ({
+                        order: i + 1,
+                        name: s.name || s.nom || `Étape ${i + 1}`,
+                        description: s.description || s.desc || ''
+                    }));
+                }
+
+                return data;
+            },
+
+            parseCsvImport() {
+                const text = document.getElementById('importCsvText').value.trim();
+                if (!text) return null;
+
+                const lines = text.split('\n').filter(l => l.trim());
+                if (lines.length < 2) throw new Error('Le CSV doit contenir au moins une ligne d\'en-tête et une étape');
+
+                const delimiter = lines[0].includes(';') ? ';' : ',';
+                const headers = lines[0].split(delimiter).map(h => h.trim().toLowerCase());
+
+                const nameCol = headers.findIndex(h => h.includes('name') || h.includes('nom') || h.includes('step'));
+                const descCol = headers.findIndex(h => h.includes('desc'));
+
+                if (nameCol === -1) throw new Error('Colonne "step_name" ou "nom" non trouvée');
+
+                const steps = [];
+                for (let i = 1; i < lines.length; i++) {
+                    const cols = lines[i].split(delimiter);
+                    const name = cols[nameCol]?.trim();
+                    if (name) {
+                        steps.push({
+                            order: steps.length + 1,
+                            name: name,
+                            description: descCol >= 0 ? (cols[descCol]?.trim() || '') : ''
+                        });
+                    }
+                }
+
+                return {
+                    name: 'Framework importé (CSV)',
+                    type: 'other',
+                    steps: steps
+                };
             },
 
             selectFramework(id) {
