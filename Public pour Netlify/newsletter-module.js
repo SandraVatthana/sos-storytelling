@@ -711,7 +711,7 @@ class NewsletterModule {
                  onblur="newsletterModule.updateBody(this.innerHTML)">${this.formatEmailBody(email.body)}</div>
           </div>
           <div class="body-actions">
-            <button class="btn-small" onclick="newsletterModule.copy(newsletterModule.generatedContent.newsletter.body)">
+            <button class="btn-small" onclick="newsletterModule.copyBody()">
               📋 Copier le texte
             </button>
             <button class="btn-small" onclick="newsletterModule.copyAsHTML()">
@@ -1368,16 +1368,32 @@ Rends le texte: ${adjustment}
     });
   }
 
+  getCleanBody() {
+    const email = this.generatedContent?.newsletter || this.generatedContent;
+    if (!email?.body) return '';
+    return this.cleanBodyFromJson(String(email.body));
+  }
+
+  copyBody() {
+    const cleanBody = this.getCleanBody();
+    if (cleanBody) {
+      this.copy(cleanBody);
+    } else {
+      this.showError('Aucun contenu à copier');
+    }
+  }
+
   copyAll() {
-    const email = this.generatedContent?.newsletter;
+    const email = this.generatedContent?.newsletter || this.generatedContent;
     if (!email) return;
 
-    const text = `Objet: ${email.subjectLines?.[0] || ''}\n\nPreview: ${email.previewText || ''}\n\n${email.body || ''}`;
+    const cleanBody = this.getCleanBody();
+    const text = `Objet: ${email.subjectLines?.[0] || ''}\n\nPreview: ${email.previewText || ''}\n\n${cleanBody}`;
     this.copy(text);
   }
 
   copyAsHTML() {
-    const email = this.generatedContent?.newsletter;
+    const email = this.generatedContent?.newsletter || this.generatedContent;
     if (!email) return;
 
     const html = `<h1>${email.subjectLines?.[0] || ''}</h1>\n${this.formatEmailBody(email.body)}`;
