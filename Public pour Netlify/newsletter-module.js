@@ -118,6 +118,39 @@ class NewsletterModule {
     this.showSuccess('✨ Voix MA VOIX chargée !');
   }
 
+  renderVoicePreview() {
+    let preview = '';
+
+    // Afficher le profil analysé
+    if (this.voiceProfile) {
+      preview += '<div class="voice-preview-profile">';
+      if (this.voiceProfile.ton) preview += `<span class="voice-tag">🎭 ${this.voiceProfile.ton}</span>`;
+      if (this.voiceProfile.vocabulaire) preview += `<span class="voice-tag">📚 ${this.voiceProfile.vocabulaire}</span>`;
+      if (this.voiceProfile.longueur) preview += `<span class="voice-tag">📏 ${this.voiceProfile.longueur}</span>`;
+      preview += '</div>';
+    }
+
+    // Afficher un extrait des échantillons
+    if (this.voiceSamples && this.voiceSamples.length > 0) {
+      const sampleCount = this.voiceSamples.length;
+      const firstSample = this.voiceSamples[0];
+      const truncated = firstSample.length > 100 ? firstSample.substring(0, 100) + '...' : firstSample;
+
+      preview += `<div class="voice-preview-samples">`;
+      preview += `<span class="samples-count">${sampleCount} exemple${sampleCount > 1 ? 's' : ''} de texte</span>`;
+      preview += `<div class="sample-excerpt">"${this.escapeHtml(truncated)}"</div>`;
+      preview += `</div>`;
+    }
+
+    return preview || '<em>Aucun aperçu disponible</em>';
+  }
+
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
   // ============================================================
   // RENDU PRINCIPAL
   // ============================================================
@@ -417,9 +450,15 @@ class NewsletterModule {
                 💡 Pour utiliser cette option, va dans l'onglet <strong>MA VOIX</strong> et entre des exemples de tes textes.
               </p>
             ` : ''}
-            ${this.formData.customVoice && this.formData.customVoice.includes('Voici des exemples') ? `
+            ${this.formData.customVoice && (this.formData.customVoice.includes('Exemples de mon style') || this.formData.customVoice.includes('Mon profil de voix')) ? `
               <div class="ma-voix-active">
                 ✅ MA VOIX est activée pour cette newsletter
+              </div>
+              <div class="ma-voix-preview">
+                <h5>📋 Aperçu de ta voix chargée :</h5>
+                <div class="ma-voix-preview-content">
+                  ${this.renderVoicePreview()}
+                </div>
               </div>
             ` : ''}
           </div>
@@ -915,30 +954,94 @@ Génère exactement ${count} emails avec une progression logique.`;
 
   parseAIResponse(response) {
     try {
-      // Essayer de parser directement
-      if (typeof response === 'object') {
-        return response;
+      // Si déjà un objet, vérifier qu'il a les bonnes propriétés
+      if (typeof response === 'object' && response !== null) {
+        // Si c'est un objet avec les bonnes propriétés
+        if (response.body || response.subjectLines) {
+          return this.validateEmailStructure(response);
+        }
+        // Si c'est une réponse imbriquée
+        if (response.newsletter) {
+          return this.validateEmailStructure(response.newsletter);
+        }
       }
 
-      // Nettoyer la réponse (enlever markdown code blocks si présents)
-      let cleaned = response.trim();
+      // Si c'est une chaîne, nettoyer et parser
+      let cleaned = String(response).trim();
+
+      // Enlever les code blocks markdown
       if (cleaned.startsWith('```json')) {
-        cleaned = cleaned.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+        cleaned = cleaned.replace(/^```json\s*\n?/, '').replace(/\n?\s*```$/, '');
       } else if (cleaned.startsWith('```')) {
-        cleaned = cleaned.replace(/^```\s*/, '').replace(/\s*```$/, '');
+        cleaned = cleaned.replace(/^```\s*\n?/, '').replace(/\n?\s*```$/, '');
       }
 
-      return JSON.parse(cleaned);
+      // Chercher le JSON dans la réponse s'il est entouré de texte
+      const jsonMatch = cleaned.match(/\{[\s\S]*"(?:body|subjectLines)"[\s\S]*\}/);
+      if (jsonMatch) {
+        cleaned = jsonMatch[0];
+      }
+
+      const parsed = JSON.parse(cleaned);
+      return this.validateEmailStructure(parsed);
+
     } catch (e) {
-      console.error('Erreur parsing réponse IA:', e);
-      // Retourner une structure par défaut
+      console.error('Erreur parsing réponse IA:', e, response);
+
+      // Essayer d'extraire le contenu du texte brut
+      const textContent = String(response);
+
+      // Si ça ressemble à du JSON mal formé, essayer de l'extraire
+      if (textContent.includes('"body"') || textContent.includes('"subjectLines"')) {
+        try {
+          // Nettoyer les caractères problématiques
+          let fixedJson = textContent
+            .replace(/[\r\n]+/g, '\\n')
+            .replace(/\t/g, '\\t');
+          const match = fixedJson.match(/\{[^{}]*"body"[^{}]*\}/);
+          if (match) {
+            return this.validateEmailStructure(JSON.parse(match[0].replace(/\\n/g, '\n')));
+          }
+        } catch (e2) {
+          console.error('Tentative de récupération échouée:', e2);
+        }
+      }
+
+      // Retourner le texte brut comme corps
       return {
-        subjectLines: ['Sujet généré'],
-        previewText: 'Aperçu de l\'email...',
-        body: response || 'Erreur lors de la génération. Réessaie.',
+        subjectLines: ['Newsletter générée'],
+        previewText: 'Découvrez notre contenu...',
+        body: this.cleanRawResponse(textContent),
         cta: this.formData.ctaText || 'Découvrir'
       };
     }
+  }
+
+  validateEmailStructure(obj) {
+    // S'assurer que toutes les propriétés existent et sont du bon type
+    return {
+      subjectLines: Array.isArray(obj.subjectLines) ? obj.subjectLines : [obj.subjectLines || 'Newsletter'],
+      previewText: typeof obj.previewText === 'string' ? obj.previewText : '',
+      body: typeof obj.body === 'string' ? obj.body : JSON.stringify(obj.body || '', null, 2),
+      cta: typeof obj.cta === 'string' ? obj.cta : (this.formData.ctaText || 'Découvrir')
+    };
+  }
+
+  cleanRawResponse(text) {
+    // Nettoyer une réponse brute qui n'est pas du JSON valide
+    return text
+      .replace(/```json\s*/g, '')
+      .replace(/```\s*/g, '')
+      .replace(/^\s*\{[\s\S]*\}\s*$/g, (match) => {
+        // Si c'est du JSON, essayer de l'extraire
+        try {
+          const parsed = JSON.parse(match);
+          return parsed.body || match;
+        } catch {
+          return match;
+        }
+      })
+      .trim();
   }
 
   async regenerate() {
@@ -1186,7 +1289,38 @@ Rends le texte: ${adjustment}
 
   formatEmailBody(body) {
     if (!body) return '';
-    return body
+
+    // Si c'est un objet, extraire le body ou convertir
+    if (typeof body === 'object') {
+      if (body.body) {
+        body = body.body;
+      } else {
+        // Ne pas afficher du JSON brut
+        body = JSON.stringify(body, null, 2);
+      }
+    }
+
+    // Convertir en string si nécessaire
+    let text = String(body);
+
+    // Si ça ressemble à du JSON, essayer d'extraire le contenu
+    if (text.trim().startsWith('{') && text.includes('"body"')) {
+      try {
+        const parsed = JSON.parse(text);
+        text = parsed.body || text;
+      } catch {
+        // Ignorer l'erreur, garder le texte tel quel
+      }
+    }
+
+    // Nettoyer les caractères d'échappement JSON
+    text = text
+      .replace(/\\n/g, '\n')
+      .replace(/\\t/g, '\t')
+      .replace(/\\"/g, '"');
+
+    // Formater en HTML
+    return text
       .replace(/\n\n/g, '</p><p>')
       .replace(/\n/g, '<br>')
       .replace(/^/, '<p>')
