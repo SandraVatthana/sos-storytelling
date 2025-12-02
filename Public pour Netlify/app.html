@@ -1592,13 +1592,18 @@
                     <button class="framework-tab" onclick="FrameworkSystem.showTab('templates')" data-tab="templates">📋 Templates</button>
                 </div>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
                     <input type="text" id="frameworkSearch" placeholder="🔍 Rechercher un framework..."
                            style="flex: 1; max-width: 300px; padding: 10px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-family: inherit;"
                            oninput="FrameworkSystem.filterFrameworks(this.value)">
-                    <button class="btn btn-frameworks" onclick="FrameworkSystem.showEditor()" style="padding: 10px 20px;">
-                        ➕ Créer un framework
-                    </button>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-import-fw" onclick="FrameworkSystem.showImport()">
+                            📥 Importer
+                        </button>
+                        <button class="btn btn-frameworks" onclick="FrameworkSystem.showEditor()" style="padding: 10px 20px;">
+                            ➕ Créer un framework
+                        </button>
+                    </div>
                 </div>
 
                 <div id="frameworksContent" class="frameworks-grid">
@@ -1742,16 +1747,46 @@
                 <button class="modal-close" onclick="FrameworkSystem.closeImport()">&times;</button>
             </div>
             <div style="padding: 20px 0;">
+                <!-- Bouton télécharger template -->
+                <div style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9); padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <strong style="color: #2e7d32;">📋 Besoin d'un modèle ?</strong>
+                        <p style="margin: 5px 0 0; color: #388e3c; font-size: 0.9em;">Téléchargez notre template CSV prêt à remplir</p>
+                    </div>
+                    <a href="template-frameworks-sos-storytelling.csv" download class="btn" style="background: linear-gradient(135deg, #4caf50, #66bb6a); color: white; padding: 10px 18px; text-decoration: none;">
+                        ⬇️ Télécharger le modèle CSV
+                    </a>
+                </div>
+
                 <div class="import-tabs">
-                    <button class="import-tab active" onclick="FrameworkSystem.switchImportTab('json')" data-tab="json">
-                        📄 JSON
+                    <button class="import-tab active" onclick="FrameworkSystem.switchImportTab('excel')" data-tab="excel">
+                        📊 Excel/CSV
                     </button>
-                    <button class="import-tab" onclick="FrameworkSystem.switchImportTab('csv')" data-tab="csv">
-                        📊 CSV
+                    <button class="import-tab" onclick="FrameworkSystem.switchImportTab('json')" data-tab="json">
+                        📄 JSON
                     </button>
                 </div>
 
-                <div id="importTabJson">
+                <div id="importTabExcel">
+                    <div class="import-dropzone-fw" id="importDropzoneExcel">
+                        <input type="file" accept=".xlsx,.xls,.csv" onchange="FrameworkSystem.handleFileImport(event, 'excel')">
+                        <div class="import-dropzone-icon">📊</div>
+                        <div class="import-dropzone-text">Glissez un fichier Excel ou CSV ici</div>
+                        <div class="import-dropzone-hint">Formats acceptés : .xlsx, .xls, .csv</div>
+                    </div>
+                    <div class="import-example" style="margin-top: 15px;">
+                        <h5>📋 Format attendu (colonnes) :</h5>
+                        <pre>step_name | step_description
+Accroche  | Créer le lien avec le prospect
+Problème  | Identifier le problème principal
+Solution  | Présenter votre solution</pre>
+                        <p style="margin-top: 10px; font-size: 0.85em; color: #666;">
+                            💡 La première ligne doit contenir les en-têtes. Utilisez le template pour un import parfait !
+                        </p>
+                    </div>
+                </div>
+
+                <div id="importTabJson" style="display: none;">
                     <div class="import-dropzone-fw" id="importDropzoneJson">
                         <input type="file" accept=".json" onchange="FrameworkSystem.handleFileImport(event, 'json')">
                         <div class="import-dropzone-icon">📄</div>
@@ -1773,26 +1808,6 @@
   ],
   "global_instructions": "Consignes..."
 }</pre>
-                    </div>
-                </div>
-
-                <div id="importTabCsv" style="display: none;">
-                    <div class="import-dropzone-fw" id="importDropzoneCsv">
-                        <input type="file" accept=".csv" onchange="FrameworkSystem.handleFileImport(event, 'csv')">
-                        <div class="import-dropzone-icon">📊</div>
-                        <div class="import-dropzone-text">Glissez un fichier CSV ici</div>
-                        <div class="import-dropzone-hint">ou cliquez pour sélectionner</div>
-                    </div>
-                    <p style="text-align: center; color: #888; margin: 15px 0;">ou collez directement le CSV :</p>
-                    <textarea class="import-textarea" id="importCsvText" placeholder="step_name;step_description
-Accroche;Créer le lien...
-Problème;Identifier le problème..."></textarea>
-                    <div class="import-example">
-                        <h5>📋 Exemple de format CSV :</h5>
-                        <pre>step_name;step_description
-Accroche;Créer le lien avec le prospect
-Problème;Identifier le problème principal
-Solution;Présenter la solution</pre>
                     </div>
                 </div>
 
@@ -2695,20 +2710,20 @@ Solution;Présenter la solution</pre>
             selectedFramework: null,
             editingSteps: [],
 
-            // Frameworks par défaut (stockés localement)
+            // Méthodes de copywriting classiques (onglet "Par défaut")
             defaultFrameworks: [
                 {
                     id: 'default_aida',
                     name: 'AIDA',
-                    type: 'post',
-                    description: 'Attention, Intérêt, Désir, Action - Le classique du copywriting',
+                    type: 'copywriting',
+                    description: 'Attention, Intérêt, Désir, Action - Le grand classique du copywriting',
                     icon: '🎯',
                     color: '#f093fb',
                     is_default: true,
                     steps: [
                         { order: 1, name: 'Attention', description: "Capturer l'attention avec une accroche forte, une stat choc ou une question provocante" },
                         { order: 2, name: 'Intérêt', description: "Développer l'intérêt en présentant le problème ou l'opportunité" },
-                        { order: 3, name: 'Désir', description: "Créer le désir en montrant la solution et ses bénéfices" },
+                        { order: 3, name: 'Désir', description: "Créer le désir en montrant la solution et ses bénéfices concrets" },
                         { order: 4, name: 'Action', description: "Appel à l'action clair et spécifique" }
                     ],
                     global_instructions: 'Ton direct et persuasif. Chaque étape doit naturellement mener à la suivante.',
@@ -2717,105 +2732,105 @@ Solution;Présenter la solution</pre>
                 {
                     id: 'default_pas',
                     name: 'PAS',
-                    type: 'post',
-                    description: 'Problem, Agitate, Solve - Idéal pour les posts de vente',
+                    type: 'copywriting',
+                    description: 'Problem, Agitate, Solve - Idéal pour créer de l\'urgence',
                     icon: '🔥',
                     color: '#ff6b6b',
                     is_default: true,
                     steps: [
-                        { order: 1, name: 'Problème', description: "Identifier clairement le problème que ressent l'audience" },
-                        { order: 2, name: 'Agitation', description: "Amplifier la douleur, montrer les conséquences de ne pas agir" },
-                        { order: 3, name: 'Solution', description: "Présenter la solution comme le remède évident" }
+                        { order: 1, name: 'Problem', description: "Identifier clairement le problème que ressent l'audience" },
+                        { order: 2, name: 'Agitate', description: "Amplifier la douleur, montrer les conséquences de ne pas agir" },
+                        { order: 3, name: 'Solve', description: "Présenter la solution comme le remède évident" }
                     ],
                     global_instructions: 'Empathique mais direct. Le lecteur doit se reconnaître dans le problème.',
                     usage_count: 0
                 },
                 {
-                    id: 'default_script_call',
-                    name: 'Script Call Découverte',
-                    type: 'script_call',
-                    description: 'Structure pour un appel de qualification prospect en 15-20 min',
-                    icon: '📞',
-                    color: '#11998e',
-                    is_default: true,
-                    steps: [
-                        { order: 1, name: 'Accroche', description: 'Créer le lien, référence commune, briser la glace' },
-                        { order: 2, name: 'Contexte', description: 'Comprendre sa situation actuelle, son rôle, son entreprise' },
-                        { order: 3, name: 'Douleur', description: 'Identifier le problème principal, les frustrations' },
-                        { order: 4, name: 'Impact', description: 'Quantifier les conséquences : temps perdu, argent, stress' },
-                        { order: 5, name: 'Solution', description: "Présenter l'offre comme réponse aux douleurs identifiées" },
-                        { order: 6, name: 'Next Step', description: "Proposer l'action suivante claire : démo, devis, essai" }
-                    ],
-                    global_instructions: 'Ton conversationnel et chaleureux. Poser des questions ouvertes. Écouter plus que parler.',
-                    usage_count: 0
-                },
-                {
-                    id: 'default_dm',
-                    name: 'DM Premier Contact',
-                    type: 'dm',
-                    description: 'Message de prospection LinkedIn ou Instagram',
-                    icon: '💬',
-                    color: '#667eea',
-                    is_default: true,
-                    steps: [
-                        { order: 1, name: 'Personnalisation', description: 'Référence spécifique au profil : post récent, parcours, intérêt commun' },
-                        { order: 2, name: 'Valeur', description: 'Apporter une info utile, un conseil, une ressource gratuite' },
-                        { order: 3, name: 'Transition', description: 'Lien naturel vers votre expertise ou offre' },
-                        { order: 4, name: 'Question ouverte', description: 'Terminer par une question qui invite à répondre' }
-                    ],
-                    global_instructions: "Court et naturel. Pas de pitch. Le but est d'ouvrir une conversation, pas de vendre.",
-                    usage_count: 0
-                },
-                {
-                    id: 'default_email_relance',
-                    name: 'Email de Relance',
-                    type: 'email',
-                    description: 'Relancer un prospect sans être insistant',
-                    icon: '📧',
-                    color: '#f5576c',
-                    is_default: true,
-                    steps: [
-                        { order: 1, name: 'Rappel contexte', description: "Rappeler brièvement l'échange précédent" },
-                        { order: 2, name: 'Nouvelle valeur', description: 'Apporter un élément nouveau : article, cas client, actualité' },
-                        { order: 3, name: 'Réassurance', description: "Montrer que vous comprenez qu'ils sont occupés" },
-                        { order: 4, name: 'CTA simple', description: 'Une seule action demandée, facile à faire' }
-                    ],
-                    global_instructions: 'Bref et respectueux. Pas de culpabilisation. Apporter de la valeur même dans la relance.',
-                    usage_count: 0
-                },
-                {
-                    id: 'default_storytelling',
-                    name: 'Post LinkedIn Storytelling',
-                    type: 'post',
-                    description: 'Raconter une histoire engageante sur LinkedIn',
-                    icon: '📖',
-                    color: '#0077b5',
-                    is_default: true,
-                    steps: [
-                        { order: 1, name: 'Hook', description: 'Première ligne choc qui stoppe le scroll' },
-                        { order: 2, name: 'Situation', description: 'Planter le décor : qui, quand, où' },
-                        { order: 3, name: 'Tension', description: "Le problème, l'obstacle, le moment de doute" },
-                        { order: 4, name: 'Résolution', description: 'Comment vous avez surmonté, ce qui a changé' },
-                        { order: 5, name: 'Leçon', description: "L'apprentissage à retenir, applicable par le lecteur" }
-                    ],
-                    global_instructions: "Authentique et vulnérable. Utiliser le 'je'. Des phrases courtes. Sauts de ligne.",
-                    usage_count: 0
-                },
-                {
                     id: 'default_soap',
                     name: 'SOAP',
-                    type: 'newsletter',
-                    description: 'Story, Offer, Action, PS - Parfait pour les newsletters',
-                    icon: '📰',
+                    type: 'copywriting',
+                    description: 'Situation, Obstacle, Action, Résultat - Storytelling structuré',
+                    icon: '📖',
                     color: '#9c27b0',
                     is_default: true,
                     steps: [
-                        { order: 1, name: 'Story', description: 'Une histoire personnelle ou un cas concret qui illustre le sujet' },
-                        { order: 2, name: 'Offer', description: 'Ce que vous proposez comme solution ou ressource' },
-                        { order: 3, name: 'Action', description: 'Ce que le lecteur doit faire maintenant' },
-                        { order: 4, name: 'PS', description: 'Un bonus, une urgence, ou un rappel important' }
+                        { order: 1, name: 'Situation', description: "Décrire le contexte initial, la situation de départ" },
+                        { order: 2, name: 'Obstacle', description: "Le problème rencontré, le blocage, le défi" },
+                        { order: 3, name: 'Action', description: "Ce qui a été fait pour surmonter l'obstacle" },
+                        { order: 4, name: 'Résultat', description: "Le résultat obtenu, la transformation" }
                     ],
-                    global_instructions: "Conversationnel comme si on écrivait à un ami. Le PS est souvent la partie la plus lue.",
+                    global_instructions: 'Raconter une vraie histoire. Être authentique et concret dans les détails.',
+                    usage_count: 0
+                },
+                {
+                    id: 'default_bab',
+                    name: 'BAB',
+                    type: 'copywriting',
+                    description: 'Before, After, Bridge - Montrer la transformation',
+                    icon: '🌉',
+                    color: '#11998e',
+                    is_default: true,
+                    steps: [
+                        { order: 1, name: 'Before', description: "Décrire la situation actuelle, les frustrations, les problèmes" },
+                        { order: 2, name: 'After', description: "Peindre le tableau idéal, la vie après la solution" },
+                        { order: 3, name: 'Bridge', description: "Expliquer comment passer de l'avant à l'après (votre solution)" }
+                    ],
+                    global_instructions: 'Créer un contraste fort entre Avant et Après. Le pont doit sembler naturel et accessible.',
+                    usage_count: 0
+                },
+                {
+                    id: 'default_4p',
+                    name: '4P',
+                    type: 'copywriting',
+                    description: 'Promise, Picture, Proof, Push - Persuasion complète',
+                    icon: '💪',
+                    color: '#667eea',
+                    is_default: true,
+                    steps: [
+                        { order: 1, name: 'Promise', description: "Faire une promesse forte et attrayante dès le début" },
+                        { order: 2, name: 'Picture', description: "Peindre le tableau de ce que sera la vie après" },
+                        { order: 3, name: 'Proof', description: "Apporter des preuves : témoignages, chiffres, études de cas" },
+                        { order: 4, name: 'Push', description: "Pousser à l'action avec urgence ou rareté" }
+                    ],
+                    global_instructions: 'La promesse doit être crédible. Les preuves doivent être concrètes et vérifiables.',
+                    usage_count: 0
+                },
+                {
+                    id: 'default_storybrand',
+                    name: 'StoryBrand',
+                    type: 'copywriting',
+                    description: 'La méthode de Donald Miller - Le client est le héros',
+                    icon: '🦸',
+                    color: '#f5576c',
+                    is_default: true,
+                    steps: [
+                        { order: 1, name: 'Héros', description: "Identifier le héros (votre client) et ce qu'il veut" },
+                        { order: 2, name: 'Problème', description: "Définir le problème externe, interne et philosophique" },
+                        { order: 3, name: 'Guide', description: "Vous présentez comme le guide avec empathie et autorité" },
+                        { order: 4, name: 'Plan', description: "Donner un plan simple en 3 étapes pour réussir" },
+                        { order: 5, name: 'Action', description: "Appeler à l'action de façon claire et directe" },
+                        { order: 6, name: 'Échec évité', description: "Montrer ce qui se passe s'il n'agit pas" },
+                        { order: 7, name: 'Succès', description: "Décrire la transformation et le succès final" }
+                    ],
+                    global_instructions: 'Le client est TOUJOURS le héros, vous êtes le guide. Clarté avant tout.',
+                    usage_count: 0
+                },
+                {
+                    id: 'default_quest',
+                    name: 'QUEST',
+                    type: 'copywriting',
+                    description: 'Qualify, Understand, Educate, Stimulate, Transition',
+                    icon: '🧭',
+                    color: '#ff9800',
+                    is_default: true,
+                    steps: [
+                        { order: 1, name: 'Qualify', description: "Qualifier l'audience : est-ce pour toi ?" },
+                        { order: 2, name: 'Understand', description: "Montrer que vous comprenez leurs problèmes" },
+                        { order: 3, name: 'Educate', description: "Éduquer sur la solution et comment ça marche" },
+                        { order: 4, name: 'Stimulate', description: "Stimuler l'envie d'agir, créer l'émotion" },
+                        { order: 5, name: 'Transition', description: "Faciliter la transition vers l'action" }
+                    ],
+                    global_instructions: 'Idéal pour les audiences froides. Qualifier d\'abord pour gagner la confiance.',
                     usage_count: 0
                 }
             ],
@@ -3155,6 +3170,7 @@ Solution;Présenter la solution</pre>
                 'post': '📝 Post',
                 'carousel': '🎠 Carousel',
                 'newsletter': '📰 Newsletter',
+                'copywriting': '✍️ Copywriting',
                 'other': '📋 Autre'
             },
 
@@ -3165,6 +3181,7 @@ Solution;Présenter la solution</pre>
                 'post': '#f093fb',
                 'carousel': '#ff9800',
                 'newsletter': '#9c27b0',
+                'copywriting': '#e91e63',
                 'other': '#607d8b'
             },
 
@@ -3223,25 +3240,139 @@ Solution;Présenter la solution</pre>
                             <div class="frameworks-empty" style="grid-column: 1/-1;">
                                 <div class="frameworks-empty-icon">📐</div>
                                 <h3>Aucun framework personnalisé</h3>
-                                <p>Créez votre premier framework pour structurer vos contenus !</p>
-                                <button class="btn btn-frameworks" onclick="FrameworkSystem.showEditor()" style="padding: 12px 25px;">
-                                    ➕ Créer un framework
-                                </button>
+                                <p>Créez votre premier framework ou utilisez un template !</p>
+                                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                                    <button class="btn btn-frameworks" onclick="FrameworkSystem.showEditor()" style="padding: 12px 25px;">
+                                        ➕ Créer un framework
+                                    </button>
+                                    <button class="btn" onclick="FrameworkSystem.showTab('defaults')" style="padding: 12px 25px; background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
+                                        🌟 Voir les méthodes
+                                    </button>
+                                </div>
                             </div>
                         `;
                         return;
                     }
+                    container.innerHTML = frameworks.map(f => this.renderFrameworkCard(f, false)).join('');
                 } else if (this.currentTab === 'defaults') {
-                    frameworks = this.defaultFrameworks;
+                    // Affichage spécial pour les méthodes de copywriting
+                    this.renderDefaultMethods(container);
+                    return;
                 } else if (this.currentTab === 'templates') {
                     this.renderTemplates(container);
                     return;
                 }
-
-                container.innerHTML = frameworks.map(f => this.renderFrameworkCard(f)).join('');
             },
 
-            renderFrameworkCard(framework) {
+            renderDefaultMethods(container) {
+                container.innerHTML = `
+                    <div style="grid-column: 1/-1;">
+                        <div style="background: linear-gradient(135deg, #f8f9ff, #f0f4ff); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 2px solid #e8ecff;">
+                            <h3 style="margin: 0 0 8px; color: #333; display: flex; align-items: center; gap: 10px;">
+                                ✍️ Méthodes de copywriting classiques
+                            </h3>
+                            <p style="margin: 0; color: #666; font-size: 0.95em;">
+                                Ces frameworks éprouvés structurent vos contenus pour maximiser l'impact. Cliquez sur "Utiliser" pour les ajouter à vos frameworks personnalisés.
+                            </p>
+                        </div>
+                        <div class="frameworks-grid">
+                            ${this.defaultFrameworks.map(f => this.renderDefaultMethodCard(f)).join('')}
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderDefaultMethodCard(framework) {
+                const stepsCount = framework.steps ? framework.steps.length : 0;
+                const stepsPreview = framework.steps.map(s => s.name).join(' → ');
+
+                return `
+                    <div class="framework-card default-method-card" data-id="${framework.id}" style="border-color: ${framework.color}30;">
+                        <div class="framework-card-header">
+                            <span class="framework-card-icon">${framework.icon || '📝'}</span>
+                            <span class="framework-card-type" style="background: ${framework.color}20; color: ${framework.color};">Copywriting</span>
+                        </div>
+                        <div class="framework-card-title" style="color: ${framework.color};">${framework.name}</div>
+                        <div class="framework-card-desc">${framework.description || 'Pas de description'}</div>
+                        <div style="background: #f8f9fa; padding: 10px 12px; border-radius: 8px; margin: 12px 0; font-size: 0.85em; color: #555;">
+                            <strong>Structure :</strong> ${stepsPreview}
+                        </div>
+                        <div class="framework-card-meta" style="border-top: none; padding-top: 0;">
+                            <span>${stepsCount} étapes</span>
+                            <div class="framework-card-actions">
+                                <button onclick="event.stopPropagation(); FrameworkSystem.showPreviewDefault('${framework.id}')" title="Prévisualiser" style="background: #f0f0f0; padding: 6px 10px; border-radius: 6px;">👁️</button>
+                                <button onclick="event.stopPropagation(); FrameworkSystem.useDefaultMethod('${framework.id}')" class="btn-use-template" style="padding: 6px 12px !important;">
+                                    ✅ Utiliser
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+
+            showPreviewDefault(id) {
+                const framework = this.defaultFrameworks.find(f => f.id === id);
+                if (!framework) return;
+
+                this.previewingTemplate = framework;
+
+                document.getElementById('previewHeader').style.background = `linear-gradient(135deg, ${framework.color || '#667eea'}, ${this.adjustColor(framework.color || '#667eea', -20)})`;
+                document.getElementById('previewIcon').textContent = framework.icon;
+                document.getElementById('previewType').textContent = 'Méthode de copywriting';
+                document.getElementById('previewTitle').textContent = framework.name;
+                document.getElementById('previewDesc').textContent = framework.description;
+
+                document.getElementById('previewSteps').innerHTML = framework.steps.map((step, i) => `
+                    <div class="preview-step">
+                        <div class="preview-step-number">${i + 1}</div>
+                        <div class="preview-step-content">
+                            <div class="preview-step-name">${step.name}</div>
+                            <div class="preview-step-desc">${step.description}</div>
+                        </div>
+                    </div>
+                `).join('');
+
+                if (framework.global_instructions) {
+                    document.getElementById('previewInstructionsSection').style.display = 'block';
+                    document.getElementById('previewInstructions').textContent = framework.global_instructions;
+                } else {
+                    document.getElementById('previewInstructionsSection').style.display = 'none';
+                }
+
+                document.getElementById('previewUseBtn').onclick = () => {
+                    this.useDefaultMethod(framework.id);
+                    this.closePreview();
+                };
+
+                document.getElementById('templatePreviewModal').classList.add('show');
+            },
+
+            useDefaultMethod(id) {
+                const method = this.defaultFrameworks.find(f => f.id === id);
+                if (!method) return;
+
+                const newFramework = {
+                    id: 'fw_' + Date.now(),
+                    name: method.name,
+                    type: method.type,
+                    description: method.description,
+                    icon: method.icon,
+                    color: method.color,
+                    steps: method.steps.map(s => ({ ...s })),
+                    global_instructions: method.global_instructions,
+                    is_default: false,
+                    usage_count: 0,
+                    created_at: new Date().toISOString()
+                };
+
+                const frameworks = this.getUserFrameworks();
+                frameworks.unshift(newFramework);
+                this.saveUserFrameworks(frameworks);
+                this.showTab('my');
+                showToast(`✅ Méthode "${method.name}" ajoutée à vos frameworks !`);
+            },
+
+            renderFrameworkCard(framework, showDefaultBadge = true) {
                 const typeLabel = this.typeLabels[framework.type] || framework.type;
                 const typeColor = this.typeColors[framework.type] || '#667eea';
                 const stepsCount = framework.steps ? framework.steps.length : 0;
@@ -3249,7 +3380,7 @@ Solution;Présenter la solution</pre>
 
                 return `
                     <div class="framework-card" data-id="${framework.id}" onclick="FrameworkSystem.selectFramework('${framework.id}')">
-                        ${isDefault ? '<span class="framework-default-badge">Par défaut</span>' : ''}
+                        ${isDefault && showDefaultBadge ? '<span class="framework-default-badge">Par défaut</span>' : ''}
                         <div class="framework-card-header">
                             <span class="framework-card-icon">${framework.icon || '📝'}</span>
                             <span class="framework-card-type" style="background: ${typeColor}20; color: ${typeColor};">${typeLabel}</span>
@@ -3292,15 +3423,13 @@ Solution;Présenter la solution</pre>
 
                 container.innerHTML = `
                     <div style="grid-column: 1/-1;">
-                        <div class="template-library-header">
-                            <p style="color: #666; margin: 0;">
-                                📚 <strong>${this.templateLibrary.length} templates</strong> prêts à l'emploi
+                        <div style="background: linear-gradient(135deg, #fff8e1, #ffecb3); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 2px solid #ffe082;">
+                            <h3 style="margin: 0 0 8px; color: #333; display: flex; align-items: center; gap: 10px;">
+                                📋 Templates par type de contenu
+                            </h3>
+                            <p style="margin: 0; color: #666; font-size: 0.95em;">
+                                Des modèles prêts à l'emploi pour chaque type de communication : scripts call, DM, emails, posts... Cliquez sur "Utiliser" pour les personnaliser.
                             </p>
-                            <div class="template-library-actions">
-                                <button class="btn-import-fw" onclick="FrameworkSystem.showImport()">
-                                    📥 Importer
-                                </button>
-                            </div>
                         </div>
 
                         <div class="category-filters">
@@ -3443,12 +3572,13 @@ Solution;Présenter la solution</pre>
             },
 
             // ==================== IMPORT ====================
+            importedFileContent: null,
 
             showImport() {
                 document.getElementById('importJsonText').value = '';
-                document.getElementById('importCsvText').value = '';
                 document.getElementById('importResult').style.display = 'none';
-                this.switchImportTab('json');
+                this.importedFileContent = null;
+                this.switchImportTab('excel');
                 document.getElementById('frameworkImportModal').classList.add('show');
             },
 
@@ -3459,9 +3589,9 @@ Solution;Présenter la solution</pre>
             switchImportTab(tab) {
                 this.importTab = tab;
                 document.querySelectorAll('.import-tab').forEach(t => t.classList.remove('active'));
-                document.querySelector(`.import-tab[data-tab="${tab}"]`).classList.add('active');
+                document.querySelector(`.import-tab[data-tab="${tab}"]`)?.classList.add('active');
+                document.getElementById('importTabExcel').style.display = tab === 'excel' ? 'block' : 'none';
                 document.getElementById('importTabJson').style.display = tab === 'json' ? 'block' : 'none';
-                document.getElementById('importTabCsv').style.display = tab === 'csv' ? 'block' : 'none';
                 document.getElementById('importResult').style.display = 'none';
             },
 
@@ -3470,15 +3600,33 @@ Solution;Présenter la solution</pre>
                 if (!file) return;
 
                 const reader = new FileReader();
-                reader.onload = (e) => {
-                    const content = e.target.result;
-                    if (type === 'json') {
-                        document.getElementById('importJsonText').value = content;
-                    } else {
-                        document.getElementById('importCsvText').value = content;
+
+                if (type === 'json') {
+                    reader.onload = (e) => {
+                        document.getElementById('importJsonText').value = e.target.result;
+                    };
+                    reader.readAsText(file);
+                } else if (type === 'excel') {
+                    // Pour Excel/CSV, on lit comme texte (CSV) ou on affiche un message
+                    const fileName = file.name.toLowerCase();
+                    if (fileName.endsWith('.csv')) {
+                        reader.onload = (e) => {
+                            this.importedFileContent = e.target.result;
+                            const resultEl = document.getElementById('importResult');
+                            resultEl.className = 'import-result success';
+                            resultEl.innerHTML = `✅ Fichier "${file.name}" chargé. Cliquez sur Importer pour continuer.`;
+                            resultEl.style.display = 'block';
+                        };
+                        reader.readAsText(file);
+                    } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+                        // Pour les fichiers Excel, on a besoin de SheetJS
+                        // On va utiliser une approche simplifiée
+                        const resultEl = document.getElementById('importResult');
+                        resultEl.className = 'import-result error';
+                        resultEl.innerHTML = `⚠️ Les fichiers Excel (.xlsx) nécessitent une conversion. Veuillez exporter votre fichier en CSV depuis Excel (Fichier → Enregistrer sous → CSV).`;
+                        resultEl.style.display = 'block';
                     }
-                };
-                reader.readAsText(file);
+                }
             },
 
             processImport() {
@@ -3489,12 +3637,12 @@ Solution;Présenter la solution</pre>
                     let framework;
                     if (this.importTab === 'json') {
                         framework = this.parseJsonImport();
-                    } else {
-                        framework = this.parseCsvImport();
+                    } else if (this.importTab === 'excel') {
+                        framework = this.parseExcelCsvImport();
                     }
 
                     if (!framework) {
-                        throw new Error('Aucune donnée à importer');
+                        throw new Error('Aucune donnée à importer. Veuillez sélectionner un fichier.');
                     }
 
                     // Validate
@@ -3552,24 +3700,29 @@ Solution;Présenter la solution</pre>
                 return data;
             },
 
-            parseCsvImport() {
-                const text = document.getElementById('importCsvText').value.trim();
+            parseExcelCsvImport() {
+                const text = this.importedFileContent;
                 if (!text) return null;
 
                 const lines = text.split('\n').filter(l => l.trim());
-                if (lines.length < 2) throw new Error('Le CSV doit contenir au moins une ligne d\'en-tête et une étape');
+                if (lines.length < 2) throw new Error('Le fichier doit contenir au moins une ligne d\'en-tête et une étape');
 
-                const delimiter = lines[0].includes(';') ? ';' : ',';
-                const headers = lines[0].split(delimiter).map(h => h.trim().toLowerCase());
+                // Détecte le délimiteur (;, , ou tab)
+                const firstLine = lines[0];
+                let delimiter = ';';
+                if (firstLine.includes('\t')) delimiter = '\t';
+                else if (firstLine.includes(',') && !firstLine.includes(';')) delimiter = ',';
 
-                const nameCol = headers.findIndex(h => h.includes('name') || h.includes('nom') || h.includes('step'));
+                const headers = firstLine.split(delimiter).map(h => h.trim().toLowerCase().replace(/"/g, ''));
+
+                const nameCol = headers.findIndex(h => h.includes('name') || h.includes('nom') || h.includes('step') || h.includes('étape'));
                 const descCol = headers.findIndex(h => h.includes('desc'));
 
-                if (nameCol === -1) throw new Error('Colonne "step_name" ou "nom" non trouvée');
+                if (nameCol === -1) throw new Error('Colonne "step_name" ou "nom" non trouvée dans le fichier');
 
                 const steps = [];
                 for (let i = 1; i < lines.length; i++) {
-                    const cols = lines[i].split(delimiter);
+                    const cols = lines[i].split(delimiter).map(c => c.trim().replace(/"/g, ''));
                     const name = cols[nameCol]?.trim();
                     if (name) {
                         steps.push({
@@ -3581,7 +3734,7 @@ Solution;Présenter la solution</pre>
                 }
 
                 return {
-                    name: 'Framework importé (CSV)',
+                    name: 'Framework importé',
                     type: 'other',
                     steps: steps
                 };
