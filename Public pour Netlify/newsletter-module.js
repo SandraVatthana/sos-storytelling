@@ -74,13 +74,21 @@ class NewsletterModule {
       } else {
         this.voiceProfile = null;
       }
+
+      console.log('📧 Newsletter - Voice data loaded:', {
+        samplesCount: this.voiceSamples?.length || 0,
+        hasVoiceProfile: !!this.voiceProfile
+      });
     } catch (e) {
+      console.error('📧 Newsletter - Erreur chargement voix:', e);
       this.voiceSamples = [];
       this.voiceProfile = null;
     }
   }
 
   hasSavedVoice() {
+    // Recharger à chaque vérification pour avoir les données fraîches
+    this.loadSavedVoice();
     return (this.voiceSamples && this.voiceSamples.length > 0) || this.voiceProfile;
   }
 
@@ -686,8 +694,8 @@ class NewsletterModule {
                    onclick="newsletterModule.selectSubject(${i})">
                 <span class="subject-num">${i + 1}</span>
                 <span class="subject-text" contenteditable="true"
-                      onblur="newsletterModule.updateSubject(${i}, this.innerText)">${subject}</span>
-                <button class="copy-btn" onclick="event.stopPropagation(); newsletterModule.copy('${subject}')">📋</button>
+                      onblur="newsletterModule.updateSubject(${i}, this.innerText)">${this.escapeHtml(subject)}</span>
+                <button class="copy-btn" onclick="event.stopPropagation(); newsletterModule.copySubject(${i})">📋</button>
               </div>
             `).join('')}
           </div>
@@ -698,8 +706,8 @@ class NewsletterModule {
           <h4 class="section-title">👁️ Preview Text</h4>
           <div class="preview-text-box">
             <span contenteditable="true"
-                  onblur="newsletterModule.updatePreviewText(this.innerText)">${email.previewText || ''}</span>
-            <button class="copy-btn" onclick="newsletterModule.copy('${email.previewText}')">📋</button>
+                  onblur="newsletterModule.updatePreviewText(this.innerText)">${this.escapeHtml(email.previewText || '')}</span>
+            <button class="copy-btn" onclick="newsletterModule.copyPreview()">📋</button>
           </div>
         </div>
 
@@ -724,8 +732,8 @@ class NewsletterModule {
         <div class="result-section">
           <h4 class="section-title">🔘 Call-to-Action</h4>
           <div class="cta-preview">
-            <button class="cta-button-preview">${email.cta || this.formData.ctaText || 'Découvrir'}</button>
-            ${this.formData.ctaUrl ? `<span class="cta-url">→ ${this.formData.ctaUrl}</span>` : ''}
+            <button class="cta-button-preview">${this.escapeHtml(email.cta || this.formData.ctaText || 'Découvrir')}</button>
+            ${this.formData.ctaUrl ? `<span class="cta-url">→ ${this.escapeHtml(this.formData.ctaUrl)}</span>` : ''}
           </div>
         </div>
 
@@ -792,6 +800,25 @@ class NewsletterModule {
             </button>
           ` : '<div></div>'}
         </div>
+
+        <!-- Ajustements pour l'email actuel -->
+        <div class="result-section adjustments">
+          <h4 class="section-title">⚙️ Ajuster l'email ${this.currentEmailIndex + 1}</h4>
+          <div class="adjustment-options">
+            <button class="adjust-btn" onclick="newsletterModule.adjustSequenceEmail('plus court')">Plus court</button>
+            <button class="adjust-btn" onclick="newsletterModule.adjustSequenceEmail('plus long')">Plus long</button>
+            <button class="adjust-btn" onclick="newsletterModule.adjustSequenceEmail('plus chaleureux')">Plus chaleureux</button>
+            <button class="adjust-btn" onclick="newsletterModule.adjustSequenceEmail('plus direct')">Plus direct</button>
+            <button class="adjust-btn" onclick="newsletterModule.adjustSequenceEmail('ajoute de urgence')">+ Urgence</button>
+            <button class="adjust-btn" onclick="newsletterModule.adjustSequenceEmail('plus de storytelling')">+ Storytelling</button>
+          </div>
+          <div class="custom-adjustment">
+            <input type="text" id="custom-adjust-seq" placeholder="Autre ajustement personnalisé...">
+            <button class="btn-primary" onclick="newsletterModule.adjustSequenceEmail(document.getElementById('custom-adjust-seq').value)">
+              Appliquer
+            </button>
+          </div>
+        </div>
       </div>
     `;
   }
@@ -801,16 +828,16 @@ class NewsletterModule {
 
     return `
       <div class="email-result-card">
-        <div class="email-role-badge">${email.role || `Email ${index + 1}`}</div>
-        ${email.sendDelay ? `<div class="send-delay">📅 ${email.sendDelay}</div>` : ''}
+        <div class="email-role-badge">${this.escapeHtml(email.role || `Email ${index + 1}`)}</div>
+        ${email.sendDelay ? `<div class="send-delay">📅 ${this.escapeHtml(email.sendDelay)}</div>` : ''}
 
         <div class="result-section">
           <h4>📬 Objets</h4>
           <div class="subject-options compact">
             ${(email.subjectLines || []).map((subject, i) => `
               <div class="subject-option">
-                <span class="subject-text">${subject}</span>
-                <button class="copy-btn" onclick="newsletterModule.copy('${subject}')">📋</button>
+                <span class="subject-text">${this.escapeHtml(subject)}</span>
+                <button class="copy-btn" onclick="newsletterModule.copySequenceSubject(${index}, ${i})">📋</button>
               </div>
             `).join('')}
           </div>
@@ -818,7 +845,7 @@ class NewsletterModule {
 
         <div class="result-section">
           <h4>👁️ Preview</h4>
-          <div class="preview-text-box">${email.previewText || ''}</div>
+          <div class="preview-text-box">${this.escapeHtml(email.previewText || '')}</div>
         </div>
 
         <div class="result-section">
@@ -830,7 +857,7 @@ class NewsletterModule {
 
         <div class="result-section">
           <h4>🔘 CTA</h4>
-          <button class="cta-button-preview">${email.cta || 'Découvrir'}</button>
+          <button class="cta-button-preview">${this.escapeHtml(email.cta || 'Découvrir')}</button>
         </div>
       </div>
     `;
@@ -853,29 +880,74 @@ class NewsletterModule {
     try {
       // Vérifier que callAI est disponible
       if (typeof window.callAI !== 'function') {
-        throw new Error('La fonction callAI n\'est pas disponible');
+        throw new Error('La fonction callAI n\'est pas disponible. Recharge la page.');
       }
 
       // Construire le prompt pour la génération
       const prompt = this.buildGenerationPrompt();
+      console.log('📧 Newsletter - Prompt envoyé:', prompt.substring(0, 300) + '...');
 
       // Appeler l'IA via la fonction globale de l'app
       const response = await window.callAI(prompt);
+      console.log('📧 Newsletter - Réponse reçue, longueur:', response?.length || 0);
+
+      if (!response) {
+        throw new Error('Réponse vide de l\'IA');
+      }
 
       // Parser la réponse JSON
       const parsed = this.parseAIResponse(response);
+      console.log('📧 Newsletter - Contenu parsé:', {
+        hasSubjects: parsed.subjectLines?.length > 0,
+        hasPreview: !!parsed.previewText,
+        hasBody: !!parsed.body,
+        bodyLength: parsed.body?.length || 0
+      });
 
-      if (this.isSequenceMode) {
-        this.sequenceEmails = parsed.sequence || [];
-        this.generatedContent = parsed;
+      // Gérer le cas où l'IA renvoie une séquence même si pas demandé
+      if (parsed.sequence && Array.isArray(parsed.sequence) && parsed.sequence.length > 0) {
+        console.log('📧 Newsletter - Séquence détectée avec', parsed.sequence.length, 'emails');
+        this.sequenceEmails = parsed.sequence;
+
+        if (this.isSequenceMode) {
+          // Mode séquence : garder tous les emails
+          this.generatedContent = parsed;
+        } else {
+          // Pas en mode séquence : prendre le premier email
+          const firstEmail = parsed.sequence[0];
+          this.generatedContent = { newsletter: firstEmail };
+          console.log('📧 Newsletter - Utilisation du premier email:', firstEmail);
+        }
+      } else if (this.isSequenceMode) {
+        // Mode séquence demandé mais réponse simple
+        this.sequenceEmails = [parsed];
+        this.generatedContent = { sequence: [parsed] };
       } else {
+        // Email simple
         this.generatedContent = { newsletter: parsed };
+      }
+
+      // Vérifier que le contenu est bien présent
+      const newsletter = this.generatedContent?.newsletter;
+      console.log('📧 Newsletter - Contenu final:', {
+        hasNewsletter: !!newsletter,
+        subjectLines: newsletter?.subjectLines,
+        previewText: newsletter?.previewText?.substring(0, 50),
+        bodyLength: newsletter?.body?.length || 0
+      });
+
+      if (!newsletter?.body && !this.isSequenceMode) {
+        console.warn('📧 Newsletter - Body vide après parsing!');
       }
 
       this.render();
     } catch (error) {
-      console.error('Erreur génération:', error);
-      this.showError('Erreur lors de la génération. Réessaie !');
+      console.error('📧 Newsletter - Erreur génération:', error);
+      this.showError('Erreur lors de la génération: ' + error.message);
+
+      // Revenir à l'étape 4 pour permettre de réessayer
+      this.currentStep = 4;
+      this.render();
     }
   }
 
@@ -953,14 +1025,14 @@ Génère exactement ${count} emails avec une progression logique.`;
   }
 
   parseAIResponse(response) {
+    console.log('📧 Newsletter - Réponse IA brute:', response);
+
     try {
       // Si déjà un objet, vérifier qu'il a les bonnes propriétés
       if (typeof response === 'object' && response !== null) {
-        // Si c'est un objet avec les bonnes propriétés
         if (response.body || response.subjectLines) {
           return this.validateEmailStructure(response);
         }
-        // Si c'est une réponse imbriquée
         if (response.newsletter) {
           return this.validateEmailStructure(response.newsletter);
         }
@@ -968,53 +1040,116 @@ Génère exactement ${count} emails avec une progression logique.`;
 
       // Si c'est une chaîne, nettoyer et parser
       let cleaned = String(response).trim();
+      console.log('📧 Newsletter - Texte à parser:', cleaned.substring(0, 500));
 
-      // Enlever les code blocks markdown
-      if (cleaned.startsWith('```json')) {
-        cleaned = cleaned.replace(/^```json\s*\n?/, '').replace(/\n?\s*```$/, '');
-      } else if (cleaned.startsWith('```')) {
-        cleaned = cleaned.replace(/^```\s*\n?/, '').replace(/\n?\s*```$/, '');
-      }
+      // Enlever les code blocks markdown (plusieurs formats possibles)
+      cleaned = cleaned
+        .replace(/^```json\s*\n?/i, '')
+        .replace(/^```\s*\n?/, '')
+        .replace(/\n?\s*```\s*$/g, '');
 
-      // Chercher le JSON dans la réponse s'il est entouré de texte
-      const jsonMatch = cleaned.match(/\{[\s\S]*"(?:body|subjectLines)"[\s\S]*\}/);
-      if (jsonMatch) {
-        cleaned = jsonMatch[0];
-      }
+      // Chercher le JSON dans la réponse - pattern plus flexible
+      const jsonPatterns = [
+        /\{[\s\S]*"subjectLines"\s*:\s*\[[\s\S]*\][\s\S]*"body"\s*:[\s\S]*\}/,
+        /\{[\s\S]*"body"\s*:[\s\S]*"subjectLines"\s*:\s*\[[\s\S]*\][\s\S]*\}/,
+        /\{\s*"subjectLines"[\s\S]*\}/,
+        /\{\s*"body"[\s\S]*\}/
+      ];
 
-      const parsed = JSON.parse(cleaned);
-      return this.validateEmailStructure(parsed);
-
-    } catch (e) {
-      console.error('Erreur parsing réponse IA:', e, response);
-
-      // Essayer d'extraire le contenu du texte brut
-      const textContent = String(response);
-
-      // Si ça ressemble à du JSON mal formé, essayer de l'extraire
-      if (textContent.includes('"body"') || textContent.includes('"subjectLines"')) {
-        try {
-          // Nettoyer les caractères problématiques
-          let fixedJson = textContent
-            .replace(/[\r\n]+/g, '\\n')
-            .replace(/\t/g, '\\t');
-          const match = fixedJson.match(/\{[^{}]*"body"[^{}]*\}/);
-          if (match) {
-            return this.validateEmailStructure(JSON.parse(match[0].replace(/\\n/g, '\n')));
+      for (const pattern of jsonPatterns) {
+        const match = cleaned.match(pattern);
+        if (match) {
+          console.log('📧 Newsletter - JSON trouvé avec pattern');
+          try {
+            const parsed = JSON.parse(match[0]);
+            console.log('📧 Newsletter - Parsé:', parsed);
+            // Si c'est une séquence, la retourner telle quelle (sans validation)
+            if (parsed.sequence && Array.isArray(parsed.sequence)) {
+              console.log('📧 Newsletter - Séquence détectée dans parsing, retour direct');
+              return parsed;
+            }
+            return this.validateEmailStructure(parsed);
+          } catch (parseErr) {
+            console.log('📧 Newsletter - Erreur parse pattern:', parseErr.message);
           }
-        } catch (e2) {
-          console.error('Tentative de récupération échouée:', e2);
         }
       }
 
-      // Retourner le texte brut comme corps
-      return {
-        subjectLines: ['Newsletter générée'],
-        previewText: 'Découvrez notre contenu...',
-        body: this.cleanRawResponse(textContent),
-        cta: this.formData.ctaText || 'Découvrir'
-      };
+      // Essayer de parser directement
+      try {
+        const parsed = JSON.parse(cleaned);
+        console.log('📧 Newsletter - Parse direct réussi:', parsed);
+        // Si c'est une séquence, la retourner telle quelle
+        if (parsed.sequence && Array.isArray(parsed.sequence)) {
+          console.log('📧 Newsletter - Séquence détectée, retour direct');
+          return parsed;
+        }
+        return this.validateEmailStructure(parsed);
+      } catch (directErr) {
+        console.log('📧 Newsletter - Erreur parse direct:', directErr.message);
+      }
+
+      // Extraction manuelle des champs
+      console.log('📧 Newsletter - Tentative extraction manuelle');
+      return this.extractFieldsManually(cleaned);
+
+    } catch (e) {
+      console.error('📧 Newsletter - Erreur parsing:', e);
+      return this.extractFieldsManually(String(response));
     }
+  }
+
+  extractFieldsManually(text) {
+    let subjectLines = ['Newsletter générée'];
+    let previewText = '';
+    let body = '';
+    let cta = this.formData.ctaText || 'Découvrir';
+
+    // Extraire subjectLines
+    const subjectMatch = text.match(/"subjectLines"\s*:\s*\[([\s\S]*?)\]/);
+    if (subjectMatch) {
+      try {
+        const subjects = subjectMatch[1].match(/"([^"]+)"/g);
+        if (subjects) {
+          subjectLines = subjects.map(s => s.replace(/"/g, ''));
+        }
+      } catch (e) {}
+    }
+
+    // Extraire previewText
+    const previewMatch = text.match(/"previewText"\s*:\s*"([^"]+)"/);
+    if (previewMatch) {
+      previewText = previewMatch[1];
+    }
+
+    // Extraire body - plus complexe car peut contenir des \n
+    const bodyMatch = text.match(/"body"\s*:\s*"([\s\S]*?)(?:"\s*[,\}])/);
+    if (bodyMatch) {
+      body = bodyMatch[1]
+        .replace(/\\n/g, '\n')
+        .replace(/\\"/g, '"')
+        .replace(/\\\\/g, '\\');
+    }
+
+    // Extraire cta
+    const ctaMatch = text.match(/"cta"\s*:\s*"([^"]+)"/);
+    if (ctaMatch) {
+      cta = ctaMatch[1];
+    }
+
+    // Si pas de body extrait, utiliser le texte nettoyé
+    if (!body) {
+      body = this.cleanRawResponse(text);
+    }
+
+    console.log('📧 Newsletter - Extraction manuelle:', { subjectLines, previewText, bodyLength: body.length, cta });
+
+    return {
+      subjectLines,
+      previewText,
+      body,
+      cta
+    };
   }
 
   validateEmailStructure(obj) {
@@ -1092,6 +1227,7 @@ Génère exactement ${count} emails avec une progression logique.`;
     if (!adjustment) return;
 
     this.showLoading('Ajustement en cours...');
+    console.log('📧 Newsletter - Ajustement demandé:', adjustment);
 
     try {
       if (typeof window.callAI !== 'function') {
@@ -1099,6 +1235,10 @@ Génère exactement ${count} emails avec une progression logique.`;
       }
 
       const currentEmail = this.generatedContent?.newsletter || this.generatedContent;
+      console.log('📧 Newsletter - Email actuel:', {
+        hasBody: !!currentEmail?.body,
+        bodyLength: currentEmail?.body?.length || 0
+      });
 
       const prompt = `Tu es un expert copywriter. Modifie cette newsletter selon l'instruction donnée.
 
@@ -1111,24 +1251,103 @@ ${currentEmail?.body || ''}
 ## INSTRUCTION D'AJUSTEMENT
 Rends le texte: ${adjustment}
 
-## FORMAT DE RÉPONSE (JSON strict)
+## FORMAT DE RÉPONSE (JSON strict uniquement, pas de séquence)
+Réponds UNIQUEMENT avec ce JSON, sans texte avant ou après:
 {
   "subjectLines": ["Objet 1 modifié", "Objet 2 modifié", "Objet 3 modifié"],
   "previewText": "Nouveau preview...",
-  "body": "Corps modifié...",
+  "body": "Corps modifié complet...",
   "cta": "${currentEmail?.cta || 'Découvrir'}"
 }`;
 
       const response = await window.callAI(prompt);
-      const parsed = this.parseAIResponse(response);
+      console.log('📧 Newsletter - Réponse ajustement reçue, longueur:', response?.length || 0);
+
+      let parsed = this.parseAIResponse(response);
+
+      // Si l'IA renvoie une séquence, prendre le premier email
+      if (parsed.sequence && Array.isArray(parsed.sequence) && parsed.sequence.length > 0) {
+        console.log('📧 Newsletter - Ajustement: séquence détectée, extraction premier email');
+        parsed = parsed.sequence[0];
+      }
+
+      console.log('📧 Newsletter - Ajustement parsé:', {
+        hasBody: !!parsed?.body,
+        bodyLength: parsed?.body?.length || 0,
+        subjectLines: parsed?.subjectLines
+      });
 
       this.generatedContent = { newsletter: parsed };
       this.hideLoading();
       this.render();
+      this.showSuccess('✅ Newsletter ajustée !');
     } catch (error) {
-      console.error('Erreur ajustement:', error);
+      console.error('📧 Newsletter - Erreur ajustement:', error);
       this.hideLoading();
-      this.showError('Erreur lors de l\'ajustement');
+      this.showError('Erreur lors de l\'ajustement: ' + error.message);
+    }
+  }
+
+  async adjustSequenceEmail(adjustment) {
+    if (!adjustment) return;
+
+    this.showLoading(`Ajustement de l'email ${this.currentEmailIndex + 1} en cours...`);
+    console.log('📧 Newsletter - Ajustement séquence demandé:', adjustment, 'pour email', this.currentEmailIndex);
+
+    try {
+      if (typeof window.callAI !== 'function') {
+        throw new Error('La fonction callAI n\'est pas disponible');
+      }
+
+      const currentEmail = this.sequenceEmails[this.currentEmailIndex];
+      if (!currentEmail) {
+        throw new Error('Email non trouvé');
+      }
+
+      const prompt = `Tu es un expert copywriter. Modifie cet email de séquence selon l'instruction donnée.
+
+## EMAIL ACTUEL (${currentEmail.role || `Email ${this.currentEmailIndex + 1}`})
+Objet: ${currentEmail.subjectLines?.[0] || ''}
+Preview: ${currentEmail.previewText || ''}
+Corps:
+${currentEmail.body || ''}
+
+## INSTRUCTION D'AJUSTEMENT
+Rends le texte: ${adjustment}
+
+## FORMAT DE RÉPONSE (JSON strict uniquement)
+Réponds UNIQUEMENT avec ce JSON, sans texte avant ou après:
+{
+  "subjectLines": ["Objet 1 modifié", "Objet 2 modifié", "Objet 3 modifié"],
+  "previewText": "Nouveau preview...",
+  "body": "Corps modifié complet...",
+  "cta": "${currentEmail.cta || 'Découvrir'}",
+  "role": "${currentEmail.role || `Email ${this.currentEmailIndex + 1}`}"
+}`;
+
+      const response = await window.callAI(prompt);
+      console.log('📧 Newsletter - Réponse ajustement séquence reçue');
+
+      let parsed = this.parseAIResponse(response);
+
+      // Si l'IA renvoie une séquence, prendre le premier email
+      if (parsed.sequence && Array.isArray(parsed.sequence) && parsed.sequence.length > 0) {
+        parsed = parsed.sequence[0];
+      }
+
+      // Préserver le rôle original
+      parsed.role = currentEmail.role || parsed.role;
+
+      // Mettre à jour l'email dans la séquence
+      this.sequenceEmails[this.currentEmailIndex] = parsed;
+
+      this.hideLoading();
+      this.render();
+      this.showSuccess(`✅ Email ${this.currentEmailIndex + 1} ajusté !`);
+    } catch (error) {
+      console.error('📧 Newsletter - Erreur ajustement séquence:', error);
+      this.hideLoading();
+      this.showError('Erreur lors de l\'ajustement: ' + error.message);
     }
   }
 
@@ -1354,6 +1573,9 @@ Rends le texte: ${adjustment}
     // Nettoyer tout JSON résiduel
     text = this.cleanBodyFromJson(text);
 
+    // Nettoyer le markdown
+    text = this.cleanMarkdown(text);
+
     // Formater en HTML
     return text
       .replace(/\n\n/g, '</p><p>')
@@ -1362,10 +1584,50 @@ Rends le texte: ${adjustment}
       .replace(/$/, '</p>');
   }
 
+  cleanMarkdown(text) {
+    if (!text) return '';
+    return text
+      // Retirer le gras **texte** ou __texte__
+      .replace(/\*\*([^*]+)\*\*/g, '$1')
+      .replace(/__([^_]+)__/g, '$1')
+      // Retirer l'italique *texte* ou _texte_
+      .replace(/\*([^*]+)\*/g, '$1')
+      .replace(/_([^_]+)_/g, '$1')
+      // Retirer les titres # ## ###
+      .replace(/^#{1,6}\s+/gm, '')
+      // Retirer les listes - ou *
+      .replace(/^[\-\*]\s+/gm, '• ')
+      // Retirer les liens [texte](url)
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+      // Retirer le code `texte`
+      .replace(/`([^`]+)`/g, '$1')
+      .trim();
+  }
+
   copy(text) {
     navigator.clipboard.writeText(text).then(() => {
       this.showSuccess('Copié !');
     });
+  }
+
+  copySubject(index) {
+    const email = this.generatedContent?.newsletter || this.generatedContent;
+    if (email?.subjectLines?.[index]) {
+      this.copy(email.subjectLines[index]);
+    }
+  }
+
+  copyPreview() {
+    const email = this.generatedContent?.newsletter || this.generatedContent;
+    if (email?.previewText) {
+      this.copy(email.previewText);
+    }
+  }
+
+  copySequenceSubject(emailIndex, subjectIndex) {
+    if (this.sequenceEmails?.[emailIndex]?.subjectLines?.[subjectIndex]) {
+      this.copy(this.sequenceEmails[emailIndex].subjectLines[subjectIndex]);
+    }
   }
 
   getCleanBody() {

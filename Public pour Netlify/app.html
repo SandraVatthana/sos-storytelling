@@ -18,6 +18,32 @@
         .header-title { font-size: 1.5em; font-weight: 700; background: linear-gradient(135deg, #f093fb, #f5576c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .header-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
 
+        /* Menu hamburger mobile */
+        .mobile-menu-toggle { display: none; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 10px 15px; border-radius: 10px; font-size: 1.2em; cursor: pointer; }
+        .mobile-menu-toggle:hover { transform: scale(1.05); }
+
+        @media (max-width: 768px) {
+            .header { position: relative; padding: 12px 15px; }
+            .header-title { font-size: 1.2em; }
+            .mobile-menu-toggle { display: flex; align-items: center; gap: 8px; font-size: 0.95em; font-weight: 600; }
+            .header-buttons {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: white;
+                padding: 15px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                flex-direction: column;
+                gap: 8px;
+                z-index: 1000;
+                border-top: 2px solid #f0f0f0;
+            }
+            .header-buttons.open { display: flex; }
+            .header-buttons .btn { width: 100%; justify-content: center; padding: 12px 15px; font-size: 0.9em; }
+        }
+
         .btn { padding: 10px 20px; border: none; border-radius: 10px; font-family: inherit; font-size: 0.95em; font-weight: 600; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
         .btn-home { background: linear-gradient(135deg, #11998e, #38ef7d); color: white; }
         .btn-profile { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
@@ -192,11 +218,9 @@
         .badge-unlock-text strong { font-size: 0.9em; }
         .badge-unlock-text span { font-size: 1.1em; font-weight: 700; }
 
-        .btn-trends { background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; position: relative; animation: trendsHalo 2s ease-in-out infinite; }
-        .btn-trends::before { content: ''; position: absolute; top: -3px; left: -3px; right: -3px; bottom: -3px; background: linear-gradient(135deg, #ff6b6b, #ee5a24); border-radius: 12px; z-index: -1; opacity: 0.5; filter: blur(8px); animation: trendsGlow 2s ease-in-out infinite; }
+        .btn-trends { background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; box-shadow: 0 0 10px rgba(255,107,107,0.5); }
+        .btn-trends:hover { box-shadow: 0 0 20px rgba(255,107,107,0.7); }
         .btn-newsletter { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
-        @keyframes trendsGlow { 0%, 100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.05); } }
-        @keyframes trendsHalo { 0%, 100% { box-shadow: 0 0 5px rgba(255,107,107,0.5), 0 0 20px rgba(255,107,107,0.3); } 50% { box-shadow: 0 0 10px rgba(255,107,107,0.8), 0 0 30px rgba(255,107,107,0.5), 0 0 40px rgba(238,90,36,0.3); } }
         .btn-favorites { background: linear-gradient(135deg, #f093fb, #f5576c); color: white; }
         .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
 
@@ -351,7 +375,7 @@
         .visual-title { font-weight: 700; color: #333; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
         .copy-prompt-btn { padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 6px; font-size: 0.85em; cursor: pointer; font-family: inherit; }
 
-        .toast { position: fixed; bottom: 30px; right: 30px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 15px 25px; border-radius: 10px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); z-index: 1000; }
+        .toast { position: fixed; bottom: 55px; right: 30px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 15px 25px; border-radius: 10px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); z-index: 1000; }
         .toast.show { transform: translateX(0); }
 
         .idea-btn { padding: 10px 20px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 20px; font-weight: 600; cursor: pointer; transition: all 0.3s; font-family: inherit; margin: 5px; }
@@ -467,7 +491,7 @@
         .tour-btn.next:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
         .tour-highlight { position: relative; z-index: 1001; background: white; border-radius: 12px; box-shadow: 0 0 0 4px rgba(240,147,251,0.6), 0 0 30px rgba(240,147,251,0.4); animation: highlightPulse 2s infinite; }
         @keyframes highlightPulse { 0%, 100% { box-shadow: 0 0 0 4px rgba(240,147,251,0.6), 0 0 30px rgba(240,147,251,0.4); } 50% { box-shadow: 0 0 0 8px rgba(240,147,251,0.4), 0 0 50px rgba(240,147,251,0.3); } }
-        .tour-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 999; display: none; backdrop-filter: blur(3px); }
+        .tour-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 999; display: none; }
         .tour-overlay.show { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
@@ -613,7 +637,7 @@
         .generation-loader { text-align: center; padding: 50px; }
         .loader-animation { width: 80px; height: 80px; margin: 0 auto 20px; border: 4px solid #e0e0e0; border-top-color: #667eea; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .newsletter-toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); padding: 15px 25px; background: #333; color: white; border-radius: 10px; font-weight: 600; z-index: 10000; animation: toastIn 0.3s; }
+        .newsletter-toast { position: fixed; bottom: 55px; left: 50%; transform: translateX(-50%); padding: 15px 25px; background: #333; color: white; border-radius: 10px; font-weight: 600; z-index: 10000; animation: toastIn 0.3s; }
         .newsletter-toast.success { background: #10b981; }
         .newsletter-toast.error { background: #ef4444; }
         .newsletter-toast.fade-out { animation: toastOut 0.3s forwards; }
@@ -630,9 +654,8 @@
         @keyframes arrowBounceLeft { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-8px); } }
         @keyframes arrowBounceRight { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(8px); } }
 
-        .demo-badge { position: fixed; bottom: 30px; left: 30px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 20px; border-radius: 30px; font-weight: 600; cursor: pointer; box-shadow: 0 5px 20px rgba(102,126,234,0.4); z-index: 100; display: flex; align-items: center; gap: 8px; animation: demoBadgePulse 3s infinite; }
-        .demo-badge:hover { transform: scale(1.05); }
-        @keyframes demoBadgePulse { 0%, 100% { box-shadow: 0 5px 20px rgba(102,126,234,0.4); } 50% { box-shadow: 0 5px 30px rgba(102,126,234,0.7), 0 0 50px rgba(240,147,251,0.3); } }
+        .demo-badge { position: fixed; bottom: 55px; left: 30px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 20px; border-radius: 30px; font-weight: 600; cursor: pointer; box-shadow: 0 5px 20px rgba(102,126,234,0.4); z-index: 100; display: flex; align-items: center; gap: 8px; }
+        .demo-badge:hover { transform: scale(1.05); box-shadow: 0 5px 30px rgba(102,126,234,0.6); }
 
         /* Memory indicator */
         .memory-indicator { background: rgba(102,126,234,0.1); border-radius: 10px; padding: 10px 15px; margin-bottom: 15px; font-size: 0.85em; color: #667eea; display: flex; align-items: center; gap: 8px; }
@@ -703,8 +726,7 @@
 
         @media (max-width: 600px) {
             .export-partners-grid { grid-template-columns: 1fr; }
-            .header { padding: 12px 15px; flex-direction: column; gap: 10px; }
-            .header-buttons { justify-content: center; }
+            .header { padding: 12px 15px; position: relative; }
             .intro-title { font-size: 1.8em; }
             .structure-grid { grid-template-columns: 1fr; }
             .action-buttons { flex-direction: column; }
@@ -714,7 +736,7 @@
         /* ===== ONBOARDING STYLES ===== */
         .onboarding-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px);
+            background: rgba(0, 0, 0, 0.85);
             display: flex; align-items: center; justify-content: center;
             z-index: 10000; animation: fadeIn 0.3s ease; padding: 20px; overflow-y: auto;
         }
@@ -1057,9 +1079,132 @@
         })();
     </script>
     <link rel="stylesheet" href="newsletter-styles.css">
-    <link rel="stylesheet" href="visual-styles.css">
 </head>
 <body>
+    <!-- Pop-up de bienvenue -->
+    <div id="welcomePopup" class="welcome-popup-overlay" style="display: none;">
+        <div class="welcome-popup">
+            <button class="welcome-popup-close" onclick="closeWelcomePopup()">&times;</button>
+            <div class="welcome-popup-icon">👋</div>
+            <h2>Bienvenue !</h2>
+            <p>Merci d'avoir accepté de tester <strong>SOS Storytelling</strong> !</p>
+            <p style="margin-top: 15px;">Pour commencer, appuyez sur le bouton <strong>"🎯 Démo Guidée"</strong> en bas à gauche de l'écran.</p>
+            <div class="welcome-popup-checkbox">
+                <label>
+                    <input type="checkbox" id="welcomeDontShow" onchange="saveWelcomePreference()">
+                    <span>Ne plus afficher ce message</span>
+                </label>
+            </div>
+            <button class="welcome-popup-btn" onclick="closeWelcomePopup()">C'est parti ! 🚀</button>
+        </div>
+    </div>
+
+    <style>
+        .welcome-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .welcome-popup {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .welcome-popup-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .welcome-popup-close:hover {
+            color: #333;
+        }
+        .welcome-popup-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+        .welcome-popup h2 {
+            color: #333;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .welcome-popup p {
+            color: #555;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+        .welcome-popup strong {
+            color: #667eea;
+        }
+        .welcome-popup-checkbox {
+            margin: 25px 0;
+            display: flex;
+            justify-content: center;
+        }
+        .welcome-popup-checkbox label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: #777;
+            font-size: 0.9em;
+        }
+        .welcome-popup-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+        .welcome-popup-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        .welcome-popup-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+        }
+    </style>
+
     <!-- Logo Base64 stocké -->
     <style>.logo-img { width: 40px; height: 40px; border-radius: 8px; object-fit: contain; }</style>
     <header class="header">
@@ -1067,7 +1212,10 @@
                         <img src="data:image/webp;base64,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" alt="Logo" class="logo-img">
             <span class="header-title">SOS Storytelling</span>
         </a>
-        <div class="header-buttons">
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+            <span id="menuIcon">☰</span> Menu
+        </button>
+        <div class="header-buttons" id="headerButtons">
             <button class="btn btn-trends" onclick="showTrends()">📈 TRENDS</button>
             <button class="btn btn-newsletter" onclick="showNewsletterModal()">📧 Newsletters</button>
             <button class="btn btn-posts" onclick="openMesPostsPopup()">📌 Mes Posts</button>
@@ -1259,18 +1407,6 @@
                         <button class="action-btn visual-btn" id="btnCanva" onclick="generateCanva(this)" style="background: linear-gradient(135deg, #00C4CC, #7B2D8E); border: none; color: white;">🎬 Canva</button>
                     </div>
 
-                    <!-- Génération visuelle Orshot -->
-                    <div class="visual-section-title" style="margin-top: 20px;">
-                        <span class="visual-title-icon">🖼️</span>
-                        <span>GÉNÉRER UN VISUEL (Orshot)</span>
-                    </div>
-                    <p style="font-size: 0.85em; color: #666; margin: 10px 0;">Crée automatiquement une image pour ton post</p>
-                    <div class="action-buttons" style="margin-top: 12px;">
-                        <button class="action-btn visual-btn" id="btnOrshotQuote" onclick="generateOrshot('quote', this)" style="background: linear-gradient(135deg, #FF6B6B, #EE5A5A); border: none; color: white;">💬 Citation</button>
-                        <button class="action-btn visual-btn" id="btnOrshotCarousel" onclick="generateOrshot('carousel', this)" style="background: linear-gradient(135deg, #4ECDC4, #44A08D); border: none; color: white;">📸 Carrousel</button>
-                        <button class="action-btn visual-btn" id="btnOrshotPost" onclick="generateOrshot('post', this)" style="background: linear-gradient(135deg, #667eea, #764ba2); border: none; color: white;">📱 Post visuel</button>
-                    </div>
-                    <div id="orshotResult" style="display: none; margin-top: 15px;"></div>
 
                     <!-- Ouvrir mes outils -->
                     <div class="visual-section-title" style="margin-top: 20px;">
@@ -1440,12 +1576,6 @@
         </div>
     </div>
 
-    <!-- Modal Visuels -->
-    <div class="modal-overlay" id="visualModal">
-        <div class="modal" style="max-width: 95vw; width: 800px; max-height: 90vh; overflow: hidden; padding: 0; border-radius: 16px;">
-            <div id="visual-module"></div>
-        </div>
-    </div>
 
     <!-- Modal Favoris -->
     <div class="modal-overlay" id="favoritesModal">
@@ -2159,6 +2289,36 @@ Solution  | Présenter votre solution</pre>
     <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
     <script>
         // ==================== USER PROFILE MANAGER ====================
+        // Menu hamburger mobile
+        function toggleMobileMenu() {
+            const headerButtons = document.getElementById('headerButtons');
+            const menuIcon = document.getElementById('menuIcon');
+            headerButtons.classList.toggle('open');
+            menuIcon.textContent = headerButtons.classList.contains('open') ? '✕' : '☰';
+        }
+
+        function closeMobileMenu() {
+            const headerButtons = document.getElementById('headerButtons');
+            const menuIcon = document.getElementById('menuIcon');
+            if (headerButtons) headerButtons.classList.remove('open');
+            if (menuIcon) menuIcon.textContent = '☰';
+        }
+
+        // Fermer le menu si on clique ailleurs ou sur un bouton du menu
+        document.addEventListener('click', function(e) {
+            const headerButtons = document.getElementById('headerButtons');
+            const menuToggle = document.querySelector('.mobile-menu-toggle');
+            // Si on clique sur un bouton dans le menu, fermer le menu
+            if (headerButtons && e.target.closest('.header-buttons .btn')) {
+                closeMobileMenu();
+                return;
+            }
+            // Fermer si on clique ailleurs
+            if (headerButtons && menuToggle && !headerButtons.contains(e.target) && !menuToggle.contains(e.target)) {
+                closeMobileMenu();
+            }
+        });
+
         const USER_PROFILE_KEY = 'voyageCreatifUserProfile';
         const DEFAULT_PROFILE = {
             nom: '', domaine: '', messageUnique: '', publicCible: [], trancheAge: [],
@@ -2285,9 +2445,9 @@ Solution  | Présenter votre solution</pre>
                                     <input type="text" id="onb-nom" placeholder="Ton prénom ou pseudo" value="${existingProfile?.nom || ''}" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="onb-domaine">Ton domaine d'expertise</label>
+                                    <label for="onb-domaine">Tes domaines d'expertises</label>
                                     <input type="text" id="onb-domaine" placeholder="Ex: coaching, design, marketing digital..." value="${existingProfile?.domaine || ''}">
-                                    <small class="field-hint">💡 L'IA se basera sur ce champ pour te proposer des sujets et idées de contenu pertinents.</small>
+                                    <small class="field-hint">💡 Entre plusieurs domaines d'expertise. L'IA se basera sur ce champ pour te proposer des sujets et idées de contenu pertinents.</small>
                                 </div>
                                 <div class="form-group">
                                     <label for="onb-messageUnique">Ce qui te rend unique</label>
@@ -6093,6 +6253,33 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
             }, 1500);
         }
 
+        // ==================== POP-UP DE BIENVENUE ====================
+        function showWelcomePopup() {
+            // Ne pas afficher si l'utilisateur a coché "ne plus montrer"
+            if (localStorage.getItem('sos_welcome_hidden') === 'true') return;
+
+            const popup = document.getElementById('welcomePopup');
+            if (popup) {
+                popup.style.display = 'flex';
+            }
+        }
+
+        function closeWelcomePopup() {
+            const popup = document.getElementById('welcomePopup');
+            if (popup) {
+                popup.style.display = 'none';
+            }
+        }
+
+        function saveWelcomePreference() {
+            const checkbox = document.getElementById('welcomeDontShow');
+            if (checkbox && checkbox.checked) {
+                localStorage.setItem('sos_welcome_hidden', 'true');
+            } else {
+                localStorage.removeItem('sos_welcome_hidden');
+            }
+        }
+
         // ==================== INITIALISATION ====================
         document.addEventListener('DOMContentLoaded', function() {
             initSelectors();
@@ -6101,12 +6288,17 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
             updateMemoryIndicator();
             AgencySystem.updateUI();
             FrameworkSystem.updateQuickSelector();
-            
+
+            // Afficher le pop-up de bienvenue (avec délai pour laisser la page charger)
+            setTimeout(() => {
+                showWelcomePopup();
+            }, 500);
+
             // Mettre à jour le compteur d'idées sauvegardées
             setTimeout(() => {
                 if (typeof updateSavedCount === 'function') updateSavedCount();
             }, 100);
-            
+
             const profile = UserProfile.get();
             if (profile?.plateformes?.length > 0) {
                 selectPlatform(profile.plateformes[0]);
@@ -7615,89 +7807,6 @@ Pour chaque suggestion :
             } catch (e) { canvaDiv.innerHTML += `<p>❌ ${e.message}</p>`; }
         }
 
-        // ==================== ORSHOT (Génération d'images) ====================
-        async function generateOrshot(type, btn) {
-            if (!currentState.generatedContent) {
-                showToast('❌ Génère d\'abord du contenu');
-                return;
-            }
-
-            // Effet visuel sur le bouton
-            if (btn) {
-                btn.classList.add('sending');
-                btn.innerHTML = '⏳ Génération...';
-            }
-
-            const resultDiv = document.getElementById('orshotResult');
-            resultDiv.style.display = 'block';
-            resultDiv.innerHTML = `
-                <div style="text-align: center; padding: 20px;">
-                    <div style="font-size: 2em; animation: pulse 1s infinite;">🎨</div>
-                    <p style="color: #666; margin-top: 10px;">Génération de l'image en cours...</p>
-                </div>
-            `;
-
-            // Extraire le texte principal (citation, titre, etc.)
-            const content = currentState.generatedContent.substring(0, 300);
-            const userProfile = UserProfile.get();
-
-            try {
-                // Construire l'URL correctement
-                const baseUrl = API_URL.replace(/\/$/, ''); // Enlever le slash final si présent
-
-                const response = await fetch(`${baseUrl}/api/visuals/generate`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        content_type: type, // quote, carousel, post
-                        content_data: {
-                            text: content,
-                            author: userProfile?.nom || ''
-                        }
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-
-                if (data.image_url) {
-                    resultDiv.innerHTML = `
-                        <div style="background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                            <h4 style="margin: 0 0 10px; color: #333;">🖼️ Visuel généré</h4>
-                            <img src="${data.image_url}" alt="Visuel généré" style="max-width: 100%; border-radius: 8px; margin-bottom: 10px;">
-                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                                <a href="${data.image_url}" download="visuel-orshot.png" class="action-btn" style="text-decoration: none; background: #10b981; border: none; color: white; font-size: 0.85em;">
-                                    💾 Télécharger
-                                </a>
-                                <button class="action-btn" onclick="navigator.clipboard.writeText('${data.image_url}').then(() => showToast('✅ Lien copié !'))" style="background: #667eea; border: none; color: white; font-size: 0.85em;">
-                                    📋 Copier le lien
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    throw new Error('Aucune image générée');
-                }
-
-            } catch (e) {
-                console.error('Erreur Orshot:', e);
-                resultDiv.innerHTML = `
-                    <div style="background: #fee2e2; border-radius: 12px; padding: 15px; color: #dc2626;">
-                        <strong>❌ Erreur</strong>
-                        <p style="margin: 5px 0 0; font-size: 0.9em;">${e.message || 'La génération a échoué. Vérifie que l\'API Orshot est configurée.'}</p>
-                    </div>
-                `;
-            } finally {
-                if (btn) {
-                    btn.classList.remove('sending');
-                    const labels = { quote: '💬 Citation', carousel: '📸 Carrousel', post: '📱 Post visuel' };
-                    btn.innerHTML = labels[type] || '🖼️ Générer';
-                }
-            }
-        }
 
         // Utilitaire pour ajouter bouton copier
         function addCopyButton(element, text) {
@@ -7786,6 +7895,8 @@ Pour chaque suggestion :
 
         // ==================== TOUR GUIDÉ ====================
         const tourSteps = [
+            { el: '#profileBtn', title: '🚀 Commencez ici !', text: '<strong>Étape 1 :</strong> Cliquez sur "<strong>Mon profil</strong>" pour remplir le questionnaire onboarding. C\'est essentiel pour personnaliser vos contenus !<br><br>Ensuite, configurez "<strong>Ma Voix</strong>" pour que l\'IA capture votre style d\'écriture unique.', side: 'bottom' },
+            { el: '.btn-voice', title: '🎤 Ma Voix', text: '<strong>Étape 2 :</strong> Colle des textes <strong>vraiment écrits par toi</strong> (pas générés par IA) pour que l\'analyse capture ton <strong>ton authentique</strong>. Plus tes textes sont personnels, plus ta voix sera fidèle !', side: 'left' },
             { el: '.btn-trends', title: '📈 TRENDS', text: 'Découvre les tendances du moment ! 5 idées de contenu qui buzzent, adaptées à ton profil. Clique sur une idée pour la développer.', side: 'left' },
             { el: '#structureSection', title: '📖 Structures narratives', text: '<strong>AIDA</strong> pour vendre, <strong>Voyage du Héros</strong> pour inspirer, <strong>Pattern Interrupt</strong> pour surprendre... Chaque structure a son super-pouvoir !', side: 'right' },
             { el: '#formatSection', title: '🎬 Formats & Plateformes', text: 'Post classique, Carousel, Reel, Story... L\'IA adapte la longueur et le ton selon la plateforme choisie.', side: 'left' },
@@ -7793,9 +7904,7 @@ Pour chaque suggestion :
             { el: '#outputPanel', title: '📄 Zone de résultat', text: 'Ton contenu apparaît ici avec l\'effet machine à écrire. L\'IA se souvient de tes anciens contenus pour toujours proposer du <strong>nouveau</strong> !', side: 'left' },
             { el: '.btn-stats', title: '🏆 Stats & Mode Agence', text: 'Suis ta progression (XP, badges, niveaux) et accède au <strong>Mode Agence</strong> pour gérer plusieurs clients, importer des CSV et suivre tes productions ! 🏢', side: 'right' },
             { el: '.btn-planning', title: '🗓️ Planning IA', text: 'L\'IA analyse tes contenus sauvegardés et te suggère un <strong>planning optimal</strong> : meilleurs créneaux par plateforme, équilibre des piliers, prochaines priorités !', side: 'left' },
-            { el: '.btn-voice', title: '🎤 Ma Voix', text: 'LA fonctionnalité unique ! Colle des textes <strong>vraiment écrits par toi</strong> (pas générés par IA) pour que l\'analyse capture ton <strong>ton authentique</strong>. Plus tes textes sont personnels, plus ta voix sera fidèle !', side: 'left' },
             { el: '.btn-favorites', title: '❤️ Favoris', text: 'Sauvegarde tes meilleurs contenus pour les retrouver facilement. Jusqu\'à 20 favoris stockés dans ton navigateur.', side: 'left' },
-            { el: '#profileBtn', title: '✏️ Mon profil', text: 'Configure ton personal branding : domaine, piliers de contenu, style, audience... Plus ton profil est complet, plus les contenus sont personnalisés !', side: 'right' },
             { el: '#memoryIndicator', title: '🧠 Mémoire intelligente', text: 'Tithot se souvient de tes contenus ! Elle alterne automatiquement tes piliers et évite de répéter les mêmes sujets.', side: 'left', optional: true }
         ];
         let tourStep = 0;
@@ -8515,7 +8624,7 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
         /* Chatbot Widget */
         .chatbot-widget {
             position: fixed;
-            bottom: 25px;
+            bottom: 55px; /* Ajusté pour le footer légal */
             right: 25px;
             z-index: 9999;
             font-family: 'Poppins', sans-serif;
@@ -8769,6 +8878,66 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
         }
     </style>
 
+    <!-- Footer légal -->
+    <footer class="legal-footer">
+        <div class="legal-footer-content">
+            <span>© 2025 My Inner Quest</span>
+            <div class="legal-footer-links">
+                <a href="cgv.html" target="_blank">CGV</a>
+                <a href="mentions-legales.html" target="_blank">Mentions légales</a>
+                <a href="mailto:contact@myinnerquest.fr">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <style>
+        .legal-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 15, 0.95);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 20px;
+            z-index: 999;
+        }
+        .legal-footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75em;
+            color: rgba(255, 255, 255, 0.4);
+        }
+        .legal-footer-links {
+            display: flex;
+            gap: 20px;
+        }
+        .legal-footer-links a {
+            color: rgba(255, 255, 255, 0.5);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .legal-footer-links a:hover {
+            color: #667eea;
+        }
+        @media (max-width: 600px) {
+            .legal-footer-content {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+            }
+            .legal-footer-links {
+                gap: 15px;
+            }
+        }
+        /* Ajuster le padding bottom du body pour le footer */
+        body {
+            padding-bottom: 45px;
+        }
+    </style>
+
     <div class="chatbot-widget">
         <div class="chatbot-window" id="chatbotWindow">
             <div class="chatbot-header">
@@ -8918,7 +9087,7 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
                         </div>
                         <div class="chat-quick-replies">
                             ${this.quickReplies.map(q => `
-                                <button class="chat-quick-btn" onclick="Chatbot.askQuestion('${q}')">${q}</button>
+                                <button class="chat-quick-btn" onclick="Chatbot.askQuestion('${q.replace(/'/g, "\\'")}')">${q}</button>
                             `).join('')}
                         </div>
                     </div>
@@ -9062,56 +9231,126 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
         });
     </script>
 
-    <!-- Module Visuels Orshot -->
-    <script src="visual-module.js"></script>
+
+    <!-- Bandeau Cookies RGPD -->
+    <div id="cookieBanner" class="cookie-banner">
+        <div class="cookie-content">
+            <div class="cookie-text">
+                <span class="cookie-icon">🍪</span>
+                <p>Ce site utilise uniquement des <strong>cookies essentiels</strong> pour votre authentification et vos préférences. Aucun cookie publicitaire ou de tracking.
+                <a href="mentions-legales.html#cookies" target="_blank">En savoir plus</a></p>
+            </div>
+            <div class="cookie-actions">
+                <button class="cookie-btn cookie-btn-accept" onclick="acceptCookies()">J'accepte</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .cookie-banner {
+            position: fixed;
+            bottom: 45px; /* Au-dessus du footer légal */
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-top: 2px solid #667eea;
+            padding: 15px 20px;
+            z-index: 10000;
+            display: none;
+            animation: slideUpCookie 0.4s ease;
+        }
+        .cookie-banner.show {
+            display: block;
+        }
+        @keyframes slideUpCookie {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .cookie-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .cookie-text {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+        .cookie-icon {
+            font-size: 1.8em;
+        }
+        .cookie-text p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9em;
+            margin: 0;
+            line-height: 1.5;
+        }
+        .cookie-text a {
+            color: #667eea;
+            text-decoration: underline;
+        }
+        .cookie-text a:hover {
+            color: #f5576c;
+        }
+        .cookie-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .cookie-btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 25px;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .cookie-btn-accept {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+        }
+        .cookie-btn-accept:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(17, 153, 142, 0.4);
+        }
+        @media (max-width: 600px) {
+            .cookie-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            .cookie-text {
+                flex-direction: column;
+            }
+            .cookie-banner {
+                bottom: 60px; /* Plus d'espace sur mobile */
+            }
+        }
+    </style>
+
     <script>
-        // Visual Modal Functions
-        let visualModuleInitialized = false;
-
-        function showVisualModal(contentData) {
-            document.getElementById('visualModal').classList.add('active');
-            document.body.style.overflow = 'hidden';
-
-            // Initialiser le module Visual si pas encore fait
-            if (!visualModuleInitialized && typeof window.visualModule !== 'undefined') {
-                window.visualModule.init();
-                visualModuleInitialized = true;
-            }
-
-            // Passer le contenu au module
-            if (contentData && window.visualModule) {
-                window.visualModule.setContent(contentData);
+        // Gestion du bandeau cookies
+        function initCookieBanner() {
+            const cookiesAccepted = localStorage.getItem('cookies_accepted');
+            if (!cookiesAccepted) {
+                document.getElementById('cookieBanner').classList.add('show');
             }
         }
 
-        function closeVisualModal() {
-            document.getElementById('visualModal').classList.remove('active');
-            document.body.style.overflow = '';
+        function acceptCookies() {
+            localStorage.setItem('cookies_accepted', JSON.stringify({
+                accepted: true,
+                date: new Date().toISOString()
+            }));
+            document.getElementById('cookieBanner').classList.remove('show');
         }
 
-        // Fermer le modal en cliquant sur l'overlay
-        document.getElementById('visualModal')?.addEventListener('click', (e) => {
-            if (e.target.classList.contains('modal-overlay')) {
-                closeVisualModal();
-            }
-        });
-
-        // Fonction pour ajouter le bouton "Créer le visuel" après la génération de contenu
-        function addVisualButton(contentData, containerSelector) {
-            const container = document.querySelector(containerSelector);
-            if (!container) return;
-
-            // Vérifier si le bouton existe déjà
-            if (container.querySelector('.visual-create-btn')) return;
-
-            const button = document.createElement('button');
-            button.className = 'visual-create-btn';
-            button.style.cssText = 'margin-top: 15px; padding: 12px 24px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;';
-            button.innerHTML = '🎨 Créer le visuel';
-            button.onclick = () => showVisualModal(contentData);
-
-            container.appendChild(button);
-        }
+        // Initialiser au chargement
+        document.addEventListener('DOMContentLoaded', initCookieBanner);
     </script>
 
 </body>

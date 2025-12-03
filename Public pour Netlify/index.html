@@ -390,42 +390,6 @@
             background-clip: text;
             position: relative;
         }
-        /* Glitch effect */
-        .hero h1 .gradient::before,
-        .hero h1 .gradient::after {
-            content: 'qui captive';
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: linear-gradient(135deg, var(--accent), var(--accent-light)); 
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent;
-            opacity: 0;
-        }
-        .hero h1 .gradient:hover::before {
-            animation: glitch-1 0.3s linear infinite;
-            opacity: 0.8;
-        }
-        .hero h1 .gradient:hover::after {
-            animation: glitch-2 0.3s linear infinite;
-            opacity: 0.8;
-        }
-        @keyframes glitch-1 {
-            0% { clip-path: inset(20% 0 30% 0); transform: translateX(-3px); }
-            20% { clip-path: inset(60% 0 10% 0); transform: translateX(3px); }
-            40% { clip-path: inset(10% 0 70% 0); transform: translateX(-2px); }
-            60% { clip-path: inset(50% 0 20% 0); transform: translateX(2px); }
-            80% { clip-path: inset(30% 0 40% 0); transform: translateX(-3px); }
-            100% { clip-path: inset(70% 0 5% 0); transform: translateX(3px); }
-        }
-        @keyframes glitch-2 {
-            0% { clip-path: inset(70% 0 5% 0); transform: translateX(3px); }
-            20% { clip-path: inset(30% 0 40% 0); transform: translateX(-3px); }
-            40% { clip-path: inset(50% 0 20% 0); transform: translateX(2px); }
-            60% { clip-path: inset(10% 0 70% 0); transform: translateX(-2px); }
-            80% { clip-path: inset(60% 0 10% 0); transform: translateX(3px); }
-            100% { clip-path: inset(20% 0 30% 0); transform: translateX(-3px); }
-        }
         
         @keyframes wordReveal {
             to {
@@ -1155,26 +1119,36 @@
                 background: rgba(10,10,15,0.98);
                 flex-direction: column;
                 justify-content: center;
-                padding: 30px;
-                gap: 25px;
+                align-items: center;
+                padding: 80px 30px 50px;
+                gap: 20px;
                 transform: translateX(100%);
                 transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                overflow-y: auto;
+                z-index: 100;
             }
             .nav.active { transform: translateX(0); }
-            .nav a { font-size: 1.3em; }
+            .nav a { font-size: 1.2em; }
+            .nav .btn-cta {
+                margin-top: 15px;
+                padding: 15px 35px;
+                font-size: 1.1em;
+                width: auto;
+                display: inline-block;
+            }
             .menu-toggle { display: block; }
             .menu-toggle.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
             .menu-toggle.active span:nth-child(2) { opacity: 0; }
             .menu-toggle.active span:nth-child(3) { transform: rotate(-45deg) translate(7px, -6px); }
 
-            .hero { padding: 100px 15px 60px; }
+            .hero { padding: 100px 15px 80px; overflow: visible; min-height: auto; }
             .hero h1 { font-size: clamp(1.8em, 7vw, 2.8em); }
             .hero p { font-size: 1.1em; padding: 0 10px; }
             .video-placeholder { max-width: 100%; margin: 0 auto 30px; }
 
             /* Fix boutons hero */
-            .hero-cta { gap: 12px; padding: 0 10px; }
-            .btn-primary { padding: 14px 25px; font-size: 1em; width: 100%; justify-content: center; }
+            .hero-cta { gap: 12px; padding: 0 15px; flex-direction: column; align-items: center; width: 100%; box-sizing: border-box; }
+            .btn-primary { padding: 16px 30px; font-size: 1em; width: 100%; max-width: 300px; justify-content: center; box-sizing: border-box; }
             .btn-secondary { padding: 12px 20px; width: 100%; text-align: center; }
 
             /* Target tags mobile */
@@ -1322,22 +1296,14 @@
                 <h1 class="hero-title">
                     <span class="word" style="animation-delay: 0.3s">L'IA</span>
                     <span class="word" style="animation-delay: 0.4s">qui</span>
-                    <span class="word" style="animation-delay: 0.5s">écrit</span>
-                    <span class="word gradient" style="animation-delay: 0.6s">comme toi,</span>
-                    <span class="word" style="animation-delay: 0.8s">pour</span>
-                    <span class="word" style="animation-delay: 0.9s">ton</span>
-                    <span class="word gradient" style="animation-delay: 1.0s">vrai business.</span>
+                    <span class="word" style="animation-delay: 0.5s">connaît</span>
+                    <span class="word gradient" style="animation-delay: 0.6s">ton business</span>
+                    <span class="word" style="animation-delay: 0.8s">et</span>
+                    <span class="word" style="animation-delay: 0.9s">écrit</span>
+                    <span class="word gradient" style="animation-delay: 1.0s">comme toi.</span>
                 </h1>
-                <p class="hero-subtitle">SOS Storytelling analyse tes textes, ton activité et tes objectifs grâce à un onboarding intelligent, puis génère pour toi des contenus, DM et pages de vente alignés à ton style, ton offre et ton client idéal.</p>
+                <p class="hero-subtitle">SOS Storytelling analyse tes textes, ton activité et tes objectifs grâce à un onboarding intelligent, puis génère pour toi des contenus et newsletters alignés à ton style, ton offre et ton client idéal.</p>
 
-                <!-- Target audience tags -->
-                <div class="target-tags">
-                    <span class="target-tag">👩‍💼 Coach</span>
-                    <span class="target-tag">🎓 Formatrice</span>
-                    <span class="target-tag">💻 Freelance</span>
-                    <span class="target-tag">🏢 Agence</span>
-                    <span class="target-tag">✍️ Créatrice de contenu</span>
-                </div>
 
                 <div class="hero-cta">
                     <a href="login.html" class="btn-primary">Essayer gratuitement →</a>
@@ -1345,17 +1311,6 @@
                 </div>
                 <p class="hero-note">✓ Sans carte bancaire • ✓ 7 jours gratuits • ✓ Annulation libre</p>
 
-                <!-- Social proof -->
-                <div class="social-proof">
-                    <div class="social-proof-avatars">
-                        <div class="avatar" style="background: linear-gradient(135deg, #667eea, #764ba2);">S</div>
-                        <div class="avatar" style="background: linear-gradient(135deg, #f093fb, #f5576c);">M</div>
-                        <div class="avatar" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">L</div>
-                        <div class="avatar" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">A</div>
-                        <div class="avatar" style="background: linear-gradient(135deg, #fa709a, #fee140);">C</div>
-                    </div>
-                    <p class="social-proof-text">Rejoins <strong>+500 entrepreneures</strong> qui créent du contenu authentique</p>
-                </div>
             </div>
 
             <!-- Video Placeholder -->
@@ -1590,13 +1545,6 @@
             <p class="section-subtitle">Tout ce que vous devez savoir avant de commencer</p>
             
             <div class="faq-container">
-                <article class="faq-item">
-                    <div class="faq-question">Comment fonctionne l'essai gratuit de 14 jours ?</div>
-                    <div class="faq-answer">
-                        <p>L'essai est sans engagement et sans carte bancaire. Vous avez accès à toutes les fonctionnalités pendant 14 jours : génération illimitée, "Ma Voix", Planning IA, exports... À la fin, vous choisissez de souscrire ou non. Vos données restent exportables dans tous les cas.</p>
-                    </div>
-                </article>
-                
                 <article class="faq-item">
                     <div class="faq-question">Puis-je utiliser SOS Storytelling pour plusieurs clients ?</div>
                     <div class="faq-answer">

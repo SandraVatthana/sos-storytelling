@@ -232,6 +232,66 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* RGPD Checkboxes */
+        .rgpd-section {
+            margin: 25px 0;
+            text-align: left;
+        }
+
+        .rgpd-checkbox {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        .rgpd-checkbox input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            min-width: 20px;
+            margin-top: 2px;
+            accent-color: #f093fb;
+            cursor: pointer;
+        }
+
+        .rgpd-checkbox label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85em;
+            line-height: 1.5;
+            cursor: pointer;
+        }
+
+        .rgpd-checkbox label a {
+            color: #f093fb;
+            text-decoration: underline;
+        }
+
+        .rgpd-checkbox label a:hover {
+            color: #f5576c;
+        }
+
+        .rgpd-checkbox.required label::after {
+            content: ' *';
+            color: #f5576c;
+        }
+
+        .rgpd-checkbox.optional label {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .rgpd-error {
+            color: #ef4444;
+            font-size: 0.85em;
+            margin-top: -10px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .rgpd-error.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -239,6 +299,24 @@
         <div class="logo">🚀</div>
         <h1>SOS Storytelling</h1>
         <p class="subtitle">Connecte-toi ou crée ton compte pour 7 jours d'essai gratuit</p>
+
+        <!-- Section RGPD - Checkboxes -->
+        <div class="rgpd-section">
+            <div class="rgpd-checkbox required">
+                <input type="checkbox" id="acceptTerms">
+                <label for="acceptTerms">
+                    J'accepte les <a href="cgv.html" target="_blank">Conditions Générales</a> et la <a href="mentions-legales.html" target="_blank">Politique de confidentialité</a>
+                </label>
+            </div>
+            <div class="rgpd-error" id="termsError">⚠️ Veuillez accepter les conditions pour continuer</div>
+
+            <div class="rgpd-checkbox optional">
+                <input type="checkbox" id="acceptNewsletter">
+                <label for="acceptNewsletter">
+                    J'accepte de recevoir des conseils et nouveautés par email (optionnel)
+                </label>
+            </div>
+        </div>
 
         <div class="auth-buttons">
             <button class="btn-google" onclick="signInWithGoogle()">
@@ -295,8 +373,54 @@
         }
         checkSession();
 
+        // Vérifier les consentements RGPD
+        function checkRGPDConsent() {
+            const acceptTerms = document.getElementById('acceptTerms').checked;
+            const termsError = document.getElementById('termsError');
+
+            if (!acceptTerms) {
+                termsError.classList.add('show');
+                return false;
+            }
+
+            termsError.classList.remove('show');
+            return true;
+        }
+
+        // Sauvegarder les préférences RGPD (pour les récupérer après OAuth redirect)
+        function saveRGPDPreferences() {
+            const acceptTerms = document.getElementById('acceptTerms').checked;
+            const acceptNewsletter = document.getElementById('acceptNewsletter').checked;
+
+            localStorage.setItem('rgpd_consent', JSON.stringify({
+                terms_accepted: acceptTerms,
+                newsletter_opt_in: acceptNewsletter,
+                accepted_at: new Date().toISOString()
+            }));
+        }
+
+        // Masquer l'erreur quand on coche la case
+        document.addEventListener('DOMContentLoaded', () => {
+            const acceptTerms = document.getElementById('acceptTerms');
+            if (acceptTerms) {
+                acceptTerms.addEventListener('change', () => {
+                    if (acceptTerms.checked) {
+                        document.getElementById('termsError').classList.remove('show');
+                    }
+                });
+            }
+        });
+
         // Connexion Google
         async function signInWithGoogle() {
+            // Vérifier le consentement RGPD
+            if (!checkRGPDConsent()) {
+                return;
+            }
+
+            // Sauvegarder les préférences pour après le redirect OAuth
+            saveRGPDPreferences();
+
             const { data, error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
@@ -312,6 +436,14 @@
         // Connexion Magic Link
         async function signInWithEmail(e) {
             e.preventDefault();
+
+            // Vérifier le consentement RGPD
+            if (!checkRGPDConsent()) {
+                return;
+            }
+
+            // Sauvegarder les préférences
+            saveRGPDPreferences();
 
             const email = document.getElementById('email').value;
             const submitBtn = document.getElementById('submitBtn');
@@ -345,9 +477,23 @@
 
         // Créer ou mettre à jour l'utilisateur avec trial de 7 jours
         // ANTI-ABUS : Vérifie si l'email a déjà utilisé un trial
+        // RGPD : Gère les consentements
         async function createOrUpdateUserWithTrial(session) {
             const email = session.user.email.toLowerCase();
             const name = session.user.user_metadata?.full_name || email.split('@')[0];
+
+            // Récupérer les préférences RGPD sauvegardées
+            let rgpdConsent = { terms_accepted: false, newsletter_opt_in: false, accepted_at: null };
+            try {
+                const saved = localStorage.getItem('rgpd_consent');
+                if (saved) {
+                    rgpdConsent = JSON.parse(saved);
+                    // Nettoyer après utilisation
+                    localStorage.removeItem('rgpd_consent');
+                }
+            } catch (e) {
+                console.warn('Erreur lecture consentement RGPD:', e);
+            }
 
             // Vérifier si l'utilisateur existe déjà
             const { data: existingUser } = await supabase
@@ -381,28 +527,37 @@
                     subscription_status: 'on_trial',
                     trial_ends_at: trialEndsAt.toISOString(),
                     trial_used: true,  // ANTI-ABUS : Marquer que le trial a été utilisé
-                    created_at: new Date().toISOString()
+                    created_at: new Date().toISOString(),
+                    // RGPD : Stocker les consentements
+                    accepted_terms_at: rgpdConsent.accepted_at || new Date().toISOString(),
+                    newsletter_opt_in: rgpdConsent.newsletter_opt_in || false
                 });
 
             if (error) {
                 console.error('Erreur création utilisateur:', error);
             } else {
                 console.log('✅ Nouvel utilisateur créé avec trial de 7 jours');
+                console.log('📋 RGPD - CGU acceptées:', rgpdConsent.accepted_at);
+                console.log('📧 RGPD - Newsletter opt-in:', rgpdConsent.newsletter_opt_in);
 
-                // Ajouter le contact à Brevo (liste ID 3, plan = free pour trial)
-                try {
-                    await fetch('https://sos-storytelling-api.sandra-devonssay.workers.dev/api/brevo/contact', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            email: email,
-                            name: name,
-                            source: 'trial' // Sera mappé en 'free' dans Brevo
-                        })
-                    });
-                    console.log('✅ Contact ajouté à Brevo');
-                } catch (brevoError) {
-                    console.log('⚠️ Erreur Brevo (non bloquante):', brevoError);
+                // RGPD : Ajouter à Brevo UNIQUEMENT si l'utilisateur a accepté la newsletter
+                if (rgpdConsent.newsletter_opt_in) {
+                    try {
+                        await fetch('https://sos-storytelling-api.sandra-devonssay.workers.dev/api/brevo/contact', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                email: email,
+                                name: name,
+                                source: 'trial' // Sera mappé en 'free' dans Brevo
+                            })
+                        });
+                        console.log('✅ Contact ajouté à Brevo (newsletter opt-in)');
+                    } catch (brevoError) {
+                        console.log('⚠️ Erreur Brevo (non bloquante):', brevoError);
+                    }
+                } else {
+                    console.log('📧 Newsletter non souhaitée - Contact non ajouté à Brevo');
                 }
             }
         }
