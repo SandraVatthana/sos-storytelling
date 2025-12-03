@@ -2100,37 +2100,31 @@ async function handleVisualsAPI(request, env, corsHeaders) {
   const url = new URL(request.url);
   const path = url.pathname.replace('/api/visuals', '');
 
-  // Authentification via Supabase token
-  const authHeader = request.headers.get('Authorization');
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return jsonResponse({ error: 'Authorization required', code: 'UNAUTHORIZED' }, 401, corsHeaders);
-  }
-
-  const token = authHeader.replace('Bearer ', '');
-  const user = await verifySupabaseToken(token, env);
-
-  if (!user) {
-    return jsonResponse({ error: 'Invalid or expired token', code: 'INVALID_TOKEN' }, 401, corsHeaders);
-  }
+  // Pas d'authentification requise pour les visuels (outil public)
+  // L'utilisateur peut optionnellement s'authentifier pour l'historique
 
   try {
     switch (true) {
-      // POST /api/visuals/generate - Générer un visuel
+      // POST /api/visuals/generate - Générer un visuel (public)
       case path === '/generate' && request.method === 'POST':
-        return await handleGenerateVisual(request, env, user, corsHeaders);
+        return await handleGenerateVisual(request, env, null, corsHeaders);
 
-      // GET /api/visuals/templates - Lister les templates disponibles
+      // GET /api/visuals/templates - Lister les templates disponibles (public)
       case path === '/templates' && request.method === 'GET':
         return await handleListVisualTemplates(url, corsHeaders);
 
-      // GET /api/visuals/history - Historique des visuels générés
+      // GET /api/visuals/history - Historique des visuels générés (auth requise)
       case path === '/history' && request.method === 'GET':
+        const authHeader = request.headers.get('Authorization');
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+          return jsonResponse({ error: 'Authorization required for history', code: 'UNAUTHORIZED' }, 401, corsHeaders);
+        }
+        const token = authHeader.replace('Bearer ', '');
+        const user = await verifySupabaseToken(token, env);
+        if (!user) {
+          return jsonResponse({ error: 'Invalid or expired token', code: 'INVALID_TOKEN' }, 401, corsHeaders);
+        }
         return await handleVisualHistory(url, env, user, corsHeaders);
-
-      // GET /api/visuals/:id - Détail d'un visuel
-      case path.match(/^\/[^/]+$/) && request.method === 'GET':
-        const visualId = path.substring(1);
-        return await handleGetVisual(visualId, env, user, corsHeaders);
 
       default:
         return jsonResponse({ error: 'Endpoint not found', code: 'NOT_FOUND' }, 404, corsHeaders);
