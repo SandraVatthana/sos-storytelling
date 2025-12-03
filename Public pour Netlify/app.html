@@ -7645,28 +7645,15 @@ Pour chaque suggestion :
                 // Construire l'URL correctement
                 const baseUrl = API_URL.replace(/\/$/, ''); // Enlever le slash final si présent
 
-                // Mapper le type vers content_type et template_id valides
-                const typeMapping = {
-                    quote: { content_type: 'quote', template_id: 'quote_minimal' },
-                    carousel: { content_type: 'carrousel_instagram', template_id: 'carrousel_ig_minimal' },
-                    post: { content_type: 'post_instagram', template_id: 'post_ig_minimal' }
-                };
-                const mapping = typeMapping[type] || typeMapping.post;
-
                 const response = await fetch(`${baseUrl}/api/visuals/generate`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        content_type: mapping.content_type,
-                        template_id: mapping.template_id,
+                        content_type: type, // quote, carousel, post
                         content_data: {
-                            quote: content,
-                            author: userProfile?.nom || 'Auteur',
-                            title: 'Citation du jour',
-                            subtitle: userProfile?.domaine || '',
-                            text: content
-                        },
-                        output_format: 'png'
+                            text: content,
+                            author: userProfile?.nom || ''
+                        }
                     })
                 });
 

@@ -2281,38 +2281,18 @@ const FORMAT_DIMENSIONS = {
 
 // ============ ORSHOT API FUNCTIONS ============
 
-// POST /api/visuals/generate - Générer un visuel via Orshot
+// POST /api/visuals/generate - Générer un visuel via Orshot (mode prompt)
 async function handleGenerateVisual(request, env, user, corsHeaders) {
   const body = await request.json();
-  const { content_type, template_id, content_data, output_format = 'png' } = body;
+  const { content_type, content_data, style = 'modern' } = body;
 
   // Validation
-  if (!content_type || !template_id || !content_data) {
+  if (!content_data || !content_data.text) {
     return jsonResponse({
       error: 'Missing required fields',
       code: 'VALIDATION_ERROR',
-      required: ['content_type', 'template_id', 'content_data']
+      required: ['content_data.text']
     }, 400, corsHeaders);
-  }
-
-  // Vérifier le format
-  const formatInfo = FORMAT_DIMENSIONS[content_type];
-  if (!formatInfo) {
-    return jsonResponse({
-      error: 'Invalid content_type',
-      code: 'INVALID_FORMAT',
-      valid_formats: Object.keys(FORMAT_DIMENSIONS)
-    }, 400, corsHeaders);
-  }
-
-  // Trouver le template
-  const templates = VISUAL_TEMPLATES[content_type] || [];
-  const template = templates.find(t => t.id === template_id || t.template_id === template_id);
-  if (!template) {
-    return jsonResponse({
-      error: 'Template not found',
-      code: 'TEMPLATE_NOT_FOUND'
-    }, 404, corsHeaders);
   }
 
   // Vérifier la clé API Orshot
@@ -2324,39 +2304,103 @@ async function handleGenerateVisual(request, env, user, corsHeaders) {
   }
 
   try {
-    // Préparer les données pour Orshot
-    const orshotPayload = buildOrshotPayload(content_type, template, content_data, output_format);
+    // Construire le prompt pour Orshot
+    const visualType = content_type || 'quote';
+    const text = content_data.text || content_data.quote || '';
+    const author = content_data.author || '';
 
-    // Appeler l'API Orshot
-    const orshotResponse = await fetch(`${ORSHOT_API_BASE}/generate/images`, {
+    let prompt = '';
+    if (visualType === 'quote') {
+      prompt = `Create a beautiful minimalist social media quote image. The quote is: "${text.substring(0, 200)}". ${author ? `By ${author}.` : ''} Style: clean, modern, professional, suitable for LinkedIn or Instagram. Use elegant typography on a subtle gradient background.`;
+    } else if (visualType === 'carrousel_instagram' || visualType === 'carousel') {
+      prompt = `Create a professional carousel slide for Instagram. Main text: "${text.substring(0, 150)}". Style: modern, clean, with bold typography. Colors: professional gradient background.`;
+    } else {
+      prompt = `Create a professional social media post image. Content: "${text.substring(0, 200)}". Style: modern, minimalist, eye-catching. Perfect for Instagram or LinkedIn.`;
+    }
+
+    // Appeler l'API Orshot avec un prompt
+    const orshotResponse = await fetch(`${ORSHOT_API_BASE}/images/generations`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${env.ORSHOT_API_KEY}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(orshotPayload)
+      body: JSON.stringify({
+        prompt: prompt,
+        n: 1,
+        size: '1024x1024',
+        response_format: 'url'
+      })
     });
 
     if (!orshotResponse.ok) {
       const errorData = await orshotResponse.json().catch(() => ({}));
       console.error('Orshot API error:', errorData);
+
+      // Si Orshot ne supporte pas ce format, essayer un autre endpoint
       return jsonResponse({
         error: 'Failed to generate visual',
         code: 'ORSHOT_ERROR',
-        details: errorData.message || orshotResponse.statusText
+        details: errorData.error?.message || errorData.message || orshotResponse.statusText
       }, orshotResponse.status, corsHeaders);
     }
 
     const orshotData = await orshotResponse.json();
+    const imageUrl = orshotData.data?.[0]?.url || orshotData.url || orshotData.image_url;
 
-    // Sauvegarder le visuel en base
-    const savedVisual = await saveVisualToHistory({
-      user_id: user.id,
-      content_type,
-      template_id: template.id,
-      template_name: template.name,
-      content_data,
-      image_url: orshotData.url || orshotData.image_url,
+    if (!imageUrl) {
+      return jsonResponse({
+        error: 'No image URL in response',
+        code: 'NO_IMAGE'
+      }, 500, corsHeaders);
+    }
+
+    return jsonResponse({
+      success: true,
+      image_url: imageUrl,
+      content_type: visualType,
+      prompt_used: prompt
+    }, 200, corsHeaders);
+
+  } catch (error) {
+    console.error('Visual generation error:', error);
+    return jsonResponse({
+      error: 'Internal error during generation',
+      code: 'INTERNAL_ERROR',
+      details: error.message
+    }, 500, corsHeaders);
+  }
+}
+
+// Ancienne fonction pour compatibilité (non utilisée)
+async function handleGenerateVisualLegacy(request, env, user, corsHeaders) {
+  const body = await request.json();
+  const { content_type, template_id, content_data, output_format = 'png' } = body;
+  const templates = VISUAL_TEMPLATES[content_type] || [];
+  const template = templates.find(t => t.id === template_id || t.template_id === template_id);
+
+  if (!template) {
+    return jsonResponse({ error: 'Template not found' }, 404, corsHeaders);
+  }
+
+  const orshotPayload = buildOrshotPayload(content_type, template, content_data, output_format);
+  const orshotResponse = await fetch(`${ORSHOT_API_BASE}/generate/images`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${env.ORSHOT_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(orshotPayload)
+  });
+
+  const orshotData = await orshotResponse.json();
+  const savedVisual = await saveVisualToHistory({
+    user_id: user?.id,
+    content_type,
+    template_id: template.id,
+    template_name: template.name,
+    content_data,
+    image_url: orshotData.url || orshotData.image_url,
       image_base64: orshotData.base64,
       width: template.width,
       height: template.height,
