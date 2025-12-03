@@ -439,15 +439,86 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
-        .hero p { 
-            font-size: 1.3em; 
-            color: rgba(255,255,255,0.7); 
-            max-width: 650px; 
-            margin: 0 auto 40px; 
+        .hero p {
+            font-size: 1.3em;
+            color: rgba(255,255,255,0.7);
+            max-width: 650px;
+            margin: 0 auto 40px;
             line-height: 1.6;
             animation: fadeInUp 1s ease-out 0.6s both;
         }
-        
+
+        .hero-subtitle {
+            font-size: 1.15em !important;
+            max-width: 700px !important;
+            margin: 0 auto 25px !important;
+            line-height: 1.7 !important;
+        }
+
+        /* Target audience tags */
+        .target-tags {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 35px;
+            animation: fadeInUp 1s ease-out 0.7s both;
+        }
+        .target-tag {
+            padding: 8px 18px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 25px;
+            font-size: 0.95em;
+            color: rgba(255,255,255,0.85);
+            font-weight: 500;
+            transition: all 0.3s;
+            cursor: default;
+        }
+        .target-tag:hover {
+            background: rgba(102,126,234,0.2);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            color: #fff;
+        }
+
+        /* Social proof */
+        .social-proof {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            animation: fadeInUp 1s ease-out 1.2s both;
+        }
+        .social-proof-avatars {
+            display: flex;
+        }
+        .social-proof-avatars .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            font-weight: 600;
+            color: white;
+            margin-left: -10px;
+        }
+        .social-proof-avatars .avatar:first-child {
+            margin-left: 0;
+        }
+        .social-proof-text {
+            font-size: 0.95em;
+            color: rgba(255,255,255,0.7);
+            margin: 0;
+        }
+        .social-proof-text strong {
+            color: var(--accent-light);
+        }
+
         /* Video Placeholder */
         .video-placeholder {
             position: relative;
@@ -1106,6 +1177,17 @@
             .btn-primary { padding: 14px 25px; font-size: 1em; width: 100%; justify-content: center; }
             .btn-secondary { padding: 12px 20px; width: 100%; text-align: center; }
 
+            /* Target tags mobile */
+            .target-tags { gap: 8px; margin-bottom: 25px; }
+            .target-tag { padding: 6px 12px; font-size: 0.85em; }
+
+            /* Social proof mobile */
+            .social-proof { flex-direction: column; gap: 10px; margin-top: 25px; }
+            .social-proof-avatars .avatar { width: 32px; height: 32px; font-size: 0.75em; }
+            .social-proof-text { font-size: 0.9em; text-align: center; }
+
+            .hero-subtitle { font-size: 1em !important; padding: 0 10px; }
+
             /* Fix grilles */
             .features-grid { grid-template-columns: 1fr; gap: 20px; }
             .use-cases-grid { grid-template-columns: 1fr; gap: 15px; }
@@ -1236,33 +1318,54 @@
             <div class="hero-orb hero-orb-3"></div>
             
             <div class="hero-content">
-                <span class="badge">🚀 +2000 contenus générés chaque mois</span>
-                <h1>
-                    <span class="word" style="animation-delay: 0.5s">Créez</span>
-                    <span class="word" style="animation-delay: 0.6s">du</span>
-                    <span class="word" style="animation-delay: 0.7s">contenu</span>
-                    <span class="word gradient" style="animation-delay: 0.8s">qui captive</span>
-                    <span class="word" style="animation-delay: 0.9s">en</span>
-                    <span class="word" style="animation-delay: 1.0s">30</span>
-                    <span class="word" style="animation-delay: 1.1s">secondes</span>
+                <span class="badge">✨ Personal Branding & Storytelling</span>
+                <h1 class="hero-title">
+                    <span class="word" style="animation-delay: 0.3s">L'IA</span>
+                    <span class="word" style="animation-delay: 0.4s">qui</span>
+                    <span class="word" style="animation-delay: 0.5s">écrit</span>
+                    <span class="word gradient" style="animation-delay: 0.6s">comme toi,</span>
+                    <span class="word" style="animation-delay: 0.8s">pour</span>
+                    <span class="word" style="animation-delay: 0.9s">ton</span>
+                    <span class="word gradient" style="animation-delay: 1.0s">vrai business.</span>
                 </h1>
-                <p>L'IA de création de contenu pour réseaux sociaux qui comprend votre ton. Structures narratives éprouvées, calendrier éditorial intelligent, exports en un clic.</p>
-                
-                <!-- Video Placeholder -->
-                <div class="video-placeholder" id="videoPlaceholder">
-                    <div class="video-placeholder-content">
-                        <div class="play-button">
-                            <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
-                        </div>
-                        <span>Voir SOS Storytelling en action</span>
-                    </div>
+                <p class="hero-subtitle">SOS Storytelling analyse tes textes, ton activité et tes objectifs grâce à un onboarding intelligent, puis génère pour toi des contenus, DM et pages de vente alignés à ton style, ton offre et ton client idéal.</p>
+
+                <!-- Target audience tags -->
+                <div class="target-tags">
+                    <span class="target-tag">👩‍💼 Coach</span>
+                    <span class="target-tag">🎓 Formatrice</span>
+                    <span class="target-tag">💻 Freelance</span>
+                    <span class="target-tag">🏢 Agence</span>
+                    <span class="target-tag">✍️ Créatrice de contenu</span>
                 </div>
-                
+
                 <div class="hero-cta">
-                    <a href="login.html" class="btn-primary">Essayer gratuitement 7 jours →</a>
-                    <a href="#fonctionnalites" class="btn-secondary">Voir les fonctionnalités</a>
+                    <a href="login.html" class="btn-primary">Essayer gratuitement →</a>
+                    <a href="#videoPlaceholder" class="btn-secondary">▶ Voir une démo</a>
                 </div>
-                <p class="hero-note">✓ Sans carte bancaire • ✓ Annulation libre • ✓ Export de vos données</p>
+                <p class="hero-note">✓ Sans carte bancaire • ✓ 7 jours gratuits • ✓ Annulation libre</p>
+
+                <!-- Social proof -->
+                <div class="social-proof">
+                    <div class="social-proof-avatars">
+                        <div class="avatar" style="background: linear-gradient(135deg, #667eea, #764ba2);">S</div>
+                        <div class="avatar" style="background: linear-gradient(135deg, #f093fb, #f5576c);">M</div>
+                        <div class="avatar" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">L</div>
+                        <div class="avatar" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">A</div>
+                        <div class="avatar" style="background: linear-gradient(135deg, #fa709a, #fee140);">C</div>
+                    </div>
+                    <p class="social-proof-text">Rejoins <strong>+500 entrepreneures</strong> qui créent du contenu authentique</p>
+                </div>
+            </div>
+
+            <!-- Video Placeholder -->
+            <div class="video-placeholder" id="videoPlaceholder">
+                <div class="video-placeholder-content">
+                    <div class="play-button">
+                        <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+                    </div>
+                    <span>Voir SOS Storytelling en action</span>
+                </div>
             </div>
             
             <div class="scroll-indicator" onclick="document.getElementById('fonctionnalites').scrollIntoView({behavior: 'smooth'})">
