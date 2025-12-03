@@ -2372,65 +2372,6 @@ async function handleGenerateVisual(request, env, user, corsHeaders) {
   }
 }
 
-// Ancienne fonction pour compatibilité (non utilisée)
-async function handleGenerateVisualLegacy(request, env, user, corsHeaders) {
-  const body = await request.json();
-  const { content_type, template_id, content_data, output_format = 'png' } = body;
-  const templates = VISUAL_TEMPLATES[content_type] || [];
-  const template = templates.find(t => t.id === template_id || t.template_id === template_id);
-
-  if (!template) {
-    return jsonResponse({ error: 'Template not found' }, 404, corsHeaders);
-  }
-
-  const orshotPayload = buildOrshotPayload(content_type, template, content_data, output_format);
-  const orshotResponse = await fetch(`${ORSHOT_API_BASE}/generate/images`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${env.ORSHOT_API_KEY}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(orshotPayload)
-  });
-
-  const orshotData = await orshotResponse.json();
-  const savedVisual = await saveVisualToHistory({
-    user_id: user?.id,
-    content_type,
-    template_id: template.id,
-    template_name: template.name,
-    content_data,
-    image_url: orshotData.url || orshotData.image_url,
-      image_base64: orshotData.base64,
-      width: template.width,
-      height: template.height,
-      format: output_format
-    }, env);
-
-    return jsonResponse({
-      success: true,
-      visual: {
-        id: savedVisual?.id || crypto.randomUUID(),
-        image_url: orshotData.url || orshotData.image_url,
-        image_base64: orshotData.base64,
-        content_type,
-        template: template.name,
-        width: template.width,
-        height: template.height,
-        format: output_format,
-        created_at: new Date().toISOString()
-      }
-    }, 200, corsHeaders);
-
-  } catch (error) {
-    console.error('Generate visual error:', error);
-    return jsonResponse({
-      error: 'Internal error generating visual',
-      code: 'INTERNAL_ERROR',
-      details: error.message
-    }, 500, corsHeaders);
-  }
-}
 
 // GET /api/visuals/templates - Lister les templates disponibles
 async function handleListVisualTemplates(url, corsHeaders) {
