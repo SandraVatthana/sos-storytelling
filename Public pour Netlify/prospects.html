@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prospects & Campagnes - SOS Storytelling</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="logo-sos-storytelling.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 50%, #f093fb 100%);
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-logo {
+            width: 40px;
+            height: 40px;
+        }
+
+        .header-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .nav-link {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .nav-link:hover {
+            background: #e0e5ff;
+            transform: translateY(-2px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-home {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(17,153,142,0.3);
+        }
+
+        /* Main Content */
+        .main-container {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Tabs */
+        .tabs-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            background: white;
+            padding: 10px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .tab-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: transparent;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            background: #f0f4ff;
+            color: #667eea;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .tab-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            min-height: 500px;
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* Loading */
+        .loading-container {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f0f0f0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .header {
+                padding: 12px 15px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .header-nav {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .tabs-container {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .tab-btn {
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+
+            .tab-content {
+                padding: 20px;
+            }
+        }
+
+        /* Auth Required */
+        .auth-required {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .auth-required h2 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .auth-required p {
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <img src="logo-sos-storytelling.png" alt="Logo" class="header-logo">
+            <span class="header-title">SOS Storytelling</span>
+        </div>
+        <nav class="header-nav">
+            <div id="languageToggleContainer"></div>
+            <a href="app.html" class="nav-link">Generer</a>
+            <a href="prospects.html" class="nav-link active">Prospects</a>
+            <a href="app.html" class="btn-home">Accueil</a>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Auth Check Container -->
+        <div id="authCheck" class="loading-container">
+            <div class="loading-spinner"></div>
+            <p>Chargement...</p>
+        </div>
+
+        <!-- Auth Required Message -->
+        <div id="authRequired" class="auth-required" style="display: none;">
+            <h2>Connexion requise</h2>
+            <p>Connecte-toi pour acceder a la gestion des prospects et campagnes.</p>
+            <a href="login.html" class="btn-login">Se connecter</a>
+        </div>
+
+        <!-- Main App (shown when authenticated) -->
+        <div id="mainApp" style="display: none;">
+            <!-- Tabs -->
+            <div class="tabs-container">
+                <button class="tab-btn active" data-tab="prospects">
+                    <span>👥</span> <span data-i18n="nav.prospects">Prospects</span>
+                </button>
+                <button class="tab-btn" data-tab="campaigns">
+                    <span>📧</span> <span data-i18n="nav.campaigns">Campagnes</span>
+                </button>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <div id="prospectsPanel" class="tab-panel active"></div>
+                <div id="campaignsPanel" class="tab-panel"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Config Supabase
+        const SUPABASE_URL = 'https://cfjibduhagxiwqkiyhqd.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmamliZHVoYWd4aXdxa2l5aHFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE2ODYzMDksImV4cCI6MjA0NzI2MjMwOX0.Xz8b4hJVZtwSAUOmJvBHphespNnFyrbLkZvdHRIR_VA';
+        window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    </script>
+
+    <!-- i18n -->
+    <script src="i18n.js"></script>
+
+    <!-- Modules -->
+    <script src="prospects-module.js"></script>
+    <script src="campaigns-module.js"></script>
+
+    <!-- Main App Script -->
+    <script>
+        // Elements
+        const authCheck = document.getElementById('authCheck');
+        const authRequired = document.getElementById('authRequired');
+        const mainApp = document.getElementById('mainApp');
+        const prospectsPanel = document.getElementById('prospectsPanel');
+        const campaignsPanel = document.getElementById('campaignsPanel');
+        const languageToggleContainer = document.getElementById('languageToggleContainer');
+
+        // Tab Management
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabPanels = document.querySelectorAll('.tab-panel');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabName = btn.dataset.tab;
+
+                // Update buttons
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                // Update panels
+                tabPanels.forEach(p => p.classList.remove('active'));
+                document.getElementById(`${tabName}Panel`).classList.add('active');
+            });
+        });
+
+        // Initialize App
+        async function initApp() {
+            try {
+                // Check authentication
+                const { data: { user } } = await window.supabase.auth.getUser();
+
+                if (!user) {
+                    authCheck.style.display = 'none';
+                    authRequired.style.display = 'block';
+                    return;
+                }
+
+                // User is authenticated
+                authCheck.style.display = 'none';
+                mainApp.style.display = 'block';
+
+                // Initialize i18n
+                await I18N.init();
+
+                // Add language toggle
+                const toggle = I18N.createLanguageToggle();
+                languageToggleContainer.appendChild(toggle);
+
+                // Initialize modules
+                await ProspectsModule.init();
+                await CampaignsModule.init();
+
+                // Render initial content
+                renderProspectsPage();
+                renderCampaignsPage();
+
+                // Listen for language changes
+                window.addEventListener('languageChanged', () => {
+                    updateTranslations();
+                    renderProspectsPage();
+                    renderCampaignsPage();
+                });
+
+            } catch (error) {
+                console.error('Init error:', error);
+                authCheck.innerHTML = '<p style="color: #c62828;">Erreur de chargement. Veuillez rafraichir la page.</p>';
+            }
+        }
+
+        // Render Prospects Page
+        function renderProspectsPage() {
+            const page = ProspectsModule.createProspectsPage();
+            prospectsPanel.innerHTML = '';
+            prospectsPanel.appendChild(page);
+            ProspectsModule.renderProspectsList();
+        }
+
+        // Render Campaigns Page
+        function renderCampaignsPage() {
+            const page = CampaignsModule.createCampaignsPage();
+            campaignsPanel.innerHTML = '';
+            campaignsPanel.appendChild(page);
+            CampaignsModule.renderCampaignsList();
+        }
+
+        // Update translations
+        function updateTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.dataset.i18n;
+                el.textContent = t(key);
+            });
+
+            // Update nav links based on language
+            const prospectsNavText = I18N.currentLanguage === 'en' ? 'Prospects' : 'Prospects';
+            const generateNavText = I18N.currentLanguage === 'en' ? 'Generate' : 'Generer';
+            const homeNavText = I18N.currentLanguage === 'en' ? 'Home' : 'Accueil';
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if (link.href.includes('app.html') && !link.classList.contains('btn-home')) {
+                    link.textContent = generateNavText;
+                }
+            });
+
+            document.querySelectorAll('.btn-home').forEach(btn => {
+                btn.textContent = homeNavText;
+            });
+        }
+
+        // Start app
+        initApp();
+    </script>
+</body>
+</html>

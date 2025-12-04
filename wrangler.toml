@@ -1,5 +1,5 @@
 name = "sos-storytelling-api"
-main = "cloudflare-worker-v5.js"
+main = "cloudflare-worker-v8-full.js"
 compatibility_date = "2024-01-01"
 
 # Variables d'environnement (les secrets sont ajoutés via wrangler secret)
