@@ -475,18 +475,18 @@ const ProspectsModule = {
         container.innerHTML = `
             <div class="prospects-header">
                 <div class="prospects-title-section">
-                    <h2>${t('prospects.title')}</h2>
-                    <p>${t('prospects.subtitle')}</p>
+                    <h2>👥 Mes Prospects</h2>
+                    <p>Importe, gère et contacte tes prospects</p>
                 </div>
                 <div class="prospects-actions">
                     <button class="btn btn-secondary" onclick="ProspectsModule.openImportModal()">
-                        <span class="btn-icon">📥</span> ${t('actions.import')}
+                        <span class="btn-icon">📥</span> Importer CSV
                     </button>
                     <button class="btn btn-secondary" onclick="ProspectsModule.openAddModal()">
-                        <span class="btn-icon">➕</span> ${t('prospects.add_manual')}
+                        <span class="btn-icon">➕</span> Ajouter
                     </button>
                     <button class="btn btn-secondary" onclick="ProspectsModule.exportToCSV()">
-                        <span class="btn-icon">📤</span> ${t('actions.export')}
+                        <span class="btn-icon">📤</span> Exporter
                     </button>
                 </div>
             </div>
@@ -495,7 +495,7 @@ const ProspectsModule = {
 
             <div class="prospects-filters">
                 <div class="search-box">
-                    <input type="text" placeholder="${t('prospects.list.search')}"
+                    <input type="text" placeholder="Rechercher..."
                            onkeyup="ProspectsModule.handleSearch(this.value)" id="prospectsSearch">
                 </div>
                 <div class="filter-buttons" id="filterButtons"></div>
@@ -505,12 +505,12 @@ const ProspectsModule = {
                 <div class="prospects-list-header">
                     <label class="select-all-checkbox">
                         <input type="checkbox" onchange="ProspectsModule.toggleSelectAll(this.checked)">
-                        ${t('actions.select_all')}
+                        Tout sélectionner
                     </label>
                     <span class="selected-count" id="selectedCount"></span>
                     <div class="bulk-actions" id="bulkActions" style="display:none;">
                         <button class="btn btn-small btn-danger" onclick="ProspectsModule.deleteSelected()">
-                            ${t('actions.delete')}
+                            Supprimer
                         </button>
                     </div>
                 </div>
@@ -539,30 +539,31 @@ const ProspectsModule = {
             statsContainer.innerHTML = `
                 <div class="stat-card total">
                     <span class="stat-number">${stats.total}</span>
-                    <span class="stat-label">${t('prospects.total')}</span>
+                    <span class="stat-label">Total</span>
                 </div>
                 <div class="stat-card new">
                     <span class="stat-number">${stats.new}</span>
-                    <span class="stat-label">${t('prospects.status.new')}</span>
+                    <span class="stat-label">Nouveaux</span>
                 </div>
                 <div class="stat-card contacted">
                     <span class="stat-number">${stats.contacted}</span>
-                    <span class="stat-label">${t('prospects.status.contacted')}</span>
+                    <span class="stat-label">Contactés</span>
                 </div>
                 <div class="stat-card replied">
                     <span class="stat-number">${stats.replied}</span>
-                    <span class="stat-label">${t('prospects.status.replied')}</span>
+                    <span class="stat-label">Répondu</span>
                 </div>
             `;
         }
 
         // Rendre les filtres
+        const statusLabels = { all: 'Tous', new: 'Nouveaux', contacted: 'Contactés', opened: 'Ouverts', replied: 'Répondu' };
         if (filterContainer) {
             const filters = ['all', 'new', 'contacted', 'opened', 'replied'];
             filterContainer.innerHTML = filters.map(f => `
                 <button class="filter-btn ${this.currentFilter === f ? 'active' : ''}"
                         onclick="ProspectsModule.setFilter('${f}')">
-                    ${f === 'all' ? t('prospects.list.all') : t('prospects.status.' + f)}
+                    ${statusLabels[f] || f}
                     ${f !== 'all' ? `(${stats[f] || 0})` : ''}
                 </button>
             `).join('');
@@ -573,15 +574,16 @@ const ProspectsModule = {
             listContainer.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-icon">📭</div>
-                    <p>${t('prospects.empty')}</p>
+                    <p>Aucun prospect pour le moment</p>
                     <button class="btn btn-primary" onclick="ProspectsModule.openImportModal()">
-                        ${t('actions.import')}
+                        Importer CSV
                     </button>
                 </div>
             `;
             return;
         }
 
+        const statusBadges = { new: 'Nouveau', contacted: 'Contacté', opened: 'Ouvert', clicked: 'Cliqué', replied: 'Répondu', bounced: 'Bounced', unsubscribed: 'Désabo' };
         listContainer.innerHTML = filtered.map(p => `
             <div class="prospect-card ${this.selectedProspects.has(p.id) ? 'selected' : ''}" data-id="${p.id}">
                 <div class="prospect-checkbox">
@@ -591,7 +593,7 @@ const ProspectsModule = {
                 <div class="prospect-info">
                     <div class="prospect-name">
                         <strong>${p.first_name} ${p.last_name || ''}</strong>
-                        <span class="status-badge status-${p.status}">${t('prospects.status.' + p.status)}</span>
+                        <span class="status-badge status-${p.status}">${statusBadges[p.status] || p.status}</span>
                     </div>
                     <div class="prospect-details">
                         <span class="detail-email">${p.email}</span>
@@ -601,8 +603,8 @@ const ProspectsModule = {
                 </div>
                 <div class="prospect-actions">
                     ${p.linkedin_url ? `<a href="${p.linkedin_url}" target="_blank" class="btn-icon-small" title="LinkedIn">🔗</a>` : ''}
-                    <button class="btn-icon-small" onclick="ProspectsModule.openEditModal('${p.id}')" title="${t('actions.edit')}">✏️</button>
-                    <button class="btn-icon-small" onclick="ProspectsModule.confirmDelete('${p.id}')" title="${t('actions.delete')}">🗑️</button>
+                    <button class="btn-icon-small" onclick="ProspectsModule.openEditModal('${p.id}')" title="Modifier">✏️</button>
+                    <button class="btn-icon-small" onclick="ProspectsModule.confirmDelete('${p.id}')" title="Supprimer">🗑️</button>
                 </div>
             </div>
         `).join('');
@@ -660,7 +662,7 @@ const ProspectsModule = {
 
         if (countEl) {
             countEl.textContent = this.selectedProspects.size > 0
-                ? t('prospects.list.selected', { count: this.selectedProspects.size })
+                ? `${this.selectedProspects.size} sélectionné(s)`
                 : '';
         }
 
@@ -683,7 +685,7 @@ const ProspectsModule = {
             this.renderProspectsList();
         } catch (error) {
             console.error('Error deleting prospects:', error);
-            alert(t('errors.error'));
+            alert('Une erreur est survenue');
         }
     },
 
@@ -698,7 +700,7 @@ const ProspectsModule = {
             this.renderProspectsList();
         } catch (error) {
             console.error('Error deleting prospect:', error);
-            alert(t('errors.error'));
+            alert('Une erreur est survenue');
         }
     },
 
@@ -716,7 +718,7 @@ const ProspectsModule = {
         modal.innerHTML = `
             <div class="modal import-modal">
                 <div class="modal-header">
-                    <h3>📥 ${t('prospects.import.title')}</h3>
+                    <h3>📥 Importer des prospects</h3>
                     <button class="modal-close" onclick="ProspectsModule.closeImportModal()">&times;</button>
                 </div>
                 <div class="modal-body" id="importModalBody">
@@ -751,18 +753,18 @@ const ProspectsModule = {
                            onchange="ProspectsModule.handleFileSelect(this.files[0])">
                     <div class="dropzone-content">
                         <div class="dropzone-icon">📄</div>
-                        <p>${t('prospects.import.drag_drop')}</p>
-                        <p class="dropzone-formats">${t('prospects.import.formats')}</p>
+                        <p>Glisse ton fichier CSV ici<br>ou clique pour parcourir</p>
+                        <p class="dropzone-formats">Format accepté : CSV</p>
                     </div>
                 </div>
 
                 <div class="import-tips">
-                    <p>💡 ${t('prospects.import.pharow_tip')}</p>
-                    <p>💡 ${t('prospects.import.apollo_tip')}</p>
+                    <p>💡 Tu utilises Pharow ? Exporte en CSV et importe ici</p>
+                    <p>💡 Compatible avec Apollo, Lemlist, et autres outils</p>
                 </div>
 
                 <button class="btn btn-secondary" onclick="ProspectsModule.generateCSVTemplate()">
-                    ⬇️ ${t('prospects.import.template')}
+                    ⬇️ Télécharger un modèle CSV
                 </button>
             </div>
         `;
@@ -841,11 +843,24 @@ const ProspectsModule = {
 
         const { headers, mapping } = this.importState;
         const fields = Object.keys(this.COLUMN_MAPPINGS);
+        const fieldLabels = {
+            first_name: 'Prénom',
+            last_name: 'Nom',
+            email: 'Email',
+            company: 'Entreprise',
+            job_title: 'Poste',
+            linkedin: 'LinkedIn',
+            phone: 'Téléphone',
+            website: 'Site web',
+            sector: 'Secteur',
+            city: 'Ville',
+            company_size: 'Effectif'
+        };
 
         body.innerHTML = `
             <div class="import-step import-step-2">
-                <h4>${t('prospects.import.mapping_title')}</h4>
-                <p>${t('prospects.import.mapping_description')}</p>
+                <h4>🔗 Associer les colonnes</h4>
+                <p>Fais correspondre les colonnes de ton fichier avec les champs</p>
 
                 <div class="mapping-grid">
                     ${headers.map((header, index) => `
@@ -853,10 +868,10 @@ const ProspectsModule = {
                             <span class="original-column">${header}</span>
                             <span class="mapping-arrow">→</span>
                             <select class="mapping-select" data-index="${index}">
-                                <option value="">${t('prospects.import.ignore')}</option>
+                                <option value="">— Ignorer —</option>
                                 ${fields.map(f => `
                                     <option value="${f}" ${mapping[index] === f ? 'selected' : ''}>
-                                        ${t('prospects.fields.' + f)}
+                                        ${fieldLabels[f] || f}
                                         ${f === 'first_name' || f === 'email' ? ' *' : ''}
                                     </option>
                                 `).join('')}
@@ -865,14 +880,14 @@ const ProspectsModule = {
                     `).join('')}
                 </div>
 
-                <p class="required-note">* ${t('prospects.import.required')}</p>
+                <p class="required-note">* Champs obligatoires</p>
 
                 <div class="modal-actions">
                     <button class="btn btn-secondary" onclick="ProspectsModule.closeImportModal()">
-                        ${t('actions.cancel')}
+                        Annuler
                     </button>
                     <button class="btn btn-primary" onclick="ProspectsModule.goToPreview()">
-                        ${t('actions.preview')} →
+                        Aperçu →
                     </button>
                 </div>
             </div>
@@ -930,12 +945,12 @@ const ProspectsModule = {
 
         body.innerHTML = `
             <div class="import-step import-step-3">
-                <h4>${t('prospects.import.preview', { count: validProspects.length })}</h4>
+                <h4>👀 Aperçu : ${validProspects.length} prospects valides</h4>
 
                 ${errors.length > 0 ? `
                     <div class="import-warnings">
-                        ${invalidEmails > 0 ? `<p>⚠️ ${t('prospects.import.invalid_emails', { count: invalidEmails })}</p>` : ''}
-                        ${duplicates > 0 ? `<p>⚠️ ${t('prospects.import.duplicates', { count: duplicates })}</p>` : ''}
+                        ${invalidEmails > 0 ? `<p>⚠️ ${invalidEmails} email(s) invalide(s) ignoré(s)</p>` : ''}
+                        ${duplicates > 0 ? `<p>⚠️ ${duplicates} doublon(s) ignoré(s)</p>` : ''}
                     </div>
                 ` : ''}
 
@@ -943,10 +958,10 @@ const ProspectsModule = {
                     <table class="preview-table">
                         <thead>
                             <tr>
-                                <th>${t('prospects.fields.first_name')}</th>
-                                <th>${t('prospects.fields.last_name')}</th>
-                                <th>${t('prospects.fields.email')}</th>
-                                <th>${t('prospects.fields.company')}</th>
+                                <th>Prénom</th>
+                                <th>Nom</th>
+                                <th>Email</th>
+                                <th>Entreprise</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -967,10 +982,10 @@ const ProspectsModule = {
 
                 <div class="modal-actions">
                     <button class="btn btn-secondary" onclick="ProspectsModule.renderImportStep2()">
-                        ← ${t('actions.back')}
+                        ← Retour
                     </button>
                     <button class="btn btn-primary" onclick="ProspectsModule.executeImport()">
-                        ${t('actions.import')} ${validProspects.length} prospects
+                        Importer ${validProspects.length} prospects
                     </button>
                 </div>
             </div>
@@ -987,7 +1002,7 @@ const ProspectsModule = {
         body.innerHTML = `
             <div class="import-loading">
                 <div class="spinner"></div>
-                <p>${t('status.loading')}</p>
+                <p>Import en cours...</p>
             </div>
         `;
 
@@ -997,9 +1012,9 @@ const ProspectsModule = {
             body.innerHTML = `
                 <div class="import-success">
                     <div class="success-icon">✅</div>
-                    <p>${t('prospects.import.success', { count: this.importState.validProspects.length })}</p>
+                    <p>${this.importState.validProspects.length} prospects importés avec succès !</p>
                     <button class="btn btn-primary" onclick="ProspectsModule.closeImportModal(); ProspectsModule.renderProspectsList();">
-                        ${t('actions.close')}
+                        Fermer
                     </button>
                 </div>
             `;
@@ -1008,10 +1023,10 @@ const ProspectsModule = {
             body.innerHTML = `
                 <div class="import-error">
                     <div class="error-icon">❌</div>
-                    <p>${t('errors.import_failed')}</p>
+                    <p>Erreur lors de l'import</p>
                     <p class="error-detail">${error.message}</p>
                     <button class="btn btn-secondary" onclick="ProspectsModule.closeImportModal()">
-                        ${t('actions.close')}
+                        Fermer
                     </button>
                 </div>
             `;
@@ -1046,65 +1061,65 @@ const ProspectsModule = {
         modal.innerHTML = `
             <div class="modal prospect-form-modal">
                 <div class="modal-header">
-                    <h3>${isEdit ? '✏️ ' + t('actions.edit') : '➕ ' + t('prospects.add_manual')}</h3>
+                    <h3>${isEdit ? '✏️ Modifier le prospect' : '➕ Ajouter un prospect'}</h3>
                     <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button>
                 </div>
                 <div class="modal-body">
                     <form id="prospectForm" onsubmit="ProspectsModule.handleProspectFormSubmit(event, '${prospect?.id || ''}')">
                         <div class="form-row">
                             <div class="form-group">
-                                <label>${t('prospects.fields.first_name')} *</label>
+                                <label>Prénom *</label>
                                 <input type="text" name="first_name" required value="${prospect?.first_name || ''}">
                             </div>
                             <div class="form-group">
-                                <label>${t('prospects.fields.last_name')}</label>
+                                <label>Nom</label>
                                 <input type="text" name="last_name" value="${prospect?.last_name || ''}">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label>${t('prospects.fields.email')} *</label>
+                            <label>Email *</label>
                             <input type="email" name="email" required value="${prospect?.email || ''}">
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label>${t('prospects.fields.company')}</label>
+                                <label>Entreprise</label>
                                 <input type="text" name="company" value="${prospect?.company || ''}">
                             </div>
                             <div class="form-group">
-                                <label>${t('prospects.fields.job_title')}</label>
+                                <label>Poste</label>
                                 <input type="text" name="job_title" value="${prospect?.job_title || ''}">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label>${t('prospects.fields.linkedin')}</label>
+                            <label>LinkedIn</label>
                             <input type="url" name="linkedin_url" value="${prospect?.linkedin_url || ''}">
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label>${t('prospects.fields.phone')}</label>
+                                <label>Téléphone</label>
                                 <input type="tel" name="phone" value="${prospect?.phone || ''}">
                             </div>
                             <div class="form-group">
-                                <label>${t('prospects.fields.website')}</label>
+                                <label>Site web</label>
                                 <input type="url" name="website" value="${prospect?.website || ''}">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label>${t('prospects.fields.notes')}</label>
+                            <label>Notes</label>
                             <textarea name="notes" rows="3">${prospect?.notes || ''}</textarea>
                         </div>
 
                         <div class="modal-actions">
                             <button type="button" class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">
-                                ${t('actions.cancel')}
+                                Annuler
                             </button>
                             <button type="submit" class="btn btn-primary">
-                                ${t('actions.save')}
+                                Enregistrer
                             </button>
                         </div>
                     </form>
@@ -1136,7 +1151,7 @@ const ProspectsModule = {
             this.renderProspectsList();
         } catch (error) {
             console.error('Error saving prospect:', error);
-            alert(error.message || t('errors.error'));
+            alert(error.message || 'Une erreur est survenue');
         }
     }
 };

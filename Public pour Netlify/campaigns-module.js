@@ -1,17 +1,19 @@
 // ===========================================
-// campaigns-module.js - Module Campagnes Email
-// SOS Storytelling - Generation IA + Brevo
+// campaigns-module-v2.js - Module Campagnes Email avec Sequences
+// SOS Storytelling - J+0, J+3, J+7 automatises
 // ===========================================
 
 const CampaignsModule = {
     // State
     campaigns: [],
     currentCampaign: null,
-    generatedEmails: [],
+    selectedProspects: [],
+    sequenceEmails: [], // [{position, delay_days, subject_template, body_template}]
+    generatedPreviews: [],
     previewIndex: 0,
 
-    // API URL (Cloudflare Worker)
-    API_URL: 'https://sos-storytelling-api.tithot.workers.dev',
+    // API URL
+    API_URL: 'https://sos-storytelling-api.sandra-devonssay.workers.dev',
 
     /**
      * Initialise le module
@@ -44,397 +46,30 @@ const CampaignsModule = {
         }
     },
 
-    // ==========================================
-    // GENERATION IA
-    // ==========================================
-
     /**
-     * Genere le prompt systeme pour l'IA
-     */
-    getEmailPrompt({ language, userVoice, prospect, campaignGoal }) {
-        const languageInstructions = language === 'en'
-            ? `
-LANGUAGE: Write in American English.
-CULTURAL ADAPTATION:
-- Use American business conventions
-- Be direct and get to the point quickly
-- Use contractions (I'm, you're, we'll)
-- Reference American business culture when relevant
-- Keep it casual but professional
-- Americans appreciate confidence and clarity
-`
-            : `
-LANGUE : Ecris en francais.
-ADAPTATION CULTURELLE :
-- Utilise les conventions business francaises
-- Tu peux etre un peu plus relationnel avant d'entrer dans le vif
-- Tutoiement OU vouvoiement selon le ton de "Ma Voix"
-- References culturelles francaises si pertinent
-- Ton chaleureux mais professionnel
-`;
-
-        const voiceInstructions = userVoice
-            ? `
-STYLE "MA VOIX" :
-Voici des exemples de textes ecrits par l'utilisateur. Imite son style :
-- Son vocabulaire
-- Ses tournures de phrases
-- Son niveau de formalite
-- Ses expressions favorites
-
-Exemples de reference :
-${userVoice.samples ? userVoice.samples.map(s => `"${s}"`).join('\n') : ''}
-
-Analyse du style :
-- Ton : ${userVoice.tone || 'professionnel'}
-- Formalite : ${userVoice.formality || 'moyenne'}
-- Expressions cles : ${userVoice.keywords?.join(', ') || ''}
-`
-            : '';
-
-        return `
-Tu es un expert en copywriting et en cold emailing.
-Tu generes des emails de prospection personnalises et authentiques.
-
-${languageInstructions}
-
-${voiceInstructions}
-
-PROSPECT :
-- Prenom : ${prospect.first_name}
-- Nom : ${prospect.last_name || 'N/A'}
-- Entreprise : ${prospect.company || 'N/A'}
-- Poste : ${prospect.job_title || 'N/A'}
-- Secteur : ${prospect.sector || 'N/A'}
-
-OBJECTIF DE L'EMAIL : ${campaignGoal}
-
-REGLES :
-1. L'email doit sembler ecrit par un humain, pas par une IA
-2. Personnalise avec les infos du prospect (entreprise, poste)
-3. Garde le style de "Ma Voix" si fourni
-4. Pas de phrases cliches ("j'espere que vous allez bien", "I hope this email finds you well")
-5. Sois concis (max 150 mots)
-6. Termine par une question ouverte, pas un CTA agressif
-7. Pas de lien dans le premier email
-
-FORMAT DE REPONSE (JSON) :
-{
-  "subject_lines": ["Option 1", "Option 2", "Option 3"],
-  "body": "Le corps de l'email...",
-  "preview_text": "Texte de preview (50 caracteres max)"
-}
-`;
-    },
-
-    /**
-     * Genere un email pour un prospect via l'API
-     */
-    async generateEmail({ prospect, campaign, userVoice }) {
-        const token = await this.getAuthToken();
-        if (!token) throw new Error('Not authenticated');
-
-        const response = await fetch(`${this.API_URL}/api/campaigns/generate-email`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                prospect,
-                campaign_goal: campaign.goal,
-                language: campaign.language || I18N.currentLanguage,
-                use_my_voice: campaign.use_my_voice
-            })
-        });
-
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || 'Generation failed');
-        }
-
-        return response.json();
-    },
-
-    /**
-     * Genere des emails pour tous les prospects selectionnes
-     */
-    async generateEmailsForProspects(prospects, campaign) {
-        const emails = [];
-
-        for (const prospect of prospects) {
-            try {
-                const result = await this.generateEmail({
-                    prospect,
-                    campaign,
-                    userVoice: campaign.use_my_voice ? await this.getUserVoice() : null
-                });
-
-                emails.push({
-                    prospect_id: prospect.id,
-                    prospect,
-                    subject: result.subject_lines[0],
-                    subject_options: result.subject_lines,
-                    body: result.body,
-                    preview_text: result.preview_text
-                });
-
-            } catch (error) {
-                console.error(`Error generating email for ${prospect.email}:`, error);
-                emails.push({
-                    prospect_id: prospect.id,
-                    prospect,
-                    error: error.message
-                });
-            }
-        }
-
-        return emails;
-    },
-
-    /**
-     * Recupere le profil "Ma Voix" de l'utilisateur
-     */
-    async getUserVoice() {
-        if (!window.supabase) return null;
-
-        try {
-            const { data: { user } } = await window.supabase.auth.getUser();
-            if (!user) return null;
-
-            const { data } = await window.supabase
-                .from('users')
-                .select('voice_samples, voice_tone, voice_formality, voice_keywords')
-                .eq('id', user.id)
-                .single();
-
-            if (data && data.voice_samples) {
-                return {
-                    samples: data.voice_samples,
-                    tone: data.voice_tone,
-                    formality: data.voice_formality,
-                    keywords: data.voice_keywords
-                };
-            }
-
-            return null;
-        } catch (error) {
-            console.error('Error loading user voice:', error);
-            return null;
-        }
-    },
-
-    /**
-     * Obtient le token d'authentification
+     * Obtient le token d'auth
      */
     async getAuthToken() {
-        if (!window.supabase) return null;
-
         const { data: { session } } = await window.supabase.auth.getSession();
         return session?.access_token;
     },
 
     // ==========================================
-    // BREVO INTEGRATION
+    // UI - PAGE PRINCIPALE
     // ==========================================
 
-    /**
-     * Envoie un email via Brevo
-     */
-    async sendEmail(emailData) {
-        const token = await this.getAuthToken();
-        if (!token) throw new Error('Not authenticated');
-
-        const response = await fetch(`${this.API_URL}/api/campaigns/send-email`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(emailData)
-        });
-
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || 'Send failed');
-        }
-
-        return response.json();
-    },
-
-    /**
-     * Envoie une campagne complete
-     */
-    async sendCampaign(campaignId) {
-        const token = await this.getAuthToken();
-        if (!token) throw new Error('Not authenticated');
-
-        const response = await fetch(`${this.API_URL}/api/campaigns/${campaignId}/send`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-        });
-
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || 'Campaign send failed');
-        }
-
-        return response.json();
-    },
-
-    // ==========================================
-    // CRUD CAMPAGNES
-    // ==========================================
-
-    /**
-     * Cree une nouvelle campagne
-     */
-    async createCampaign(campaignData) {
-        if (!window.supabase) throw new Error('Supabase not initialized');
-
-        const { data: { user } } = await window.supabase.auth.getUser();
-        if (!user) throw new Error('User not authenticated');
-
-        const { data, error } = await window.supabase
-            .from('email_campaigns')
-            .insert({
-                user_id: user.id,
-                ...campaignData,
-                status: 'draft'
-            })
-            .select()
-            .single();
-
-        if (error) throw error;
-
-        await this.loadCampaigns();
-        return data;
-    },
-
-    /**
-     * Met a jour une campagne
-     */
-    async updateCampaign(id, updates) {
-        if (!window.supabase) throw new Error('Supabase not initialized');
-
-        const { data, error } = await window.supabase
-            .from('email_campaigns')
-            .update({ ...updates, updated_at: new Date().toISOString() })
-            .eq('id', id)
-            .select()
-            .single();
-
-        if (error) throw error;
-
-        await this.loadCampaigns();
-        return data;
-    },
-
-    /**
-     * Supprime une campagne
-     */
-    async deleteCampaign(id) {
-        if (!window.supabase) throw new Error('Supabase not initialized');
-
-        const { error } = await window.supabase
-            .from('email_campaigns')
-            .delete()
-            .eq('id', id);
-
-        if (error) throw error;
-
-        await this.loadCampaigns();
-    },
-
-    /**
-     * Sauvegarde les emails generes pour une campagne
-     */
-    async saveCampaignEmails(campaignId, emails) {
-        if (!window.supabase) throw new Error('Supabase not initialized');
-
-        const { data: { user } } = await window.supabase.auth.getUser();
-        if (!user) throw new Error('User not authenticated');
-
-        const emailsToInsert = emails.filter(e => !e.error).map(e => ({
-            campaign_id: campaignId,
-            prospect_id: e.prospect_id,
-            user_id: user.id,
-            subject: e.subject,
-            body: e.body,
-            preview_text: e.preview_text,
-            status: 'pending'
-        }));
-
-        const { data, error } = await window.supabase
-            .from('campaign_emails')
-            .upsert(emailsToInsert, {
-                onConflict: 'campaign_id,prospect_id'
-            })
-            .select();
-
-        if (error) throw error;
-
-        return data;
-    },
-
-    // ==========================================
-    // PERSONNALISATION
-    // ==========================================
-
-    /**
-     * Remplace les variables dans un template
-     */
-    personalizeEmail(template, prospect) {
-        const language = I18N.currentLanguage;
-        const fallbacks = language === 'en'
-            ? {
-                first_name: 'there',
-                company: 'your company',
-                job_title: 'your role'
-            }
-            : {
-                first_name: '',
-                company: 'ton entreprise',
-                job_title: 'ton poste'
-            };
-
-        let result = template;
-
-        result = result.replace(/{first_name}/g, prospect.first_name || fallbacks.first_name);
-        result = result.replace(/{last_name}/g, prospect.last_name || '');
-        result = result.replace(/{company}/g, prospect.company || fallbacks.company);
-        result = result.replace(/{job_title}/g, prospect.job_title || fallbacks.job_title);
-        result = result.replace(/{email}/g, prospect.email || '');
-        result = result.replace(/{linkedin}/g, prospect.linkedin_url || '');
-
-        // Nettoyer les doubles espaces
-        result = result.replace(/\s+/g, ' ').trim();
-
-        return result;
-    },
-
-    // ==========================================
-    // UI COMPONENTS
-    // ==========================================
-
-    /**
-     * Cree la page campagnes
-     */
     createCampaignsPage() {
         const container = document.createElement('div');
         container.className = 'campaigns-page';
         container.innerHTML = `
             <div class="campaigns-header">
                 <div class="campaigns-title-section">
-                    <h2>${t('campaigns.title')}</h2>
-                    <p>${t('campaigns.subtitle')}</p>
+                    <h2>📧 Mes Campagnes Email</h2>
+                    <p>Crée et gère tes séquences d'emails automatisées</p>
                 </div>
                 <div class="campaigns-actions">
-                    <button class="btn btn-primary" onclick="CampaignsModule.openNewCampaignModal()">
-                        <span class="btn-icon">➕</span> ${t('campaigns.new_campaign')}
+                    <button class="btn btn-primary" onclick="CampaignsModule.openNewCampaignWizard()">
+                        <span class="btn-icon">+</span> Nouvelle campagne
                     </button>
                 </div>
             </div>
@@ -445,9 +80,6 @@ FORMAT DE REPONSE (JSON) :
         return container;
     },
 
-    /**
-     * Rend la liste des campagnes
-     */
     renderCampaignsList() {
         const container = document.getElementById('campaignsList');
         if (!container) return;
@@ -456,9 +88,9 @@ FORMAT DE REPONSE (JSON) :
             container.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-icon">📧</div>
-                    <p>${t('campaigns.empty')}</p>
-                    <button class="btn btn-primary" onclick="CampaignsModule.openNewCampaignModal()">
-                        ${t('campaigns.new_campaign')}
+                    <p>Aucune campagne pour le moment</p>
+                    <button class="btn btn-primary" onclick="CampaignsModule.openNewCampaignWizard()">
+                        Nouvelle campagne
                     </button>
                 </div>
             `;
@@ -466,11 +98,11 @@ FORMAT DE REPONSE (JSON) :
         }
 
         container.innerHTML = this.campaigns.map(c => `
-            <div class="campaign-card" data-id="${c.id}">
+            <div class="campaign-card ${c.status}" data-id="${c.id}">
                 <div class="campaign-info">
                     <div class="campaign-name">
                         <strong>${c.name}</strong>
-                        <span class="campaign-status status-${c.status}">${t('campaigns.status.' + c.status)}</span>
+                        <span class="campaign-status status-${c.status}">${this.getStatusLabel(c.status)}</span>
                     </div>
                     <div class="campaign-meta">
                         <span>${c.total_prospects || 0} prospects</span>
@@ -481,82 +113,133 @@ FORMAT DE REPONSE (JSON) :
                 <div class="campaign-stats">
                     <div class="stat">
                         <span class="stat-value">${c.emails_sent || 0}</span>
-                        <span class="stat-label">${t('campaigns.stats.sent')}</span>
+                        <span class="stat-label">Envoyés</span>
                     </div>
                     <div class="stat">
                         <span class="stat-value">${c.emails_opened || 0}</span>
-                        <span class="stat-label">${t('campaigns.stats.opened')}</span>
+                        <span class="stat-label">Ouverts</span>
                     </div>
                     <div class="stat">
                         <span class="stat-value">${c.emails_replied || 0}</span>
-                        <span class="stat-label">${t('campaigns.stats.replied')}</span>
+                        <span class="stat-label">Réponses</span>
                     </div>
                 </div>
                 <div class="campaign-actions">
-                    ${c.status === 'draft' ? `
-                        <button class="btn btn-primary btn-small" onclick="CampaignsModule.openCampaignEditor('${c.id}')">
-                            ${t('actions.edit')}
-                        </button>
-                    ` : ''}
-                    ${c.status === 'draft' ? `
-                        <button class="btn btn-small" onclick="CampaignsModule.confirmDelete('${c.id}')">
-                            ${t('actions.delete')}
-                        </button>
-                    ` : ''}
+                    ${this.getCampaignActions(c)}
                 </div>
             </div>
         `).join('');
     },
 
-    /**
-     * Ouvre le modal de nouvelle campagne
-     */
-    openNewCampaignModal() {
+    getStatusLabel(status) {
+        const labels = {
+            draft: 'Brouillon',
+            scheduled: 'Programme',
+            sending: 'En cours',
+            paused: 'En pause',
+            sent: 'Termine',
+            completed: 'Termine'
+        };
+        return labels[status] || status;
+    },
+
+    getCampaignActions(campaign) {
+        switch (campaign.status) {
+            case 'draft':
+                return `
+                    <button class="btn btn-primary btn-small" onclick="CampaignsModule.openEditWizard('${campaign.id}')">
+                        Configurer
+                    </button>
+                    <button class="btn btn-small btn-danger" onclick="CampaignsModule.confirmDelete('${campaign.id}')">
+                        Supprimer
+                    </button>
+                `;
+            case 'sending':
+                return `
+                    <button class="btn btn-small" onclick="CampaignsModule.viewCampaignDetails('${campaign.id}')">
+                        Voir details
+                    </button>
+                    <button class="btn btn-small btn-warning" onclick="CampaignsModule.pauseCampaign('${campaign.id}')">
+                        Pause
+                    </button>
+                `;
+            case 'paused':
+                return `
+                    <button class="btn btn-small btn-primary" onclick="CampaignsModule.resumeCampaign('${campaign.id}')">
+                        Reprendre
+                    </button>
+                    <button class="btn btn-small" onclick="CampaignsModule.viewCampaignDetails('${campaign.id}')">
+                        Voir details
+                    </button>
+                `;
+            default:
+                return `
+                    <button class="btn btn-small" onclick="CampaignsModule.viewCampaignDetails('${campaign.id}')">
+                        Voir details
+                    </button>
+                `;
+        }
+    },
+
+    // ==========================================
+    // WIZARD - NOUVELLE CAMPAGNE
+    // ==========================================
+
+    openNewCampaignWizard() {
         this.currentCampaign = null;
-        this.generatedEmails = [];
+        this.selectedProspects = [];
+        this.sequenceEmails = [
+            { position: 1, delay_days: 0, subject_template: '', body_template: '', send_condition: 'always' }
+        ];
+        this.generatedPreviews = [];
         this.previewIndex = 0;
-        this.openCampaignWizard();
+        this.currentStep = 1;
+        this.openWizardModal();
     },
 
-    /**
-     * Ouvre l'editeur de campagne
-     */
-    openCampaignEditor(id) {
-        this.currentCampaign = this.campaigns.find(c => c.id === id);
-        if (!this.currentCampaign) return;
-        this.openCampaignWizard();
+    openEditWizard(campaignId) {
+        const campaign = this.campaigns.find(c => c.id === campaignId);
+        if (!campaign) return;
+
+        this.currentCampaign = campaign;
+        this.selectedProspects = [];
+        this.sequenceEmails = [];
+        this.currentStep = 1;
+        this.loadCampaignSequence(campaignId);
+        this.openWizardModal();
     },
 
-    /**
-     * Ouvre le wizard de campagne
-     */
-    openCampaignWizard() {
+    async loadCampaignSequence(campaignId) {
+        try {
+            const token = await this.getAuthToken();
+            const response = await fetch(`${this.API_URL}/api/campaigns/${campaignId}/sequence`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (data.sequence && data.sequence.length > 0) {
+                this.sequenceEmails = data.sequence;
+            } else {
+                this.sequenceEmails = [
+                    { position: 1, delay_days: 0, subject_template: '', body_template: '', send_condition: 'always' }
+                ];
+            }
+        } catch (e) {
+            console.error('Error loading sequence:', e);
+        }
+    },
+
+    openWizardModal() {
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
         modal.id = 'campaignWizard';
         modal.innerHTML = `
             <div class="modal campaign-wizard-modal">
-                <div class="wizard-steps">
-                    <div class="wizard-step active" data-step="1">
-                        <span class="step-number">1</span>
-                        <span class="step-label">${t('campaigns.form.name')}</span>
-                    </div>
-                    <div class="wizard-step" data-step="2">
-                        <span class="step-number">2</span>
-                        <span class="step-label">${t('campaigns.prospects_selection.title')}</span>
-                    </div>
-                    <div class="wizard-step" data-step="3">
-                        <span class="step-number">3</span>
-                        <span class="step-label">${t('campaigns.email_creation.title')}</span>
-                    </div>
-                    <div class="wizard-step" data-step="4">
-                        <span class="step-number">4</span>
-                        <span class="step-label">${t('campaigns.preview.title')}</span>
-                    </div>
+                <div class="wizard-steps" id="wizardSteps">
+                    ${this.renderWizardSteps()}
                 </div>
                 <button class="modal-close" onclick="CampaignsModule.closeWizard()">&times;</button>
                 <div class="wizard-content" id="wizardContent">
-                    ${this.renderWizardStep1()}
+                    ${this.renderCurrentStep()}
                 </div>
             </div>
         `;
@@ -564,609 +247,965 @@ FORMAT DE REPONSE (JSON) :
         document.body.appendChild(modal);
     },
 
-    /**
-     * Ferme le wizard
-     */
+    renderWizardSteps() {
+        const steps = [
+            { num: 1, label: 'Campagne' },
+            { num: 2, label: 'Prospects' },
+            { num: 3, label: 'Sequence' },
+            { num: 4, label: 'Lancement' }
+        ];
+
+        return steps.map(s => `
+            <div class="wizard-step ${this.currentStep === s.num ? 'active' : ''} ${this.currentStep > s.num ? 'completed' : ''}" data-step="${s.num}">
+                <span class="step-number">${this.currentStep > s.num ? '✓' : s.num}</span>
+                <span class="step-label">${s.label}</span>
+            </div>
+        `).join('');
+    },
+
+    renderCurrentStep() {
+        switch (this.currentStep) {
+            case 1: return this.renderStep1();
+            case 2: return this.renderStep2();
+            case 3: return this.renderStep3();
+            case 4: return this.renderStep4();
+            default: return '';
+        }
+    },
+
+    updateWizard() {
+        document.getElementById('wizardSteps').innerHTML = this.renderWizardSteps();
+        document.getElementById('wizardContent').innerHTML = this.renderCurrentStep();
+    },
+
     closeWizard() {
         const modal = document.getElementById('campaignWizard');
         if (modal) modal.remove();
         this.currentCampaign = null;
-        this.generatedEmails = [];
+        this.sequenceEmails = [];
+        this.selectedProspects = [];
     },
 
-    /**
-     * Navigue vers une etape du wizard
-     */
-    goToStep(step) {
-        const content = document.getElementById('wizardContent');
-        if (!content) return;
+    // ==========================================
+    // STEP 1: INFOS CAMPAGNE
+    // ==========================================
 
-        // Update step indicators
-        document.querySelectorAll('.wizard-step').forEach(s => {
-            const stepNum = parseInt(s.dataset.step);
-            s.classList.toggle('active', stepNum === step);
-            s.classList.toggle('completed', stepNum < step);
-        });
-
-        switch (step) {
-            case 1:
-                content.innerHTML = this.renderWizardStep1();
-                break;
-            case 2:
-                content.innerHTML = this.renderWizardStep2();
-                break;
-            case 3:
-                content.innerHTML = this.renderWizardStep3();
-                break;
-            case 4:
-                content.innerHTML = this.renderWizardStep4();
-                break;
-        }
-    },
-
-    /**
-     * Step 1: Infos campagne
-     */
-    renderWizardStep1() {
+    renderStep1() {
         const c = this.currentCampaign || {};
 
         return `
             <div class="wizard-step-content">
-                <h3>📧 ${t('campaigns.new_campaign')}</h3>
+                <h3>📧 Informations de la campagne</h3>
 
                 <div class="form-group">
-                    <label>${t('campaigns.form.name')} *</label>
+                    <label>Nom de la campagne *</label>
                     <input type="text" id="campaignName" value="${c.name || ''}"
-                           placeholder="${t('campaigns.form.name_placeholder')}">
+                           placeholder="Ex: Prospection agences Q1 2025">
                 </div>
 
                 <div class="form-group">
-                    <label>${t('campaigns.form.goal')} *</label>
+                    <label>Objectif de la campagne *</label>
                     <textarea id="campaignGoal" rows="3"
-                              placeholder="${t('campaigns.form.goal_placeholder')}">${c.goal || ''}</textarea>
+                              placeholder="Ex: Presenter mes services de storytelling aux agences marketing pour obtenir des RDV">${c.goal || ''}</textarea>
+                    <p class="field-hint">L'IA utilisera cet objectif pour personnaliser les emails</p>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>${t('campaigns.form.sender_email')} *</label>
+                        <label>Email expediteur *</label>
                         <input type="email" id="senderEmail" value="${c.sender_email || ''}"
-                               placeholder="you@example.com">
+                               placeholder="vous@votredomaine.com">
                     </div>
                     <div class="form-group">
-                        <label>${t('campaigns.form.sender_name')} *</label>
+                        <label>Nom expediteur *</label>
                         <input type="text" id="senderName" value="${c.sender_name || ''}"
-                               placeholder="${t('campaigns.form.sender_name_placeholder')}">
+                               placeholder="Votre prenom et nom">
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>${t('campaigns.form.language')}</label>
+                    <label>Langue des emails</label>
                     <select id="campaignLanguage">
                         <option value="fr" ${(c.language || 'fr') === 'fr' ? 'selected' : ''}>Francais</option>
                         <option value="en" ${c.language === 'en' ? 'selected' : ''}>English</option>
                     </select>
                 </div>
 
-                <div class="form-options">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="useMyVoice" ${c.use_my_voice !== false ? 'checked' : ''}>
-                        ${t('campaigns.form.use_my_voice')}
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="generateUnique" ${c.generate_unique_per_prospect !== false ? 'checked' : ''}>
-                        ${t('campaigns.form.generate_unique')}
-                    </label>
-                </div>
-
                 <div class="wizard-actions">
                     <button class="btn btn-secondary" onclick="CampaignsModule.closeWizard()">
-                        ${t('actions.cancel')}
+                        Annuler
                     </button>
-                    <button class="btn btn-primary" onclick="CampaignsModule.saveStep1AndContinue()">
-                        ${t('actions.next')} →
+                    <button class="btn btn-primary" onclick="CampaignsModule.saveStep1()">
+                        Continuer →
                     </button>
                 </div>
             </div>
         `;
     },
 
-    /**
-     * Sauvegarde step 1 et continue
-     */
-    async saveStep1AndContinue() {
+    async saveStep1() {
         const name = document.getElementById('campaignName').value.trim();
         const goal = document.getElementById('campaignGoal').value.trim();
         const senderEmail = document.getElementById('senderEmail').value.trim();
         const senderName = document.getElementById('senderName').value.trim();
         const language = document.getElementById('campaignLanguage').value;
-        const useMyVoice = document.getElementById('useMyVoice').checked;
-        const generateUnique = document.getElementById('generateUnique').checked;
 
         if (!name || !goal || !senderEmail || !senderName) {
-            alert(t('errors.required_field'));
+            alert('Tous les champs marques * sont obligatoires');
             return;
         }
 
         try {
             const campaignData = {
-                name,
-                goal,
+                name, goal,
                 sender_email: senderEmail,
                 sender_name: senderName,
-                language,
-                use_my_voice: useMyVoice,
-                generate_unique_per_prospect: generateUnique
+                language
             };
 
+            const token = await this.getAuthToken();
+
             if (this.currentCampaign) {
-                this.currentCampaign = await this.updateCampaign(this.currentCampaign.id, campaignData);
+                // Update
+                const response = await fetch(`${this.API_URL}/api/campaigns/${this.currentCampaign.id}`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(campaignData)
+                });
+                const data = await response.json();
+                this.currentCampaign = data.campaign;
             } else {
-                this.currentCampaign = await this.createCampaign(campaignData);
+                // Create
+                const response = await fetch(`${this.API_URL}/api/campaigns`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(campaignData)
+                });
+                const data = await response.json();
+                this.currentCampaign = data.campaign;
             }
 
-            this.goToStep(2);
+            this.currentStep = 2;
+            this.updateWizard();
+
         } catch (error) {
             console.error('Error saving campaign:', error);
-            alert(t('errors.error'));
+            alert('Erreur lors de la sauvegarde');
         }
     },
 
-    /**
-     * Step 2: Selection des prospects
-     */
-    renderWizardStep2() {
-        const prospects = ProspectsModule.prospects || [];
-        const stats = ProspectsModule.getStats();
+    // ==========================================
+    // STEP 2: SELECTION PROSPECTS
+    // ==========================================
+
+    renderStep2() {
+        const prospects = ProspectsModule?.prospects || [];
+        const stats = ProspectsModule?.getStats() || { total: 0, new: 0 };
 
         return `
             <div class="wizard-step-content">
-                <h3>👥 ${t('campaigns.prospects_selection.title')}</h3>
+                <h3>👥 Selectionner les prospects</h3>
 
                 <div class="prospect-filter-options">
                     <label class="radio-card">
                         <input type="radio" name="prospectFilter" value="all" checked>
                         <div class="radio-content">
-                            <strong>${t('campaigns.prospects_selection.all')}</strong>
-                            <span>(${stats.total})</span>
+                            <strong>Tous les prospects</strong>
+                            <span class="count">${stats.total}</span>
                         </div>
                     </label>
                     <label class="radio-card">
                         <input type="radio" name="prospectFilter" value="new">
                         <div class="radio-content">
-                            <strong>${t('campaigns.prospects_selection.only_new')}</strong>
-                            <span>(${stats.new})</span>
+                            <strong>Nouveaux uniquement</strong>
+                            <span class="count">${stats.new}</span>
                         </div>
                     </label>
                 </div>
 
-                <div class="selected-prospects-preview">
-                    <h4>${t('campaigns.prospects_selection.count', { count: prospects.length })}</h4>
-                    <div class="prospects-mini-list">
-                        ${prospects.slice(0, 5).map(p => `
-                            <div class="prospect-mini">
-                                <strong>${p.first_name} ${p.last_name || ''}</strong>
-                                <span>${p.company || p.email}</span>
-                            </div>
-                        `).join('')}
-                        ${prospects.length > 5 ? `<p class="more">+ ${prospects.length - 5} autres...</p>` : ''}
+                ${prospects.length === 0 ? `
+                    <div class="warning-box">
+                        <p>⚠️ Aucun prospect importe. <a href="#" onclick="document.querySelector('[data-tab=prospects]').click()">Importer des prospects</a> d'abord.</p>
                     </div>
-                </div>
+                ` : `
+                    <div class="selected-prospects-preview">
+                        <h4>Apercu des prospects</h4>
+                        <div class="prospects-mini-list">
+                            ${prospects.slice(0, 5).map(p => `
+                                <div class="prospect-mini">
+                                    <strong>${p.first_name} ${p.last_name || ''}</strong>
+                                    <span>${p.company || p.email}</span>
+                                </div>
+                            `).join('')}
+                            ${prospects.length > 5 ? `<p class="more">+ ${prospects.length - 5} autres...</p>` : ''}
+                        </div>
+                    </div>
+                `}
 
                 <div class="wizard-actions">
                     <button class="btn btn-secondary" onclick="CampaignsModule.goToStep(1)">
-                        ← ${t('actions.back')}
+                        ← Retour
                     </button>
-                    <button class="btn btn-primary" onclick="CampaignsModule.saveStep2AndContinue()">
-                        ${t('actions.next')} →
+                    <button class="btn btn-primary" onclick="CampaignsModule.saveStep2()" ${prospects.length === 0 ? 'disabled' : ''}>
+                        Continuer →
                     </button>
                 </div>
             </div>
         `;
     },
 
-    /**
-     * Sauvegarde step 2 et continue
-     */
-    async saveStep2AndContinue() {
+    async saveStep2() {
         const filter = document.querySelector('input[name="prospectFilter"]:checked').value;
+        let prospects = ProspectsModule?.prospects || [];
 
-        let prospects = ProspectsModule.prospects || [];
         if (filter === 'new') {
             prospects = prospects.filter(p => p.status === 'new');
         }
 
         if (prospects.length === 0) {
-            alert(t('errors.no_prospects'));
+            alert('Aucun prospect a contacter');
             return;
         }
 
-        // Store selected prospects
         this.selectedProspects = prospects;
 
-        // Update campaign with total
-        await this.updateCampaign(this.currentCampaign.id, {
-            total_prospects: prospects.length,
-            prospect_filter: { status: filter }
+        // Mettre a jour la campagne
+        const token = await this.getAuthToken();
+        await fetch(`${this.API_URL}/api/campaigns/${this.currentCampaign.id}`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                total_prospects: prospects.length,
+                prospect_filter: { status: filter }
+            })
         });
 
-        this.goToStep(3);
+        this.currentStep = 3;
+        this.updateWizard();
     },
 
-    /**
-     * Step 3: Creation email
-     */
-    renderWizardStep3() {
+    goToStep(step) {
+        this.currentStep = step;
+        this.updateWizard();
+    },
+
+    // ==========================================
+    // STEP 3: SEQUENCE D'EMAILS
+    // ==========================================
+
+    renderStep3() {
         return `
             <div class="wizard-step-content">
-                <h3>✍️ ${t('campaigns.email_creation.title')}</h3>
+                <h3>📝 Creer la sequence d'emails</h3>
+                <p class="step-description">Definissez les emails de votre sequence. L'IA peut generer le contenu ou vous pouvez l'ecrire vous-meme.</p>
 
-                <div class="email-creation-options">
-                    <button class="email-option-card" onclick="CampaignsModule.generateWithAI()">
-                        <div class="option-icon">🤖</div>
-                        <strong>${t('campaigns.email_creation.generate_ai')}</strong>
-                        <p>L'IA genere des emails personnalises pour chaque prospect</p>
+                <div class="sequence-emails" id="sequenceEmails">
+                    ${this.sequenceEmails.map((email, index) => this.renderSequenceEmail(email, index)).join('')}
+                </div>
+
+                ${this.sequenceEmails.length < 5 ? `
+                    <button class="btn btn-secondary btn-add-email" onclick="CampaignsModule.addSequenceEmail()">
+                        + Ajouter un email de relance
                     </button>
-                    <button class="email-option-card" onclick="CampaignsModule.writeManual()">
-                        <div class="option-icon">✏️</div>
-                        <strong>${t('campaigns.email_creation.write_manual')}</strong>
-                        <p>Ecris un template avec des variables</p>
+                ` : ''}
+
+                <div class="sequence-tips">
+                    <p>💡 <strong>Conseil :</strong> 3 emails max dans une sequence, au-dela ca devient du spam.</p>
+                    <p>💡 Les relances ne sont envoyees que si le prospect n'a pas repondu.</p>
+                </div>
+
+                <div class="ai-generation-box">
+                    <h4>🤖 Generation IA</h4>
+                    <p>L'IA peut generer une sequence complete basee sur votre objectif</p>
+                    <button class="btn btn-secondary" onclick="CampaignsModule.generateSequenceWithAI()">
+                        Generer avec l'IA
                     </button>
                 </div>
 
-                <div id="emailCreationContent"></div>
-
                 <div class="wizard-actions">
                     <button class="btn btn-secondary" onclick="CampaignsModule.goToStep(2)">
-                        ← ${t('actions.back')}
+                        ← Retour
                     </button>
-                    <button class="btn btn-primary" id="step3NextBtn" style="display:none" onclick="CampaignsModule.goToStep(4)">
-                        ${t('actions.next')} →
+                    <button class="btn btn-primary" onclick="CampaignsModule.saveStep3()">
+                        Continuer →
                     </button>
                 </div>
             </div>
         `;
     },
 
-    /**
-     * Genere les emails avec l'IA
-     */
-    async generateWithAI() {
-        const content = document.getElementById('emailCreationContent');
+    renderSequenceEmail(email, index) {
+        const isFirst = index === 0;
+        const position = index + 1;
+        const delayOptions = [0, 1, 2, 3, 4, 5, 7, 10, 14];
+
+        return `
+            <div class="sequence-email-card" data-index="${index}">
+                <div class="sequence-email-header">
+                    <span class="email-badge">Email ${position}</span>
+                    <span class="email-timing">
+                        ${isFirst ? 'Envoi immediat (J+0)' : `
+                            <select class="delay-select" onchange="CampaignsModule.updateEmailDelay(${index}, this.value)">
+                                ${delayOptions.map(d => `
+                                    <option value="${d}" ${email.delay_days === d ? 'selected' : ''}>
+                                        J+${d} ${d === 0 ? '(immediat)' : `(${d} jour${d > 1 ? 's' : ''} apres)`}
+                                    </option>
+                                `).join('')}
+                            </select>
+                        `}
+                    </span>
+                    ${!isFirst ? `
+                        <button class="btn-remove-email" onclick="CampaignsModule.removeSequenceEmail(${index})">
+                            🗑️
+                        </button>
+                    ` : ''}
+                </div>
+
+                ${!isFirst ? `
+                    <div class="send-condition">
+                        <label>Condition d'envoi :</label>
+                        <select onchange="CampaignsModule.updateEmailCondition(${index}, this.value)">
+                            <option value="no_reply" ${email.send_condition === 'no_reply' ? 'selected' : ''}>Si pas de reponse</option>
+                            <option value="no_open" ${email.send_condition === 'no_open' ? 'selected' : ''}>Si pas d'ouverture</option>
+                            <option value="always" ${email.send_condition === 'always' ? 'selected' : ''}>Toujours envoyer</option>
+                        </select>
+                    </div>
+                ` : ''}
+
+                <div class="form-group">
+                    <label>Objet</label>
+                    <input type="text" class="email-subject" value="${email.subject_template || ''}"
+                           placeholder="${isFirst ? 'Ex: Une idee pour {company} ?' : 'Ex: Re: Une idee pour {company} ?'}"
+                           onchange="CampaignsModule.updateEmailSubject(${index}, this.value)">
+                </div>
+
+                <div class="form-group">
+                    <label>Corps de l'email</label>
+                    <textarea class="email-body" rows="6"
+                              placeholder="Hello {first_name},
+
+${isFirst ? 'Votre premier message de contact...' : 'Votre message de relance...'}"
+                              onchange="CampaignsModule.updateEmailBody(${index}, this.value)">${email.body_template || ''}</textarea>
+                    <p class="field-hint">Variables : {first_name}, {last_name}, {company}, {job_title}</p>
+                </div>
+            </div>
+        `;
+    },
+
+    addSequenceEmail() {
+        const lastEmail = this.sequenceEmails[this.sequenceEmails.length - 1];
+        const newDelay = (lastEmail?.delay_days || 0) + 3;
+
+        this.sequenceEmails.push({
+            position: this.sequenceEmails.length + 1,
+            delay_days: newDelay,
+            subject_template: '',
+            body_template: '',
+            send_condition: 'no_reply'
+        });
+
+        document.getElementById('sequenceEmails').innerHTML =
+            this.sequenceEmails.map((email, index) => this.renderSequenceEmail(email, index)).join('');
+    },
+
+    removeSequenceEmail(index) {
+        if (index === 0) return;
+        this.sequenceEmails.splice(index, 1);
+        this.sequenceEmails.forEach((e, i) => e.position = i + 1);
+        document.getElementById('sequenceEmails').innerHTML =
+            this.sequenceEmails.map((email, i) => this.renderSequenceEmail(email, i)).join('');
+    },
+
+    updateEmailDelay(index, value) {
+        this.sequenceEmails[index].delay_days = parseInt(value);
+    },
+
+    updateEmailCondition(index, value) {
+        this.sequenceEmails[index].send_condition = value;
+    },
+
+    updateEmailSubject(index, value) {
+        this.sequenceEmails[index].subject_template = value;
+    },
+
+    updateEmailBody(index, value) {
+        this.sequenceEmails[index].body_template = value;
+    },
+
+    async generateSequenceWithAI() {
+        const content = document.getElementById('wizardContent');
+        const originalContent = content.innerHTML;
+
         content.innerHTML = `
             <div class="generating-state">
                 <div class="spinner"></div>
-                <p>${t('ai.generating')}</p>
-                <p class="generating-progress" id="generatingProgress">0 / ${this.selectedProspects.length}</p>
+                <p>Generation de la sequence en cours...</p>
             </div>
         `;
 
         try {
-            // Generate emails for each prospect
-            this.generatedEmails = [];
+            const token = await this.getAuthToken();
+            const response = await fetch(`${this.API_URL}/api/campaigns/${this.currentCampaign.id}/sequence/generate`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    num_emails: 3,
+                    delays: [0, 3, 7]
+                })
+            });
 
-            for (let i = 0; i < this.selectedProspects.length; i++) {
-                const prospect = this.selectedProspects[i];
+            const data = await response.json();
 
-                document.getElementById('generatingProgress').textContent =
-                    `${i + 1} / ${this.selectedProspects.length}`;
-
-                try {
-                    const result = await this.generateEmail({
-                        prospect,
-                        campaign: this.currentCampaign
-                    });
-
-                    this.generatedEmails.push({
-                        prospect_id: prospect.id,
-                        prospect,
-                        subject: result.subject_lines[0],
-                        subject_options: result.subject_lines,
-                        body: result.body,
-                        preview_text: result.preview_text
-                    });
-                } catch (error) {
-                    console.error(`Error generating for ${prospect.email}:`, error);
-                    this.generatedEmails.push({
-                        prospect_id: prospect.id,
-                        prospect,
-                        error: error.message
-                    });
-                }
+            if (data.generated_emails) {
+                this.sequenceEmails = data.generated_emails;
             }
 
-            content.innerHTML = `
-                <div class="generation-success">
-                    <div class="success-icon">✅</div>
-                    <p>${t('ai.generated')}</p>
-                    <p>${this.generatedEmails.filter(e => !e.error).length} emails generes</p>
-                </div>
-            `;
-
-            document.getElementById('step3NextBtn').style.display = 'inline-flex';
+            this.updateWizard();
 
         } catch (error) {
-            console.error('Generation error:', error);
-            content.innerHTML = `
-                <div class="generation-error">
-                    <div class="error-icon">❌</div>
-                    <p>${t('status.error')}</p>
-                    <button class="btn btn-secondary" onclick="CampaignsModule.generateWithAI()">
-                        ${t('actions.regenerate')}
-                    </button>
-                </div>
-            `;
+            console.error('Error generating sequence:', error);
+            content.innerHTML = originalContent;
+            alert('Erreur lors de la generation');
         }
     },
 
-    /**
-     * Ecriture manuelle du template
-     */
-    writeManual() {
-        const content = document.getElementById('emailCreationContent');
-        content.innerHTML = `
-            <div class="manual-email-form">
-                <div class="form-group">
-                    <label>${t('campaigns.email_creation.subject')} *</label>
-                    <input type="text" id="manualSubject" placeholder="Ex: Une idee pour {company} ?">
-                </div>
-
-                <div class="form-group">
-                    <label>${t('campaigns.email_creation.body')} *</label>
-                    <textarea id="manualBody" rows="8"
-                              placeholder="Hello {first_name},
-
-J'ai vu que {company} ..."></textarea>
-                    <p class="field-hint">${t('campaigns.email_creation.variables_hint')}</p>
-                </div>
-
-                <button class="btn btn-primary" onclick="CampaignsModule.saveManualTemplate()">
-                    ${t('actions.save')}
-                </button>
-            </div>
-        `;
-    },
-
-    /**
-     * Sauvegarde le template manuel
-     */
-    saveManualTemplate() {
-        const subject = document.getElementById('manualSubject').value.trim();
-        const body = document.getElementById('manualBody').value.trim();
-
-        if (!subject || !body) {
-            alert(t('errors.required_field'));
+    async saveStep3() {
+        // Valider qu'au moins le premier email est rempli
+        const firstEmail = this.sequenceEmails[0];
+        if (!firstEmail.subject_template || !firstEmail.body_template) {
+            alert('Veuillez remplir au moins le premier email de la sequence');
             return;
         }
 
-        // Generate personalized emails from template
-        this.generatedEmails = this.selectedProspects.map(prospect => ({
-            prospect_id: prospect.id,
-            prospect,
-            subject: this.personalizeEmail(subject, prospect),
-            body: this.personalizeEmail(body, prospect)
-        }));
+        try {
+            const token = await this.getAuthToken();
+            await fetch(`${this.API_URL}/api/campaigns/${this.currentCampaign.id}/sequence`, {
+                method: 'PUT',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ emails: this.sequenceEmails })
+            });
 
-        document.getElementById('step3NextBtn').style.display = 'inline-flex';
+            // Generer les previews
+            this.generatedPreviews = this.selectedProspects.slice(0, 5).map(prospect => ({
+                prospect,
+                emails: this.sequenceEmails.map(seq => ({
+                    subject: this.personalizeTemplate(seq.subject_template, prospect),
+                    body: this.personalizeTemplate(seq.body_template, prospect),
+                    delay_days: seq.delay_days
+                }))
+            }));
 
-        const content = document.getElementById('emailCreationContent');
-        content.innerHTML = `
-            <div class="generation-success">
-                <div class="success-icon">✅</div>
-                <p>${this.generatedEmails.length} emails prepares</p>
-            </div>
-        `;
+            this.currentStep = 4;
+            this.updateWizard();
+
+        } catch (error) {
+            console.error('Error saving sequence:', error);
+            alert('Erreur lors de la sauvegarde');
+        }
     },
 
-    /**
-     * Step 4: Preview et envoi
-     */
-    renderWizardStep4() {
-        if (this.generatedEmails.length === 0) {
+    personalizeTemplate(template, prospect) {
+        if (!template) return '';
+        return template
+            .replace(/{first_name}/g, prospect.first_name || '')
+            .replace(/{last_name}/g, prospect.last_name || '')
+            .replace(/{company}/g, prospect.company || 'ton entreprise')
+            .replace(/{job_title}/g, prospect.job_title || '');
+    },
+
+    // ==========================================
+    // STEP 4: PREVIEW & LANCEMENT
+    // ==========================================
+
+    renderStep4() {
+        const preview = this.generatedPreviews[this.previewIndex];
+        if (!preview) {
             return `
                 <div class="wizard-step-content">
-                    <p>Aucun email genere. Veuillez retourner a l'etape precedente.</p>
-                    <button class="btn btn-secondary" onclick="CampaignsModule.goToStep(3)">
-                        ← ${t('actions.back')}
-                    </button>
+                    <p>Aucun apercu disponible</p>
+                    <button class="btn btn-secondary" onclick="CampaignsModule.goToStep(3)">← Retour</button>
                 </div>
             `;
         }
 
-        const email = this.generatedEmails[this.previewIndex];
-        if (!email || email.error) {
-            // Skip to next valid email
-            const nextValid = this.generatedEmails.findIndex((e, i) => i > this.previewIndex && !e.error);
-            if (nextValid !== -1) {
-                this.previewIndex = nextValid;
-                return this.renderWizardStep4();
-            }
-        }
-
-        const prospect = email.prospect;
+        const prospect = preview.prospect;
         const c = this.currentCampaign;
 
         return `
             <div class="wizard-step-content">
-                <h3>👀 ${t('campaigns.preview.title')}</h3>
+                <h3>👀 Apercu et lancement</h3>
 
                 <div class="preview-navigation">
-                    <span>${t('campaigns.preview.for_prospect', { name: prospect.first_name, company: prospect.company || prospect.email })}</span>
+                    <span>Apercu pour : <strong>${prospect.first_name}</strong> (${prospect.company || prospect.email})</span>
                     <div class="preview-nav-buttons">
-                        <button class="btn btn-small" onclick="CampaignsModule.prevPreview()" ${this.previewIndex === 0 ? 'disabled' : ''}>
-                            ← ${t('campaigns.preview.previous')}
-                        </button>
-                        <span>${this.previewIndex + 1} / ${this.generatedEmails.length}</span>
-                        <button class="btn btn-small" onclick="CampaignsModule.nextPreview()" ${this.previewIndex >= this.generatedEmails.length - 1 ? 'disabled' : ''}>
-                            ${t('campaigns.preview.next')} →
-                        </button>
+                        <button class="btn btn-small" onclick="CampaignsModule.prevPreview()" ${this.previewIndex === 0 ? 'disabled' : ''}>←</button>
+                        <span>${this.previewIndex + 1} / ${this.generatedPreviews.length}</span>
+                        <button class="btn btn-small" onclick="CampaignsModule.nextPreview()" ${this.previewIndex >= this.generatedPreviews.length - 1 ? 'disabled' : ''}>→</button>
                     </div>
                 </div>
 
-                <div class="email-preview">
-                    <div class="email-preview-header">
-                        <div class="preview-field">
-                            <span class="preview-label">De:</span>
-                            <span>${c.sender_name} &lt;${c.sender_email}&gt;</span>
+                <div class="sequence-preview">
+                    ${preview.emails.map((email, i) => `
+                        <div class="email-preview-card ${i > 0 ? 'follow-up' : ''}">
+                            <div class="email-preview-badge">
+                                Email ${i + 1} ${i === 0 ? '(J+0)' : `(J+${email.delay_days})`}
+                            </div>
+                            <div class="email-preview-header">
+                                <div class="preview-field">
+                                    <span class="label">De:</span> ${c.sender_name} &lt;${c.sender_email}&gt;
+                                </div>
+                                <div class="preview-field">
+                                    <span class="label">A:</span> ${prospect.first_name} &lt;${prospect.email}&gt;
+                                </div>
+                                <div class="preview-field">
+                                    <span class="label">Objet:</span> ${email.subject}
+                                </div>
+                            </div>
+                            <div class="email-preview-body">
+                                ${email.body.replace(/\n/g, '<br>')}
+                            </div>
                         </div>
-                        <div class="preview-field">
-                            <span class="preview-label">A:</span>
-                            <span>${prospect.first_name} ${prospect.last_name || ''} &lt;${prospect.email}&gt;</span>
-                        </div>
-                        <div class="preview-field">
-                            <span class="preview-label">Objet:</span>
-                            <span>${email.subject}</span>
-                        </div>
-                    </div>
-                    <div class="email-preview-body">
-                        ${email.body.replace(/\n/g, '<br>')}
-                    </div>
+                    `).join('')}
                 </div>
 
-                <div class="preview-actions">
-                    <button class="btn btn-small btn-secondary" onclick="CampaignsModule.regenerateCurrentEmail()">
-                        🔄 ${t('actions.regenerate')}
-                    </button>
+                <div class="launch-options">
+                    <h4>⏰ Options de lancement</h4>
+
+                    <div class="option-group">
+                        <label class="radio-option">
+                            <input type="radio" name="launchTime" value="now" checked>
+                            <span>Envoyer maintenant</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="launchTime" value="scheduled">
+                            <span>Programmer l'envoi</span>
+                        </label>
+                    </div>
+
+                    <div class="scheduled-options" id="scheduledOptions" style="display:none;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Date</label>
+                                <input type="date" id="scheduledDate" min="${new Date().toISOString().split('T')[0]}">
+                            </div>
+                            <div class="form-group">
+                                <label>Heure</label>
+                                <input type="time" id="scheduledTime" value="09:00">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sending-constraints">
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="weekdaysOnly" checked>
+                            <span>Envoyer uniquement en semaine (lun-ven)</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="businessHours" checked>
+                            <span>Envoyer uniquement entre 9h et 18h</span>
+                        </label>
+                    </div>
                 </div>
 
                 <div class="campaign-summary">
-                    <p>📊 ${t('campaigns.preview.ready', { count: this.generatedEmails.filter(e => !e.error).length })}</p>
+                    <h4>📊 Recapitulatif</h4>
+                    <ul>
+                        <li><strong>${this.selectedProspects.length}</strong> prospects</li>
+                        <li><strong>${this.sequenceEmails.length}</strong> email(s) dans la sequence</li>
+                        <li>Delais : ${this.sequenceEmails.map((e, i) => `J+${e.delay_days}`).join(', ')}</li>
+                    </ul>
                 </div>
 
                 <div class="wizard-actions">
                     <button class="btn btn-secondary" onclick="CampaignsModule.goToStep(3)">
-                        ← ${t('actions.back')}
+                        ← Retour
                     </button>
-                    <button class="btn btn-primary btn-send" onclick="CampaignsModule.confirmSend()">
-                        🚀 ${t('campaigns.actions.send_now')}
+                    <button class="btn btn-primary btn-launch" onclick="CampaignsModule.launchCampaign()">
+                        🚀 Lancer la campagne
                     </button>
                 </div>
             </div>
         `;
     },
 
-    /**
-     * Preview precedent
-     */
     prevPreview() {
         if (this.previewIndex > 0) {
             this.previewIndex--;
-            document.getElementById('wizardContent').innerHTML = this.renderWizardStep4();
+            this.updateWizard();
         }
     },
 
-    /**
-     * Preview suivant
-     */
     nextPreview() {
-        if (this.previewIndex < this.generatedEmails.length - 1) {
+        if (this.previewIndex < this.generatedPreviews.length - 1) {
             this.previewIndex++;
-            document.getElementById('wizardContent').innerHTML = this.renderWizardStep4();
+            this.updateWizard();
         }
     },
 
-    /**
-     * Regenere l'email actuel
-     */
-    async regenerateCurrentEmail() {
-        const email = this.generatedEmails[this.previewIndex];
-        if (!email) return;
+    async launchCampaign() {
+        const launchTime = document.querySelector('input[name="launchTime"]:checked').value;
+        const weekdaysOnly = document.getElementById('weekdaysOnly').checked;
+        const businessHours = document.getElementById('businessHours').checked;
+
+        let scheduled_at = null;
+        if (launchTime === 'scheduled') {
+            const date = document.getElementById('scheduledDate').value;
+            const time = document.getElementById('scheduledTime').value;
+            if (!date || !time) {
+                alert('Veuillez selectionner une date et heure');
+                return;
+            }
+            scheduled_at = new Date(`${date}T${time}`).toISOString();
+        }
+
+        const confirm = window.confirm(
+            `Lancer la campagne "${this.currentCampaign.name}" ?\n\n` +
+            `• ${this.selectedProspects.length} prospects\n` +
+            `• ${this.sequenceEmails.length} email(s) dans la sequence\n` +
+            `• ${scheduled_at ? 'Programmee pour ' + new Date(scheduled_at).toLocaleString() : 'Envoi immediat'}`
+        );
+
+        if (!confirm) return;
 
         const content = document.getElementById('wizardContent');
         content.innerHTML = `
-            <div class="generating-state">
+            <div class="launching-state">
                 <div class="spinner"></div>
-                <p>${t('ai.generating')}</p>
+                <p>Lancement de la campagne...</p>
             </div>
         `;
 
         try {
-            const result = await this.generateEmail({
-                prospect: email.prospect,
-                campaign: this.currentCampaign
+            const token = await this.getAuthToken();
+            const response = await fetch(`${this.API_URL}/api/campaigns/${this.currentCampaign.id}/start`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prospect_ids: this.selectedProspects.map(p => p.id),
+                    scheduled_at,
+                    send_weekdays_only: weekdaysOnly,
+                    send_hours_start: businessHours ? 9 : 0,
+                    send_hours_end: businessHours ? 18 : 24
+                })
             });
 
-            this.generatedEmails[this.previewIndex] = {
-                ...email,
-                subject: result.subject_lines[0],
-                subject_options: result.subject_lines,
-                body: result.body,
-                preview_text: result.preview_text,
-                error: null
-            };
+            const data = await response.json();
 
-            content.innerHTML = this.renderWizardStep4();
+            if (data.success) {
+                content.innerHTML = `
+                    <div class="launch-success">
+                        <div class="success-icon">🚀</div>
+                        <h3>Campagne lancee !</h3>
+                        <p>${data.prospects_count} prospects vont recevoir ${data.sequence_emails} email(s)</p>
+                        ${scheduled_at ? `<p>Premier envoi prevu : ${new Date(data.first_send_at).toLocaleString()}</p>` : ''}
+                        <button class="btn btn-primary" onclick="CampaignsModule.closeWizard(); CampaignsModule.loadCampaigns(); CampaignsModule.renderCampaignsList();">
+                            Fermer
+                        </button>
+                    </div>
+                `;
+            } else {
+                throw new Error(data.error || 'Erreur inconnue');
+            }
 
         } catch (error) {
-            console.error('Regeneration error:', error);
-            alert(t('status.error'));
-            content.innerHTML = this.renderWizardStep4();
+            console.error('Error launching campaign:', error);
+            content.innerHTML = `
+                <div class="launch-error">
+                    <div class="error-icon">❌</div>
+                    <h3>Erreur</h3>
+                    <p>${error.message}</p>
+                    <button class="btn btn-secondary" onclick="CampaignsModule.goToStep(4)">
+                        Reessayer
+                    </button>
+                </div>
+            `;
         }
     },
 
-    /**
-     * Confirme l'envoi de la campagne
-     */
-    async confirmSend() {
-        const validEmails = this.generatedEmails.filter(e => !e.error);
+    // ==========================================
+    // CAMPAIGN ACTIONS
+    // ==========================================
 
-        if (!confirm(`Envoyer ${validEmails.length} emails maintenant ?`)) {
-            return;
+    async pauseCampaign(campaignId) {
+        if (!confirm('Mettre la campagne en pause ?')) return;
+
+        try {
+            const token = await this.getAuthToken();
+            await fetch(`${this.API_URL}/api/campaigns/${campaignId}/pause`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            await this.loadCampaigns();
+            this.renderCampaignsList();
+
+        } catch (error) {
+            console.error('Error pausing campaign:', error);
+            alert('Erreur');
+        }
+    },
+
+    async resumeCampaign(campaignId) {
+        if (!confirm('Reprendre la campagne ?')) return;
+
+        try {
+            const token = await this.getAuthToken();
+            await fetch(`${this.API_URL}/api/campaigns/${campaignId}/resume`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            await this.loadCampaigns();
+            this.renderCampaignsList();
+
+        } catch (error) {
+            console.error('Error resuming campaign:', error);
+            alert('Erreur');
+        }
+    },
+
+    async viewCampaignDetails(campaignId) {
+        const campaign = this.campaigns.find(c => c.id === campaignId);
+        if (!campaign) return;
+
+        // Charger les prospects de la campagne
+        let prospectStats = [];
+        try {
+            const token = await this.getAuthToken();
+            const response = await fetch(`${this.API_URL}/api/campaigns/${campaignId}/prospects`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            prospectStats = data.prospects || [];
+        } catch (e) {
+            console.error('Error loading prospect stats:', e);
         }
 
-        const content = document.getElementById('wizardContent');
-        content.innerHTML = `
-            <div class="sending-state">
-                <div class="spinner"></div>
-                <p>${t('status.sending')}</p>
-                <p class="sending-progress" id="sendingProgress">0 / ${validEmails.length}</p>
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.id = 'campaignDetailsModal';
+        modal.innerHTML = `
+            <div class="modal campaign-details-modal">
+                <div class="modal-header">
+                    <h3>📊 ${campaign.name}</h3>
+                    <button class="modal-close" onclick="document.getElementById('campaignDetailsModal').remove()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="campaign-status-banner status-${campaign.status}">
+                        ${this.getStatusLabel(campaign.status)}
+                    </div>
+
+                    <div class="stats-overview">
+                        <div class="stat-box">
+                            <span class="stat-number">${campaign.total_prospects || 0}</span>
+                            <span class="stat-label">Prospects</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-number">${campaign.emails_sent || 0}</span>
+                            <span class="stat-label">Envoyés</span>
+                        </div>
+                        <div class="stat-box highlight-open">
+                            <span class="stat-number">${campaign.emails_opened || 0}</span>
+                            <span class="stat-label">Ouverts</span>
+                            <span class="stat-percent">${campaign.emails_sent ? Math.round((campaign.emails_opened / campaign.emails_sent) * 100) : 0}%</span>
+                        </div>
+                        <div class="stat-box highlight-click">
+                            <span class="stat-number">${campaign.emails_clicked || 0}</span>
+                            <span class="stat-label">Cliqués</span>
+                            <span class="stat-percent">${campaign.emails_sent ? Math.round((campaign.emails_clicked / campaign.emails_sent) * 100) : 0}%</span>
+                        </div>
+                        <div class="stat-box highlight-reply">
+                            <span class="stat-number">${campaign.emails_replied || 0}</span>
+                            <span class="stat-label">Réponses</span>
+                            <span class="stat-percent">${campaign.emails_sent ? Math.round((campaign.emails_replied / campaign.emails_sent) * 100) : 0}%</span>
+                        </div>
+                    </div>
+
+                    <div class="sequence-progress">
+                        <h4>📈 Progression de la séquence</h4>
+                        ${this.renderSequenceProgress(campaign)}
+                    </div>
+
+                    <div class="prospects-status-list">
+                        <h4>👥 Statut des prospects (${prospectStats.length})</h4>
+                        <div class="prospects-filter-bar">
+                            <input type="text" placeholder="Rechercher..." onkeyup="CampaignsModule.filterProspectsList(this.value)">
+                            <select onchange="CampaignsModule.filterProspectsByStatus(this.value)">
+                                <option value="all">Tous</option>
+                                <option value="opened">Ouverts</option>
+                                <option value="clicked">Cliqués</option>
+                                <option value="replied">Répondu</option>
+                                <option value="pending">En attente</option>
+                            </select>
+                        </div>
+                        <div class="prospects-status-table" id="prospectsStatusTable">
+                            ${this.renderProspectsStatusTable(prospectStats)}
+                        </div>
+                    </div>
+
+                    <div class="campaign-actions-bar">
+                        ${campaign.status === 'sending' ? `
+                            <button class="btn btn-warning" onclick="CampaignsModule.pauseCampaign('${campaignId}'); document.getElementById('campaignDetailsModal').remove();">
+                                ⏸️ Mettre en pause
+                            </button>
+                        ` : ''}
+                        ${campaign.status === 'paused' ? `
+                            <button class="btn btn-primary" onclick="CampaignsModule.resumeCampaign('${campaignId}'); document.getElementById('campaignDetailsModal').remove();">
+                                ▶️ Reprendre
+                            </button>
+                        ` : ''}
+                        <button class="btn btn-secondary" onclick="CampaignsModule.exportCampaignStats('${campaignId}')">
+                            📤 Exporter CSV
+                        </button>
+                    </div>
+                </div>
             </div>
         `;
 
-        try {
-            // Save emails to database
-            await this.saveCampaignEmails(this.currentCampaign.id, validEmails);
-
-            // Send campaign
-            const result = await this.sendCampaign(this.currentCampaign.id);
-
-            content.innerHTML = `
-                <div class="send-success">
-                    <div class="success-icon">🚀</div>
-                    <h3>${t('status.sent')}</h3>
-                    <p>${result.sent || validEmails.length} emails envoyes</p>
-                    <button class="btn btn-primary" onclick="CampaignsModule.closeWizard(); CampaignsModule.loadCampaigns(); CampaignsModule.renderCampaignsList();">
-                        ${t('actions.close')}
-                    </button>
-                </div>
-            `;
-
-        } catch (error) {
-            console.error('Send error:', error);
-            content.innerHTML = `
-                <div class="send-error">
-                    <div class="error-icon">❌</div>
-                    <p>${t('errors.send_failed')}</p>
-                    <p class="error-detail">${error.message}</p>
-                    <button class="btn btn-secondary" onclick="CampaignsModule.closeWizard()">
-                        ${t('actions.close')}
-                    </button>
-                </div>
-            `;
-        }
+        document.body.appendChild(modal);
+        this.currentDetailProspects = prospectStats;
     },
 
-    /**
-     * Confirme la suppression d'une campagne
-     */
-    async confirmDelete(id) {
+    renderSequenceProgress(campaign) {
+        // Simuler la progression si pas de données détaillées
+        const total = campaign.total_prospects || 0;
+        const sent = campaign.emails_sent || 0;
+
+        return `
+            <div class="progress-bars">
+                <div class="progress-item">
+                    <span class="progress-label">Email 1 (J+0)</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${total ? (sent / total * 100) : 0}%"></div>
+                    </div>
+                    <span class="progress-count">${sent}/${total}</span>
+                </div>
+                <div class="progress-item">
+                    <span class="progress-label">Email 2 (J+3)</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <span class="progress-count">-/${total}</span>
+                </div>
+                <div class="progress-item">
+                    <span class="progress-label">Email 3 (J+7)</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <span class="progress-count">-/${total}</span>
+                </div>
+            </div>
+        `;
+    },
+
+    renderProspectsStatusTable(prospects) {
+        if (!prospects || prospects.length === 0) {
+            return '<p class="empty-table">Aucun prospect dans cette campagne</p>';
+        }
+
+        return prospects.map(p => `
+            <div class="prospect-status-row" data-status="${p.status || 'pending'}" data-name="${(p.first_name + ' ' + (p.last_name || '')).toLowerCase()}" data-email="${p.email?.toLowerCase() || ''}">
+                <div class="prospect-info-col">
+                    <strong>${p.first_name || ''} ${p.last_name || ''}</strong>
+                    <span class="email">${p.email || ''}</span>
+                </div>
+                <div class="prospect-company-col">
+                    ${p.company || '-'}
+                </div>
+                <div class="prospect-step-col">
+                    <span class="step-badge">Email ${p.current_step || 1}</span>
+                </div>
+                <div class="prospect-status-col">
+                    ${this.getProspectStatusBadges(p)}
+                </div>
+            </div>
+        `).join('');
+    },
+
+    getProspectStatusBadges(prospect) {
+        let badges = [];
+
+        if (prospect.has_replied || prospect.status === 'replied') {
+            badges.push('<span class="badge badge-replied">💬 Répondu</span>');
+        } else if (prospect.total_clicked > 0 || prospect.status === 'clicked') {
+            badges.push('<span class="badge badge-clicked">🖱️ Cliqué</span>');
+        } else if (prospect.total_opened > 0 || prospect.status === 'opened') {
+            badges.push('<span class="badge badge-opened">👁️ Ouvert</span>');
+        } else if (prospect.total_sent > 0 || prospect.status === 'sent') {
+            badges.push('<span class="badge badge-sent">📧 Envoyé</span>');
+        } else {
+            badges.push('<span class="badge badge-pending">⏳ En attente</span>');
+        }
+
+        return badges.join(' ');
+    },
+
+    filterProspectsList(query) {
+        const rows = document.querySelectorAll('.prospect-status-row');
+        const q = query.toLowerCase();
+
+        rows.forEach(row => {
+            const name = row.dataset.name || '';
+            const email = row.dataset.email || '';
+            row.style.display = (name.includes(q) || email.includes(q)) ? 'flex' : 'none';
+        });
+    },
+
+    filterProspectsByStatus(status) {
+        const rows = document.querySelectorAll('.prospect-status-row');
+
+        rows.forEach(row => {
+            if (status === 'all') {
+                row.style.display = 'flex';
+            } else {
+                row.style.display = row.dataset.status === status ? 'flex' : 'none';
+            }
+        });
+    },
+
+    async exportCampaignStats(campaignId) {
+        const campaign = this.campaigns.find(c => c.id === campaignId);
+        if (!campaign) return;
+
+        const prospects = this.currentDetailProspects || [];
+
+        const csvContent = [
+            ['Prénom', 'Nom', 'Email', 'Entreprise', 'Étape', 'Statut', 'Ouvertures', 'Clics'].join(';'),
+            ...prospects.map(p => [
+                p.first_name || '',
+                p.last_name || '',
+                p.email || '',
+                p.company || '',
+                p.current_step || 1,
+                p.status || 'pending',
+                p.total_opened || 0,
+                p.total_clicked || 0
+            ].join(';'))
+        ].join('\n');
+
+        const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `campagne-${campaign.name.replace(/\s+/g, '-')}-stats.csv`;
+        link.click();
+    },
+
+    async confirmDelete(campaignId) {
         if (!confirm('Supprimer cette campagne ?')) return;
 
         try {
-            await this.deleteCampaign(id);
+            const token = await this.getAuthToken();
+            await fetch(`${this.API_URL}/api/campaigns/${campaignId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            await this.loadCampaigns();
             this.renderCampaignsList();
+
         } catch (error) {
-            console.error('Delete error:', error);
-            alert(t('status.error'));
+            console.error('Error deleting campaign:', error);
+            alert('Erreur');
         }
     }
 };
@@ -1174,24 +1213,31 @@ J'ai vu que {company} ..."></textarea>
 // Exposer globalement
 window.CampaignsModule = CampaignsModule;
 
-// CSS du module
-const campaignsStyles = document.createElement('style');
-campaignsStyles.textContent = `
-/* ==========================================
-   CAMPAIGNS MODULE STYLES
-   ========================================== */
+// Event listener pour le toggle scheduled/now
+document.addEventListener('change', (e) => {
+    if (e.target.name === 'launchTime') {
+        const scheduledOptions = document.getElementById('scheduledOptions');
+        if (scheduledOptions) {
+            scheduledOptions.style.display = e.target.value === 'scheduled' ? 'block' : 'none';
+        }
+    }
+});
 
+// CSS additionnel pour les campagnes et sequences
+const sequenceStyles = document.createElement('style');
+sequenceStyles.textContent = `
+/* Campaigns Page */
 .campaigns-page {
     padding: 20px;
-    max-width: 1200px;
+    max-width: 1000px;
     margin: 0 auto;
 }
 
 .campaigns-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 25px;
+    align-items: center;
+    margin-bottom: 30px;
     flex-wrap: wrap;
     gap: 15px;
 }
@@ -1199,7 +1245,6 @@ campaignsStyles.textContent = `
 .campaigns-title-section h2 {
     margin: 0 0 5px;
     color: #333;
-    font-size: 1.8em;
 }
 
 .campaigns-title-section p {
@@ -1217,22 +1262,35 @@ campaignsStyles.textContent = `
 
 .campaign-card {
     background: white;
+    border: 1px solid #e0e0e0;
     border-radius: 15px;
     padding: 20px;
     display: flex;
     align-items: center;
     gap: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    transition: transform 0.2s, box-shadow 0.2s;
+    flex-wrap: wrap;
+    transition: box-shadow 0.2s;
 }
 
 .campaign-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.campaign-card.sending {
+    border-left: 4px solid #11998e;
+}
+
+.campaign-card.paused {
+    border-left: 4px solid #f5a623;
+}
+
+.campaign-card.completed, .campaign-card.sent {
+    border-left: 4px solid #4caf50;
 }
 
 .campaign-info {
     flex: 1;
+    min-width: 200px;
 }
 
 .campaign-name {
@@ -1244,26 +1302,24 @@ campaignsStyles.textContent = `
 
 .campaign-name strong {
     font-size: 1.1em;
-    color: #333;
 }
 
 .campaign-status {
-    padding: 4px 12px;
-    border-radius: 20px;
     font-size: 0.75em;
+    padding: 3px 10px;
+    border-radius: 20px;
     font-weight: 600;
 }
 
-.campaign-status.status-draft { background: #e0e0e0; color: #666; }
-.campaign-status.status-sending { background: #fff3e0; color: #e65100; }
-.campaign-status.status-sent { background: #e8f5e9; color: #2e7d32; }
-.campaign-status.status-paused { background: #ffebee; color: #c62828; }
+.status-draft { background: #f0f0f0; color: #666; }
+.status-scheduled { background: #e3f2fd; color: #1976d2; }
+.status-sending { background: #e8f5e9; color: #2e7d32; }
+.status-paused { background: #fff3e0; color: #f57c00; }
+.status-sent, .status-completed { background: #e8f5e9; color: #388e3c; }
 
 .campaign-meta {
     font-size: 0.9em;
-    color: #666;
-    display: flex;
-    gap: 10px;
+    color: #888;
 }
 
 .campaign-stats {
@@ -1277,9 +1333,9 @@ campaignsStyles.textContent = `
 
 .campaign-stats .stat-value {
     display: block;
-    font-size: 1.5em;
-    font-weight: 700;
-    color: #667eea;
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #333;
 }
 
 .campaign-stats .stat-label {
@@ -1289,13 +1345,13 @@ campaignsStyles.textContent = `
 
 .campaign-actions {
     display: flex;
-    gap: 8px;
+    gap: 10px;
 }
 
 /* Wizard Modal */
 .campaign-wizard-modal {
-    max-width: 700px;
     width: 95%;
+    max-width: 800px;
     max-height: 90vh;
     display: flex;
     flex-direction: column;
@@ -1307,31 +1363,49 @@ campaignsStyles.textContent = `
     padding: 20px 30px;
     background: #f8f9fa;
     border-bottom: 1px solid #e0e0e0;
+    position: relative;
 }
 
 .wizard-step {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 10px;
-    opacity: 0.5;
-    transition: opacity 0.3s;
+    gap: 8px;
+    flex: 1;
+    position: relative;
+    z-index: 1;
 }
 
-.wizard-step.active,
-.wizard-step.completed {
-    opacity: 1;
+.wizard-step::after {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    width: 100%;
+    height: 2px;
+    background: #e0e0e0;
+    z-index: -1;
+}
+
+.wizard-step:last-child::after {
+    display: none;
+}
+
+.wizard-step.completed::after {
+    background: linear-gradient(135deg, #667eea, #764ba2);
 }
 
 .step-number {
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     background: #e0e0e0;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 700;
+    font-weight: bold;
     font-size: 0.9em;
+    color: #666;
 }
 
 .wizard-step.active .step-number {
@@ -1340,12 +1414,8 @@ campaignsStyles.textContent = `
 }
 
 .wizard-step.completed .step-number {
-    background: #38ef7d;
+    background: #4caf50;
     color: white;
-}
-
-.wizard-step.completed .step-number::after {
-    content: "✓";
 }
 
 .step-label {
@@ -1353,15 +1423,25 @@ campaignsStyles.textContent = `
     color: #666;
 }
 
+.wizard-step.active .step-label {
+    color: #667eea;
+    font-weight: 600;
+}
+
 .wizard-content {
     flex: 1;
     overflow-y: auto;
-    padding: 25px 30px;
+    padding: 30px;
 }
 
 .wizard-step-content h3 {
-    margin: 0 0 25px;
+    margin: 0 0 20px;
     color: #333;
+}
+
+.step-description {
+    color: #666;
+    margin-bottom: 25px;
 }
 
 .wizard-actions {
@@ -1375,142 +1455,92 @@ campaignsStyles.textContent = `
 /* Prospect Selection */
 .prospect-filter-options {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
+    gap: 15px;
     margin-bottom: 25px;
+    flex-wrap: wrap;
 }
 
 .radio-card {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 15px 20px;
-    background: #f8f9fa;
+    flex: 1;
+    min-width: 180px;
+    background: white;
     border: 2px solid #e0e0e0;
     border-radius: 12px;
+    padding: 15px;
     cursor: pointer;
     transition: all 0.2s;
 }
 
-.radio-card:hover {
+.radio-card:has(input:checked) {
     border-color: #667eea;
-    background: #f8f9ff;
-}
-
-.radio-card input:checked + .radio-content {
-    color: #667eea;
+    background: #f0f4ff;
 }
 
 .radio-card input {
-    width: 18px;
-    height: 18px;
+    display: none;
 }
 
 .radio-content {
     display: flex;
     justify-content: space-between;
-    flex: 1;
+    align-items: center;
+}
+
+.radio-content .count {
+    background: #667eea;
+    color: white;
+    padding: 2px 10px;
+    border-radius: 15px;
+    font-size: 0.85em;
 }
 
 .selected-prospects-preview {
-    background: white;
-    border: 1px solid #e0e0e0;
+    background: #f8f9fa;
+    padding: 20px;
     border-radius: 12px;
-    padding: 15px;
+    margin-bottom: 20px;
 }
 
 .selected-prospects-preview h4 {
-    margin: 0 0 10px;
-    font-size: 0.95em;
+    margin: 0 0 15px;
     color: #333;
 }
 
 .prospects-mini-list {
-    max-height: 150px;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .prospect-mini {
     display: flex;
     justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid #f0f0f0;
-    font-size: 0.9em;
-}
-
-.prospect-mini strong {
-    color: #333;
+    padding: 8px 12px;
+    background: white;
+    border-radius: 8px;
 }
 
 .prospect-mini span {
-    color: #888;
-}
-
-/* Email Creation */
-.email-creation-options {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-bottom: 25px;
-}
-
-.email-option-card {
-    padding: 25px;
-    background: white;
-    border: 2px solid #e0e0e0;
-    border-radius: 15px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.email-option-card:hover {
-    border-color: #667eea;
-    transform: translateY(-3px);
-    box-shadow: 0 5px 20px rgba(102,126,234,0.2);
-}
-
-.option-icon {
-    font-size: 2.5em;
-    margin-bottom: 10px;
-}
-
-.email-option-card strong {
-    display: block;
-    margin-bottom: 5px;
-    color: #333;
-}
-
-.email-option-card p {
-    font-size: 0.85em;
     color: #666;
-    margin: 0;
-}
-
-.generating-state,
-.generation-success,
-.generation-error,
-.sending-state,
-.send-success,
-.send-error {
-    text-align: center;
-    padding: 40px 20px;
-}
-
-.generating-progress,
-.sending-progress {
-    color: #888;
     font-size: 0.9em;
 }
 
-/* Email Preview */
+.prospects-mini-list .more {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    margin: 10px 0 0;
+}
+
+/* Preview Navigation */
 .preview-navigation {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 15px;
+    background: #f0f4ff;
+    border-radius: 10px;
     margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #e0e0e0;
 }
 
 .preview-nav-buttons {
@@ -1519,113 +1549,575 @@ campaignsStyles.textContent = `
     gap: 10px;
 }
 
-.email-preview {
+.preview-nav-buttons button {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+}
+
+.empty-state .empty-icon {
+    font-size: 4em;
+    margin-bottom: 20px;
+}
+
+.generating-state {
+    text-align: center;
+    padding: 50px 20px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #e0e0e0;
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Field hint */
+.field-hint {
+    font-size: 0.85em;
+    color: #888;
+    margin-top: 5px;
+}
+
+/* Sequence Emails */
+.sequence-emails {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.sequence-email-card {
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 15px;
+    padding: 20px;
+    position: relative;
+}
+
+.sequence-email-card:not(:first-child)::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: 30px;
+    width: 2px;
+    height: 20px;
+    background: linear-gradient(to bottom, #667eea, #764ba2);
+}
+
+.sequence-email-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.email-badge {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+
+.email-timing {
+    flex: 1;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.delay-select {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-family: inherit;
+}
+
+.btn-remove-email {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2em;
+    opacity: 0.5;
+}
+
+.btn-remove-email:hover {
+    opacity: 1;
+}
+
+.send-condition {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    font-size: 0.9em;
+}
+
+.send-condition select {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-family: inherit;
+}
+
+.btn-add-email {
+    margin-bottom: 20px;
+}
+
+.sequence-tips {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.sequence-tips p {
+    margin: 5px 0;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.ai-generation-box {
+    background: linear-gradient(135deg, #f0f4ff, #e8ecff);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.ai-generation-box h4 {
+    margin: 0 0 10px;
+    color: #333;
+}
+
+.ai-generation-box p {
+    margin: 0 0 15px;
+    color: #666;
+    font-size: 0.9em;
+}
+
+/* Preview */
+.sequence-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.email-preview-card {
     background: white;
     border: 1px solid #e0e0e0;
     border-radius: 12px;
     overflow: hidden;
-    margin-bottom: 15px;
 }
 
-.email-preview-header {
+.email-preview-card.follow-up {
+    margin-left: 30px;
+    border-left: 3px solid #667eea;
+}
+
+.email-preview-badge {
     background: #f8f9fa;
-    padding: 15px 20px;
+    padding: 8px 15px;
+    font-size: 0.85em;
+    font-weight: 600;
+    color: #667eea;
     border-bottom: 1px solid #e0e0e0;
 }
 
-.preview-field {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 8px;
+.email-preview-header {
+    padding: 15px;
+    background: #fafafa;
     font-size: 0.9em;
 }
 
-.preview-field:last-child {
-    margin-bottom: 0;
+.preview-field {
+    margin-bottom: 5px;
 }
 
-.preview-label {
+.preview-field .label {
     font-weight: 600;
     color: #666;
-    min-width: 50px;
 }
 
 .email-preview-body {
     padding: 20px;
     line-height: 1.7;
-    color: #333;
 }
 
-.preview-actions {
-    text-align: center;
+/* Launch Options */
+.launch-options {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 12px;
     margin-bottom: 20px;
+}
+
+.launch-options h4 {
+    margin: 0 0 15px;
+}
+
+.option-group {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+}
+
+.radio-option, .checkbox-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.scheduled-options {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.sending-constraints {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .campaign-summary {
     background: #e8f5e9;
     padding: 15px 20px;
     border-radius: 10px;
-    text-align: center;
-    color: #2e7d32;
-    font-weight: 500;
+    margin-bottom: 20px;
 }
 
-.btn-send {
+.campaign-summary h4 {
+    margin: 0 0 10px;
+    color: #2e7d32;
+}
+
+.campaign-summary ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.campaign-summary li {
+    margin: 5px 0;
+    color: #333;
+}
+
+.btn-launch {
     background: linear-gradient(135deg, #11998e, #38ef7d) !important;
 }
 
-/* Form Options */
-.form-options {
+/* States */
+.launching-state, .launch-success, .launch-error {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.launch-success .success-icon, .launch-error .error-icon {
+    font-size: 4em;
+    margin-bottom: 20px;
+}
+
+.warning-box {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.warning-box p {
+    margin: 0;
+    color: #856404;
+}
+
+/* Campaign Details Modal */
+.campaign-details-modal {
+    width: 95%;
+    max-width: 900px;
+    max-height: 90vh;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    margin-top: 15px;
 }
 
-.checkbox-label {
+.campaign-details-modal .modal-body {
+    overflow-y: auto;
+    padding: 25px;
+}
+
+.campaign-status-banner {
+    text-align: center;
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: 600;
+    margin-bottom: 25px;
+}
+
+.campaign-status-banner.status-sending {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.campaign-status-banner.status-paused {
+    background: #fff3e0;
+    color: #f57c00;
+}
+
+.campaign-status-banner.status-completed,
+.campaign-status-banner.status-sent {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.stats-overview {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.stat-box {
+    flex: 1;
+    min-width: 100px;
+    background: #f8f9fa;
+    padding: 20px 15px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.stat-box.highlight-open { background: #e3f2fd; }
+.stat-box.highlight-click { background: #fff3e0; }
+.stat-box.highlight-reply { background: #e8f5e9; }
+
+.stat-box .stat-number {
+    display: block;
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #333;
+}
+
+.stat-box .stat-label {
+    font-size: 0.85em;
+    color: #666;
+}
+
+.stat-box .stat-percent {
+    display: block;
+    font-size: 0.9em;
+    color: #888;
+    margin-top: 5px;
+}
+
+.sequence-progress {
+    margin-bottom: 30px;
+}
+
+.sequence-progress h4 {
+    margin: 0 0 15px;
+    color: #333;
+}
+
+.progress-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.progress-item {
     display: flex;
     align-items: center;
+    gap: 15px;
+}
+
+.progress-label {
+    width: 120px;
+    font-size: 0.9em;
+    color: #555;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 12px;
+    background: #e0e0e0;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 6px;
+    transition: width 0.3s;
+}
+
+.progress-count {
+    width: 70px;
+    text-align: right;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.prospects-status-list h4 {
+    margin: 0 0 15px;
+    color: #333;
+}
+
+.prospects-filter-bar {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.prospects-filter-bar input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-family: inherit;
+}
+
+.prospects-filter-bar select {
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-family: inherit;
+    min-width: 150px;
+}
+
+.prospects-status-table {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+}
+
+.prospect-status-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    gap: 15px;
+}
+
+.prospect-status-row:last-child {
+    border-bottom: none;
+}
+
+.prospect-status-row:hover {
+    background: #f8f9fa;
+}
+
+.prospect-info-col {
+    flex: 2;
+    min-width: 150px;
+}
+
+.prospect-info-col strong {
+    display: block;
+    color: #333;
+}
+
+.prospect-info-col .email {
+    font-size: 0.85em;
+    color: #888;
+}
+
+.prospect-company-col {
+    flex: 1;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.prospect-step-col {
+    width: 80px;
+}
+
+.step-badge {
+    background: #f0f0f0;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    color: #666;
+}
+
+.prospect-status-col {
+    width: 120px;
+    text-align: right;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: 500;
+}
+
+.badge-pending { background: #f0f0f0; color: #666; }
+.badge-sent { background: #e3f2fd; color: #1976d2; }
+.badge-opened { background: #e8f5e9; color: #2e7d32; }
+.badge-clicked { background: #fff3e0; color: #f57c00; }
+.badge-replied { background: #f3e5f5; color: #7b1fa2; }
+
+.empty-table {
+    text-align: center;
+    padding: 30px;
+    color: #888;
+}
+
+.campaign-actions-bar {
+    display: flex;
+    justify-content: flex-end;
     gap: 10px;
-    cursor: pointer;
-    font-size: 0.95em;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
 }
 
-.checkbox-label input {
-    width: 18px;
-    height: 18px;
+.btn-warning {
+    background: #ff9800;
+    color: white;
 }
 
-/* Manual Email Form */
-.manual-email-form {
-    margin-top: 20px;
+.btn-warning:hover {
+    background: #f57c00;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .campaign-card {
+@media (max-width: 600px) {
+    .stats-overview {
         flex-direction: column;
-        align-items: flex-start;
     }
 
-    .campaign-stats {
-        width: 100%;
-        justify-content: space-around;
-        padding-top: 15px;
-        border-top: 1px solid #f0f0f0;
-    }
-
-    .wizard-steps {
+    .prospect-status-row {
         flex-wrap: wrap;
-        gap: 10px;
     }
 
-    .step-label {
+    .prospect-company-col,
+    .prospect-step-col {
         display: none;
-    }
-
-    .email-creation-options {
-        grid-template-columns: 1fr;
     }
 }
 `;
-document.head.appendChild(campaignsStyles);
+document.head.appendChild(sequenceStyles);

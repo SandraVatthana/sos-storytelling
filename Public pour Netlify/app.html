@@ -58,35 +58,6 @@
         .btn-icon { background: #f0f4ff; border: 2px solid #e0e5ff; color: #667eea; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 1em; transition: all 0.2s; }
         .btn-icon:hover { background: #667eea; color: white; }
 
-        /* Format Recommendation */
-        .format-recommendation { margin-top: 12px; padding: 12px 15px; background: linear-gradient(135deg, #fff9e6, #fff3cd); border-radius: 10px; border-left: 4px solid #ffc107; font-size: 0.88em; color: #856404; display: none; animation: slideDown 0.3s ease; cursor: pointer; transition: all 0.2s; }
-        .format-recommendation:hover { transform: translateX(5px); box-shadow: 0 4px 15px rgba(255,193,7,0.3); }
-        .format-recommendation.show { display: block; }
-        .format-recommendation strong { color: #664d03; }
-        .format-recommendation .trend-badge { display: inline-block; background: #ffc107; color: #664d03; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; font-weight: 700; margin-right: 8px; }
-        .format-recommendation .see-more { background: #664d03; color: white; border: none; padding: 5px 12px; border-radius: 6px; font-size: 0.85em; cursor: pointer; margin-left: 10px; font-family: inherit; font-weight: 600; }
-        .format-recommendation .see-more:hover { background: #513c03; }
-        
-        /* Modal Tendances Format */
-        .trends-format-modal { max-width: 800px; max-height: 90vh; overflow-y: auto; }
-        .trends-format-header { background: linear-gradient(135deg, #ffc107, #ff9800); color: #333; padding: 25px 30px; border-radius: 20px 20px 0 0; }
-        .trends-format-header h2 { margin: 0 0 5px; font-size: 1.5em; }
-        .trends-format-header p { margin: 0; opacity: 0.8; }
-        .trends-format-tabs { display: flex; gap: 10px; padding: 20px 25px; background: #f8f9fa; border-bottom: 1px solid #e0e0e0; flex-wrap: wrap; }
-        .trends-format-tab { padding: 10px 18px; border: none; border-radius: 25px; cursor: pointer; font-weight: 600; font-size: 0.9em; transition: all 0.2s; font-family: inherit; }
-        .trends-format-tab.linkedin { background: #e8f4fc; color: #0077b5; }
-        .trends-format-tab.linkedin.active { background: #0077b5; color: white; }
-        .trends-format-tab.tiktok { background: #f0f0f0; color: #333; }
-        .trends-format-tab.tiktok.active { background: #000; color: white; }
-        .trends-format-tab.instagram { background: #fce4ec; color: #e1306c; }
-        .trends-format-tab.instagram.active { background: linear-gradient(135deg, #e1306c, #c13584); color: white; }
-        .trends-format-tab.facebook { background: #e8f0fe; color: #1877f2; }
-        .trends-format-tab.facebook.active { background: #1877f2; color: white; }
-        .trends-format-content { padding: 25px; }
-        .trend-tip-card { background: white; border-radius: 14px; padding: 18px; margin-bottom: 15px; border-left: 4px solid #ffc107; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .trend-tip-card h4 { margin: 0 0 8px; color: #333; font-size: 1em; display: flex; align-items: center; gap: 8px; }
-        .trend-tip-card p { margin: 0; color: #555; font-size: 0.92em; line-height: 1.6; }
-        .trend-tip-card .tip-tag { display: inline-block; background: #e8e8e8; color: #555; padding: 3px 10px; border-radius: 20px; font-size: 0.75em; font-weight: 600; margin-top: 10px; }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
         .btn-agency { background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; }
@@ -185,6 +156,8 @@
         .btn-stats { background: linear-gradient(135deg, #f093fb, #f5576c); color: white; }
         .btn-planning { background: linear-gradient(135deg, #11998e, #38ef7d); color: white; }
         .btn-voice { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .btn-prospects { background: linear-gradient(135deg, #11998e, #38ef7d); color: white; }
+        .btn-campaigns { background: linear-gradient(135deg, #f5576c, #f093fb); color: white; }
 
         /* Stats Modal */
         .stats-header { display: flex; gap: 20px; margin-bottom: 20px; }
@@ -220,6 +193,15 @@
 
         .btn-trends { background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; box-shadow: 0 0 10px rgba(255,107,107,0.5); }
         .btn-trends:hover { box-shadow: 0 0 20px rgba(255,107,107,0.7); }
+
+        /* Halo animation for TRENDS button */
+        @keyframes halo-pulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(255,107,107,0.5), 0 0 20px rgba(255,107,107,0.3), 0 0 30px rgba(255,107,107,0.1); }
+            50% { box-shadow: 0 0 15px rgba(255,107,107,0.8), 0 0 30px rgba(255,107,107,0.5), 0 0 45px rgba(255,107,107,0.3); }
+        }
+        .btn-halo { animation: halo-pulse 2s ease-in-out infinite; }
+        .btn-halo:hover { animation: none; box-shadow: 0 0 25px rgba(255,107,107,0.9), 0 0 40px rgba(255,107,107,0.6); }
+
         .btn-newsletter { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
         .btn-favorites { background: linear-gradient(135deg, #f093fb, #f5576c); color: white; }
         .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
@@ -410,8 +392,8 @@
         .trend-delete-btn:hover { background: #c62828; color: white; }
 
         /* Modal */
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
-        .modal-overlay.show, .modal-overlay.active { display: flex; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none !important; align-items: center; justify-content: center; z-index: 1000; padding: 20px; visibility: hidden !important; opacity: 0 !important; }
+        .modal-overlay.show, .modal-overlay.active { display: flex !important; visibility: visible !important; opacity: 1 !important; }
         .modal { background: white; border-radius: 20px; padding: 30px; max-width: 600px; width: 100%; max-height: 80vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .modal-title { font-size: 1.5em; font-weight: 700; color: #333; }
@@ -689,43 +671,7 @@
         .pub-info-banner { margin-top: 20px; padding: 12px 15px; background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-radius: 10px; border-left: 4px solid #4caf50; font-size: 0.88em; color: #2e7d32; display: flex; align-items: center; gap: 10px; }
         .pub-info-banner strong { color: #1b5e20; }
 
-        /* Export Modal */
-        .export-modal-body { padding: 25px; }
-        .export-preview { background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-radius: 12px; padding: 15px; margin-bottom: 25px; max-height: 150px; overflow-y: auto; font-size: 0.9em; line-height: 1.6; color: #333; border-left: 4px solid #667eea; }
-        .export-section-title { font-size: 0.85em; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-        .export-quick-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 25px; }
-        .export-quick-btn { display: flex; align-items: center; gap: 10px; padding: 12px 18px; background: white; border: 2px solid #e0e0e0; border-radius: 12px; cursor: pointer; transition: all 0.3s; font-family: inherit; }
-        .export-quick-btn:hover { border-color: #667eea; background: #f8f9ff; transform: translateY(-2px); }
-        .export-quick-btn .icon { font-size: 1.3em; }
-        .export-quick-btn .text { text-align: left; }
-        .export-quick-btn .text .label { font-weight: 600; font-size: 0.9em; color: #333; }
-        .export-quick-btn .text .desc { font-size: 0.75em; color: #888; }
-        
-        .export-partners-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .export-partner-card { background: white; border: 2px solid #e8e8e8; border-radius: 16px; padding: 18px; cursor: pointer; transition: all 0.3s; position: relative; }
-        .export-partner-card:hover { border-color: #f093fb; transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
-        .export-partner-card.recommended { border-color: #10b981; }
-        .export-partner-card.recommended::before { content: '⭐ Recommandé'; position: absolute; top: -10px; right: 15px; font-size: 0.7em; padding: 3px 10px; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 20px; font-weight: 600; }
-        .partner-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-        .partner-logo { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2em; color: white; font-weight: 700; }
-        .partner-logo.metricool { background: linear-gradient(135deg, #00D4AA, #00A080); }
-        .partner-logo.swello { background: linear-gradient(135deg, #6366f1, #4f46e5); }
-        .partner-logo.agorapulse { background: linear-gradient(135deg, #f97316, #ea580c); }
-        .partner-logo.buffer { background: linear-gradient(135deg, #168eea, #0d6efd); }
-        .partner-name { font-weight: 700; font-size: 1em; color: #333; }
-        .partner-tagline { font-size: 0.75em; color: #888; }
-        .partner-features { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
-        .partner-feature { font-size: 0.7em; padding: 3px 8px; background: #f0f4ff; color: #667eea; border-radius: 20px; }
-        .partner-feature.french { background: #dbeafe; color: #2563eb; }
-        .partner-feature.auto { background: #d1fae5; color: #059669; }
-        .partner-price { font-size: 0.8em; color: #666; }
-        .partner-price strong { color: #333; }
-        
-        .export-info-banner { background: linear-gradient(135deg, #dbeafe, #ede9fe); border-radius: 12px; padding: 12px 15px; margin-top: 20px; font-size: 0.85em; color: #4338ca; display: flex; align-items: flex-start; gap: 10px; }
-        .export-info-banner .icon { font-size: 1.1em; }
-
         @media (max-width: 600px) {
-            .export-partners-grid { grid-template-columns: 1fr; }
             .header { padding: 12px 15px; position: relative; }
             .intro-title { font-size: 1.8em; }
             .structure-grid { grid-template-columns: 1fr; }
@@ -1081,130 +1027,6 @@
     <link rel="stylesheet" href="newsletter-styles.css">
 </head>
 <body>
-    <!-- Pop-up de bienvenue -->
-    <div id="welcomePopup" class="welcome-popup-overlay" style="display: none;">
-        <div class="welcome-popup">
-            <button class="welcome-popup-close" onclick="closeWelcomePopup()">&times;</button>
-            <div class="welcome-popup-icon">👋</div>
-            <h2>Bienvenue !</h2>
-            <p>Merci d'avoir accepté de tester <strong>SOS Storytelling</strong> !</p>
-            <p style="margin-top: 15px;">Pour commencer, appuyez sur le bouton <strong>"🎯 Démo Guidée"</strong> en bas à gauche de l'écran.</p>
-            <div class="welcome-popup-checkbox">
-                <label>
-                    <input type="checkbox" id="welcomeDontShow" onchange="saveWelcomePreference()">
-                    <span>Ne plus afficher ce message</span>
-                </label>
-            </div>
-            <button class="welcome-popup-btn" onclick="closeWelcomePopup()">C'est parti ! 🚀</button>
-        </div>
-    </div>
-
-    <style>
-        .welcome-popup-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            z-index: 99999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: fadeIn 0.3s ease;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        .welcome-popup {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            max-width: 450px;
-            width: 90%;
-            text-align: center;
-            position: relative;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
-            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        @keyframes popIn {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-        .welcome-popup-close {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 24px;
-            color: #999;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        .welcome-popup-close:hover {
-            color: #333;
-        }
-        .welcome-popup-icon {
-            font-size: 60px;
-            margin-bottom: 15px;
-        }
-        .welcome-popup h2 {
-            color: #333;
-            font-size: 1.8em;
-            margin-bottom: 15px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .welcome-popup p {
-            color: #555;
-            font-size: 1.1em;
-            line-height: 1.6;
-        }
-        .welcome-popup strong {
-            color: #667eea;
-        }
-        .welcome-popup-checkbox {
-            margin: 25px 0;
-            display: flex;
-            justify-content: center;
-        }
-        .welcome-popup-checkbox label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            color: #777;
-            font-size: 0.9em;
-        }
-        .welcome-popup-checkbox input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-            accent-color: #667eea;
-        }
-        .welcome-popup-btn {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            border-radius: 30px;
-            font-size: 1.1em;
-            font-weight: 700;
-            cursor: pointer;
-            font-family: inherit;
-            transition: all 0.3s;
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-        }
-        .welcome-popup-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
-        }
-    </style>
-
     <!-- Logo Base64 stocké -->
     <style>.logo-img { width: 40px; height: 40px; border-radius: 8px; object-fit: contain; }</style>
     <header class="header">
@@ -1216,15 +1038,17 @@
             <span id="menuIcon">☰</span> Menu
         </button>
         <div class="header-buttons" id="headerButtons">
-            <button class="btn btn-trends" onclick="showTrends()">📈 TRENDS</button>
-            <button class="btn btn-newsletter" onclick="showNewsletterModal()">📧 Newsletters</button>
+            <button class="btn btn-trends btn-halo" onclick="showTrends()">🔥 TRENDS</button>
+            <button id="profileBtn" class="btn btn-profile" onclick="Onboarding.forceShow()">1. 👤 Mon profil</button>
+            <button class="btn btn-voice" onclick="showVoiceModal()">2. 🎤 Ma Voix</button>
+            <button class="btn btn-prospects" onclick="showProspectsModal()">3. 👥 Prospects</button>
+            <button class="btn btn-campaigns" onclick="showCampaignsModal()">4. 📧 Campagnes</button>
+            <button class="btn btn-newsletter" onclick="showNewsletterModal()">📰 Newsletters</button>
             <button class="btn btn-posts" onclick="openMesPostsPopup()">📌 Mes Posts</button>
             <button class="btn btn-stats" onclick="showStatsModal()">🏆 Stats</button>
             <button class="btn btn-planning" onclick="showPlanningModal()">🗓️ Planning IA</button>
             <button class="btn btn-favorites" onclick="showFavorites()">❤️ Favoris</button>
-            <button class="btn btn-voice" onclick="showVoiceModal()">🎤 Ma Voix</button>
             <button class="btn btn-frameworks" onclick="FrameworkSystem.showLibrary()">📐 Mes Frameworks</button>
-            <button id="profileBtn" class="btn btn-profile" onclick="Onboarding.forceShow()">✏️ Mon profil</button>
         </div>
     </header>
 
@@ -1270,7 +1094,6 @@
                         <div class="format-chip" data-format="article">📰 Article</div>
                         <div class="format-chip pub" data-format="pub">📢 PUB</div>
                     </div>
-                    <div class="format-recommendation" id="formatRecommendation"></div>
                 </div>
 
                 <!-- Options PUB (affichées seulement quand format = pub) -->
@@ -1385,7 +1208,6 @@
                     <button class="action-btn" onclick="regenerateContent()">🔄 Régénérer</button>
                     <button class="action-btn" onclick="generateVariantes()">🎭 3 Variantes</button>
                     <button class="action-btn save" onclick="saveToFavorites()">❤️ Sauver</button>
-                    <button class="action-btn export" onclick="showExportModal()">📤 Exporter</button>
                 </div>
                 
                 <!-- Section Visuels -->
@@ -1576,6 +1398,27 @@
         </div>
     </div>
 
+    <!-- Modal Prospects -->
+    <div class="modal-overlay" id="prospectsModal">
+        <div class="modal" style="max-width: 95vw; width: 1100px; max-height: 90vh; overflow: hidden;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #11998e, #38ef7d); color: white; border-radius: 20px 20px 0 0;">
+                <h2 class="modal-title" style="color: white;">👥 Mes Prospects</h2>
+                <button class="modal-close" onclick="closeProspectsModal()" style="color: white;">&times;</button>
+            </div>
+            <div id="prospectsContent" style="max-height: calc(90vh - 80px); overflow-y: auto; padding: 20px;"></div>
+        </div>
+    </div>
+
+    <!-- Modal Campagnes -->
+    <div class="modal-overlay" id="campaignsModal">
+        <div class="modal" style="max-width: 95vw; width: 1100px; max-height: 90vh; overflow: hidden;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #f5576c, #f093fb); color: white; border-radius: 20px 20px 0 0;">
+                <h2 class="modal-title" style="color: white;">📧 Mes Campagnes Email</h2>
+                <button class="modal-close" onclick="closeCampaignsModal()" style="color: white;">&times;</button>
+            </div>
+            <div id="campaignsContent" style="max-height: calc(90vh - 80px); overflow-y: auto; padding: 20px;"></div>
+        </div>
+    </div>
 
     <!-- Modal Favoris -->
     <div class="modal-overlay" id="favoritesModal">
@@ -2069,215 +1912,8 @@ Solution  | Présenter votre solution</pre>
         </div>
     </div>
 
-    <!-- Modal RGPD -->
-    <div class="modal-overlay" id="rgpdModal">
-        <div class="modal" style="max-width: 500px;">
-            <div class="modal-header">
-                <h2 class="modal-title">🔒 Protection des données</h2>
-                <button class="modal-close" onclick="AgencySystem.declineRGPD()">&times;</button>
-            </div>
-            <div style="padding: 20px 0;">
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-                    <h4 style="margin: 0 0 15px; color: #333;">📋 Ce que nous faisons de vos données :</h4>
-                    <ul style="margin: 0; padding-left: 20px; color: #555; line-height: 1.8;">
-                        <li>✅ <strong>Traitement 100% local</strong> dans votre navigateur</li>
-                        <li>✅ <strong>Aucun envoi</strong> vers nos serveurs</li>
-                        <li>✅ <strong>Données stockées</strong> uniquement sur votre appareil</li>
-                        <li>✅ <strong>Suppression totale</strong> possible à tout moment</li>
-                    </ul>
-                </div>
-                
-                <p style="font-size: 0.9em; color: #666; margin-bottom: 20px;">
-                    En cliquant "Accepter", vous confirmez avoir le droit d'importer ces données clients 
-                    et acceptez leur traitement local pour la génération de contenus.
-                </p>
-                
-                <div style="display: flex; gap: 10px;">
-                    <button class="btn" style="flex: 1; background: #e0e0e0; color: #333;" onclick="AgencySystem.declineRGPD()">Annuler</button>
-                    <button class="btn btn-validate-code" style="flex: 2;" onclick="AgencySystem.acceptRGPD()">✅ Accepter et continuer</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Modal Inscription (première visite) -->
-    <div class="modal-overlay" id="registerModal">
-        <div class="modal" style="max-width: 450px; text-align: center;">
-            <div style="font-size: 4em; margin-bottom: 15px;">🚀</div>
-            <h2 style="font-size: 1.5em; margin-bottom: 10px;">Bienvenue sur SOS Storytelling !</h2>
-            <p style="color: #666; margin-bottom: 25px;">Entre ton email pour sauvegarder ta progression et débloquer toutes les fonctionnalités.</p>
-            
-            <input type="email" id="registerEmail" class="profile-input" placeholder="ton@email.com" style="text-align: center; font-size: 1.1em; margin-bottom: 10px;">
-            <input type="text" id="registerName" class="profile-input" placeholder="Ton prénom (optionnel)" style="text-align: center; margin-bottom: 20px;">
-            
-            <button class="btn btn-validate-code" onclick="completeRegistration()" style="width: 100%; padding: 15px; font-size: 1.1em;">
-                ✨ C'est parti !
-            </button>
-            
-            <p style="color: #999; font-size: 0.8em; margin-top: 15px;">
-                🔒 Tes données restent privées. Pas de spam promis !
-            </p>
-            
-            <button onclick="skipRegistration()" style="background: none; border: none; color: #999; margin-top: 10px; cursor: pointer; font-size: 0.85em;">
-                Continuer sans compte →
-            </button>
-        </div>
-    </div>
 
-    <!-- Modal Code Promo -->
-    <div class="modal-overlay" id="promoCodeModal">
-        <div class="modal" style="max-width: 400px; text-align: center;">
-            <button class="modal-close" onclick="closePromoModal()">&times;</button>
-            <div style="font-size: 3em; margin-bottom: 15px;">🎟️</div>
-            <h2 style="font-size: 1.3em; margin-bottom: 20px;">Code Promo / Early Bird</h2>
-            
-            <input type="text" id="promoCodeInput" class="agency-code-input" placeholder="TON CODE" maxlength="20" style="text-transform: uppercase;" onkeyup="if(event.key==='Enter')validatePromoCode()">
-            
-            <div id="promoCodeResult" style="margin: 15px 0; min-height: 25px;"></div>
-            
-            <button class="btn btn-validate-code" onclick="validatePromoCode()" style="width: 100%;">
-                ✅ Activer le code
-            </button>
-        </div>
-    </div>
-
-    <!-- Export Modal -->
-    <div class="modal-overlay" id="exportModal">
-        <div class="modal" style="max-width: 650px;">
-            <div class="modal-header">
-                <h2 class="modal-title">📤 Exporter & Publier</h2>
-                <button class="modal-close" onclick="closeExportModal()">&times;</button>
-            </div>
-            <div class="export-modal-body">
-                <!-- Aperçu du contenu -->
-                <div class="export-preview" id="exportPreview">
-                    Ton contenu apparaîtra ici...
-                </div>
-
-                <!-- Actions rapides -->
-                <div class="export-section-title">⚡ Actions rapides</div>
-                <div class="export-quick-actions">
-                    <button class="export-quick-btn" onclick="exportCopyContent()">
-                        <span class="icon">📋</span>
-                        <div class="text">
-                            <div class="label">Copier le texte</div>
-                            <div class="desc">Prêt à coller</div>
-                        </div>
-                    </button>
-                    <button class="export-quick-btn" onclick="exportDownloadCSV()">
-                        <span class="icon">📊</span>
-                        <div class="text">
-                            <div class="label">Télécharger CSV</div>
-                            <div class="desc">Compatible tous outils</div>
-                        </div>
-                    </button>
-                    <button class="export-quick-btn" onclick="exportOpenLinkedIn()">
-                        <span class="icon">💼</span>
-                        <div class="text">
-                            <div class="label">Ouvrir LinkedIn</div>
-                            <div class="desc">Copier + ouvrir</div>
-                        </div>
-                    </button>
-                </div>
-
-                <!-- Partenaires -->
-                <div class="export-section-title">🤝 Nos outils partenaires</div>
-                <div class="export-partners-grid">
-                    <div class="export-partner-card recommended" onclick="exportToPartner('metricool')">
-                        <div class="partner-header">
-                            <div class="partner-logo metricool">📊</div>
-                            <div>
-                                <div class="partner-name">Metricool</div>
-                                <div class="partner-tagline">Le plus complet</div>
-                            </div>
-                        </div>
-                        <div class="partner-features">
-                            <span class="partner-feature auto">✓ Publication auto</span>
-                            <span class="partner-feature">Import CSV</span>
-                            <span class="partner-feature">Analytics</span>
-                        </div>
-                        <div class="partner-price">À partir de <strong>gratuit</strong></div>
-                    </div>
-
-                    <div class="export-partner-card" onclick="exportToPartner('swello')">
-                        <div class="partner-header">
-                            <div class="partner-logo swello">🇫🇷</div>
-                            <div>
-                                <div class="partner-name">Swello</div>
-                                <div class="partner-tagline">Made in France 🇫🇷</div>
-                            </div>
-                        </div>
-                        <div class="partner-features">
-                            <span class="partner-feature auto">✓ Publication auto</span>
-                            <span class="partner-feature french">🇫🇷 Français</span>
-                            <span class="partner-feature">Import CSV natif</span>
-                        </div>
-                        <div class="partner-price">À partir de <strong>9,90€/mois</strong></div>
-                    </div>
-
-                    <div class="export-partner-card" onclick="exportToPartner('agorapulse')">
-                        <div class="partner-header">
-                            <div class="partner-logo agorapulse">🦁</div>
-                            <div>
-                                <div class="partner-name">Agorapulse</div>
-                                <div class="partner-tagline">Pour les pros 🇫🇷</div>
-                            </div>
-                        </div>
-                        <div class="partner-features">
-                            <span class="partner-feature auto">✓ Publication auto</span>
-                            <span class="partner-feature french">🇫🇷 Français</span>
-                            <span class="partner-feature">Bulk import</span>
-                        </div>
-                        <div class="partner-price">À partir de <strong>49€/mois</strong></div>
-                    </div>
-
-                    <div class="export-partner-card" onclick="exportToPartner('buffer')">
-                        <div class="partner-header">
-                            <div class="partner-logo buffer">📅</div>
-                            <div>
-                                <div class="partner-name">Buffer</div>
-                                <div class="partner-tagline">Simple & gratuit</div>
-                            </div>
-                        </div>
-                        <div class="partner-features">
-                            <span class="partner-feature auto">✓ Publication auto</span>
-                            <span class="partner-feature">3 comptes gratuits</span>
-                            <span class="partner-feature">UX moderne</span>
-                        </div>
-                        <div class="partner-price">À partir de <strong>gratuit</strong></div>
-                    </div>
-                </div>
-
-                <div class="export-info-banner">
-                    <span class="icon">💡</span>
-                    <div>
-                        <strong>Instagram & TikTok :</strong> Ces plateformes limitent la publication auto via API. 
-                        Nos partenaires proposent un mode "semi-auto" avec notification push.
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Tendances Format 2026 -->
-    <div class="modal-overlay" id="formatTrendsModal">
-        <div class="modal trends-format-modal">
-            <div class="trends-format-header" style="position: relative;">
-                <button class="modal-close" onclick="closeFormatTrends()">&times;</button>
-                <h2>🔥 Tendances Format 2026</h2>
-                <p>Ce qui performe vraiment sur chaque plateforme</p>
-            </div>
-            <div class="trends-format-tabs">
-                <button class="trends-format-tab linkedin active" onclick="showFormatTrend('linkedin')">💼 LinkedIn</button>
-                <button class="trends-format-tab tiktok" onclick="showFormatTrend('tiktok')">🎵 TikTok</button>
-                <button class="trends-format-tab instagram" onclick="showFormatTrend('instagram')">📸 Instagram</button>
-                <button class="trends-format-tab facebook" onclick="showFormatTrend('facebook')">👥 Facebook</button>
-            </div>
-            <div class="trends-format-content" id="formatTrendsContent">
-                <!-- Rempli dynamiquement -->
-            </div>
-        </div>
-    </div>
 
     <!-- Tour Overlay -->
     <div class="tour-overlay" id="tourOverlay"></div>
@@ -4900,14 +4536,7 @@ NOTES : ${client.notes || 'Aucune'}${voiceSection}
             // ==================== IMPORT CSV/XLSX ====================
             
             showImportModal() {
-                const data = this.get();
-                if (!data.rgpdConsent) {
-                    this.showRGPDConsent(() => {
-                        document.getElementById('importModal').classList.add('show');
-                    });
-                } else {
-                    document.getElementById('importModal').classList.add('show');
-                }
+                document.getElementById('importModal').classList.add('show');
             },
             
             closeImportModal() {
@@ -5481,157 +5110,12 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
             'facebook': { name: 'Facebook', tone: 'conversationnel' }
         };
 
-        // Recommandations de format par plateforme (tendances 2026)
-        const FORMAT_RECOMMENDATIONS = {
-            'linkedin': {
-                format: 'carousel',
-                emoji: '🎠',
-                title: 'Carousel',
-                message: 'Les carousels explosent sur LinkedIn ! Taux d\'engagement 3x supérieur aux posts classiques.',
-                tip: 'Astuce : 5-10 slides avec 1 idée forte par slide.'
-            },
-            'instagram': {
-                format: 'reel',
-                emoji: '🎬',
-                title: 'Reel',
-                message: 'Les Reels dominent Instagram en 2026. L\'algo les pousse massivement.',
-                tip: 'Astuce : Hook dans les 3 premières secondes !'
-            },
-            'tiktok': {
-                format: 'reel',
-                emoji: '🎬',
-                title: 'Vidéo courte',
-                message: 'Le format natif TikTok. Privilégie l\'authenticité au polish.',
-                tip: 'Astuce : Parle à la caméra comme à un ami.'
-            },
-            'twitter': {
-                format: 'thread',
-                emoji: '🧵',
-                title: 'Thread',
-                message: 'Les threads performent très bien sur X. Parfait pour le storytelling.',
-                tip: 'Astuce : 1er tweet = hook puissant. Numérote tes tweets.'
-            },
-            'facebook': {
-                format: 'post',
-                emoji: '📝',
-                title: 'Post',
-                message: 'Les posts avec histoire personnelle génèrent le plus d\'engagement.',
-                tip: 'Astuce : Pose une question à la fin pour les commentaires.'
-            }
-        };
-
-        // Tendances Format 2026 (données enrichies)
-        const FORMAT_TRENDS_2026 = {
-            linkedin: {
-                icon: '💼',
-                name: 'LinkedIn',
-                tips: [
-                    { emoji: '📏', title: 'Longueur idéale : 1 200–2 500 caractères', text: 'Texte lisible avec phrases simples et sauts de ligne toutes les 1–3 lignes. Les posts trop courts manquent de substance, trop longs perdent l\'attention.', tag: 'Structure' },
-                    { emoji: '🪝', title: 'Hook fort dès la première ligne', text: 'Contradiction, promesse audacieuse, question intrigante ou mini-histoire. C\'est ce qui fait arrêter le scroll.', tag: 'Accroche' },
-                    { emoji: '🎯', title: '1 idée = 1 post', text: 'Structure claire : hook → développement → conclusion/CTA. Ne diluez pas votre message avec plusieurs sujets.', tag: 'Focus' },
-                    { emoji: '📄', title: 'Privilégier les formats natifs', text: 'Texte pur, carrousels PDF, images et vidéos courtes performent mieux. Évitez les liens externes en plein post.', tag: 'Format' },
-                    { emoji: '💬', title: 'Terminer par une question', text: 'Invitez à l\'interaction pour générer des commentaires. L\'algorithme favorise les posts qui créent des conversations.', tag: 'Engagement' }
-                ]
-            },
-            tiktok: {
-                icon: '🎵',
-                name: 'TikTok',
-                tips: [
-                    { emoji: '⚡', title: 'Hook dans les 1–3 premières secondes', text: 'Visuel fort ou texte à l\'écran qui intrigue immédiatement. Pas de logo, pas d\'intro, direct dans le vif !', tag: 'Accroche' },
-                    { emoji: '⏱️', title: 'Durée idéale : 20–35 secondes', text: 'Dynamique, sans temps mort. Les vidéos trop longues perdent l\'attention, trop courtes manquent de valeur.', tag: 'Durée' },
-                    { emoji: '📱', title: 'Format vertical 9:16 plein écran', text: 'Montage rythmé avec coupes rapides. Pas de longues intros, pas de "bonjour à tous".', tag: 'Format' },
-                    { emoji: '🎵', title: 'Sons et musiques tendances', text: 'Utilisez les sons qui buzzent + texte à l\'écran pour clarifier le message (beaucoup regardent sans son).', tag: 'Audio' },
-                    { emoji: '👆', title: 'CTA simple à la fin', text: 'S\'abonner, commenter, voir la suite de la série... Un seul appel à l\'action clair.', tag: 'CTA' }
-                ]
-            },
-            instagram: {
-                icon: '📸',
-                name: 'Instagram',
-                tips: [
-                    { emoji: '🎬', title: 'Priorité aux Reels : 15–30 secondes', text: 'Le format vidéo court vertical est poussé par l\'algorithme. Les Reels ont 2x plus de portée que les posts classiques.', tag: 'Format' },
-                    { emoji: '🏆', title: 'Montrer le résultat dès le début', text: 'Commencez par le "après" ou le résultat final, puis déroulez le "comment". Ça accroche et retient.', tag: 'Structure' },
-                    { emoji: '📝', title: 'Texte à l\'écran dès la 1ère seconde', text: 'Question, promesse ou phrase choc directement visible. 85% des vidéos sont regardées sans son.', tag: 'Accroche' },
-                    { emoji: '🚀', title: 'Rythme rapide, transitions visuelles', text: 'Un seul message par Reel, pas de blabla. Les premiers 3 secondes décident si on reste.', tag: 'Montage' },
-                    { emoji: '💾', title: 'CTA dans la légende', text: 'Sauvegarder, partager, taguer quelqu\'un + quelques hashtags pertinents (5-10 max, ciblés).', tag: 'Engagement' }
-                ]
-            },
-            facebook: {
-                icon: '👥',
-                name: 'Facebook',
-                tips: [
-                    { emoji: '📏', title: 'Posts courts à moyens', text: 'Accroche claire dans la première phrase. Facebook tronque après 3 lignes, soyez percutant d\'entrée.', tag: 'Structure' },
-                    { emoji: '🖼️', title: 'Visuel soigné obligatoire', text: 'Image ou courte vidéo plutôt que texte seul. Les posts avec visuels ont 2,3x plus d\'engagement.', tag: 'Format' },
-                    { emoji: '💬', title: 'Ton conversationnel', text: '1 message clé par post, vocabulaire simple. Écrivez comme vous parlez à un ami.', tag: 'Ton' },
-                    { emoji: '🔗', title: 'Liens acceptés mais contextualisés', text: 'Mieux intégrés avec un texte qui donne déjà de la valeur avant le clic.', tag: 'Liens' },
-                    { emoji: '🗳️', title: 'Questions et sondages', text: 'Mini-histoires locales/personnelles fonctionnent très bien. L\'authenticité prime sur le polish.', tag: 'Engagement' }
-                ]
-            }
-        };
-
-        function updateFormatRecommendation(platform) {
-            const rec = FORMAT_RECOMMENDATIONS[platform];
-            const recDiv = document.getElementById('formatRecommendation');
-            
-            if (!rec || !recDiv) return;
-            
-            recDiv.innerHTML = `
-                <span class="trend-badge">🔥 Tendances 2026</span>
-                <strong>${rec.emoji} ${rec.title}</strong> — ${rec.message}
-                <button class="see-more" onclick="event.stopPropagation(); openFormatTrends('${platform}')">Voir les tips →</button>
-            `;
-            recDiv.classList.add('show');
-            recDiv.onclick = () => openFormatTrends(platform);
-        }
-
-        function openFormatTrends(platform = 'linkedin') {
-            document.getElementById('formatTrendsModal').classList.add('show');
-            showFormatTrend(platform);
-        }
-
-        function closeFormatTrends() {
-            document.getElementById('formatTrendsModal').classList.remove('show');
-        }
-
-        function showFormatTrend(platform) {
-            // Update tabs
-            document.querySelectorAll('.trends-format-tab').forEach(t => t.classList.remove('active'));
-            document.querySelector(`.trends-format-tab.${platform}`).classList.add('active');
-            
-            // Get trends data
-            const trend = FORMAT_TRENDS_2026[platform];
-            if (!trend) return;
-            
-            // Build content
-            let html = `<h3 style="margin: 0 0 20px; color: #333;">${trend.icon} Ce qui marche sur ${trend.name} en 2026</h3>`;
-            
-            trend.tips.forEach(tip => {
-                html += `
-                    <div class="trend-tip-card">
-                        <h4>${tip.emoji} ${tip.title}</h4>
-                        <p>${tip.text}</p>
-                        <span class="tip-tag">${tip.tag}</span>
-                    </div>
-                `;
-            });
-            
-            html += `
-                <div style="margin-top: 25px; padding-top: 20px; border-top: 1px dashed #e0e0e0; text-align: center;">
-                    <button onclick="selectPlatform('${platform}'); closeFormatTrends();" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 12px 30px; border-radius: 10px; font-weight: 600; cursor: pointer; font-family: inherit; font-size: 1em;">
-                        ✨ Créer pour ${trend.name}
-                    </button>
-                </div>
-            `;
-            
-            document.getElementById('formatTrendsContent').innerHTML = html;
-        }
-
         function selectPlatform(platform) {
             document.querySelectorAll('.platform-chip').forEach(c => c.classList.remove('active'));
             const chip = document.querySelector(`.platform-chip[data-platform="${platform}"]`);
             if (chip && !chip.classList.contains('disabled')) {
                 chip.classList.add('active');
                 currentState.platform = platform;
-                updateFormatRecommendation(platform);
             }
         }
 
@@ -6289,10 +5773,10 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
             AgencySystem.updateUI();
             FrameworkSystem.updateQuickSelector();
 
-            // Afficher le pop-up de bienvenue (avec délai pour laisser la page charger)
-            setTimeout(() => {
-                showWelcomePopup();
-            }, 500);
+            // DESACTIVE: Pop-up de bienvenue
+            // setTimeout(() => {
+            //     showWelcomePopup();
+            // }, 500);
 
             // Mettre à jour le compteur d'idées sauvegardées
             setTimeout(() => {
@@ -6302,18 +5786,15 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
             const profile = UserProfile.get();
             if (profile?.plateformes?.length > 0) {
                 selectPlatform(profile.plateformes[0]);
-            } else {
-                // Recommandation par défaut pour LinkedIn
-                updateFormatRecommendation('linkedin');
             }
             if (!localStorage.getItem('tithot_tour_done')) document.getElementById('demoBadge').style.display = 'flex';
             
-            // Afficher modal inscription si pas encore inscrit (après 3 secondes)
-            setTimeout(() => {
-                if (!Analytics.isRegistered() && !localStorage.getItem('sos_skip_register')) {
-                    document.getElementById('registerModal').classList.add('show');
-                }
-            }, 3000);
+            // DESACTIVE: Auto-affichage modal inscription
+            // setTimeout(() => {
+            //     if (!Analytics.isRegistered() && !localStorage.getItem('sos_skip_register')) {
+            //         document.getElementById('registerModal').classList.add('show');
+            //     }
+            // }, 3000);
             
             // Écouter les changements de profil (pour sync avec onboarding)
             window.addEventListener('storage', function(e) {
@@ -6335,6 +5816,16 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
             if (onboardingModal) {
                 observer.observe(onboardingModal, { attributes: true, attributeFilter: ['class'] });
             }
+
+            // Gestionnaire global : fermer les modaux en cliquant à l'extérieur
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('show');
+                        this.classList.remove('active');
+                    }
+                });
+            });
         });
 
         // ==================== INSCRIPTION & CODES PROMO ====================
@@ -6446,7 +5937,6 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
                     document.querySelectorAll('.platform-chip').forEach(c => c.classList.remove('active'));
                     chip.classList.add('active');
                     currentState.platform = chip.dataset.platform;
-                    updateFormatRecommendation(chip.dataset.platform);
                 });
             });
         }
@@ -6455,11 +5945,10 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
             const map = { 'LinkedIn': 'linkedin', 'Instagram': 'instagram', 'TikTok': 'tiktok', 'X': 'twitter', 'Facebook': 'facebook' };
             const p = map[platform] || platform.toLowerCase();
             const chip = document.querySelector(`.platform-chip[data-platform="${p}"]`);
-            if (chip) { 
-                document.querySelectorAll('.platform-chip').forEach(c => c.classList.remove('active')); 
-                chip.classList.add('active'); 
+            if (chip) {
+                document.querySelectorAll('.platform-chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
                 currentState.platform = p;
-                updateFormatRecommendation(p);
             }
         }
 
@@ -7438,96 +6927,6 @@ Crée le contenu COMPLET prêt à publier.`;
             questionDiv.style.display = 'none';
             thanksDiv.style.display = 'block';
         }
-
-        // ==================== EXPORT & PUBLICATION ====================
-        const PARTNER_LINKS = {
-            metricool: 'https://metricool.com/?via=sosstorytelling',
-            swello: 'https://swello.com/fr/?ref=sosstorytelling',
-            agorapulse: 'https://www.agorapulse.com/?ref=sosstorytelling',
-            buffer: 'https://buffer.com/?ref=sosstorytelling'
-        };
-
-        function showExportModal() {
-            if (!currentState.generatedContent) {
-                showToast('❌ Génère d\'abord du contenu !');
-                return;
-            }
-            // Mettre à jour l'aperçu
-            const preview = document.getElementById('exportPreview');
-            const content = currentState.generatedContent;
-            preview.textContent = content.length > 300 ? content.substring(0, 300) + '...' : content;
-            
-            document.getElementById('exportModal').classList.add('show');
-        }
-
-        function closeExportModal() {
-            document.getElementById('exportModal').classList.remove('show');
-        }
-
-        function exportCopyContent() {
-            navigator.clipboard.writeText(currentState.generatedContent).then(() => {
-                showToast('✅ Contenu copié !');
-            });
-        }
-
-        function exportDownloadCSV() {
-            const profile = UserProfile.get();
-            const now = new Date();
-            const dateStr = now.toISOString().split('T')[0];
-            const timeStr = now.toTimeString().split(' ')[0].substring(0, 5);
-            
-            const platform = currentState.platform || 'linkedin';
-            const format = currentState.format || 'post';
-            const content = currentState.generatedContent.replace(/"/g, '""');
-            
-            const csv = `"Date","Heure","Plateforme","Format","Contenu"
-"${dateStr}","${timeStr}","${platform}","${format}","${content}"`;
-            
-            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `sos-storytelling-${dateStr}.csv`;
-            link.click();
-            
-            showToast('📊 CSV téléchargé !');
-        }
-
-        function exportOpenLinkedIn() {
-            navigator.clipboard.writeText(currentState.generatedContent).then(() => {
-                showToast('✅ Copié ! LinkedIn s\'ouvre...');
-                setTimeout(() => {
-                    window.open('https://www.linkedin.com/feed/', '_blank');
-                }, 500);
-            });
-        }
-
-        function exportToPartner(partner) {
-            // Télécharger le CSV
-            exportDownloadCSV();
-            
-            // Messages personnalisés par partenaire
-            const messages = {
-                metricool: 'CSV téléchargé ! Importe-le dans Metricool via Zapier ou Make.',
-                swello: 'CSV téléchargé ! Va dans Swello → Programmation → Import CSV.',
-                agorapulse: 'CSV téléchargé ! Va dans Agorapulse → Publish → Bulk Import.',
-                buffer: 'Contenu copié ! Colle-le dans Buffer Composer.'
-            };
-            
-            setTimeout(() => {
-                showToast('🚀 ' + (messages[partner] || 'Export terminé !'));
-                // Ouvrir le site partenaire avec lien affilié
-                if (PARTNER_LINKS[partner]) {
-                    window.open(PARTNER_LINKS[partner], '_blank');
-                }
-            }, 800);
-            
-            closeExportModal();
-        }
-
-        // Fermer modal au clic extérieur
-        document.getElementById('exportModal')?.addEventListener('click', function(e) {
-            if (e.target === this) closeExportModal();
-        });
 
         // ==================== VARIANTES ====================
         async function generateVariantes() {
@@ -9231,6 +8630,76 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
         });
     </script>
 
+    <!-- Internationalisation -->
+    <script src="i18n.js"></script>
+
+    <!-- Module Prospects -->
+    <script src="prospects-module.js"></script>
+    <script>
+        let prospectsModuleInitialized = false;
+
+        function showProspectsModal() {
+            document.getElementById('prospectsModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            if (!prospectsModuleInitialized && typeof ProspectsModule !== 'undefined') {
+                ProspectsModule.init().then(() => {
+                    const container = document.getElementById('prospectsContent');
+                    if (container) {
+                        container.innerHTML = '';
+                        container.appendChild(ProspectsModule.createProspectsPage());
+                        ProspectsModule.renderProspectsList();
+                    }
+                });
+                prospectsModuleInitialized = true;
+            }
+        }
+
+        function closeProspectsModal() {
+            document.getElementById('prospectsModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('prospectsModal')?.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-overlay')) {
+                closeProspectsModal();
+            }
+        });
+    </script>
+
+    <!-- Module Campagnes -->
+    <script src="campaigns-module.js"></script>
+    <script>
+        let campaignsModuleInitialized = false;
+
+        function showCampaignsModal() {
+            document.getElementById('campaignsModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            if (!campaignsModuleInitialized && typeof CampaignsModule !== 'undefined') {
+                CampaignsModule.init().then(() => {
+                    const container = document.getElementById('campaignsContent');
+                    if (container) {
+                        container.innerHTML = '';
+                        container.appendChild(CampaignsModule.createCampaignsPage());
+                        CampaignsModule.renderCampaignsList();
+                    }
+                });
+                campaignsModuleInitialized = true;
+            }
+        }
+
+        function closeCampaignsModal() {
+            document.getElementById('campaignsModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('campaignsModal')?.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-overlay')) {
+                closeCampaignsModal();
+            }
+        });
+    </script>
 
     <!-- Bandeau Cookies RGPD -->
     <div id="cookieBanner" class="cookie-banner">
