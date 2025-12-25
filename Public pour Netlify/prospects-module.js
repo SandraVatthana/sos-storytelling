@@ -67,23 +67,30 @@ const ProspectsModule = {
      * Charge les prospects depuis Supabase
      */
     async loadProspects() {
-        if (!window.supabase) return;
+        console.log('[SOS Prospects] loadProspects called');
+        if (!window.supabaseApp?.auth) {
+            console.log('[SOS Prospects] No supabaseApp.auth available');
+            return;
+        }
 
         try {
-            const { data: { user } } = await window.supabase.auth.getUser();
+            const { data: { user } } = await window.supabaseApp.auth.getUser();
+            console.log('[SOS Prospects] User ID:', user?.id);
             if (!user) return;
 
-            const { data, error } = await window.supabase
+            const { data, error } = await window.supabaseApp
                 .from('prospects')
                 .select('*')
                 .eq('user_id', user.id)
                 .order('created_at', { ascending: false });
 
+            console.log('[SOS Prospects] Query result - data:', data?.length, 'error:', error);
             if (error) throw error;
             this.prospects = data || [];
+            console.log('[SOS Prospects] Loaded', this.prospects.length, 'prospects');
 
         } catch (error) {
-            console.error('Error loading prospects:', error);
+            console.error('[SOS Prospects] Error loading:', error);
         }
     },
 
@@ -234,9 +241,9 @@ const ProspectsModule = {
      * Importe les prospects dans Supabase
      */
     async importProspects(prospects, source = 'csv_import') {
-        if (!window.supabase) throw new Error('Supabase not initialized');
+        if (!window.supabaseApp) throw new Error('Supabase not initialized');
 
-        const { data: { user } } = await window.supabase.auth.getUser();
+        const { data: { user } } = await window.supabaseApp.auth.getUser();
         if (!user) throw new Error('User not authenticated');
 
         const prospectsToInsert = prospects.map(p => ({
@@ -256,7 +263,7 @@ const ProspectsModule = {
             status: 'new'
         }));
 
-        const { data, error } = await window.supabase
+        const { data, error } = await window.supabaseApp
             .from('prospects')
             .upsert(prospectsToInsert, {
                 onConflict: 'user_id,email',
@@ -276,12 +283,12 @@ const ProspectsModule = {
      * Ajoute un prospect manuellement
      */
     async addProspect(prospectData) {
-        if (!window.supabase) throw new Error('Supabase not initialized');
+        if (!window.supabaseApp) throw new Error('Supabase not initialized');
 
-        const { data: { user } } = await window.supabase.auth.getUser();
+        const { data: { user } } = await window.supabaseApp.auth.getUser();
         if (!user) throw new Error('User not authenticated');
 
-        const { data, error } = await window.supabase
+        const { data, error } = await window.supabaseApp
             .from('prospects')
             .insert({
                 user_id: user.id,
@@ -303,9 +310,9 @@ const ProspectsModule = {
      * Met a jour un prospect
      */
     async updateProspect(id, updates) {
-        if (!window.supabase) throw new Error('Supabase not initialized');
+        if (!window.supabaseApp) throw new Error('Supabase not initialized');
 
-        const { data, error } = await window.supabase
+        const { data, error } = await window.supabaseApp
             .from('prospects')
             .update({ ...updates, updated_at: new Date().toISOString() })
             .eq('id', id)
@@ -322,9 +329,9 @@ const ProspectsModule = {
      * Supprime un prospect
      */
     async deleteProspect(id) {
-        if (!window.supabase) throw new Error('Supabase not initialized');
+        if (!window.supabaseApp) throw new Error('Supabase not initialized');
 
-        const { error } = await window.supabase
+        const { error } = await window.supabaseApp
             .from('prospects')
             .delete()
             .eq('id', id);
@@ -338,9 +345,9 @@ const ProspectsModule = {
      * Supprime plusieurs prospects
      */
     async deleteProspects(ids) {
-        if (!window.supabase) throw new Error('Supabase not initialized');
+        if (!window.supabaseApp) throw new Error('Supabase not initialized');
 
-        const { error } = await window.supabase
+        const { error } = await window.supabaseApp
             .from('prospects')
             .delete()
             .in('id', ids);
@@ -401,7 +408,7 @@ const ProspectsModule = {
     },
 
     /**
-     * Genere un template CSV
+     * Genere un template CSV basique
      */
     generateCSVTemplate() {
         const headers = ['Prenom', 'Nom', 'Email', 'Entreprise', 'Poste', 'LinkedIn', 'Telephone', 'Site web'];
@@ -421,6 +428,16 @@ const ProspectsModule = {
         link.click();
 
         URL.revokeObjectURL(url);
+    },
+
+    /**
+     * Telecharge le template Pharow
+     */
+    downloadPharowTemplate() {
+        const link = document.createElement('a');
+        link.href = 'template-pharow-sos-storytelling.csv';
+        link.download = 'template-pharow-sos-storytelling.csv';
+        link.click();
     },
 
     /**
@@ -475,18 +492,21 @@ const ProspectsModule = {
         container.innerHTML = `
             <div class="prospects-header">
                 <div class="prospects-title-section">
-                    <h2>👥 Mes Prospects</h2>
-                    <p>Importe, gère et contacte tes prospects</p>
+                    <h2>👥 ${t('prospects.title')}</h2>
+                    <p>${t('prospects.subtitle')}</p>
                 </div>
                 <div class="prospects-actions">
                     <button class="btn btn-secondary" onclick="ProspectsModule.openImportModal()">
-                        <span class="btn-icon">📥</span> Importer CSV
+                        <span class="btn-icon">📥</span> ${t('actions.import')} CSV
+                    </button>
+                    <button class="btn btn-linkedin" onclick="ProspectsModule.showExtensionModal()" title="Importer depuis LinkedIn Sales Navigator">
+                        <span class="btn-icon">🔗</span> Sales Navigator
                     </button>
                     <button class="btn btn-secondary" onclick="ProspectsModule.openAddModal()">
-                        <span class="btn-icon">➕</span> Ajouter
+                        <span class="btn-icon">➕</span> ${t('actions.create')}
                     </button>
                     <button class="btn btn-secondary" onclick="ProspectsModule.exportToCSV()">
-                        <span class="btn-icon">📤</span> Exporter
+                        <span class="btn-icon">📤</span> ${t('actions.export')}
                     </button>
                 </div>
             </div>
@@ -495,7 +515,7 @@ const ProspectsModule = {
 
             <div class="prospects-filters">
                 <div class="search-box">
-                    <input type="text" placeholder="Rechercher..."
+                    <input type="text" placeholder="${t('prospects.list.search')}"
                            onkeyup="ProspectsModule.handleSearch(this.value)" id="prospectsSearch">
                 </div>
                 <div class="filter-buttons" id="filterButtons"></div>
@@ -505,12 +525,12 @@ const ProspectsModule = {
                 <div class="prospects-list-header">
                     <label class="select-all-checkbox">
                         <input type="checkbox" onchange="ProspectsModule.toggleSelectAll(this.checked)">
-                        Tout sélectionner
+                        ${t('actions.select_all')}
                     </label>
                     <span class="selected-count" id="selectedCount"></span>
                     <div class="bulk-actions" id="bulkActions" style="display:none;">
                         <button class="btn btn-small btn-danger" onclick="ProspectsModule.deleteSelected()">
-                            Supprimer
+                            ${t('actions.delete')}
                         </button>
                     </div>
                 </div>
@@ -539,25 +559,31 @@ const ProspectsModule = {
             statsContainer.innerHTML = `
                 <div class="stat-card total">
                     <span class="stat-number">${stats.total}</span>
-                    <span class="stat-label">Total</span>
+                    <span class="stat-label">${t('prospects.total')}</span>
                 </div>
                 <div class="stat-card new">
                     <span class="stat-number">${stats.new}</span>
-                    <span class="stat-label">Nouveaux</span>
+                    <span class="stat-label">${t('prospects.list.new')}</span>
                 </div>
                 <div class="stat-card contacted">
                     <span class="stat-number">${stats.contacted}</span>
-                    <span class="stat-label">Contactés</span>
+                    <span class="stat-label">${t('prospects.list.contacted')}</span>
                 </div>
                 <div class="stat-card replied">
                     <span class="stat-number">${stats.replied}</span>
-                    <span class="stat-label">Répondu</span>
+                    <span class="stat-label">${t('prospects.list.replied')}</span>
                 </div>
             `;
         }
 
         // Rendre les filtres
-        const statusLabels = { all: 'Tous', new: 'Nouveaux', contacted: 'Contactés', opened: 'Ouverts', replied: 'Répondu' };
+        const statusLabels = {
+            all: t('prospects.list.all'),
+            new: t('prospects.list.new'),
+            contacted: t('prospects.list.contacted'),
+            opened: t('prospects.status.opened'),
+            replied: t('prospects.list.replied')
+        };
         if (filterContainer) {
             const filters = ['all', 'new', 'contacted', 'opened', 'replied'];
             filterContainer.innerHTML = filters.map(f => `
@@ -574,16 +600,24 @@ const ProspectsModule = {
             listContainer.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-icon">📭</div>
-                    <p>Aucun prospect pour le moment</p>
+                    <p>${t('prospects.empty')}</p>
                     <button class="btn btn-primary" onclick="ProspectsModule.openImportModal()">
-                        Importer CSV
+                        ${t('actions.import')} CSV
                     </button>
                 </div>
             `;
             return;
         }
 
-        const statusBadges = { new: 'Nouveau', contacted: 'Contacté', opened: 'Ouvert', clicked: 'Cliqué', replied: 'Répondu', bounced: 'Bounced', unsubscribed: 'Désabo' };
+        const statusBadges = {
+            new: t('prospects.status.new'),
+            contacted: t('prospects.status.contacted'),
+            opened: t('prospects.status.opened'),
+            clicked: t('prospects.status.clicked'),
+            replied: t('prospects.status.replied'),
+            bounced: t('prospects.status.bounced'),
+            unsubscribed: t('prospects.status.unsubscribed')
+        };
         listContainer.innerHTML = filtered.map(p => `
             <div class="prospect-card ${this.selectedProspects.has(p.id) ? 'selected' : ''}" data-id="${p.id}">
                 <div class="prospect-checkbox">
@@ -662,7 +696,7 @@ const ProspectsModule = {
 
         if (countEl) {
             countEl.textContent = this.selectedProspects.size > 0
-                ? `${this.selectedProspects.size} sélectionné(s)`
+                ? t('prospects.list.selected', { count: this.selectedProspects.size })
                 : '';
         }
 
@@ -677,7 +711,7 @@ const ProspectsModule = {
     async deleteSelected() {
         if (this.selectedProspects.size === 0) return;
 
-        if (!confirm(`Supprimer ${this.selectedProspects.size} prospect(s) ?`)) return;
+        if (!confirm(t('confirm_delete_multiple', { count: this.selectedProspects.size }))) return;
 
         try {
             await this.deleteProspects([...this.selectedProspects]);
@@ -685,7 +719,7 @@ const ProspectsModule = {
             this.renderProspectsList();
         } catch (error) {
             console.error('Error deleting prospects:', error);
-            alert('Une erreur est survenue');
+            alert(t('status.error'));
         }
     },
 
@@ -693,14 +727,14 @@ const ProspectsModule = {
      * Confirme la suppression d'un prospect
      */
     async confirmDelete(id) {
-        if (!confirm('Supprimer ce prospect ?')) return;
+        if (!confirm(t('confirm_delete'))) return;
 
         try {
             await this.deleteProspect(id);
             this.renderProspectsList();
         } catch (error) {
             console.error('Error deleting prospect:', error);
-            alert('Une erreur est survenue');
+            alert(t('status.error'));
         }
     },
 
@@ -718,7 +752,7 @@ const ProspectsModule = {
         modal.innerHTML = `
             <div class="modal import-modal">
                 <div class="modal-header">
-                    <h3>📥 Importer des prospects</h3>
+                    <h3>📥 ${t('prospects.import.title')}</h3>
                     <button class="modal-close" onclick="ProspectsModule.closeImportModal()">&times;</button>
                 </div>
                 <div class="modal-body" id="importModalBody">
@@ -753,19 +787,35 @@ const ProspectsModule = {
                            onchange="ProspectsModule.handleFileSelect(this.files[0])">
                     <div class="dropzone-content">
                         <div class="dropzone-icon">📄</div>
-                        <p>Glisse ton fichier CSV ici<br>ou clique pour parcourir</p>
-                        <p class="dropzone-formats">Format accepté : CSV</p>
+                        <p>${t('prospects.import.drag_drop')}</p>
+                        <p class="dropzone-formats">${t('prospects.import.formats')}</p>
                     </div>
                 </div>
 
                 <div class="import-tips">
-                    <p>💡 Tu utilises Pharow ? Exporte en CSV et importe ici</p>
-                    <p>💡 Compatible avec Apollo, Lemlist, et autres outils</p>
+                    <p>💡 ${t('prospects.import.pharow_tip')}</p>
+                    <p>💡 ${t('prospects.import.apollo_tip')}</p>
                 </div>
 
-                <button class="btn btn-secondary" onclick="ProspectsModule.generateCSVTemplate()">
-                    ⬇️ Télécharger un modèle CSV
-                </button>
+                <div class="templates-section">
+                    <p class="templates-title">📋 Telecharger un modele CSV :</p>
+                    <div class="templates-buttons">
+                        <button class="btn btn-secondary btn-template" onclick="ProspectsModule.downloadPharowTemplate()">
+                            <span class="template-icon">🎯</span>
+                            <span class="template-text">
+                                <strong>Template Pharow</strong>
+                                <small>Compatible export Pharow</small>
+                            </span>
+                        </button>
+                        <button class="btn btn-secondary btn-template" onclick="ProspectsModule.generateCSVTemplate()">
+                            <span class="template-icon">📝</span>
+                            <span class="template-text">
+                                <strong>Template Simple</strong>
+                                <small>Format basique</small>
+                            </span>
+                        </button>
+                    </div>
+                </div>
             </div>
         `;
     },
@@ -803,7 +853,7 @@ const ProspectsModule = {
      */
     handleFileSelect(file) {
         if (!file || !file.name.endsWith('.csv')) {
-            alert('Veuillez selectionner un fichier CSV');
+            alert(t('error_csv_required'));
             return;
         }
 
@@ -813,7 +863,7 @@ const ProspectsModule = {
             const { headers, rows } = this.parseCSV(content);
 
             if (headers.length === 0 || rows.length === 0) {
-                alert('Le fichier CSV semble vide ou mal formate');
+                alert(t('error_csv_empty'));
                 return;
             }
 
@@ -844,23 +894,23 @@ const ProspectsModule = {
         const { headers, mapping } = this.importState;
         const fields = Object.keys(this.COLUMN_MAPPINGS);
         const fieldLabels = {
-            first_name: 'Prénom',
-            last_name: 'Nom',
-            email: 'Email',
-            company: 'Entreprise',
-            job_title: 'Poste',
-            linkedin: 'LinkedIn',
-            phone: 'Téléphone',
-            website: 'Site web',
-            sector: 'Secteur',
-            city: 'Ville',
-            company_size: 'Effectif'
+            first_name: t('prospects.fields.first_name'),
+            last_name: t('prospects.fields.last_name'),
+            email: t('prospects.fields.email'),
+            company: t('prospects.fields.company'),
+            job_title: t('prospects.fields.job_title'),
+            linkedin: t('prospects.fields.linkedin'),
+            phone: t('prospects.fields.phone'),
+            website: t('prospects.fields.website'),
+            sector: t('prospects.fields.sector'),
+            city: t('prospects.fields.city'),
+            company_size: t('prospects.fields.company_size')
         };
 
         body.innerHTML = `
             <div class="import-step import-step-2">
-                <h4>🔗 Associer les colonnes</h4>
-                <p>Fais correspondre les colonnes de ton fichier avec les champs</p>
+                <h4>🔗 ${t('prospects.import.mapping_title')}</h4>
+                <p>${t('prospects.import.mapping_description')}</p>
 
                 <div class="mapping-grid">
                     ${headers.map((header, index) => `
@@ -868,7 +918,7 @@ const ProspectsModule = {
                             <span class="original-column">${header}</span>
                             <span class="mapping-arrow">→</span>
                             <select class="mapping-select" data-index="${index}">
-                                <option value="">— Ignorer —</option>
+                                <option value="">${t('prospects.import.ignore')}</option>
                                 ${fields.map(f => `
                                     <option value="${f}" ${mapping[index] === f ? 'selected' : ''}>
                                         ${fieldLabels[f] || f}
@@ -880,14 +930,14 @@ const ProspectsModule = {
                     `).join('')}
                 </div>
 
-                <p class="required-note">* Champs obligatoires</p>
+                <p class="required-note">* ${t('prospects.import.required')}</p>
 
                 <div class="modal-actions">
                     <button class="btn btn-secondary" onclick="ProspectsModule.closeImportModal()">
-                        Annuler
+                        ${t('actions.cancel')}
                     </button>
                     <button class="btn btn-primary" onclick="ProspectsModule.goToPreview()">
-                        Aperçu →
+                        ${t('actions.preview')} →
                     </button>
                 </div>
             </div>
@@ -916,7 +966,7 @@ const ProspectsModule = {
         // Verifier que email et first_name sont mappes
         const mappedFields = Object.values(this.importState.mapping);
         if (!mappedFields.includes('email') || !mappedFields.includes('first_name')) {
-            alert('Les champs Email et Prenom sont obligatoires');
+            alert(t('error_required_fields'));
             return;
         }
 
@@ -945,12 +995,12 @@ const ProspectsModule = {
 
         body.innerHTML = `
             <div class="import-step import-step-3">
-                <h4>👀 Aperçu : ${validProspects.length} prospects valides</h4>
+                <h4>👀 ${t('prospects.import.preview', { count: validProspects.length })}</h4>
 
                 ${errors.length > 0 ? `
                     <div class="import-warnings">
-                        ${invalidEmails > 0 ? `<p>⚠️ ${invalidEmails} email(s) invalide(s) ignoré(s)</p>` : ''}
-                        ${duplicates > 0 ? `<p>⚠️ ${duplicates} doublon(s) ignoré(s)</p>` : ''}
+                        ${invalidEmails > 0 ? `<p>⚠️ ${t('prospects.import.invalid_emails', { count: invalidEmails })}</p>` : ''}
+                        ${duplicates > 0 ? `<p>⚠️ ${t('prospects.import.duplicates', { count: duplicates })}</p>` : ''}
                     </div>
                 ` : ''}
 
@@ -958,10 +1008,10 @@ const ProspectsModule = {
                     <table class="preview-table">
                         <thead>
                             <tr>
-                                <th>Prénom</th>
-                                <th>Nom</th>
-                                <th>Email</th>
-                                <th>Entreprise</th>
+                                <th>${t('prospects.fields.first_name')}</th>
+                                <th>${t('prospects.fields.last_name')}</th>
+                                <th>${t('prospects.fields.email')}</th>
+                                <th>${t('prospects.fields.company')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -976,16 +1026,16 @@ const ProspectsModule = {
                         </tbody>
                     </table>
                     ${validProspects.length > 10 ? `
-                        <p class="preview-more">+ ${validProspects.length - 10} autres...</p>
+                        <p class="preview-more">+ ${validProspects.length - 10} ${t('more')}...</p>
                     ` : ''}
                 </div>
 
                 <div class="modal-actions">
                     <button class="btn btn-secondary" onclick="ProspectsModule.renderImportStep2()">
-                        ← Retour
+                        ← ${t('actions.back')}
                     </button>
                     <button class="btn btn-primary" onclick="ProspectsModule.executeImport()">
-                        Importer ${validProspects.length} prospects
+                        ${t('actions.import')} ${validProspects.length} prospects
                     </button>
                 </div>
             </div>
@@ -1002,7 +1052,7 @@ const ProspectsModule = {
         body.innerHTML = `
             <div class="import-loading">
                 <div class="spinner"></div>
-                <p>Import en cours...</p>
+                <p>${t('status.loading')}</p>
             </div>
         `;
 
@@ -1012,9 +1062,9 @@ const ProspectsModule = {
             body.innerHTML = `
                 <div class="import-success">
                     <div class="success-icon">✅</div>
-                    <p>${this.importState.validProspects.length} prospects importés avec succès !</p>
+                    <p>${t('prospects.import.success', { count: this.importState.validProspects.length })}</p>
                     <button class="btn btn-primary" onclick="ProspectsModule.closeImportModal(); ProspectsModule.renderProspectsList();">
-                        Fermer
+                        ${t('actions.close')}
                     </button>
                 </div>
             `;
@@ -1023,10 +1073,10 @@ const ProspectsModule = {
             body.innerHTML = `
                 <div class="import-error">
                     <div class="error-icon">❌</div>
-                    <p>Erreur lors de l'import</p>
+                    <p>${t('status.error')}</p>
                     <p class="error-detail">${error.message}</p>
                     <button class="btn btn-secondary" onclick="ProspectsModule.closeImportModal()">
-                        Fermer
+                        ${t('actions.close')}
                     </button>
                 </div>
             `;
@@ -1061,65 +1111,65 @@ const ProspectsModule = {
         modal.innerHTML = `
             <div class="modal prospect-form-modal">
                 <div class="modal-header">
-                    <h3>${isEdit ? '✏️ Modifier le prospect' : '➕ Ajouter un prospect'}</h3>
+                    <h3>${isEdit ? '✏️ ' + t('actions.edit') : '➕ ' + t('prospects.add_manual')}</h3>
                     <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button>
                 </div>
                 <div class="modal-body">
                     <form id="prospectForm" onsubmit="ProspectsModule.handleProspectFormSubmit(event, '${prospect?.id || ''}')">
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Prénom *</label>
+                                <label>${t('prospects.fields.first_name')} *</label>
                                 <input type="text" name="first_name" required value="${prospect?.first_name || ''}">
                             </div>
                             <div class="form-group">
-                                <label>Nom</label>
+                                <label>${t('prospects.fields.last_name')}</label>
                                 <input type="text" name="last_name" value="${prospect?.last_name || ''}">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label>Email *</label>
+                            <label>${t('prospects.fields.email')} *</label>
                             <input type="email" name="email" required value="${prospect?.email || ''}">
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Entreprise</label>
+                                <label>${t('prospects.fields.company')}</label>
                                 <input type="text" name="company" value="${prospect?.company || ''}">
                             </div>
                             <div class="form-group">
-                                <label>Poste</label>
+                                <label>${t('prospects.fields.job_title')}</label>
                                 <input type="text" name="job_title" value="${prospect?.job_title || ''}">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label>LinkedIn</label>
+                            <label>${t('prospects.fields.linkedin')}</label>
                             <input type="url" name="linkedin_url" value="${prospect?.linkedin_url || ''}">
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Téléphone</label>
+                                <label>${t('prospects.fields.phone')}</label>
                                 <input type="tel" name="phone" value="${prospect?.phone || ''}">
                             </div>
                             <div class="form-group">
-                                <label>Site web</label>
+                                <label>${t('prospects.fields.website')}</label>
                                 <input type="url" name="website" value="${prospect?.website || ''}">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label>Notes</label>
+                            <label>${t('prospects.fields.notes')}</label>
                             <textarea name="notes" rows="3">${prospect?.notes || ''}</textarea>
                         </div>
 
                         <div class="modal-actions">
                             <button type="button" class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">
-                                Annuler
+                                ${t('actions.cancel')}
                             </button>
                             <button type="submit" class="btn btn-primary">
-                                Enregistrer
+                                ${t('actions.save')}
                             </button>
                         </div>
                     </form>
@@ -1151,8 +1201,103 @@ const ProspectsModule = {
             this.renderProspectsList();
         } catch (error) {
             console.error('Error saving prospect:', error);
-            alert(error.message || 'Une erreur est survenue');
+            alert(error.message || t('status.error'));
         }
+    },
+
+    /**
+     * Affiche le modal pour l'extension Sales Navigator
+     */
+    showExtensionModal() {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.id = 'extensionModal';
+        modal.innerHTML = `
+            <div class="modal extension-modal">
+                <div class="modal-header" style="background: linear-gradient(135deg, #0077B5, #00A0DC); color: white;">
+                    <h3 style="color: white;">🔗 Extension Sales Navigator</h3>
+                    <button class="modal-close" onclick="this.closest('.modal-overlay').remove()" style="color: white;">&times;</button>
+                </div>
+                <div class="modal-body" style="padding: 25px;">
+                    <div style="text-align: center; margin-bottom: 25px;">
+                        <div style="font-size: 3em; margin-bottom: 15px;">🚀</div>
+                        <h4 style="margin: 0 0 10px 0; color: #333;">Importez vos leads LinkedIn en 1 clic</h4>
+                        <p style="color: #666; margin: 0;">Notre extension Chrome gratuite vous permet d'exporter vos leads depuis Sales Navigator directement vers SOS Storytelling.</p>
+                    </div>
+
+                    <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                        <h5 style="margin: 0 0 15px 0; color: #333;">📋 Comment ça marche ?</h5>
+                        <ol style="margin: 0; padding-left: 20px; color: #555; line-height: 1.8;">
+                            <li>Téléchargez et installez l'extension Chrome</li>
+                            <li>Connectez-vous avec vos identifiants SOS Storytelling</li>
+                            <li>Allez sur LinkedIn Sales Navigator</li>
+                            <li>Sélectionnez les leads que vous voulez exporter</li>
+                            <li>Cliquez sur "Exporter" → Vos leads apparaissent ici !</li>
+                        </ol>
+                    </div>
+
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                        <a href="sos-storytelling-extension.zip" download class="btn btn-linkedin" style="flex: 1; text-align: center; text-decoration: none; min-width: 200px;">
+                            📥 Télécharger l'extension
+                        </a>
+                        <button class="btn btn-secondary" onclick="ProspectsModule.showExtensionGuide()" style="flex: 1; min-width: 200px;">
+                            📖 Guide d'installation
+                        </button>
+                    </div>
+
+                    <div style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, rgba(0,119,181,0.1), rgba(0,160,220,0.1)); border-radius: 10px; border-left: 4px solid #0077B5;">
+                        <p style="margin: 0; font-size: 0.9em; color: #555;">
+                            <strong>💡 Astuce :</strong> L'extension détecte automatiquement quand vous êtes sur Sales Navigator et affiche un bouton pour sélectionner vos leads.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        modal.classList.add('active');
+    },
+
+    /**
+     * Affiche le guide d'installation de l'extension
+     */
+    showExtensionGuide() {
+        const currentModal = document.getElementById('extensionModal');
+        if (!currentModal) return;
+
+        const body = currentModal.querySelector('.modal-body');
+        body.innerHTML = [
+            '<div style="max-height: 400px; overflow-y: auto;">',
+            '<h5>Installation en mode developpeur</h5>',
+            '<ol style="line-height: 1.8; color: #555;">',
+            '<li><strong>Telechargez</strong> le fichier ZIP de l\'extension</li>',
+            '<li><strong>Decompressez</strong> le dossier sur votre ordinateur</li>',
+            '<li>Ouvrez Chrome et allez sur <code>chrome://extensions/</code></li>',
+            '<li>Activez le <strong>"Mode developpeur"</strong> en haut a droite</li>',
+            '<li>Cliquez sur <strong>"Charger l\'extension non empaquetee"</strong></li>',
+            '<li>Selectionnez le dossier decompresse</li>',
+            '<li><strong>Epinglez</strong> l\'extension dans la barre Chrome (icone puzzle)</li>',
+            '</ol>',
+            '<h5 style="margin-top: 20px;">Utilisation</h5>',
+            '<ol style="line-height: 1.8; color: #555;">',
+            '<li>Cliquez sur l\'icone SOS Storytelling dans Chrome</li>',
+            '<li>Connectez-vous avec vos identifiants</li>',
+            '<li>Allez sur <strong>linkedin.com/sales/</strong></li>',
+            '<li>Un bouton flottant apparait en bas a droite</li>',
+            '<li>Cochez les leads a exporter et cliquez sur "Exporter"</li>',
+            '</ol>',
+            '<div style="margin-top: 20px; padding: 12px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">',
+            '<p style="margin: 0; font-size: 0.9em; color: #856404;">',
+            '<strong>Important :</strong> LinkedIn n\'affiche pas les emails. Les prospects importes auront une adresse temporaire que vous pourrez enrichir avec un outil tiers (Dropcontact, Hunter...).',
+            '</p>',
+            '</div>',
+            '</div>',
+            '<button class="btn btn-secondary" style="width: 100%; margin-top: 20px;" id="backToExtensionBtn">Retour</button>'
+        ].join('');
+
+        document.getElementById('backToExtensionBtn').onclick = function() {
+            document.getElementById('extensionModal').remove();
+            ProspectsModule.showExtensionModal();
+        };
     }
 };
 
@@ -1475,6 +1620,73 @@ prospectsStyles.textContent = `
     color: #555;
 }
 
+/* Templates Section */
+.templates-section {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.templates-title {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 12px;
+    font-size: 0.95em;
+}
+
+.templates-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.btn-template {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 18px;
+    text-align: left;
+    border: 2px solid #e0e5ff;
+    background: #f8f9ff;
+    border-radius: 12px;
+    transition: all 0.3s;
+}
+
+.btn-template:hover {
+    border-color: #667eea;
+    background: #f0f4ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(102,126,234,0.2);
+}
+
+.template-icon {
+    font-size: 1.8em;
+    flex-shrink: 0;
+}
+
+.template-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.template-text strong {
+    font-size: 0.95em;
+    color: #333;
+}
+
+.template-text small {
+    font-size: 0.8em;
+    color: #888;
+    font-weight: 400;
+}
+
+@media (max-width: 500px) {
+    .templates-buttons {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* Mapping */
 .mapping-grid {
     max-height: 400px;
@@ -1720,6 +1932,17 @@ prospectsStyles.textContent = `
 
 .btn-secondary:hover {
     background: #e0e5ff;
+}
+
+.btn-linkedin {
+    background: linear-gradient(135deg, #0077B5, #00A0DC);
+    color: white;
+    border: none;
+}
+
+.btn-linkedin:hover {
+    background: linear-gradient(135deg, #005582, #0077B5);
+    box-shadow: 0 4px 15px rgba(0,119,181,0.4);
 }
 
 .btn-danger {

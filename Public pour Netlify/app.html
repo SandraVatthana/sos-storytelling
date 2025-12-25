@@ -463,6 +463,71 @@
         .btn-autopilot .pulse-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.2); } }
 
+        /* Settings Hint Popup */
+        .settings-hint {
+            position: fixed;
+            top: 70px;
+            right: 200px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+            z-index: 1000;
+            display: none;
+            max-width: 280px;
+            animation: hintFadeIn 0.5s ease;
+        }
+        .settings-hint.show { display: block; }
+        .settings-hint-content { display: flex; align-items: flex-start; gap: 12px; }
+        .settings-hint-text { font-size: 0.95em; line-height: 1.5; }
+        .settings-hint-text strong { display: block; margin-bottom: 5px; font-size: 1.05em; }
+        .settings-hint-close {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+            opacity: 0.8;
+        }
+        .settings-hint-close:hover { opacity: 1; }
+        .settings-hint-dismiss {
+            display: block;
+            width: 100%;
+            margin-top: 12px;
+            padding: 8px;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            border-radius: 6px;
+            color: rgba(255,255,255,0.8);
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .settings-hint-dismiss:hover { background: rgba(255,255,255,0.25); color: white; }
+        .settings-hint-arrow {
+            position: absolute;
+            top: -30px;
+            right: 30px;
+            font-size: 2em;
+            animation: bounceArrow 1s ease-in-out infinite;
+        }
+        @keyframes bounceArrow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes hintFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 768px) {
+            .settings-hint { right: 20px; top: 80px; max-width: calc(100% - 40px); }
+            .settings-hint-arrow { right: 20px; }
+        }
+
         /* Stats Modal */
         .stats-header { display: flex; gap: 20px; margin-bottom: 20px; }
         .stats-level { flex: 1; }
@@ -519,8 +584,9 @@
         .pillar-suggestion { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 10px 20px; border-radius: 30px; display: inline-flex; align-items: center; gap: 10px; margin-top: 15px; font-size: 0.9em; }
         .pillar-suggestion strong { font-weight: 700; }
 
-        .content-layout { display: grid; grid-template-columns: 400px 1fr; gap: 30px; }
-        @media (max-width: 900px) { .content-layout { grid-template-columns: 1fr; } }
+        .content-layout { display: grid; grid-template-columns: 400px 1fr; gap: 30px; align-items: start; }
+        .content-layout .config-panel { position: sticky; top: 20px; }
+        @media (max-width: 900px) { .content-layout { grid-template-columns: 1fr; } .content-layout .config-panel { position: static; } }
 
         .panel { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
         .panel-title { font-size: 1.3em; font-weight: 700; color: #333; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
@@ -686,6 +752,674 @@
 
         .primary-action-btn { box-shadow: 0 4px 15px rgba(16,185,129,0.3); transition: all 0.3s ease; }
         .primary-action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16,185,129,0.4); }
+
+        /* ==================== HOOKS SECTION STYLES ==================== */
+
+        /* Brief recap */
+        .hooks-brief-recap {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        .brief-recap-label {
+            font-size: 0.8em;
+            font-weight: 600;
+            color: #667eea;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        .brief-recap-content {
+            font-size: 0.95em;
+            color: #333;
+            line-height: 1.5;
+            font-style: italic;
+        }
+
+        /* Emotion section */
+        .hooks-emotion-section {
+            margin-bottom: 20px;
+        }
+        .hooks-label {
+            display: block;
+            font-size: 0.95em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+        }
+        .emotion-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .emotion-chip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 16px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+        .emotion-chip:hover {
+            border-color: #f093fb;
+            background: #fef6ff;
+            transform: translateY(-2px);
+        }
+        .emotion-chip.active {
+            border-color: #f093fb;
+            background: linear-gradient(135deg, #fef6ff, #fff0f9);
+            box-shadow: 0 4px 15px rgba(240, 147, 251, 0.25);
+        }
+        .emotion-icon {
+            font-size: 1.2em;
+        }
+        .emotion-name {
+            font-size: 0.9em;
+            font-weight: 500;
+            color: #333;
+        }
+
+        /* Trigger selector (optional) */
+        .hooks-trigger-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #f8f9ff, #fff8f0);
+            border-radius: 12px;
+            border: 1px dashed #e0e0e0;
+        }
+        .hooks-trigger-section.collapsed .trigger-chips { display: none; }
+        .trigger-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .trigger-toggle-text { display: flex; align-items: center; gap: 8px; }
+        .trigger-toggle-arrow { transition: transform 0.2s; }
+        .hooks-trigger-section:not(.collapsed) .trigger-toggle-arrow { transform: rotate(180deg); }
+        .trigger-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .trigger-chip {
+            padding: 8px 14px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.85em;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .trigger-chip:hover { border-color: #667eea; background: #f8f9ff; }
+        .trigger-chip.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        .trigger-chip-icon { font-size: 1em; }
+
+        /* ==================== WIDGET BONNES PRATIQUES ==================== */
+        .tips-widget {
+            background: linear-gradient(135deg, #fff8e6, #fff3d6);
+            border: 1px solid #f0d080;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        .tips-widget-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .tips-widget-title {
+            font-weight: 700;
+            color: #8b6914;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .tips-widget-toggle {
+            background: none;
+            border: none;
+            color: #8b6914;
+            cursor: pointer;
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+        .tips-widget-toggle:hover { opacity: 1; }
+        .tips-list { display: flex; flex-direction: column; gap: 10px; }
+        .tip-item {
+            display: flex;
+            gap: 10px;
+            padding: 10px 12px;
+            background: white;
+            border-radius: 8px;
+            font-size: 0.85em;
+            line-height: 1.4;
+            border-left: 3px solid #f0c040;
+        }
+        .tip-icon { font-size: 1.1em; flex-shrink: 0; }
+        .tip-text { color: #555; flex: 1; }
+        .tip-badge {
+            background: #4CAF50;
+            color: white;
+            font-size: 0.7em;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .tips-widget.collapsed .tips-list { display: none; }
+        .tips-empty {
+            text-align: center;
+            color: #8b6914;
+            font-size: 0.85em;
+            padding: 10px;
+            opacity: 0.7;
+        }
+        .tips-widget-error {
+            background: linear-gradient(135deg, #fff0f0, #fee);
+            border-color: #f0a0a0;
+        }
+        .tips-widget-error .tips-widget-title { color: #c44; }
+
+        /* ==================== CONTEXTUAL REMINDER BAR ==================== */
+        .contextual-reminder {
+            position: fixed;
+            bottom: 45px;
+            left: 0;
+            right: 0;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            padding: 10px 20px;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 -2px 15px rgba(102, 126, 234, 0.3);
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+        .contextual-reminder.visible {
+            transform: translateY(0);
+        }
+        .reminder-icon {
+            font-size: 1.2em;
+            animation: pulse-icon 2s infinite;
+        }
+        @keyframes pulse-icon {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .reminder-text {
+            color: white;
+            font-size: 0.9em;
+            font-weight: 500;
+            text-align: center;
+            line-height: 1.3;
+        }
+        .reminder-text strong {
+            color: #ffd700;
+            font-weight: 700;
+        }
+        .reminder-close {
+            position: absolute;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            transition: background 0.2s;
+        }
+        .reminder-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .reminder-nav {
+            display: flex;
+            gap: 8px;
+            position: absolute;
+            left: 15px;
+        }
+        .reminder-nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.7em;
+            transition: background 0.2s;
+        }
+        .reminder-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        @media (max-width: 600px) {
+            .contextual-reminder {
+                padding: 8px 40px;
+                bottom: 40px;
+            }
+            .reminder-text { font-size: 0.8em; }
+            .reminder-nav { display: none; }
+        }
+
+        /* Generate hooks button */
+        .hooks-generate-section {
+            margin-bottom: 25px;
+        }
+        .generate-hooks-btn {
+            width: 100%;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-family: inherit;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .generate-hooks-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        .generate-hooks-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .generate-hooks-btn.loading {
+            pointer-events: none;
+        }
+        .generate-hooks-btn.loading span::after {
+            content: '...';
+            animation: dots 1.5s infinite;
+        }
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        /* Hooks results */
+        .hooks-results {
+            margin-bottom: 20px;
+        }
+        .hooks-results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .hooks-results-title {
+            font-size: 1em;
+            font-weight: 600;
+            color: #333;
+        }
+        .hooks-regenerate-btn {
+            padding: 8px 16px;
+            background: transparent;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            color: #667eea;
+            font-family: inherit;
+            font-size: 0.85em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .hooks-regenerate-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Hooks grid */
+        .hooks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+        .hook-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 14px;
+            padding: 18px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .hook-card:hover {
+            border-color: #f093fb;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        .hook-card.selected {
+            border-color: #10b981;
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.25);
+        }
+        .hook-card.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 24px;
+            height: 24px;
+            background: #10b981;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        .hook-card-text {
+            font-size: 0.95em;
+            line-height: 1.6;
+            color: #333;
+        }
+        .hook-card-emotion {
+            margin-top: 10px;
+            font-size: 0.8em;
+            color: #888;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Continue section */
+        .hooks-continue-section {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding-top: 15px;
+            border-top: 2px dashed #e0e0e0;
+        }
+        .hooks-continue-btn {
+            flex: 1;
+            min-width: 200px;
+            padding: 16px 25px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-family: inherit;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .hooks-continue-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+        .hooks-continue-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .hooks-back-btn {
+            padding: 16px 20px;
+            background: transparent;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            color: #666;
+            font-family: inherit;
+            font-size: 0.95em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .hooks-back-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        /* Selected hook display in content section */
+        .selected-hook-display {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border: 2px solid #10b981;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .selected-hook-label {
+            font-size: 0.8em;
+            font-weight: 600;
+            color: #059669;
+            margin-bottom: 8px;
+        }
+        .selected-hook-text {
+            font-size: 0.95em;
+            color: #333;
+            line-height: 1.5;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+        .change-hook-btn {
+            padding: 8px 16px;
+            background: transparent;
+            border: 2px solid #10b981;
+            border-radius: 8px;
+            color: #10b981;
+            font-family: inherit;
+            font-size: 0.85em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .change-hook-btn:hover {
+            background: #10b981;
+            color: white;
+        }
+
+        /* ==================== HUMOR MODES PANEL ==================== */
+        .humor-modes-panel {
+            background: linear-gradient(135deg, #fef9c3, #fef08a);
+            border: 2px solid #facc15;
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 20px;
+            animation: slideDown 0.3s ease;
+        }
+        .humor-modes-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .humor-mode-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 14px 16px;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            font-family: inherit;
+        }
+        .humor-mode-btn:hover {
+            border-color: #facc15;
+            background: #fffef0;
+            transform: translateX(5px);
+        }
+        .humor-mode-btn.active {
+            border-color: #f59e0b;
+            background: linear-gradient(135deg, #fffbeb, #fef3c7);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
+        }
+        .humor-mode-icon {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+        .humor-mode-title {
+            font-size: 0.95em;
+            font-weight: 700;
+            color: #333;
+        }
+        .humor-mode-desc {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 3px;
+            line-height: 1.3;
+        }
+
+        /* ==================== ADJUST PANEL STYLES ==================== */
+        .action-btn.adjust {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            border: none;
+            color: white;
+        }
+        .action-btn.adjust:hover {
+            background: linear-gradient(135deg, #7c3aed, #6d28d9);
+        }
+
+        .adjust-panel {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 15px;
+            animation: slideDown 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        .adjust-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .adjust-panel-title {
+            font-size: 1em;
+            font-weight: 600;
+            color: #333;
+        }
+        .adjust-close-btn {
+            background: none;
+            border: none;
+            font-size: 1.2em;
+            color: #999;
+            cursor: pointer;
+            padding: 5px;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+        .adjust-close-btn:hover {
+            color: #333;
+        }
+
+        .adjust-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .adjust-row {
+            display: flex;
+            gap: 10px;
+        }
+        .adjust-option-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 16px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.9em;
+            font-weight: 500;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .adjust-option-btn:hover {
+            border-color: #8b5cf6;
+            background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+            transform: translateY(-2px);
+        }
+        .adjust-icon {
+            font-size: 1.1em;
+        }
+
+        .adjust-custom {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        .adjust-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.9em;
+            resize: none;
+            min-height: 60px;
+            transition: border-color 0.2s;
+        }
+        .adjust-input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+        }
+        .adjust-input::placeholder {
+            color: #999;
+        }
+        .adjust-submit-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-family: inherit;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .adjust-submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        }
 
         /* ==================== CASCADE STYLES ==================== */
         .btn-cascade { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; position: relative; }
@@ -893,7 +1627,7 @@
         .tour-tooltip, .tour-arrow { pointer-events: auto; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
-        /* Ma Voix Styles */
+        /* Mon Style Styles */
         .voice-section { background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(240,147,251,0.1)); border-radius: 15px; padding: 20px; margin-top: 20px; }
         .voice-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; }
         .voice-title { font-size: 1.1em; font-weight: 700; color: #333; display: flex; align-items: center; gap: 10px; }
@@ -931,7 +1665,7 @@
         .voice-fidelity-score { font-size: 1.8em; font-weight: 800; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .voice-fidelity-label { font-size: 0.9em; color: #666; }
 
-        /* Toggle Tu/Vous dans Ma Voix */
+        /* Toggle Tu/Vous dans Mon Style */
         .voice-setting-section { margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 12px; }
         .voice-setting-label { font-weight: 600; color: #333; margin-bottom: 5px; }
         .voice-setting-hint { font-size: 0.85em; color: #888; margin: 0 0 12px 0; }
@@ -955,7 +1689,7 @@
         .voice-feedback-btn.no:hover { background: #dc3545; color: white; }
         .voice-feedback-thanks { color: #28a745; font-weight: 600; display: none; }
 
-        /* Newsletter Module - MA VOIX Button */
+        /* Newsletter Module - MON STYLE Button */
         .ma-voix-section { margin-top: 20px; }
         .ma-voix-option { display: flex; flex-direction: column; gap: 12px; }
         .btn-ma-voix { display: flex; align-items: center; gap: 15px; padding: 15px 20px; background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(240,147,251,0.1)); border: 2px solid #667eea; border-radius: 12px; cursor: pointer; transition: all 0.3s; }
@@ -1067,7 +1801,7 @@
         @keyframes arrowBounceRight { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(10px); } }
         @keyframes arrowBounceDown { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
 
-        .demo-badge { position: fixed; bottom: 55px; left: 30px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 20px; border-radius: 30px; font-weight: 600; cursor: pointer; box-shadow: 0 5px 20px rgba(102,126,234,0.4); z-index: 100; display: none; align-items: center; gap: 8px; }
+        .demo-badge { position: fixed; bottom: 100px; left: 30px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 20px; border-radius: 30px; font-weight: 600; cursor: pointer; box-shadow: 0 5px 20px rgba(102,126,234,0.4); z-index: 100; display: none; align-items: center; gap: 8px; }
         .demo-badge:hover { transform: scale(1.05); box-shadow: 0 5px 30px rgba(102,126,234,0.6); }
 
         /* Welcome Popup - Guide vers démo guidée */
@@ -1232,6 +1966,172 @@
             .onboarding-actions .btn-primary { width: 100%; }
             .onboarding-notif { left: 15px; right: 15px; bottom: 15px; text-align: center; }
         }
+
+        /* ==================== MES AUDIENCES (PERSONAS) ==================== */
+        .personas-section { margin-top: 20px; }
+        .personas-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .personas-header h3 { margin: 0; color: #667eea; font-size: 1.3em; }
+        .btn-add-persona {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white; border: none; padding: 8px 16px;
+            border-radius: 20px; cursor: pointer; font-size: 0.85em;
+            font-weight: 600; display: flex; align-items: center; gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-add-persona:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); }
+
+        .personas-list { display: flex; flex-direction: column; gap: 12px; max-height: 300px; overflow-y: auto; }
+        .persona-card {
+            background: white; border: 2px solid #e8e8e8; border-radius: 12px;
+            padding: 15px; transition: all 0.2s; position: relative;
+        }
+        .persona-card:hover { border-color: #667eea; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1); }
+        .persona-card.is-default { border-color: #667eea; background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05)); }
+        .persona-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .persona-card-title { display: flex; align-items: center; gap: 8px; }
+        .persona-card-emoji { font-size: 1.5em; }
+        .persona-card-name { font-weight: 700; color: #333; font-size: 1.05em; }
+        .persona-default-badge { background: #667eea; color: white; font-size: 0.65em; padding: 3px 8px; border-radius: 10px; font-weight: 600; }
+        .persona-card-desc { font-size: 0.85em; color: #666; line-height: 1.4; margin-bottom: 10px; }
+        .persona-card-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+        .persona-meta-tag { background: #f0f0f0; color: #555; padding: 3px 8px; border-radius: 12px; font-size: 0.75em; }
+        .persona-card-actions { display: flex; gap: 8px; padding-top: 10px; border-top: 1px dashed #e0e0e0; }
+        .persona-action-btn {
+            background: #f5f5f5; border: none; padding: 6px 12px;
+            border-radius: 6px; cursor: pointer; font-size: 0.8em;
+            color: #555; transition: all 0.2s; display: flex; align-items: center; gap: 4px;
+        }
+        .persona-action-btn:hover { background: #e8e8e8; color: #333; }
+        .persona-action-btn.delete:hover { background: #fee; color: #e74c3c; }
+
+        .personas-empty {
+            text-align: center; padding: 30px 20px;
+            background: #f8f9ff; border-radius: 12px; border: 2px dashed #e0e0e0;
+        }
+        .personas-empty-icon { font-size: 3em; margin-bottom: 10px; opacity: 0.5; }
+        .personas-empty-text { color: #888; font-size: 0.95em; margin-bottom: 15px; }
+
+        /* Persona Editor Modal */
+        .persona-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 10002;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: all 0.3s;
+        }
+        .persona-modal-overlay.active { opacity: 1; visibility: visible; }
+        .persona-modal {
+            background: white; border-radius: 20px; width: 90%; max-width: 600px;
+            max-height: 85vh; overflow: hidden; transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+        .persona-modal-overlay.active .persona-modal { transform: scale(1); }
+        .persona-modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; padding: 20px 25px; position: relative;
+        }
+        .persona-modal-header h3 { margin: 0; font-size: 1.3em; }
+        .persona-modal-close {
+            position: absolute; top: 15px; right: 15px;
+            background: rgba(255,255,255,0.2); border: none;
+            color: white; width: 30px; height: 30px; border-radius: 50%;
+            cursor: pointer; font-size: 1.2em; transition: all 0.2s;
+        }
+        .persona-modal-close:hover { background: rgba(255,255,255,0.3); }
+        .persona-modal-body { padding: 25px; max-height: calc(85vh - 150px); overflow-y: auto; }
+        .persona-form-group { margin-bottom: 20px; }
+        .persona-form-group label { display: block; font-weight: 600; color: #333; margin-bottom: 8px; font-size: 0.95em; }
+        .persona-form-group input[type="text"],
+        .persona-form-group textarea,
+        .persona-form-group select {
+            width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0;
+            border-radius: 10px; font-size: 0.95em; font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        .persona-form-group input:focus,
+        .persona-form-group textarea:focus,
+        .persona-form-group select:focus { border-color: #667eea; outline: none; }
+        .persona-form-group textarea { min-height: 80px; resize: vertical; }
+        .persona-form-group small { display: block; color: #888; font-size: 0.8em; margin-top: 5px; }
+        .persona-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .emoji-picker-inline { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .emoji-option {
+            width: 40px; height: 40px; border: 2px solid #e0e0e0;
+            border-radius: 10px; cursor: pointer; font-size: 1.3em;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; background: white;
+        }
+        .emoji-option:hover { border-color: #667eea; transform: scale(1.1); }
+        .emoji-option.selected { border-color: #667eea; background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)); }
+        .persona-modal-footer {
+            padding: 15px 25px; background: #f8f9ff;
+            display: flex; justify-content: flex-end; gap: 10px;
+        }
+        .persona-modal-footer button {
+            padding: 10px 20px; border: none; border-radius: 10px;
+            cursor: pointer; font-weight: 600; font-family: inherit; transition: all 0.2s;
+        }
+        .btn-persona-cancel { background: #e0e0e0; color: #666; }
+        .btn-persona-cancel:hover { background: #d0d0d0; }
+        .btn-persona-save { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .btn-persona-save:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); }
+
+        @media (max-width: 500px) {
+            .persona-form-row { grid-template-columns: 1fr; }
+            .persona-modal { width: 95%; max-height: 90vh; }
+        }
+
+        /* ==================== SELECTEUR AUDIENCE (WIZARD) ==================== */
+        .audience-selector-wrapper { position: relative; }
+        .audience-dropdown {
+            width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0;
+            border-radius: 10px; font-size: 0.95em; font-family: inherit;
+            background: white; cursor: pointer; display: flex;
+            justify-content: space-between; align-items: center; transition: all 0.2s;
+        }
+        .audience-dropdown:hover { border-color: #667eea; }
+        .audience-dropdown.open { border-color: #667eea; border-radius: 10px 10px 0 0; }
+        .audience-dropdown-label { display: flex; align-items: center; gap: 8px; }
+        .audience-dropdown-emoji { font-size: 1.2em; }
+        .audience-dropdown-name { font-weight: 600; color: #333; }
+        .audience-dropdown-arrow { transition: transform 0.2s; color: #888; }
+        .audience-dropdown.open .audience-dropdown-arrow { transform: rotate(180deg); }
+
+        .audience-dropdown-menu {
+            position: absolute; top: 100%; left: 0; right: 0;
+            background: white; border: 2px solid #667eea; border-top: none;
+            border-radius: 0 0 10px 10px; z-index: 100; max-height: 300px;
+            overflow-y: auto; display: none;
+        }
+        .audience-dropdown-menu.show { display: block; }
+        .audience-option {
+            padding: 12px 15px; cursor: pointer; display: flex;
+            align-items: center; gap: 10px; transition: all 0.2s;
+        }
+        .audience-option:hover { background: linear-gradient(135deg, #f8f9ff, #f0f4ff); }
+        .audience-option.selected { background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)); }
+        .audience-option-emoji { font-size: 1.2em; }
+        .audience-option-info { flex: 1; }
+        .audience-option-name { font-weight: 600; color: #333; display: flex; align-items: center; gap: 6px; }
+        .audience-option-desc { font-size: 0.8em; color: #888; margin-top: 2px; }
+        .audience-option-default { background: #667eea; color: white; font-size: 0.65em; padding: 2px 6px; border-radius: 8px; }
+        .audience-option-generic { opacity: 0.7; }
+        .audience-divider { border-top: 1px dashed #e0e0e0; margin: 5px 0; }
+        .audience-option-create {
+            color: #667eea; font-weight: 600; border-top: 1px solid #e0e0e0;
+            margin-top: 5px; padding-top: 12px;
+        }
+        .audience-option-create:hover { background: linear-gradient(135deg, #f8f9ff, #f0f4ff); }
+
+        .audience-preview {
+            background: linear-gradient(135deg, #f8f9ff, #f0f4ff);
+            border-radius: 10px; padding: 12px 15px; margin-top: 10px;
+            font-size: 0.85em; display: none;
+        }
+        .audience-preview.show { display: block; }
+        .audience-preview-title { font-weight: 600; color: #667eea; margin-bottom: 5px; }
+        .audience-preview-desc { color: #555; line-height: 1.4; }
+        .audience-preview-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+        .audience-preview-tag { background: white; color: #666; padding: 3px 8px; border-radius: 10px; font-size: 0.85em; }
 
         /* ==================== MES FRAMEWORKS ==================== */
         .btn-frameworks { background: linear-gradient(135deg, #11998e, #38ef7d); color: white; }
@@ -1484,10 +2384,10 @@
             <span id="menuIcon">☰</span> Menu
         </button>
         <div class="header-buttons" id="headerButtons">
-            <!-- Dropdown Créer -->
+            <!-- Dropdown Réseaux Sociaux -->
             <div class="header-dropdown">
                 <button class="btn btn-primary dropdown-toggle" onclick="toggleDropdown('createDropdown')">
-                    ✏️ <span data-i18n="menu.create">Créer</span> <span class="dropdown-arrow">▼</span>
+                    📱 <span data-i18n="menu.create">Réseaux Sociaux</span> <span class="dropdown-arrow">▼</span>
                 </button>
                 <div class="dropdown-menu" id="createDropdown">
                     <a class="dropdown-item" onclick="closeDropdowns(); showQuickPost()">📝 <span data-i18n="menu.write_post">Écrire un post</span></a>
@@ -1503,9 +2403,9 @@
                 <div class="dropdown-menu dropdown-menu-sections" id="emailsDropdown">
                     <!-- Section Newsletter -->
                     <div class="dropdown-section">
-                        <div class="dropdown-section-title">📬 <span data-i18n="menu.newsletter_section">Newsletter (nurturing)</span></div>
+                        <div class="dropdown-section-title">📬 <span data-i18n="menu.newsletter_section">Newsletter (abonnés)</span></div>
                         <a class="dropdown-item" onclick="closeDropdowns(); showNewsletterModal()">✉️ <span data-i18n="menu.create_newsletter">Créer une newsletter</span></a>
-                        <a class="dropdown-item dropdown-item-muted" onclick="closeDropdowns(); alert('Connexion Brevo/Mailchimp bientôt disponible !')">🔗 <span data-i18n="menu.connect_brevo">Connecter Brevo/Mailchimp</span></a>
+                        <a class="dropdown-item dropdown-item-muted" onclick="closeDropdowns(); alert('Connexion Brevo/Mailchimp bientôt disponible !')" title="Pour envoyer à vos abonnés existants">🔗 <span data-i18n="menu.connect_brevo">Connecter ma liste d'abonnés</span></a>
                     </div>
                     <div class="dropdown-divider"></div>
                     <!-- Section Cold Outreach -->
@@ -1514,6 +2414,7 @@
                         <a class="dropdown-item" onclick="closeDropdowns(); showProspectsModal()">👥 <span data-i18n="menu.my_prospects">Mes prospects</span></a>
                         <a class="dropdown-item" onclick="closeDropdowns(); showCampaignsModal()">📧 <span data-i18n="menu.create_campaign">Créer une campagne</span></a>
                         <a class="dropdown-item" onclick="closeDropdowns(); AgentAutopilot.openAutopilotModal()">🤖 Agent Autopilot</a>
+                        <a class="dropdown-item" onclick="closeDropdowns(); showBrevoConfigModal()">🔗 <span data-i18n="menu.config_brevo">Configurer Brevo</span></a>
                     </div>
                 </div>
             </div>
@@ -1539,19 +2440,28 @@
                 </button>
                 <div class="dropdown-menu" id="settingsDropdown">
                     <a class="dropdown-item" onclick="closeDropdowns(); Onboarding.forceShow()">👤 <span data-i18n="menu.my_profile">Mon profil</span></a>
-                    <a class="dropdown-item" onclick="closeDropdowns(); showVoiceModal()">🎤 <span data-i18n="menu.my_voice">Ma Voix</span></a>
-                    <a class="dropdown-item" onclick="closeDropdowns(); showBrevoConfigModal()">📧 <span data-i18n="menu.brevo_connection">Connexion Brevo</span></a>
+                    <a class="dropdown-item" onclick="closeDropdowns(); showVoiceModal()">🎤 <span data-i18n="menu.my_voice">Mon Style</span></a>
+                    <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 8px 0;"></div>
+                    <a class="dropdown-item" onclick="closeDropdowns(); handleLogout()" style="color: #ff6b6b;">🚪 <span data-i18n="menu.logout">Déconnexion</span></a>
                 </div>
             </div>
-
-            <!-- Bouton Autopilot -->
-            <button class="btn btn-autopilot" onclick="AgentAutopilot.openAutopilotModal()" title="Agent IA Autonome">
-                🤖 <span data-i18n="menu.autopilot">Autopilot</span> <span class="pulse-dot" id="autopilotDot" style="display:none;"></span>
-            </button>
 
             <div id="languageToggleContainer"></div>
         </div>
     </header>
+
+    <!-- Settings Hint Popup -->
+    <div class="settings-hint" id="settingsHint">
+        <span class="settings-hint-arrow">⬆️</span>
+        <button class="settings-hint-close" onclick="closeSettingsHint(false)">&times;</button>
+        <div class="settings-hint-content">
+            <span style="font-size: 1.5em;">🎨</span>
+            <div class="settings-hint-text">
+                Configure ton style dans <strong>"Mon Style"</strong> si ce n'est pas déjà fait.
+            </div>
+        </div>
+        <button class="settings-hint-dismiss" onclick="closeSettingsHint(true)">Ne plus montrer</button>
+    </div>
 
     <div class="main-container">
         <!-- Quick Actions Page -->
@@ -1644,7 +2554,7 @@
                             <span data-i18n="config.format">Format</span>
                         </span>
                         <span class="section-toggle-right">
-                            <span class="section-toggle-value" id="formatValue">📝 Post</span>
+                            <span class="section-toggle-value" id="formatValue">Format</span>
                             <span class="section-toggle-arrow" id="formatArrow">▼</span>
                         </span>
                     </button>
@@ -1669,7 +2579,7 @@
                             <span data-i18n="config.platform">Plateforme</span>
                         </span>
                         <span class="section-toggle-right">
-                            <span class="section-toggle-value" id="platformValue">💼 LinkedIn</span>
+                            <span class="section-toggle-value" id="platformValue">Plateforme</span>
                             <span class="section-toggle-arrow" id="platformArrow">▼</span>
                         </span>
                     </button>
@@ -1681,6 +2591,39 @@
                             <div class="platform-chip" data-platform="tiktok">🎵 TikTok</div>
                             <div class="platform-chip" data-platform="twitter">𝕏 Twitter</div>
                             <div class="platform-chip" data-platform="facebook">👥 Facebook</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TOGGLE AUDIENCE -->
+                <div class="config-section" id="audienceSection">
+                    <button class="section-toggle" id="audienceToggle" onclick="toggleSection('audience')">
+                        <span class="section-toggle-left">
+                            <span class="section-toggle-icon">👥</span>
+                            <span>Ton audience</span>
+                        </span>
+                        <span class="section-toggle-right">
+                            <span class="section-toggle-value" id="audienceValue">Sélectionner...</span>
+                            <span class="section-toggle-arrow" id="audienceArrow">▼</span>
+                        </span>
+                    </button>
+                    <div class="section-toggle-content" id="audienceContent" style="display: none;">
+                        <div class="audience-selector-wrapper">
+                            <div class="audience-dropdown" id="audienceDropdown" onclick="toggleAudienceDropdown()">
+                                <span class="audience-dropdown-label">
+                                    <span class="audience-dropdown-emoji" id="audienceEmoji">🎯</span>
+                                    <span class="audience-dropdown-name" id="audienceName">Choisir une audience</span>
+                                </span>
+                                <span class="audience-dropdown-arrow">▼</span>
+                            </div>
+                            <div class="audience-dropdown-menu" id="audienceDropdownMenu">
+                                <!-- Rempli dynamiquement par renderAudienceDropdown() -->
+                            </div>
+                        </div>
+                        <div class="audience-preview" id="audiencePreview">
+                            <div class="audience-preview-title" id="audiencePreviewTitle"></div>
+                            <div class="audience-preview-desc" id="audiencePreviewDesc"></div>
+                            <div class="audience-preview-tags" id="audiencePreviewTags"></div>
                         </div>
                     </div>
                 </div>
@@ -1751,8 +2694,8 @@
                     </div>
                 </div>
 
-                <!-- Section Framework -->
-                <div class="config-section" id="frameworkSection">
+                <!-- Section Framework (visible uniquement en mode agence) -->
+                <div class="config-section" id="frameworkSection" style="display: none;">
                     <div class="framework-selector">
                         <div class="framework-selector-header">
                             <span class="framework-selector-label">📐 <span data-i18n="config.framework">Framework</span></span>
@@ -1778,22 +2721,180 @@
                 </div>
 
                 <p style="text-align: center; color: #333; font-size: 0.9em; margin-bottom: 8px; font-weight: 500;"><span data-i18n="config.then_press">Puis appuie sur</span> 👇</p>
-                <button class="generate-btn" id="generateBtn" onclick="generateContent()">🚀 <span data-i18n="config.generate_btn">Générer mon contenu</span></button>
+                <button class="generate-btn" id="generateBtn" onclick="showHooksSection()">🪝 <span data-i18n="config.generate_btn">Choisir mon hook</span></button>
             </div>
 
             <div class="panel output-panel" id="outputPanel">
-                <h2 class="panel-title">📄 <span data-i18n="config.your_content">Ton contenu</span></h2>
-                <div class="output-content" id="outputContent">
-                    <div class="output-placeholder">
-                        <div class="output-placeholder-icon">✨</div>
-                        <p>Configure tes options et clique sur "Générer" pour créer ton contenu personnalisé !</p>
+                <!-- ==================== ÉTAPE HOOKS ==================== -->
+                <div id="hooksSection" style="display: none;">
+                    <h2 class="panel-title">🪝 <span>Choisis ton hook</span></h2>
+
+                    <!-- Rappel du brief (lecture seule) -->
+                    <div class="hooks-brief-recap" id="hooksBriefRecap">
+                        <div class="brief-recap-label">Ton brief :</div>
+                        <div class="brief-recap-content" id="briefRecapContent">
+                            <!-- Rempli dynamiquement -->
+                        </div>
+                    </div>
+
+                    <!-- Sélecteur de vibe émotionnelle -->
+                    <div class="hooks-emotion-section">
+                        <label class="hooks-label">🎭 Quelle vibe pour ton hook ?</label>
+                        <div class="emotion-chips" id="emotionChips">
+                            <button class="emotion-chip active" data-emotion="inspiration" onclick="selectEmotion('inspiration')">
+                                <span class="emotion-icon">✨</span>
+                                <span class="emotion-name">Inspiration</span>
+                            </button>
+                            <button class="emotion-chip" data-emotion="admiration" onclick="selectEmotion('admiration')">
+                                <span class="emotion-icon">🌟</span>
+                                <span class="emotion-name">Admiration</span>
+                            </button>
+                            <button class="emotion-chip" data-emotion="vulnerabilite" onclick="selectEmotion('vulnerabilite')">
+                                <span class="emotion-icon">💔</span>
+                                <span class="emotion-name">Vulnérabilité</span>
+                            </button>
+                            <button class="emotion-chip" data-emotion="coup-de-gueule" onclick="selectEmotion('coup-de-gueule')">
+                                <span class="emotion-icon">🔥</span>
+                                <span class="emotion-name">Coup de gueule</span>
+                            </button>
+                            <button class="emotion-chip" data-emotion="humour" onclick="selectEmotion('humour')">
+                                <span class="emotion-icon">😄</span>
+                                <span class="emotion-name">Humour</span>
+                            </button>
+                            <button class="emotion-chip" data-emotion="curiosite" onclick="selectEmotion('curiosite')">
+                                <span class="emotion-icon">🤔</span>
+                                <span class="emotion-name">Curiosité</span>
+                            </button>
+                            <button class="emotion-chip" data-emotion="expert" onclick="selectEmotion('expert')">
+                                <span class="emotion-icon">🎓</span>
+                                <span class="emotion-name">Expert</span>
+                            </button>
+                            <button class="emotion-chip" data-emotion="teasing" onclick="selectEmotion('teasing')">
+                                <span class="emotion-icon">😏</span>
+                                <span class="emotion-name">Teasing</span>
+                            </button>
+                            <button class="emotion-chip" data-emotion="motivation" onclick="selectEmotion('motivation')">
+                                <span class="emotion-icon">💪</span>
+                                <span class="emotion-name">Motivation</span>
+                            </button>
+                            <button class="emotion-chip" data-emotion="confession" onclick="selectEmotion('confession')">
+                                <span class="emotion-icon">🤫</span>
+                                <span class="emotion-name">Confession</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Sous-panel Modes Humour (visible uniquement si humour sélectionné) -->
+                    <div class="humor-modes-panel" id="humorModesPanel" style="display: none;">
+                        <label class="hooks-label">🎭 Quel style d'humour ?</label>
+                        <div class="humor-modes-grid">
+                            <button class="humor-mode-btn active" data-mode="copines" onclick="selectHumorMode('copines')">
+                                <span class="humor-mode-icon">👯‍♀️</span>
+                                <span class="humor-mode-title">Mode Copines</span>
+                                <span class="humor-mode-desc">Comme si tu racontais à tes potes autour d'un verre</span>
+                            </button>
+                            <button class="humor-mode-btn" data-mode="cash" onclick="selectHumorMode('cash')">
+                                <span class="humor-mode-icon">💣</span>
+                                <span class="humor-mode-title">Mode Cash</span>
+                                <span class="humor-mode-desc">Honnêteté brutale, on dit tout haut ce qu'on pense tout bas</span>
+                            </button>
+                            <button class="humor-mode-btn" data-mode="caricature" onclick="selectHumorMode('caricature')">
+                                <span class="humor-mode-icon">🎪</span>
+                                <span class="humor-mode-title">Mode Caricature</span>
+                                <span class="humor-mode-desc">Observation du quotidien poussée jusqu'au dessin animé</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Bouton générer des hooks -->
+                    <div class="hooks-generate-section">
+                        <button class="generate-hooks-btn" id="generateHooksBtn" onclick="generateHooks()">
+                            ✨ <span>Générer des hooks</span>
+                        </button>
+                    </div>
+
+                    <!-- Zone d'affichage des hooks générés -->
+                    <div class="hooks-results" id="hooksResults" style="display: none;">
+                        <div class="hooks-results-header">
+                            <span class="hooks-results-title">Choisis le hook qui te parle :</span>
+                            <button class="hooks-regenerate-btn" onclick="generateHooks()">
+                                🔄 Regénérer
+                            </button>
+                        </div>
+                        <div class="hooks-grid" id="hooksGrid">
+                            <!-- Hooks générés dynamiquement -->
+                        </div>
+                    </div>
+
+                    <!-- Bouton continuer -->
+                    <div class="hooks-continue-section" id="hooksContinueSection" style="display: none;">
+                        <button class="hooks-continue-btn" id="hooksContinueBtn" onclick="continueWithHook()" disabled>
+                            🚀 <span>Continuer avec ce hook</span>
+                        </button>
+                        <button class="hooks-back-btn" onclick="backToBrief()">
+                            ← Modifier le brief
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ==================== ÉTAPE CONTENU ==================== -->
+                <div id="contentSection">
+                    <h2 class="panel-title">📄 <span data-i18n="config.your_content">Ton contenu</span></h2>
+
+                    <!-- Hook sélectionné (affiché si un hook a été choisi) -->
+                    <div class="selected-hook-display" id="selectedHookDisplay" style="display: none;">
+                        <div class="selected-hook-label">🪝 Hook sélectionné :</div>
+                        <div class="selected-hook-text" id="selectedHookText"></div>
+                        <button class="change-hook-btn" onclick="changeHook()">Changer de hook</button>
+                    </div>
+
+                    <div class="output-content" id="outputContent">
+                        <div class="output-placeholder">
+                            <div class="output-placeholder-icon">✨</div>
+                            <p>Configure tes options et clique sur "Choisir mon hook" pour commencer !</p>
+                        </div>
                     </div>
                 </div>
                 <div class="action-buttons" id="actionButtons" style="display: none;">
                     <button class="action-btn" onclick="copyContent()">📋 <span data-i18n="actions.copy">Copier</span></button>
                     <button class="action-btn" onclick="regenerateContent()">🔄 <span data-i18n="actions.regenerate">Régénérer</span></button>
-                    <button class="action-btn" onclick="generateVariantes()">🎭 <span data-i18n="actions.variants">3 Variantes</span></button>
-                    <button class="action-btn save" onclick="saveToFavorites()">❤️ <span data-i18n="actions.save_fav">Sauver</span></button>
+                    <button class="action-btn adjust" onclick="toggleAdjustPanel()">✏️ <span>Ajuster</span></button>
+                </div>
+
+                <!-- Panneau d'ajustement -->
+                <div class="adjust-panel" id="adjustPanel" style="display: none;">
+                    <div class="adjust-panel-header">
+                        <span class="adjust-panel-title">✏️ Ajuster le contenu</span>
+                        <button class="adjust-close-btn" onclick="toggleAdjustPanel()">✕</button>
+                    </div>
+                    <div class="adjust-options">
+                        <div class="adjust-row">
+                            <button class="adjust-option-btn" onclick="adjustContent('shorter')">
+                                <span class="adjust-icon">📉</span>
+                                <span>Plus court</span>
+                            </button>
+                            <button class="adjust-option-btn" onclick="adjustContent('longer')">
+                                <span class="adjust-icon">📈</span>
+                                <span>Plus long</span>
+                            </button>
+                        </div>
+                        <div class="adjust-row">
+                            <button class="adjust-option-btn" onclick="adjustContent('simplify')">
+                                <span class="adjust-icon">✨</span>
+                                <span>Simplifier</span>
+                            </button>
+                            <button class="adjust-option-btn" onclick="adjustContent('tone')">
+                                <span class="adjust-icon">🎭</span>
+                                <span>Changer le ton</span>
+                            </button>
+                        </div>
+                        <div class="adjust-custom">
+                            <textarea class="adjust-input" id="adjustInput" placeholder="Dis ce que tu veux changer..."></textarea>
+                            <button class="adjust-submit-btn" onclick="adjustContent('custom')">
+                                🚀 Appliquer
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Section Visuels -->
@@ -1805,40 +2906,17 @@
                         </button>
                     </div>
 
-                    <!-- TOGGLE: Générer des prompts visuels -->
-                    <div class="visual-toggle-section">
-                        <button class="section-toggle" id="promptsToggle" onclick="toggleSection('prompts')">
-                            <span class="section-toggle-left">
-                                <span class="section-toggle-icon">🖼️</span>
-                                <span>Générer des prompts visuels</span>
+                    <!-- Widget Bonnes Pratiques -->
+                    <div class="tips-widget" id="tipsWidget" style="display: none;">
+                        <div class="tips-widget-header">
+                            <span class="tips-widget-title">
+                                <span>💡</span>
+                                <span>Bonnes pratiques du moment</span>
                             </span>
-                            <span class="section-toggle-arrow" id="promptsArrow">▼</span>
-                        </button>
-                        <div class="section-toggle-content" id="promptsContent" style="display: none;">
-                            <div class="visual-buttons-grid">
-                                <button class="visual-tool-btn" id="btnMidjourney" onclick="generateMidjourney(this)" style="background: linear-gradient(135deg, #5865F2, #7289DA);">🎨 Midjourney</button>
-                                <button class="visual-tool-btn" id="btnDalle" onclick="generateDalle(this)" style="background: linear-gradient(135deg, #10a37f, #1a7f64);">🤖 DALL-E</button>
-                                <button class="visual-tool-btn" id="btnCanva" onclick="generateCanva(this)" style="background: linear-gradient(135deg, #00C4CC, #7B2D8E);">🎬 Canva</button>
-                            </div>
+                            <button class="tips-widget-toggle" onclick="toggleTipsWidget()">Masquer</button>
                         </div>
-                    </div>
-
-                    <!-- TOGGLE: Ouvrir mes outils -->
-                    <div class="visual-toggle-section" style="margin-top: 10px;">
-                        <button class="section-toggle" id="toolsToggle" onclick="toggleSection('tools')">
-                            <span class="section-toggle-left">
-                                <span class="section-toggle-icon">🚀</span>
-                                <span>Ouvrir mes outils</span>
-                            </span>
-                            <span class="section-toggle-arrow" id="toolsArrow">▼</span>
-                        </button>
-                        <div class="section-toggle-content" id="toolsContent" style="display: none;">
-                            <div class="visual-buttons-grid">
-                                <button class="visual-tool-btn" onclick="window.open('https://discord.com/channels/@me', '_blank')" style="background: #5865F2;">🎨 Midjourney</button>
-                                <button class="visual-tool-btn" onclick="window.open('https://chat.openai.com', '_blank')" style="background: #10a37f;">🤖 ChatGPT</button>
-                                <button class="visual-tool-btn" onclick="window.open('https://www.canva.com', '_blank')" style="background: linear-gradient(135deg, #00C4CC, #7B2D8E);">🎬 Canva</button>
-                                <button class="visual-tool-btn" onclick="window.open('https://www.capcut.com/editor', '_blank')" style="background: #000;">✂️ CapCut</button>
-                            </div>
+                        <div class="tips-list" id="tipsList">
+                            <!-- Chargé dynamiquement -->
                         </div>
                     </div>
                 </div>
@@ -2278,11 +3356,11 @@
         </div>
     </div>
 
-    <!-- Modal Ma Voix -->
+    <!-- Modal Mon Style -->
     <div class="modal-overlay" id="voiceModal">
         <div class="modal" style="max-width: 750px; max-height: 90vh;">
             <div class="modal-header" style="background: linear-gradient(135deg, #667eea, #764ba2);">
-                <h2 class="modal-title">🎤 <span data-i18n="modals.voice">Ma Voix</span></h2>
+                <h2 class="modal-title">🎤 <span data-i18n="modals.voice">Mon Style</span></h2>
                 <button class="modal-close" onclick="closeVoiceModal()">&times;</button>
             </div>
             <div id="voiceContent" style="padding: 20px; overflow-y: auto; max-height: calc(90vh - 80px);"></div>
@@ -3078,6 +4156,20 @@ Solution  | Présenter votre solution</pre>
                                     <textarea id="onb-problematique" placeholder="Ex: Je bloque sur la régularité..." style="min-height: 60px;">${existingProfile?.problematique || ''}</textarea>
                                 </div>
                             </div>
+                            <div class="onboarding-section personas-section">
+                                <div class="personas-header">
+                                    <h3>👥 Mes audiences</h3>
+                                    <button type="button" class="btn-add-persona" onclick="openPersonaEditor()">
+                                        <span>+</span> Nouvelle audience
+                                    </button>
+                                </div>
+                                <div id="personasList" class="personas-list">
+                                    <!-- Chargé dynamiquement -->
+                                </div>
+                                <small style="color: #888; display: block; margin-top: 10px;">
+                                    💡 Crée des personas détaillés pour que l'IA génère des contenus vraiment personnalisés.
+                                </small>
+                            </div>
                             <div class="onboarding-section">
                                 <h3>💬 Autre chose ?</h3>
                                 <div class="form-group">
@@ -3093,8 +4185,707 @@ Solution  | Présenter votre solution</pre>
             `;
             document.body.insertAdjacentHTML('beforeend', modalHTML);
             document.getElementById('onboardingForm').addEventListener('submit', handleOnboardingSubmit);
-            setTimeout(() => document.getElementById('onboardingOverlay').classList.add('active'), 10);
+            setTimeout(() => {
+                document.getElementById('onboardingOverlay').classList.add('active');
+                // Charger les personas
+                renderPersonasList();
+            }, 10);
         }
+
+        // ==================== GESTION DES PERSONAS UI ====================
+        const PERSONA_EMOJIS = ['🎯', '🎨', '📚', '🏢', '💼', '🚀', '💡', '👩‍💻', '🎪', '🌟', '💎', '🔥', '🌈', '🎭', '🧠', '❤️'];
+
+        let editingPersonaId = null;
+
+        // Rendre la liste des personas
+        async function renderPersonasList() {
+            const container = document.getElementById('personasList');
+            if (!container) return;
+
+            // Attendre que PersonasManager soit chargé
+            if (!PersonasManager.isLoaded) {
+                await PersonasManager.loadPersonas();
+            }
+
+            const personas = PersonasManager.personas;
+
+            if (personas.length === 0) {
+                container.innerHTML = `
+                    <div class="personas-empty">
+                        <div class="personas-empty-icon">👥</div>
+                        <div class="personas-empty-text">Tu n'as pas encore créé d'audience personnalisée.</div>
+                        <button type="button" class="btn-add-persona" onclick="openPersonaEditor()">
+                            <span>+</span> Créer ma première audience
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = personas.map(p => `
+                <div class="persona-card ${p.is_default ? 'is-default' : ''}" data-id="${p.id}">
+                    <div class="persona-card-header">
+                        <div class="persona-card-title">
+                            <span class="persona-card-emoji">${p.emoji || '🎯'}</span>
+                            <span class="persona-card-name">${p.name}</span>
+                            ${p.is_default ? '<span class="persona-default-badge">Par défaut</span>' : ''}
+                        </div>
+                    </div>
+                    <div class="persona-card-desc">${p.description || 'Pas de description'}</div>
+                    <div class="persona-card-meta">
+                        ${p.pain_points?.length > 0 ? `<span class="persona-meta-tag">😓 ${p.pain_points.length} douleurs</span>` : ''}
+                        ${p.desires?.length > 0 ? `<span class="persona-meta-tag">✨ ${p.desires.length} désirs</span>` : ''}
+                        ${p.primary_platform ? `<span class="persona-meta-tag">📱 ${p.primary_platform}</span>` : ''}
+                    </div>
+                    <div class="persona-card-actions">
+                        <button type="button" class="persona-action-btn" onclick="openPersonaEditor('${p.id}')">✏️ Modifier</button>
+                        <button type="button" class="persona-action-btn" onclick="duplicatePersona('${p.id}')">📋 Dupliquer</button>
+                        ${!p.is_default ? `<button type="button" class="persona-action-btn" onclick="setPersonaDefault('${p.id}')">⭐ Par défaut</button>` : ''}
+                        <button type="button" class="persona-action-btn delete" onclick="deletePersona('${p.id}')">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Ouvrir l'éditeur de persona
+        function openPersonaEditor(personaId = null) {
+            editingPersonaId = personaId;
+            const persona = personaId ? PersonasManager.personas.find(p => p.id === personaId) : null;
+
+            const modalHTML = `
+                <div id="personaModalOverlay" class="persona-modal-overlay">
+                    <div class="persona-modal">
+                        <div class="persona-modal-header">
+                            <h3>${persona ? '✏️ Modifier l\'audience' : '➕ Nouvelle audience'}</h3>
+                            <button class="persona-modal-close" onclick="closePersonaEditor()">×</button>
+                        </div>
+                        <div class="persona-modal-body">
+                            <div class="persona-form-row">
+                                <div class="persona-form-group">
+                                    <label>Nom de l'audience *</label>
+                                    <input type="text" id="persona-name" placeholder="Ex: Artistes indépendants" value="${persona?.name || ''}">
+                                </div>
+                                <div class="persona-form-group">
+                                    <label>Emoji</label>
+                                    <div class="emoji-picker-inline" id="emojiPicker">
+                                        ${PERSONA_EMOJIS.map(e => `
+                                            <div class="emoji-option ${(persona?.emoji || '🎯') === e ? 'selected' : ''}"
+                                                 onclick="selectPersonaEmoji('${e}')">${e}</div>
+                                        `).join('')}
+                                    </div>
+                                    <input type="hidden" id="persona-emoji" value="${persona?.emoji || '🎯'}">
+                                </div>
+                            </div>
+
+                            <div class="persona-form-group">
+                                <label>Description</label>
+                                <textarea id="persona-description" placeholder="Ex: Artistes visuels (peintres, illustrateurs) qui veulent vivre de leur art">${persona?.description || ''}</textarea>
+                            </div>
+
+                            <div class="persona-form-row">
+                                <div class="persona-form-group">
+                                    <label>Tranche d'âge</label>
+                                    <input type="text" id="persona-age" placeholder="Ex: 30-45 ans" value="${persona?.age_range || ''}">
+                                </div>
+                                <div class="persona-form-group">
+                                    <label>Localisation</label>
+                                    <input type="text" id="persona-location" placeholder="Ex: France, Europe" value="${persona?.location || ''}">
+                                </div>
+                            </div>
+
+                            <div class="persona-form-group">
+                                <label>Leurs douleurs / problèmes (un par ligne)</label>
+                                <textarea id="persona-pains" placeholder="Ex:
+Pas assez de visibilité
+Difficulté à fixer leurs prix
+Se sentent illégitimes à se vendre">${persona?.pain_points?.join('\n') || ''}</textarea>
+                                <small>Ces problèmes seront adressés dans tes contenus</small>
+                            </div>
+
+                            <div class="persona-form-group">
+                                <label>Ce qu'ils veulent / leurs désirs (un par ligne)</label>
+                                <textarea id="persona-desires" placeholder="Ex:
+Vivre de leur art
+Être reconnus pour leur travail
+Trouver des clients sans prospecter">${persona?.desires?.join('\n') || ''}</textarea>
+                            </div>
+
+                            <div class="persona-form-group">
+                                <label>Mots-clés / vocabulaire à utiliser (séparés par des virgules)</label>
+                                <input type="text" id="persona-vocabulary" placeholder="Ex: création, œuvre, processus créatif, galerie" value="${persona?.vocabulary?.join(', ') || ''}">
+                            </div>
+
+                            <div class="persona-form-group">
+                                <label>Notes sur le ton à adopter</label>
+                                <textarea id="persona-tone" placeholder="Ex: Inspirant mais pas pompeux. Éviter le jargon marketing. Parler de partager plutôt que vendre.">${persona?.tone_preferences || ''}</textarea>
+                            </div>
+
+                            <div class="persona-form-row">
+                                <div class="persona-form-group">
+                                    <label>Plateforme principale</label>
+                                    <select id="persona-platform">
+                                        <option value="linkedin" ${persona?.primary_platform === 'linkedin' ? 'selected' : ''}>LinkedIn</option>
+                                        <option value="instagram" ${persona?.primary_platform === 'instagram' ? 'selected' : ''}>Instagram</option>
+                                        <option value="tiktok" ${persona?.primary_platform === 'tiktok' ? 'selected' : ''}>TikTok</option>
+                                        <option value="twitter" ${persona?.primary_platform === 'twitter' ? 'selected' : ''}>Twitter/X</option>
+                                        <option value="facebook" ${persona?.primary_platform === 'facebook' ? 'selected' : ''}>Facebook</option>
+                                    </select>
+                                </div>
+                                <div class="persona-form-group" style="display: flex; align-items: center; padding-top: 25px;">
+                                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin: 0;">
+                                        <input type="checkbox" id="persona-default" ${persona?.is_default ? 'checked' : ''}>
+                                        <span>Définir comme audience par défaut</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="persona-modal-footer">
+                            <button class="btn-persona-cancel" onclick="closePersonaEditor()">Annuler</button>
+                            <button class="btn-persona-save" onclick="savePersona()">💾 Sauvegarder</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            setTimeout(() => document.getElementById('personaModalOverlay').classList.add('active'), 10);
+        }
+
+        // Sélectionner un emoji
+        function selectPersonaEmoji(emoji) {
+            document.getElementById('persona-emoji').value = emoji;
+            document.querySelectorAll('.emoji-option').forEach(el => el.classList.remove('selected'));
+            event.target.classList.add('selected');
+        }
+
+        // Fermer l'éditeur
+        function closePersonaEditor() {
+            const overlay = document.getElementById('personaModalOverlay');
+            if (overlay) {
+                overlay.classList.remove('active');
+                setTimeout(() => overlay.remove(), 300);
+            }
+            editingPersonaId = null;
+        }
+
+        // Sauvegarder un persona
+        async function savePersona() {
+            const name = document.getElementById('persona-name').value.trim();
+            if (!name) {
+                showToast('❌ Le nom est obligatoire');
+                return;
+            }
+
+            const personaData = {
+                name,
+                emoji: document.getElementById('persona-emoji').value,
+                description: document.getElementById('persona-description').value.trim(),
+                age_range: document.getElementById('persona-age').value.trim(),
+                location: document.getElementById('persona-location').value.trim(),
+                pain_points: document.getElementById('persona-pains').value.split('\n').map(l => l.trim()).filter(l => l),
+                desires: document.getElementById('persona-desires').value.split('\n').map(l => l.trim()).filter(l => l),
+                vocabulary: document.getElementById('persona-vocabulary').value.split(',').map(v => v.trim()).filter(v => v),
+                tone_preferences: document.getElementById('persona-tone').value.trim(),
+                primary_platform: document.getElementById('persona-platform').value,
+                is_default: document.getElementById('persona-default').checked
+            };
+
+            let result;
+            if (editingPersonaId) {
+                result = await PersonasManager.update(editingPersonaId, personaData);
+            } else {
+                result = await PersonasManager.create(personaData);
+            }
+
+            if (result) {
+                closePersonaEditor();
+                renderPersonasList();
+            }
+        }
+
+        // Dupliquer un persona
+        async function duplicatePersona(personaId) {
+            await PersonasManager.duplicate(personaId);
+            renderPersonasList();
+        }
+
+        // Définir comme défaut
+        async function setPersonaDefault(personaId) {
+            await PersonasManager.setAsDefault(personaId);
+            await PersonasManager.loadPersonas(); // Recharger pour avoir le bon état
+            renderPersonasList();
+        }
+
+        // Supprimer un persona
+        async function deletePersona(personaId) {
+            if (!confirm('Supprimer cette audience ?')) return;
+            await PersonasManager.delete(personaId);
+            renderPersonasList();
+        }
+
+        // ==================== SELECTEUR AUDIENCE (WIZARD) ====================
+        const GENERIC_AUDIENCES = [
+            { id: 'entrepreneurs', emoji: '🚀', name: 'Entrepreneurs', description: 'Créateurs d\'entreprise, startuppers' },
+            { id: 'freelances', emoji: '💼', name: 'Freelances', description: 'Indépendants, consultants, prestataires' },
+            { id: 'salaries', emoji: '👔', name: 'Salariés', description: 'Employés en poste, cadres' },
+            { id: 'dirigeants', emoji: '👑', name: 'Dirigeants', description: 'CEO, DG, décideurs' },
+            { id: 'createurs', emoji: '🎨', name: 'Créateurs', description: 'Artistes, créatifs, influenceurs' },
+            { id: 'etudiants', emoji: '🎓', name: 'Étudiants', description: 'Étudiants, jeunes diplômés' }
+        ];
+
+        let selectedAudienceId = null;
+        let selectedAudienceType = null; // 'persona' ou 'generic'
+
+        // Ouvrir/fermer le dropdown
+        function toggleAudienceDropdown() {
+            const dropdown = document.getElementById('audienceDropdown');
+            const menu = document.getElementById('audienceDropdownMenu');
+
+            if (!dropdown || !menu) return;
+
+            const isOpen = menu.classList.contains('show');
+
+            if (isOpen) {
+                menu.classList.remove('show');
+                dropdown.classList.remove('open');
+            } else {
+                renderAudienceDropdown();
+                menu.classList.add('show');
+                dropdown.classList.add('open');
+            }
+        }
+
+        // Fermer le dropdown quand on clique ailleurs
+        document.addEventListener('click', (e) => {
+            const wrapper = document.querySelector('.audience-selector-wrapper');
+            if (wrapper && !wrapper.contains(e.target)) {
+                const menu = document.getElementById('audienceDropdownMenu');
+                const dropdown = document.getElementById('audienceDropdown');
+                if (menu) menu.classList.remove('show');
+                if (dropdown) dropdown.classList.remove('open');
+            }
+        });
+
+        // Rendre le dropdown avec les options
+        function renderAudienceDropdown() {
+            const menu = document.getElementById('audienceDropdownMenu');
+            if (!menu) return;
+
+            const personas = PersonasManager.personas || [];
+            let html = '';
+
+            // Personas personnalisés
+            if (personas.length > 0) {
+                personas.forEach(p => {
+                    const isSelected = selectedAudienceType === 'persona' && selectedAudienceId === p.id;
+                    html += `
+                        <div class="audience-option ${isSelected ? 'selected' : ''}"
+                             onclick="selectAudience('persona', '${p.id}')">
+                            <span class="audience-option-emoji">${p.emoji || '🎯'}</span>
+                            <div class="audience-option-info">
+                                <div class="audience-option-name">
+                                    ${p.name}
+                                    ${p.is_default ? '<span class="audience-option-default">Par défaut</span>' : ''}
+                                </div>
+                                <div class="audience-option-desc">${p.description || ''}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += '<div class="audience-divider"></div>';
+            }
+
+            // Audiences génériques
+            GENERIC_AUDIENCES.forEach(g => {
+                const isSelected = selectedAudienceType === 'generic' && selectedAudienceId === g.id;
+                html += `
+                    <div class="audience-option audience-option-generic ${isSelected ? 'selected' : ''}"
+                         onclick="selectAudience('generic', '${g.id}')">
+                        <span class="audience-option-emoji">${g.emoji}</span>
+                        <div class="audience-option-info">
+                            <div class="audience-option-name">${g.name}</div>
+                            <div class="audience-option-desc">${g.description}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Option créer
+            html += `
+                <div class="audience-option audience-option-create" onclick="createAudienceFromWizard()">
+                    <span class="audience-option-emoji">➕</span>
+                    <div class="audience-option-info">
+                        <div class="audience-option-name">Créer une nouvelle audience...</div>
+                    </div>
+                </div>
+            `;
+
+            menu.innerHTML = html;
+        }
+
+        // Sélectionner une audience
+        function selectAudience(type, id) {
+            selectedAudienceType = type;
+            selectedAudienceId = id;
+
+            // Mettre à jour l'affichage du dropdown
+            const emojiEl = document.getElementById('audienceEmoji');
+            const nameEl = document.getElementById('audienceName');
+            const valueEl = document.getElementById('audienceValue');
+
+            let audience = null;
+
+            if (type === 'persona') {
+                audience = PersonasManager.personas.find(p => p.id === id);
+                if (audience) {
+                    PersonasManager.select(audience);
+                }
+            } else if (type === 'generic') {
+                audience = GENERIC_AUDIENCES.find(g => g.id === id);
+            }
+
+            if (audience) {
+                if (emojiEl) emojiEl.textContent = audience.emoji || '🎯';
+                if (nameEl) nameEl.textContent = audience.name;
+                if (valueEl) valueEl.textContent = audience.name;
+            }
+
+            // Fermer le dropdown
+            const menu = document.getElementById('audienceDropdownMenu');
+            const dropdown = document.getElementById('audienceDropdown');
+            if (menu) menu.classList.remove('show');
+            if (dropdown) dropdown.classList.remove('open');
+
+            // Mettre à jour l'aperçu
+            updateAudiencePreview();
+        }
+
+        // Mettre à jour l'aperçu de l'audience
+        function updateAudiencePreview() {
+            const preview = document.getElementById('audiencePreview');
+            const titleEl = document.getElementById('audiencePreviewTitle');
+            const descEl = document.getElementById('audiencePreviewDesc');
+            const tagsEl = document.getElementById('audiencePreviewTags');
+
+            if (!preview) return;
+
+            let audience = null;
+
+            if (selectedAudienceType === 'persona') {
+                audience = PersonasManager.personas.find(p => p.id === selectedAudienceId);
+            } else if (selectedAudienceType === 'generic') {
+                audience = GENERIC_AUDIENCES.find(g => g.id === selectedAudienceId);
+            }
+
+            if (!audience) {
+                preview.classList.remove('show');
+                return;
+            }
+
+            preview.classList.add('show');
+
+            if (titleEl) titleEl.textContent = `${audience.emoji || '🎯'} ${audience.name}`;
+            if (descEl) descEl.textContent = audience.description || '';
+
+            // Tags pour les personas personnalisés
+            if (tagsEl) {
+                if (selectedAudienceType === 'persona' && audience.pain_points?.length > 0) {
+                    tagsEl.innerHTML = audience.pain_points.slice(0, 3).map(p =>
+                        `<span class="audience-preview-tag">😓 ${p}</span>`
+                    ).join('');
+                } else {
+                    tagsEl.innerHTML = '';
+                }
+            }
+        }
+
+        // Créer une audience depuis le wizard
+        function createAudienceFromWizard() {
+            // Fermer le dropdown
+            const menu = document.getElementById('audienceDropdownMenu');
+            const dropdown = document.getElementById('audienceDropdown');
+            if (menu) menu.classList.remove('show');
+            if (dropdown) dropdown.classList.remove('open');
+
+            // Ouvrir l'éditeur de persona
+            openPersonaEditor();
+        }
+
+        // Initialiser le sélecteur d'audience au chargement
+        function initAudienceSelector() {
+            // Sélectionner le persona par défaut si disponible
+            const defaultPersona = PersonasManager.getDefault();
+            if (defaultPersona) {
+                selectAudience('persona', defaultPersona.id);
+            } else {
+                // Sinon, sélectionner "Entrepreneurs" par défaut
+                selectAudience('generic', 'entrepreneurs');
+            }
+        }
+
+        // Obtenir le contexte audience pour les prompts
+        function getAudienceContextForPrompt() {
+            if (selectedAudienceType === 'persona') {
+                return PersonasManager.getPromptContext();
+            } else if (selectedAudienceType === 'generic') {
+                const audience = GENERIC_AUDIENCES.find(g => g.id === selectedAudienceId);
+                if (audience) {
+                    return `
+AUDIENCE CIBLE : ${audience.name}
+Description : ${audience.description}
+`;
+                }
+            }
+            return '';
+        }
+
+        // ==================== WIDGET BONNES PRATIQUES ====================
+        const CATEGORY_ICONS = {
+            'algorithme': '🤖',
+            'format': '📐',
+            'timing': '⏰',
+            'engagement': '💬',
+            'erreurs': '⚠️',
+            'copywriting': '✍️',
+            'strategie': '🎯'
+        };
+
+        // Charger les bonnes pratiques depuis Supabase
+        async function loadBonnesPratiques(platform, contentType = 'post') {
+            const supabase = window.supabaseApp;
+            if (!supabase) {
+                console.warn('Supabase non disponible pour les bonnes pratiques');
+                return [];
+            }
+
+            // Mapping type de contenu → catégories pertinentes
+            const categoryMapping = {
+                'post': ['algorithme', 'timing', 'engagement', 'copywriting'],
+                'carousel': ['format', 'copywriting', 'engagement'],
+                'story': ['format', 'engagement'],
+                'video': ['format', 'algorithme'],
+                'default': ['algorithme', 'engagement', 'erreurs']
+            };
+
+            const categories = categoryMapping[contentType] || categoryMapping['default'];
+
+            try {
+                const { data, error } = await supabase
+                    .from('bonnes_pratiques')
+                    .select('*')
+                    .contains('platforms', [platform])
+                    .in('category', categories)
+                    .eq('is_active', true)
+                    .order('confidence', { ascending: true })
+                    .limit(5);
+
+                if (error) {
+                    console.warn('Erreur chargement bonnes pratiques:', error);
+                    return [];
+                }
+
+                return (data || []).map(rule => ({
+                    id: rule.id,
+                    tip: rule.rule,
+                    category: rule.category,
+                    confidence: rule.confidence,
+                    icon: CATEGORY_ICONS[rule.category] || '💡'
+                }));
+            } catch (e) {
+                console.warn('Erreur bonnes pratiques:', e);
+                return [];
+            }
+        }
+
+        // Afficher le widget des bonnes pratiques
+        async function displayTipsWidget() {
+            const widget = document.getElementById('tipsWidget');
+            const tipsList = document.getElementById('tipsList');
+            if (!widget || !tipsList) return;
+
+            // Déterminer le type de contenu
+            let contentType = 'post';
+            if (currentState.format === 'carousel') contentType = 'carousel';
+            else if (currentState.format === 'story') contentType = 'story';
+            else if (currentState.format === 'video') contentType = 'video';
+
+            const tips = await loadBonnesPratiques(currentState.platform, contentType);
+
+            if (tips.length === 0) {
+                // Pas de tips, masquer le widget
+                widget.style.display = 'none';
+                return;
+            }
+
+            // Afficher les tips
+            tipsList.innerHTML = tips.map(tip => `
+                <div class="tip-item">
+                    <span class="tip-icon">${tip.icon}</span>
+                    <span class="tip-text">${tip.tip}</span>
+                    ${tip.confidence === 'consensus' ? '<span class="tip-badge">✓ Vérifié</span>' : ''}
+                </div>
+            `).join('');
+
+            widget.style.display = 'block';
+            widget.classList.remove('collapsed');
+        }
+
+        // Toggle le widget
+        function toggleTipsWidget() {
+            const widget = document.getElementById('tipsWidget');
+            if (widget) {
+                widget.classList.toggle('collapsed');
+                const btn = widget.querySelector('.tips-widget-toggle');
+                if (btn) {
+                    btn.textContent = widget.classList.contains('collapsed') ? 'Afficher' : 'Masquer';
+                }
+            }
+        }
+
+        // ==================== CONTEXTUAL REMINDER SYSTEM ====================
+        const ContextualReminder = {
+            currentIndex: 0,
+            reminders: [],
+            isVisible: false,
+            hideTimeout: null,
+
+            // Tips par plateforme
+            PLATFORM_TIPS: {
+                linkedin: [
+                    { icon: '📏', text: 'LinkedIn : Les posts de <strong>1300-1500 caractères</strong> performent le mieux' },
+                    { icon: '⏰', text: 'LinkedIn : Poste entre <strong>8h-9h</strong> ou <strong>12h-13h</strong> pour max de visibilité' },
+                    { icon: '🚫', text: 'LinkedIn : <strong>Évite les liens</strong> dans le post, mets-les en commentaire' },
+                    { icon: '💬', text: 'LinkedIn : <strong>Réponds aux commentaires</strong> dans la 1ère heure pour booster ta portée' },
+                    { icon: '✏️', text: 'LinkedIn : <strong>Ne modifie pas</strong> ton post dans les 2h après publication' },
+                    { icon: '🎯', text: 'LinkedIn : Une <strong>accroche forte</strong> = 80% du succès de ton post' },
+                    { icon: '📸', text: 'LinkedIn : Les <strong>carrousels 8-12 slides</strong> génèrent plus d\'engagement' }
+                ],
+                instagram: [
+                    { icon: '📸', text: 'Instagram : Les <strong>Reels</strong> ont 2x plus de portée que les posts classiques' },
+                    { icon: '#️⃣', text: 'Instagram : Utilise <strong>3-5 hashtags</strong> pertinents maximum' },
+                    { icon: '📝', text: 'Instagram : La légende doit faire <strong>150-200 caractères</strong> pour les posts feed' },
+                    { icon: '🎨', text: 'Instagram : <strong>Cohérence visuelle</strong> = reconnaissance de marque' },
+                    { icon: '📍', text: 'Instagram : Ajoute toujours une <strong>localisation</strong> pour +30% de reach' },
+                    { icon: '⏰', text: 'Instagram : Poste quand <strong>ton audience est active</strong> (check tes stats)' }
+                ],
+                tiktok: [
+                    { icon: '⚡', text: 'TikTok : Les <strong>3 premières secondes</strong> sont cruciales pour retenir' },
+                    { icon: '🎵', text: 'TikTok : Utilise des <strong>sons tendance</strong> pour booster la découverte' },
+                    { icon: '📱', text: 'TikTok : Filme toujours en <strong>vertical 9:16</strong>' },
+                    { icon: '💬', text: 'TikTok : Pose une <strong>question</strong> pour inciter aux commentaires' },
+                    { icon: '#️⃣', text: 'TikTok : <strong>3-5 hashtags</strong> dont 1-2 tendance' },
+                    { icon: '🔄', text: 'TikTok : La <strong>régularité</strong> compte plus que la perfection' }
+                ],
+                twitter: [
+                    { icon: '🧵', text: 'X/Twitter : Les <strong>threads</strong> génèrent 10x plus d\'engagement' },
+                    { icon: '📏', text: 'X/Twitter : <strong>280 caractères max</strong>, mais les tweets courts marchent mieux' },
+                    { icon: '🔄', text: 'X/Twitter : <strong>Retweet + citation</strong> > simple retweet' },
+                    { icon: '⏰', text: 'X/Twitter : Les tweets du <strong>matin (7h-9h)</strong> performent mieux' }
+                ],
+                facebook: [
+                    { icon: '🎥', text: 'Facebook : Les <strong>vidéos natives</strong> ont 10x plus de portée que les liens YouTube' },
+                    { icon: '👥', text: 'Facebook : Les <strong>groupes</strong> ont plus de reach que les pages' },
+                    { icon: '📸', text: 'Facebook : Posts avec <strong>images</strong> = 2.3x plus d\'engagement' },
+                    { icon: '⏰', text: 'Facebook : Meilleurs créneaux : <strong>13h-16h</strong> en semaine' }
+                ],
+                newsletter: [
+                    { icon: '📧', text: 'Newsletter : <strong>Objet de 40-50 caractères</strong> pour éviter la troncature' },
+                    { icon: '👤', text: 'Newsletter : La <strong>personnalisation</strong> augmente l\'ouverture de 26%' },
+                    { icon: '⏰', text: 'Newsletter : Envoie le <strong>mardi ou jeudi matin</strong>' },
+                    { icon: '📱', text: 'Newsletter : <strong>60% des emails</strong> sont lus sur mobile' }
+                ]
+            },
+
+            // Tips généraux (quand pas de plateforme sélectionnée)
+            GENERAL_TIPS: [
+                { icon: '🎯', text: 'Sélectionne une <strong>plateforme</strong> pour des conseils personnalisés' },
+                { icon: '👥', text: 'Définis ton <strong>audience cible</strong> dans "Ton audience"' },
+                { icon: '✨', text: 'Une bonne <strong>accroche</strong> = 80% du succès de ton contenu' },
+                { icon: '📊', text: 'La <strong>régularité</strong> bat la perfection, chaque fois' }
+            ],
+
+            // Initialiser avec la plateforme actuelle
+            init() {
+                this.updateForPlatform(currentState.platform);
+                // Afficher après un court délai
+                setTimeout(() => this.show(), 2000);
+            },
+
+            // Mettre à jour les tips selon la plateforme
+            updateForPlatform(platform) {
+                this.reminders = this.PLATFORM_TIPS[platform] || this.GENERAL_TIPS;
+                this.currentIndex = 0;
+                this.render();
+            },
+
+            // Afficher le reminder actuel
+            render() {
+                const reminder = this.reminders[this.currentIndex];
+                if (!reminder) return;
+
+                document.getElementById('reminderIcon').textContent = reminder.icon;
+                document.getElementById('reminderText').innerHTML = reminder.text;
+            },
+
+            // Afficher la barre
+            show() {
+                const bar = document.getElementById('contextualReminder');
+                if (bar && !this.isHiddenByUser()) {
+                    bar.classList.add('visible');
+                    this.isVisible = true;
+                    this.startAutoRotate();
+                }
+            },
+
+            // Cacher la barre
+            hide() {
+                const bar = document.getElementById('contextualReminder');
+                if (bar) {
+                    bar.classList.remove('visible');
+                    this.isVisible = false;
+                    this.stopAutoRotate();
+                    // Mémoriser que l'utilisateur a fermé (pour cette session)
+                    sessionStorage.setItem('reminder_hidden', 'true');
+                }
+            },
+
+            // Vérifier si caché par l'utilisateur
+            isHiddenByUser() {
+                return sessionStorage.getItem('reminder_hidden') === 'true';
+            },
+
+            // Tip suivant
+            next() {
+                this.currentIndex = (this.currentIndex + 1) % this.reminders.length;
+                this.render();
+            },
+
+            // Tip précédent
+            prev() {
+                this.currentIndex = (this.currentIndex - 1 + this.reminders.length) % this.reminders.length;
+                this.render();
+            },
+
+            // Rotation automatique
+            startAutoRotate() {
+                this.stopAutoRotate();
+                this.autoRotateInterval = setInterval(() => {
+                    this.next();
+                }, 8000); // Change toutes les 8 secondes
+            },
+
+            stopAutoRotate() {
+                if (this.autoRotateInterval) {
+                    clearInterval(this.autoRotateInterval);
+                }
+            }
+        };
+
+        // Fonctions globales pour les boutons
+        function hideReminder() { ContextualReminder.hide(); }
+        function nextReminder() { ContextualReminder.next(); }
+        function prevReminder() { ContextualReminder.prev(); }
 
         // Callback après sauvegarde du profil
         let onboardingCallback = null;
@@ -3336,6 +5127,304 @@ Solution  | Présenter votre solution</pre>
 
         // Initialiser Analytics au chargement
         Analytics.init();
+
+        // ==================== GESTIONNAIRE DE PERSONAS ====================
+        const PersonasManager = {
+            CACHE_KEY: 'sos_personas_cache',
+            personas: [],
+            selectedPersona: null,
+            isLoaded: false,
+
+            // Initialisation
+            async init() {
+                await this.loadPersonas();
+                this.loadSelectedFromStorage();
+                console.log('👥 PersonasManager initialisé');
+            },
+
+            // Récupérer le client Supabase
+            getSupabase() {
+                return window.supabaseApp;
+            },
+
+            // Récupérer l'utilisateur connecté
+            async getCurrentUserId() {
+                const supabase = this.getSupabase();
+                if (!supabase) return null;
+                try {
+                    const { data: { user } } = await supabase.auth.getUser();
+                    return user?.id || null;
+                } catch (e) {
+                    console.warn('Erreur auth:', e);
+                    return null;
+                }
+            },
+
+            // Charger tous les personas de l'utilisateur
+            async loadPersonas() {
+                const supabase = this.getSupabase();
+                const userId = await this.getCurrentUserId();
+
+                if (!supabase || !userId) {
+                    // Charger depuis le cache local si pas connecté
+                    const cached = localStorage.getItem(this.CACHE_KEY);
+                    if (cached) {
+                        this.personas = JSON.parse(cached);
+                    }
+                    this.isLoaded = true;
+                    return this.personas;
+                }
+
+                try {
+                    const { data, error } = await supabase
+                        .from('audience_personas')
+                        .select('*')
+                        .eq('user_id', userId)
+                        .order('is_default', { ascending: false })
+                        .order('usage_count', { ascending: false });
+
+                    if (error) throw error;
+
+                    this.personas = data || [];
+                    // Mettre en cache
+                    localStorage.setItem(this.CACHE_KEY, JSON.stringify(this.personas));
+                    this.isLoaded = true;
+                    return this.personas;
+                } catch (e) {
+                    console.error('Erreur chargement personas:', e);
+                    this.isLoaded = true;
+                    return [];
+                }
+            },
+
+            // Créer un nouveau persona
+            async create(personaData) {
+                const supabase = this.getSupabase();
+                const userId = await this.getCurrentUserId();
+
+                if (!supabase || !userId) {
+                    showToast('❌ Connexion requise pour créer un persona');
+                    return null;
+                }
+
+                try {
+                    const { data, error } = await supabase
+                        .from('audience_personas')
+                        .insert({
+                            user_id: userId,
+                            ...personaData
+                        })
+                        .select()
+                        .single();
+
+                    if (error) throw error;
+
+                    this.personas.unshift(data);
+                    localStorage.setItem(this.CACHE_KEY, JSON.stringify(this.personas));
+                    showToast('✅ Persona créé !');
+                    return data;
+                } catch (e) {
+                    console.error('Erreur création persona:', e);
+                    showToast('❌ Erreur lors de la création');
+                    return null;
+                }
+            },
+
+            // Mettre à jour un persona
+            async update(personaId, updates) {
+                const supabase = this.getSupabase();
+
+                if (!supabase) {
+                    showToast('❌ Connexion requise');
+                    return null;
+                }
+
+                try {
+                    const { data, error } = await supabase
+                        .from('audience_personas')
+                        .update(updates)
+                        .eq('id', personaId)
+                        .select()
+                        .single();
+
+                    if (error) throw error;
+
+                    // Mettre à jour le cache local
+                    const index = this.personas.findIndex(p => p.id === personaId);
+                    if (index !== -1) {
+                        this.personas[index] = data;
+                        localStorage.setItem(this.CACHE_KEY, JSON.stringify(this.personas));
+                    }
+
+                    showToast('✅ Persona mis à jour !');
+                    return data;
+                } catch (e) {
+                    console.error('Erreur mise à jour persona:', e);
+                    showToast('❌ Erreur lors de la mise à jour');
+                    return null;
+                }
+            },
+
+            // Supprimer un persona
+            async delete(personaId) {
+                const supabase = this.getSupabase();
+
+                if (!supabase) {
+                    showToast('❌ Connexion requise');
+                    return false;
+                }
+
+                try {
+                    const { error } = await supabase
+                        .from('audience_personas')
+                        .delete()
+                        .eq('id', personaId);
+
+                    if (error) throw error;
+
+                    this.personas = this.personas.filter(p => p.id !== personaId);
+                    localStorage.setItem(this.CACHE_KEY, JSON.stringify(this.personas));
+
+                    // Désélectionner si c'était le persona sélectionné
+                    if (this.selectedPersona?.id === personaId) {
+                        this.selectedPersona = null;
+                        localStorage.removeItem('sos_selected_persona');
+                    }
+
+                    showToast('✅ Persona supprimé !');
+                    return true;
+                } catch (e) {
+                    console.error('Erreur suppression persona:', e);
+                    showToast('❌ Erreur lors de la suppression');
+                    return false;
+                }
+            },
+
+            // Dupliquer un persona
+            async duplicate(personaId) {
+                const persona = this.personas.find(p => p.id === personaId);
+                if (!persona) return null;
+
+                const duplicate = {
+                    name: persona.name + ' (copie)',
+                    emoji: persona.emoji,
+                    description: persona.description,
+                    age_range: persona.age_range,
+                    location: persona.location,
+                    pain_points: persona.pain_points,
+                    desires: persona.desires,
+                    vocabulary: persona.vocabulary,
+                    tone_preferences: persona.tone_preferences,
+                    primary_platform: persona.primary_platform,
+                    content_preferences: persona.content_preferences,
+                    is_default: false
+                };
+
+                return await this.create(duplicate);
+            },
+
+            // Définir comme persona par défaut
+            async setAsDefault(personaId) {
+                return await this.update(personaId, { is_default: true });
+            },
+
+            // Incrémenter le compteur d'utilisation
+            async incrementUsage(personaId) {
+                const supabase = this.getSupabase();
+                if (!supabase) return;
+
+                try {
+                    await supabase.rpc('increment_persona_usage', { persona_id: personaId });
+                } catch (e) {
+                    console.warn('Erreur increment usage:', e);
+                }
+            },
+
+            // Sélectionner un persona pour la session
+            select(persona) {
+                this.selectedPersona = persona;
+                if (persona) {
+                    localStorage.setItem('sos_selected_persona', JSON.stringify(persona));
+                    this.incrementUsage(persona.id);
+                } else {
+                    localStorage.removeItem('sos_selected_persona');
+                }
+            },
+
+            // Charger le persona sélectionné depuis le storage
+            loadSelectedFromStorage() {
+                const stored = localStorage.getItem('sos_selected_persona');
+                if (stored) {
+                    try {
+                        this.selectedPersona = JSON.parse(stored);
+                    } catch (e) {
+                        this.selectedPersona = null;
+                    }
+                }
+            },
+
+            // Obtenir le persona par défaut
+            getDefault() {
+                return this.personas.find(p => p.is_default) || this.personas[0] || null;
+            },
+
+            // Obtenir le persona sélectionné ou le défaut
+            getSelected() {
+                return this.selectedPersona || this.getDefault();
+            },
+
+            // Générer le contexte pour le prompt IA
+            getPromptContext() {
+                const persona = this.getSelected();
+                if (!persona) return '';
+
+                let context = `
+AUDIENCE CIBLE : ${persona.name}
+Description : ${persona.description || 'Non spécifiée'}
+`;
+
+                if (persona.age_range || persona.location) {
+                    context += `
+CARACTERISTIQUES :
+${persona.age_range ? `- Tranche d'âge : ${persona.age_range}` : ''}
+${persona.location ? `- Localisation : ${persona.location}` : ''}
+`;
+                }
+
+                if (persona.pain_points?.length > 0) {
+                    context += `
+LEURS PROBLEMES (à adresser dans le contenu) :
+${persona.pain_points.map(p => `- ${p}`).join('\n')}
+`;
+                }
+
+                if (persona.desires?.length > 0) {
+                    context += `
+CE QU'ILS VEULENT (promesse implicite) :
+${persona.desires.map(d => `- ${d}`).join('\n')}
+`;
+                }
+
+                if (persona.tone_preferences) {
+                    context += `
+TON A ADOPTER :
+${persona.tone_preferences}
+`;
+                }
+
+                if (persona.vocabulary?.length > 0) {
+                    context += `
+VOCABULAIRE A PRIVILEGIER :
+${persona.vocabulary.join(', ')}
+`;
+                }
+
+                return context;
+            }
+        };
+
+        // Initialiser PersonasManager
+        PersonasManager.init();
 
         // ==================== SYSTÈME DE PROGRESSION ====================
         const ProgressionSystem = {
@@ -5959,6 +8048,10 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
                 // Section client et bouton dashboard
                 if (clientSection) clientSection.style.display = isAgency ? 'block' : 'none';
                 if (agencyBtn) agencyBtn.style.display = isAgency ? 'inline-flex' : 'none';
+
+                // Section Frameworks (visible uniquement en mode agence)
+                const frameworkSection = document.getElementById('frameworkSection');
+                if (frameworkSection) frameworkSection.style.display = isAgency ? 'block' : 'none';
                 
                 // Toggle dans la configuration
                 if (agencyToggleBtn) {
@@ -6389,6 +8482,10 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
             if (chip && !chip.classList.contains('disabled')) {
                 chip.classList.add('active');
                 currentState.platform = platform;
+                // Mettre à jour le reminder contextuel
+                if (typeof ContextualReminder !== 'undefined') {
+                    ContextualReminder.updateForPlatform(platform);
+                }
             }
         }
 
@@ -7046,6 +9143,20 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
             AgencySystem.updateUI();
             FrameworkSystem.updateQuickSelector();
 
+            // Initialiser le sélecteur d'audience
+            setTimeout(() => {
+                if (typeof initAudienceSelector === 'function') {
+                    initAudienceSelector();
+                }
+            }, 500);
+
+            // Initialiser le reminder contextuel
+            setTimeout(() => {
+                if (typeof ContextualReminder !== 'undefined') {
+                    ContextualReminder.init();
+                }
+            }, 2000);
+
             // Initialiser le toggle de langue FR/EN
             const langContainer = document.getElementById('languageToggleContainer');
             if (langContainer && window.I18N) {
@@ -7342,6 +9453,938 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
         
         // Exposer globalement pour l'onboarding externe
         window.refreshConfigFromProfile = refreshConfigFromProfile;
+
+        // ==================== HOOKS - GÉNÉRATION & SÉLECTION ====================
+
+        // État des hooks
+        let hooksState = {
+            selectedEmotion: 'inspiration',
+            selectedHumorMode: 'copines',
+            selectedTrigger: 'auto', // auto, curiosite, paradoxe, chiffres, identification, confession, urgence, provocation
+            generatedHooks: [],
+            selectedHook: null,
+            selectedHookIndex: -1
+        };
+
+        // Toggle la section des déclencheurs
+        function toggleTriggerSection() {
+            const section = document.getElementById('triggerSection');
+            if (section) {
+                section.classList.toggle('collapsed');
+            }
+        }
+
+        // Sélectionner un déclencheur
+        function selectTrigger(trigger) {
+            hooksState.selectedTrigger = trigger;
+            document.querySelectorAll('.trigger-chip').forEach(chip => {
+                chip.classList.toggle('active', chip.dataset.trigger === trigger);
+            });
+        }
+
+        // Mapping des émotions avec leurs icônes et descriptions
+        const emotionMap = {
+            'inspiration': { icon: '✨', label: 'Inspiration', desc: 'Motiver et inspirer' },
+            'admiration': { icon: '🌟', label: 'Admiration', desc: 'Susciter le respect' },
+            'vulnerabilite': { icon: '💔', label: 'Vulnérabilité', desc: 'Créer de l\'authenticité' },
+            'coup-de-gueule': { icon: '🔥', label: 'Coup de gueule', desc: 'Provoquer une réaction' },
+            'humour': { icon: '😄', label: 'Humour', desc: 'Divertir et engager' },
+            'curiosite': { icon: '🤔', label: 'Curiosité', desc: 'Intriguer et captiver' },
+            'expert': { icon: '🎓', label: 'Expert', desc: 'Montrer ton expertise' },
+            'teasing': { icon: '😏', label: 'Teasing', desc: 'Créer du suspense' },
+            'motivation': { icon: '💪', label: 'Motivation', desc: 'Booster ton audience' },
+            'confession': { icon: '🤫', label: 'Confession', desc: 'Partager un secret' }
+        };
+
+        // Mapping des modes humour avec leurs prompts spécifiques (Guide Humour v2.0)
+        const humorModes = {
+            'copines': {
+                icon: '👯‍♀️',
+                label: 'Mode Copines',
+                style: 'Folles Furieuses',
+                prompt: `🍷 MODE COPINES - Style "Folles Furieuses"
+Ton : comme entre potes autour d'un verre
+Ressorts : exagération, accumulation, images concrètes
+
+EXEMPLES DE RÉFÉRENCE :
+- "Mon planning : lundi debug, mardi debug, mercredi pleurs, jeudi debug, vendredi je fais semblant que tout va bien en visio."
+- "J'ai envoyé 47 DM cette semaine. 45 vus. 2 réponses. Une pour me vendre une formation, l'autre c'était ma mère."
+- "Je parle de mon offre à tout le monde. Le boulanger me fuit. Ma voisine change de trottoir. Mon chat me juge."
+- "J'ai relu mon offre 47 fois. Modifié 3 mots. Remis les anciens. Changé la typo. Re-relu. Toujours pas publiée. Tu vois le genre."`
+            },
+            'cash': {
+                icon: '💣',
+                label: 'Mode Cash',
+                style: 'Blanche Gardin',
+                prompt: `🔪 MODE CASH - Style "Blanche Gardin"
+Ton : honnêteté brutale, auto-dérision qui pique
+Ressorts : aveux de faiblesses, malaise transformé en rire
+
+EXEMPLES DE RÉFÉRENCE :
+- "J'ai passé 4h sur un post. 12 likes. Ma photo de burrito : 200 vues. Je suis le problème."
+- "Je dis que je suis entrepreneure. En vrai je suis une meuf qui envoie des mails dans le vide en espérant que quelqu'un paie un jour."
+- "J'ai fait un webinaire gratuit. 2 inscrits. 1 était moi pour tester. L'autre s'est barré au bout de 3 minutes."
+- "Je dis que j'attends 'le bon moment'. Le bon moment c'est quand ? Quand je serai parfaite ? Donc jamais."`
+            },
+            'caricature': {
+                icon: '🎪',
+                label: 'Mode Caricature',
+                style: 'Foresti',
+                prompt: `🎭 MODE CARICATURE - Style "Foresti"
+Ton : observation du quotidien poussée jusqu'à l'absurde
+Ressorts : situations universelles amplifiées, très visuel
+
+EXEMPLES DE RÉFÉRENCE :
+- "Moi en call client : posture droite, sourire pro, 'absolument, c'est noté'. Moi 2 secondes après : affalée comme une crêpe, en train de googler ce que je viens de promettre."
+- "Mon bureau à 9h : plantes vertes, café fumant, motivation. Mon bureau à 17h : champ de bataille, 12 onglets, pourquoi j'ai ouvert ce fichier."
+- "Le haut dit CEO. Le bas dit pyjama depuis 3 jours."
+- "À l'écran : CEO visionnaire. Hors champ : je cherche comment centrer un div."`
+            }
+        };
+
+        // Sélectionner une émotion
+        function selectEmotion(emotion) {
+            hooksState.selectedEmotion = emotion;
+
+            // Mettre à jour l'UI
+            document.querySelectorAll('.emotion-chip').forEach(chip => {
+                chip.classList.remove('active');
+                if (chip.dataset.emotion === emotion) {
+                    chip.classList.add('active');
+                }
+            });
+
+            // Afficher/masquer le panneau des modes humour
+            const humorPanel = document.getElementById('humorModesPanel');
+            if (humorPanel) {
+                humorPanel.style.display = (emotion === 'humour') ? 'block' : 'none';
+            }
+
+            console.log('🎭 Émotion sélectionnée:', emotion);
+        }
+
+        // Sélectionner un mode humour
+        function selectHumorMode(mode) {
+            hooksState.selectedHumorMode = mode;
+
+            // Mettre à jour l'UI
+            document.querySelectorAll('.humor-mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.mode === mode) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Son de clic
+            if (typeof SoundSystem !== 'undefined') SoundSystem.playClick();
+
+            console.log('🎭 Mode humour sélectionné:', mode);
+        }
+
+        // Générer des hooks via l'IA
+        async function generateHooks() {
+            const brief = document.getElementById('ideaInput').value.trim();
+            if (!brief) {
+                alert('Écris d\'abord ton brief avant de générer des hooks !');
+                return;
+            }
+
+            // Scroll vers le haut
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            const hooksSection = document.getElementById('hooksSection');
+            if (hooksSection) {
+                hooksSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            const btn = document.getElementById('generateHooksBtn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+            btn.querySelector('span').textContent = 'Génération en cours';
+
+            // Jouer le son de réflexion
+            if (typeof playThinkingSound === 'function') playThinkingSound();
+
+            // Récupérer le profil utilisateur pour personnaliser
+            const profile = UserProfile.get();
+            const emotionInfo = emotionMap[hooksState.selectedEmotion];
+
+            // Récupérer le contexte d'audience
+            const audienceContext = typeof getAudienceContextForPrompt === 'function' ? getAudienceContextForPrompt() : '';
+
+            // Construire le prompt selon l'émotion (spécial pour humour)
+            let hooksPrompt = '';
+
+            if (hooksState.selectedEmotion === 'humour') {
+                // Prompt spécial pour l'humour avec les 3 modes (Guide Humour v2.0)
+                const humorMode = humorModes[hooksState.selectedHumorMode];
+
+                hooksPrompt = `Tu es un copywriter spécialisé dans l'humour authentique pour entrepreneures et créatrices. Tu écris comme une pote qui chambre gentiment, PAS comme un marketeur qui essaie d'être drôle.
+
+PRINCIPE : L'humour sert le message. On rit ENSEMBLE de nos galères.
+
+═══════════════════════════════════════════════════════════════
+BRIEF DE L'UTILISATRICE
+═══════════════════════════════════════════════════════════════
+${brief}
+
+═══════════════════════════════════════════════════════════════
+CONTEXTE
+═══════════════════════════════════════════════════════════════
+- Plateforme: ${currentState.platform}
+${audienceContext ? audienceContext : '- Cible : entrepreneures, solopreneurs, créatrices'}
+- Sujets : IA, visibilité, création de contenu, galères de fondatrice, charge mentale, clients, bugs, réseaux sociaux, lancements ratés, syndrome de l'imposteur
+
+═══════════════════════════════════════════════════════════════
+STYLE D'HUMOUR CHOISI
+═══════════════════════════════════════════════════════════════
+${humorMode.prompt}
+
+═══════════════════════════════════════════════════════════════
+LES 6 RESSORTS HUMORISTIQUES (utilise-les)
+═══════════════════════════════════════════════════════════════
+
+1. CONTRASTE INATTENDU
+"À l'écran, X. Hors champ, Y."
+
+2. HYPERBOLE
+"Parce que [problème], j'en suis à [exagération absurde]."
+
+3. PERSONNIFICATION
+"Mon [objet] = [rôle inattendu]."
+
+4. RUPTURE DE POSTURE
+"Je fais X. En vrai, Y."
+
+5. AUTO-DÉRISION CIBLÉE
+"Je fais X. Si tu fais pareil, on se comprend."
+
+6. PARALLÈLE QUI DÉGONFLE (pour rassurer/relativiser)
+"[Célébrité] quand [situation] : [enjeux énormes]. Toi quand [même situation] : [enjeux gérables]."
+Ex: "Elon rate un lancement : perd 200M. Toi tu rates un lancement : tu manges un cookie et tu réessaies."
+
+═══════════════════════════════════════════════════════════════
+RÈGLES ABSOLUES
+═══════════════════════════════════════════════════════════════
+
+✅ TOUJOURS :
+- Court et sec (pas d'explication de la blague)
+- Images concrètes ("claquettes moumoute" > "mode détente")
+- Vérité d'abord, formule après
+- Chute qui claque
+
+❌ JAMAIS :
+- Emojis qui surjouent (max 1, si vraiment nécessaire)
+- VOCABULAIRE INTERDIT : "niveau X", "mood", "en PLS", "vibe", "officiellement", "c'est validé", "littéralement", "game-changer", "boost", "ultra", "Point.", "Vécu.", "Clairement.", "plot twist", "spoiler alert"
+- Expliquer la blague
+- Humour qui rabaisse les autres
+- Mélanger les styles dans un même contenu
+
+═══════════════════════════════════════════════════════════════
+MISSION
+═══════════════════════════════════════════════════════════════
+Génère exactement 5 hooks dans le style "${humorMode.label}". Reste dans ce ton, ne mélange pas les styles.
+
+FORMAT DE RÉPONSE (JSON strict):
+{
+  "hooks": [
+    {"text": "Premier hook", "type": "${hooksState.selectedHumorMode}"},
+    {"text": "Deuxième hook", "type": "${hooksState.selectedHumorMode}"},
+    {"text": "Troisième hook", "type": "${hooksState.selectedHumorMode}"},
+    {"text": "Quatrième hook", "type": "${hooksState.selectedHumorMode}"},
+    {"text": "Cinquième hook", "type": "${hooksState.selectedHumorMode}"}
+  ]
+}
+
+Réponds UNIQUEMENT avec le JSON, sans texte avant ou après.`;
+
+            } else {
+                // Prompt standard amélioré avec les 7 déclencheurs
+                hooksPrompt = `Tu es un expert en copywriting spécialisé dans les accroches (hooks) pour les réseaux sociaux.
+
+## TA MISSION
+Générer des accroches qui STOPPENT LE SCROLL en 1,5 seconde.
+
+## CE QU'EST UNE ACCROCHE
+- Une PHRASE COMPLÈTE qui provoque une réaction immédiate
+- PAS un template vide avec des [X] à remplir
+- PAS une structure ou un squelette
+- PAS une introduction polie
+
+## CONTEXTE
+- Brief: ${brief}
+- Plateforme: ${currentState.platform}
+- Format: ${currentState.format}
+- Émotion recherchée: ${emotionInfo.label} (${emotionInfo.desc})
+${profile?.tonalite ? `- Tonalité: ${profile.tonalite}` : ''}
+${audienceContext ? audienceContext : ''}
+
+## LES 7 DÉCLENCHEURS (utilise AU MOINS 1 par hook)
+
+1. CURIOSITÉ — Ouvre une boucle que le cerveau doit fermer
+   Ex: "J'ai refusé 15 000€. Meilleure décision de ma vie."
+
+2. PARADOXE — Affirme quelque chose de contre-intuitif
+   Ex: "Plus je travaille, moins je gagne."
+
+3. SPÉCIFICITÉ — Utilise des chiffres précis
+   Ex: "Ce post m'a pris 7 minutes. 89 000 vues."
+
+4. IDENTIFICATION — Décris une situation que le lecteur vit
+   Ex: "Tu relis ton post pour la 15ème fois. Tu changes un mot. Puis tu remets l'ancien."
+
+5. CONFESSION — Partage quelque chose de vulnérable
+   Ex: "Mon lancement a fait 0 vente. Zéro."
+
+6. URGENCE — Crée un sentiment de FOMO
+   Ex: "Si tu fais encore ça en 2025, l'algorithme t'enterre."
+
+7. PROVOCATION — Prends une position forte
+   Ex: "Le personal branding, c'est le nouveau MLM."
+
+## RÈGLES ABSOLUES
+
+✅ TOUJOURS :
+- Phrase complète et autonome
+- Tension ou curiosité immédiate
+- Spécificité (chiffres, situations, exemples)
+- Compréhensible en 1,5 seconde
+- Maximum 150 caractères (2 lignes mobile)
+
+❌ JAMAIS :
+- "Aujourd'hui, je voulais vous parler de..."
+- Questions vagues ("Ça vous est déjà arrivé de...?")
+- Jargon technique
+- Templates avec [X] à remplir
+- Listes sans tension ("5 conseils pour...")
+
+## ADAPTATION PLATEFORME
+${currentState.platform === 'linkedin' ? 'LINKEDIN : Confessions business, chiffres précis, ton pro mais pas corporate' : ''}
+${currentState.platform === 'instagram' ? 'INSTAGRAM : Plus court, plus émotionnel, storytelling personnel' : ''}
+${currentState.platform === 'tiktok' ? 'TIKTOK : 3 premiers mots critiques, "Arrête de...", "POV:", provoc assumée' : ''}
+
+## MISSION
+${hooksState.selectedTrigger === 'auto'
+    ? `Génère exactement 4 accroches avec l'émotion "${emotionInfo.label}". Utilise des déclencheurs VARIÉS (curiosité, paradoxe, identification, confession...).`
+    : `Génère exactement 4 accroches avec l'émotion "${emotionInfo.label}". Utilise UNIQUEMENT le déclencheur "${hooksState.selectedTrigger.toUpperCase()}" pour toutes les accroches.`}
+
+FORMAT DE RÉPONSE (JSON strict):
+{
+  "hooks": [
+    {"text": "Accroche complète ici", "type": "${hooksState.selectedTrigger === 'auto' ? 'curiosite' : hooksState.selectedTrigger}"},
+    {"text": "Accroche complète ici", "type": "${hooksState.selectedTrigger === 'auto' ? 'paradoxe' : hooksState.selectedTrigger}"},
+    {"text": "Accroche complète ici", "type": "${hooksState.selectedTrigger === 'auto' ? 'identification' : hooksState.selectedTrigger}"},
+    {"text": "Accroche complète ici", "type": "${hooksState.selectedTrigger === 'auto' ? 'confession' : hooksState.selectedTrigger}"}
+  ]
+}
+
+Réponds UNIQUEMENT avec le JSON, sans texte avant ou après.`;
+            }
+
+            try {
+                // Utiliser callAI directement (pas callAIStream qui attend un élément DOM)
+                const fullResponse = await callAI(hooksPrompt);
+
+                // Parser la réponse JSON
+                const jsonMatch = fullResponse.match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                    const parsed = JSON.parse(jsonMatch[0]);
+                    hooksState.generatedHooks = parsed.hooks || [];
+                    displayHooks(hooksState.generatedHooks);
+                } else {
+                    throw new Error('Format de réponse invalide');
+                }
+
+            } catch (error) {
+                console.error('Erreur génération hooks:', error);
+                // Fallback avec des hooks par défaut pour démonstration
+                hooksState.generatedHooks = [
+                    { text: `${emotionInfo.icon} Hook basé sur "${brief.substring(0, 50)}..."`, type: 'auto' },
+                    { text: `Et si je te disais que ${brief.substring(0, 30)}... ?`, type: 'question' },
+                    { text: `La vérité sur ${brief.substring(0, 30)} que personne n'ose dire.`, type: 'affirmation' },
+                    { text: `J'ai fait cette erreur pendant 2 ans. Voici ce que j'ai appris.`, type: 'histoire' }
+                ];
+                displayHooks(hooksState.generatedHooks);
+            } finally {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+                btn.querySelector('span').textContent = 'Générer des hooks';
+            }
+        }
+
+        // Afficher les hooks générés
+        function displayHooks(hooks) {
+            const grid = document.getElementById('hooksGrid');
+            const resultsSection = document.getElementById('hooksResults');
+            const continueSection = document.getElementById('hooksContinueSection');
+
+            // Déterminer l'icône et le label à afficher
+            let displayIcon, displayLabel;
+            if (hooksState.selectedEmotion === 'humour') {
+                const humorMode = humorModes[hooksState.selectedHumorMode];
+                displayIcon = humorMode.icon;
+                displayLabel = humorMode.label;
+            } else {
+                displayIcon = emotionMap[hooksState.selectedEmotion].icon;
+                displayLabel = emotionMap[hooksState.selectedEmotion].label;
+            }
+
+            grid.innerHTML = hooks.map((hook, index) => `
+                <div class="hook-card" data-index="${index}" onclick="selectHook(${index})">
+                    <div class="hook-card-text">${hook.text}</div>
+                    <div class="hook-card-emotion">
+                        <span>${displayIcon}</span>
+                        <span>${displayLabel}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            resultsSection.style.display = 'block';
+            continueSection.style.display = 'flex';
+
+            // Reset la sélection
+            hooksState.selectedHook = null;
+            hooksState.selectedHookIndex = -1;
+            document.getElementById('hooksContinueBtn').disabled = true;
+        }
+
+        // Sélectionner un hook
+        function selectHook(index) {
+            // Mettre à jour l'état
+            hooksState.selectedHookIndex = index;
+            hooksState.selectedHook = hooksState.generatedHooks[index];
+
+            // Mettre à jour l'UI
+            document.querySelectorAll('.hook-card').forEach((card, i) => {
+                card.classList.toggle('selected', i === index);
+            });
+
+            // Activer le bouton continuer
+            document.getElementById('hooksContinueBtn').disabled = false;
+
+            console.log('🪝 Hook sélectionné:', hooksState.selectedHook);
+        }
+
+        // Continuer avec le hook sélectionné
+        function continueWithHook() {
+            if (!hooksState.selectedHook) return;
+
+            // Afficher le hook dans la section contenu
+            document.getElementById('selectedHookText').textContent = hooksState.selectedHook.text;
+            document.getElementById('selectedHookDisplay').style.display = 'block';
+
+            // Passer à l'étape contenu
+            document.getElementById('hooksSection').style.display = 'none';
+            document.getElementById('contentSection').style.display = 'block';
+
+            // Stocker le hook dans l'état global pour la génération
+            currentState.selectedHook = hooksState.selectedHook.text;
+
+            // Générer automatiquement le contenu avec le hook
+            generateContentWithHook();
+        }
+
+        // Générer le contenu avec le hook sélectionné
+        async function generateContentWithHook() {
+            const brief = document.getElementById('ideaInput').value.trim();
+            const hook = currentState.selectedHook;
+            const outputContent = document.getElementById('outputContent');
+            const profile = UserProfile.get();
+
+            // Récupérer le contexte d'audience
+            const audienceContext = typeof getAudienceContextForPrompt === 'function' ? getAudienceContextForPrompt() : '';
+
+            // Scroll vers le haut
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            let contentPrompt = '';
+
+            // ============ PROMPT SPÉCIAL HUMOUR ============
+            if (hooksState.selectedEmotion === 'humour') {
+                const humorMode = humorModes[hooksState.selectedHumorMode];
+
+                if (currentState.format === 'carousel') {
+                    // ========== PROMPT CARROUSEL HUMORISTIQUE COMPLET ==========
+                    contentPrompt = `Tu es un copywriter spécialisé dans l'humour authentique pour entrepreneures. Tu crées du contenu qui fait rire ET qui éduque, sans jamais tomber dans le marketing creux ou le ton "coach inspirationnel".
+
+═══ IDENTITÉ ═══
+- Une pote qui chambre gentiment, pas une experte qui fait la leçon
+- Lucide et honnête, jamais cynique ni méchante
+- Complice avec l'audience, jamais condescendante
+- On rit ensemble DE nos galères, pas des autres
+
+PRINCIPE : L'humour sert le message. On fait rire pour faire passer une vérité.
+${audienceContext ? `
+═══ AUDIENCE ═══
+${audienceContext}` : ''}
+
+═══ BRIEF DE L'UTILISATRICE ═══
+${brief}
+
+═══ IDÉE CENTRALE À TRANSFORMER ═══
+"${hook}"
+
+═══ STYLE D'HUMOUR CHOISI ═══
+${humorMode.prompt}
+
+═══ STRUCTURE DU CARROUSEL ═══
+
+📍 SLIDE 1 — HOOK
+Une phrase courte qui pose le contraste ou la tension. Donne envie de swiper.
+Exemple : "L'IA fait des miracles. Sauf quand t'as vraiment besoin d'elle."
+
+📍 SLIDES 2 à 7 — CORPS
+- Une situation par slide, pas plus
+- La punchline tombe À LA FIN de la slide, jamais au milieu
+- Alterner les angles (ce qui marche / ce qui foire, avant / après)
+- Utiliser des comparaisons du quotidien
+
+📍 SLIDE 8 — MORALE
+Une phrase qui ancre le positionnement expert. Pas moralisatrice, juste lucide.
+Format : "[Sujet] fait [force]. [Limite] sans [ce que toi tu apportes]."
+Exemple : "L'IA fait le taf. À condition que quelqu'un lui dise lequel."
+
+📍 SLIDE 9 — CTA
+Question ouverte qui invite au commentaire. Ton complice, pas injonctif.
+SEUL ENDROIT où 1 emoji est toléré.
+Exemple : "Ton meilleur fail IA ? Balance en commentaire. 👇"
+
+═══ RESSORTS D'HUMOUR (6 RESSORTS) ═══
+
+1. CONTRASTE BRUTAL
+"L'IA qui analyse mes concurrents : 3 pages de rapport. L'IA quand je demande si mon prix est bon : 'Ça dépend.'"
+
+2. COMPARAISON DU QUOTIDIEN
+"Comme ma pote quand je demande si ma robe me grossit."
+"Plus froide qu'un ex qui me ghoste."
+
+3. CHUTE SÈCHE
+"47 graphiques. Personne les lira."
+"'Contactez le support humain.' Sympa."
+
+4. AUTO-DÉRISION PARTAGÉE
+"Le haut dit CEO. Le bas dit pyjama depuis 3 jours."
+
+5. CHIFFRES PRÉCIS (sonne vécu)
+✅ "Depuis 3 jours" au lieu de "Ça fait longtemps"
+✅ "Ça marche 6 fois sur 10" au lieu de "Ça marche parfois"
+
+6. PARALLÈLE QUI DÉGONFLE (pour rassurer/relativiser)
+Compare la situation à celle d'une célébrité pour dédramatiser.
+"Elon rate un lancement : perd 200M, articles dans la presse mondiale.
+Toi tu rates un lancement : tu manges un cookie et tu réessaies le mois prochain."
+
+═══ RÈGLES D'ÉCRITURE ═══
+
+1. COURT ET SEC - pas d'explication de la blague
+❌ "Cache-cernes niveau béton : parce que 'j'ai dormi 2h' ça se voit trop 💪"
+✅ "Pour camoufler les nuits blanches à debug."
+
+2. ZÉRO EMOJI DANS LE CORPS (seulement CTA)
+❌ "Mon café est mon CTO ☕✨💪"
+✅ "Mon café est mon CTO."
+
+3. IMAGES CONCRÈTES > CONCEPTS ABSTRAITS
+❌ "Mode détente activé"
+✅ "Claquettes moumoute"
+
+4. LA PUNCHLINE TOMBE À LA FIN
+❌ "Sympa, le support humain qu'on me propose."
+✅ "'Contactez le support humain.' Sympa."
+
+═══ INTERDICTIONS ABSOLUES ═══
+
+🚫 EMOJIS INTERDITS (JAMAIS dans le corps) : 💪 ✨ 🚀 🌱 💎 🌟 😅 😱 😭 🤯 ⚡ 🎯 💫 🔥 😂 🤣 💀
+
+🚫 VOCABULAIRE INTERDIT : "niveau [X]", "officiellement", "ultra", "game-changer", "boost", "mood", "vibe", "en PLS", "et c'est ok", "c'est validé", "spoiler alert", "plot twist", "Point.", "Vécu.", "Clairement.", "littéralement", "extraordinaire", "magie pure", "opportunité", "grandir", "trop bien", "incroyable"
+
+🚫 FORMULATIONS INTERDITES :
+- Méprisantes envers un métier : "Midjourney > graphiste" → "J'ai pas le budget graphiste de toute façon."
+- Anxiogènes : "Code ou crève" → "Apprends à prompter, ça aide."
+- Expliquer la blague après la punchline
+
+🚫 TON "COACH INSPIRATIONNEL" INTERDIT :
+❌ "Transforme chaque panne en opportunité d'apprendre !"
+❌ "On l'embrasse avec courage !"
+CE TON EST STRICTEMENT INTERDIT.
+
+═══ FORMAT DE SORTIE ═══
+
+📍 SLIDE 1
+[Hook accrocheur - contraste/tension]
+
+📍 SLIDE 2
+[Situation 1 - punchline à la fin]
+
+📍 SLIDE 3
+[Situation 2]
+
+📍 SLIDE 4
+[Situation 3]
+
+📍 SLIDE 5
+[Situation 4]
+
+📍 SLIDE 6
+[Situation 5]
+
+📍 SLIDE 7
+[Situation 6]
+
+📍 SLIDE 8
+[Morale lucide]
+
+📍 SLIDE 9
+[CTA + 1 emoji max]
+
+AVANT DE GÉNÉRER, VÉRIFIE :
+☐ Aucun emoji dans le corps
+☐ Aucun mot/expression interdit
+☐ Punchlines à la fin des slides
+☐ Images concrètes, pas abstraites
+☐ Ton pote qui chambre, pas coach
+
+Génère le carrousel complet maintenant.`;
+
+                } else {
+                    // ========== PROMPT POST HUMORISTIQUE ==========
+                    contentPrompt = `Tu es un copywriter spécialisé dans l'humour authentique pour entrepreneures.
+
+═══ IDENTITÉ ═══
+- Pote qui chambre, pas coach qui motive
+- Lucide, pas cynique
+- Complice, pas condescendante
+${audienceContext ? `
+═══ AUDIENCE ═══
+${audienceContext}` : ''}
+
+═══ BRIEF ═══
+${brief}
+
+═══ IDÉE CENTRALE ═══
+"${hook}"
+
+═══ STYLE ═══
+${humorMode.prompt}
+
+═══ STRUCTURE DU POST ═══
+1. HOOK : Phrase courte avec contraste ou tension (donne envie de lire la suite)
+2. CORPS : 3-5 phrases qui développent, même ton, punchlines à la fin
+3. CHUTE : Phrase sèche qui fait atterrir OU question complice
+
+═══ LES 6 RESSORTS À UTILISER ═══
+1. Contraste brutal : opposer deux réalités ("À l'écran X. Hors champ Y.")
+2. Comparaison du quotidien : "Comme ma pote quand...", "Plus froid qu'un ex qui..."
+3. Chute sèche : terminer sur un mot court
+4. Auto-dérision partagée : "Si tu fais pareil, on se comprend."
+5. Chiffres précis ("depuis 3 jours" pas "depuis longtemps")
+6. Parallèle qui dégonfle : comparer à une célébrité pour relativiser
+   Ex: "Elon rate un lancement : perd 200M. Toi tu rates : tu manges un cookie."
+
+═══ RÈGLES ═══
+- Court et sec, pas d'explication de la blague
+- Max 1 emoji à la fin, seulement si nécessaire
+- Images concrètes : "claquettes moumoute" pas "mode détente"
+- Punchline à la fin, pas au milieu
+
+═══ INTERDICTIONS ABSOLUES ═══
+🚫 EMOJIS dans le corps : 💪 ✨ 🚀 😅 🔥 😂 🤣 💀 🌱 💎 🌟 😱 😭 🤯
+🚫 VOCABULAIRE INTERDIT : "niveau X", "ultra", "game-changer", "boost", "mood", "vibe", "en PLS", "officiellement", "clairement", "c'est validé", "littéralement", "Point.", "Vécu.", "plot twist", "spoiler alert", "trop bien", "incroyable"
+🚫 Ton coach : "Transforme ça en opportunité !", "Et c'est ok", "On l'embrasse avec courage !"
+🚫 Morale ou leçon de vie à la fin
+🚫 Expliquer la blague après la punchline
+
+═══ EXEMPLES DE BONNES PUNCHLINES ═══
+- "Le haut dit CEO. Le bas dit pyjama depuis 3 jours."
+- "47 graphiques. Personne les lira."
+- "'Contactez le support humain.' Sympa."
+- "Elon rate : perd 200M. Toi tu rates : tu manges un cookie."
+
+Génère le post complet maintenant, sans commentaires.`;
+                }
+
+            } else {
+                // ============ PROMPT STANDARD ============
+                let formatInstructions = '';
+                if (currentState.format === 'carousel') {
+                    formatInstructions = `
+FORMAT CAROUSEL - RÈGLES STRICTES:
+- Génère exactement 8 à 10 slides
+- Chaque slide = UNE SEULE PHRASE PUNCHLINE (max 15 mots)
+- Slide 1 = Le hook (ne le modifie pas)
+- Slides 2-9 = Une idée forte par slide, style punchline percutante
+- Dernière slide = Call-to-action engageant
+
+FORMAT DE SORTIE:
+📍 SLIDE 1
+[Le hook]
+
+📍 SLIDE 2
+[Punchline]
+
+📍 SLIDE 3
+[Punchline]
+
+... etc jusqu'à la slide 10`;
+                } else {
+                    formatInstructions = `
+RÈGLES:
+- Le hook doit être la première phrase du contenu (ne le modifie pas)
+- Adapte la longueur au format ${currentState.format}
+- Inclus un appel à l'action pertinent à la fin
+- Utilise des emojis de manière appropriée pour ${currentState.platform}
+- Le contenu doit être prêt à être posté`;
+                }
+
+                // Construire le contexte du profil utilisateur
+                let profileContext = '';
+                console.log('[Generate] Profile:', profile);
+                console.log('[Generate] VoiceProfile:', profile?.voiceProfile);
+                if (profile) {
+                    const parts = [];
+                    if (profile.nom) parts.push(`Auteur: ${profile.nom}`);
+                    if (profile.domaine) parts.push(`Domaine: ${profile.domaine}`);
+                    if (profile.messageUnique) parts.push(`Message unique: ${profile.messageUnique}`);
+                    if (profile.style) parts.push(`Style d'écriture: ${profile.style}`);
+                    if (profile.publicCible?.length) parts.push(`Public cible: ${profile.publicCible.join(', ')}`);
+                    if (profile.piliers?.length) parts.push(`Piliers de contenu: ${profile.piliers.join(', ')}`);
+
+                    // Intégrer le voiceProfile analysé par l'IA
+                    if (profile.voiceProfile) {
+                        const vp = profile.voiceProfile;
+                        if (vp.ton) parts.push(`Ton: ${vp.ton}`);
+                        if (vp.registre) parts.push(`Registre: ${vp.registre}`);
+                        if (vp.rythme) parts.push(`Rythme: ${vp.rythme}`);
+                        if (vp.signature) parts.push(`Signature stylistique: ${vp.signature}`);
+                        // Gérer expressions comme string ou array
+                        if (vp.expressions) {
+                            const expr = Array.isArray(vp.expressions) ? vp.expressions.slice(0, 5).join(', ') : vp.expressions;
+                            parts.push(`Expressions favorites: ${expr}`);
+                        }
+                        // Gérer tournures comme string ou array
+                        if (vp.tournures) {
+                            const turn = Array.isArray(vp.tournures) ? vp.tournures.slice(0, 3).join(', ') : vp.tournures;
+                            parts.push(`Tournures typiques: ${turn}`);
+                        }
+                    }
+
+                    if (parts.length > 0) {
+                        profileContext = `
+═══ PROFIL DE L'AUTEUR (IMPORTANT - ADOPTE CE STYLE) ═══
+${parts.join('\n')}
+
+INSTRUCTION CRITIQUE: Tu dois écrire EXACTEMENT comme cette personne. Imite son ton, ses expressions, sa façon de structurer ses phrases. Ne sois pas générique.
+`;
+                    }
+                }
+
+                contentPrompt = `Tu es un ghostwriter expert qui écrit AU NOM de l'auteur, en adoptant parfaitement son style unique.
+${profileContext}
+═══ CONTEXTE ═══
+- Plateforme: ${currentState.platform}
+- Format: ${currentState.format}
+- Hook choisi: "${hook}"
+- Brief de base: ${brief}
+${audienceContext ? `
+═══ AUDIENCE ═══
+${audienceContext}` : ''}
+
+═══ MISSION ═══
+Crée un contenu complet et engageant pour ${currentState.platform} en utilisant OBLIGATOIREMENT le hook fourni comme première ligne.
+${formatInstructions}
+
+RAPPEL: Écris dans le style PERSONNEL de l'auteur, pas de manière générique. Utilise ses expressions, son ton, sa signature.
+
+Génère uniquement le contenu final, sans commentaires.`;
+            }
+
+            try {
+                // Utiliser callAIStream avec l'élément DOM (il affiche la lottie automatiquement)
+                const generatedText = await callAIStream(contentPrompt, outputContent);
+
+                // Sauvegarder le contenu généré dans l'état
+                currentState.generatedContent = generatedText;
+
+                // Afficher les boutons d'action
+                document.getElementById('actionButtons').style.display = 'flex';
+                document.getElementById('visualSection').style.display = 'block';
+
+                // Afficher les bonnes pratiques du moment
+                displayTipsWidget();
+
+                // Sauvegarder dans la mémoire
+                ContentMemory.addContent(generatedText, currentState.currentPillar, currentState.platform, currentState.format);
+
+            } catch (error) {
+                console.error('Erreur génération contenu:', error);
+                outputContent.innerHTML = `
+                    <div class="output-placeholder" style="color: #e74c3c;">
+                        <div class="output-placeholder-icon">❌</div>
+                        <p>Erreur lors de la génération. Réessaie !</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Changer de hook (retour à la sélection)
+        function changeHook() {
+            document.getElementById('contentSection').style.display = 'none';
+            document.getElementById('hooksSection').style.display = 'block';
+            document.getElementById('selectedHookDisplay').style.display = 'none';
+            document.getElementById('actionButtons').style.display = 'none';
+            document.getElementById('visualSection').style.display = 'none';
+            document.getElementById('adjustPanel').style.display = 'none';
+        }
+
+        // ==================== PANNEAU D'AJUSTEMENT ====================
+
+        // Toggle le panneau d'ajustement
+        function toggleAdjustPanel() {
+            const panel = document.getElementById('adjustPanel');
+            if (panel.style.display === 'none') {
+                panel.style.display = 'block';
+                // Son de clic
+                if (typeof SoundSystem !== 'undefined') SoundSystem.playClick();
+            } else {
+                panel.style.display = 'none';
+            }
+        }
+
+        // Ajuster le contenu selon l'option choisie
+        async function adjustContent(type) {
+            const outputContent = document.getElementById('outputContent');
+            const currentContent = currentState.generatedContent || outputContent.innerText;
+
+            console.log('[Adjust] Type:', type);
+            console.log('[Adjust] Current content length:', currentContent?.length);
+            console.log('[Adjust] Current content:', currentContent?.substring(0, 200));
+
+            if (!currentContent || currentContent.trim() === '') {
+                showToast('❌ Aucun contenu à ajuster');
+                return;
+            }
+
+            // Construire le prompt selon le type d'ajustement
+            let adjustPrompt = '';
+            const customInput = document.getElementById('adjustInput').value.trim();
+
+            switch(type) {
+                case 'shorter':
+                    adjustPrompt = `Voici un contenu pour les réseaux sociaux. Réduis-le de MOITIÉ minimum. Garde UNIQUEMENT :
+- Le hook (première phrase)
+- 2-3 phrases clés maximum
+- Le call-to-action
+
+Supprime tout le reste. Sois brutal dans la coupe.
+
+CONTENU ACTUEL:
+${currentContent}
+
+Génère UNIQUEMENT le contenu ultra-court, sans commentaires ni explications.`;
+                    break;
+
+                case 'longer':
+                    adjustPrompt = `Voici un contenu pour les réseaux sociaux. Enrichis-le et développe-le davantage avec plus de détails, d'exemples ou d'arguments. Garde le hook d'origine.
+
+CONTENU ACTUEL:
+${currentContent}
+
+Génère uniquement le contenu enrichi, sans commentaires.`;
+                    break;
+
+                case 'simplify':
+                    adjustPrompt = `Voici un contenu pour les réseaux sociaux. Simplifie le langage pour le rendre plus accessible et facile à comprendre. Utilise des mots simples et des phrases courtes. Garde le hook d'origine.
+
+CONTENU ACTUEL:
+${currentContent}
+
+Génère uniquement le contenu simplifié, sans commentaires.`;
+                    break;
+
+                case 'tone':
+                    adjustPrompt = `Voici un contenu pour les réseaux sociaux. Change le ton pour le rendre plus conversationnel, chaleureux et engageant, comme si tu parlais à un ami. Garde le hook d'origine.
+
+CONTENU ACTUEL:
+${currentContent}
+
+Génère uniquement le contenu avec le nouveau ton, sans commentaires.`;
+                    break;
+
+                case 'custom':
+                    if (!customInput) {
+                        showToast('💬 Dis-moi ce que tu veux changer !');
+                        return;
+                    }
+                    adjustPrompt = `Voici un contenu pour les réseaux sociaux. Modifie-le selon cette demande : "${customInput}"
+
+CONTENU ACTUEL:
+${currentContent}
+
+Génère uniquement le contenu modifié, sans commentaires.`;
+                    break;
+            }
+
+            // Fermer le panneau
+            document.getElementById('adjustPanel').style.display = 'none';
+            document.getElementById('adjustInput').value = '';
+
+            // Générer le nouveau contenu
+            try {
+                console.log('[Adjust] Calling AI with prompt length:', adjustPrompt.length);
+                const adjustedText = await callAIStream(adjustPrompt, outputContent);
+                console.log('[Adjust] AI response length:', adjustedText?.length);
+                console.log('[Adjust] AI response:', adjustedText?.substring(0, 200));
+                currentState.generatedContent = adjustedText;
+                showToast('✅ Contenu ajusté !');
+            } catch (error) {
+                console.error('[Adjust] Error:', error);
+                showToast('❌ Erreur lors de l\'ajustement: ' + error.message);
+            }
+        }
+
+        // Retour au brief
+        function backToBrief() {
+            document.getElementById('hooksSection').style.display = 'none';
+            document.getElementById('contentSection').style.display = 'block';
+            // Reset
+            document.getElementById('hooksResults').style.display = 'none';
+            document.getElementById('hooksContinueSection').style.display = 'none';
+            hooksState.generatedHooks = [];
+            hooksState.selectedHook = null;
+        }
+
+        // Afficher la section Hooks (appelé depuis le bouton Générer)
+        function showHooksSection() {
+            const brief = document.getElementById('ideaInput').value.trim();
+
+            // Son de clic
+            if (typeof SoundSystem !== 'undefined') {
+                SoundSystem.playClick();
+            }
+
+            // Effet visuel sur le bouton
+            const btn = document.getElementById('generateBtn');
+            btn.style.transform = 'scale(0.95)';
+            setTimeout(() => { btn.style.transform = 'scale(1)'; }, 150);
+
+            // Mettre à jour le rappel du brief
+            document.getElementById('briefRecapContent').textContent = brief || 'Aucun brief renseigné';
+
+            // Afficher la section hooks, masquer contenu
+            document.getElementById('hooksSection').style.display = 'block';
+            document.getElementById('contentSection').style.display = 'none';
+            document.getElementById('actionButtons').style.display = 'none';
+            document.getElementById('visualSection').style.display = 'none';
+
+            // Scroll doux vers le haut de la page seulement sur mobile
+            if (window.innerWidth <= 900) {
+                const outputPanel = document.getElementById('outputPanel');
+                if (outputPanel) {
+                    setTimeout(() => {
+                        outputPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }, 100);
+                }
+            }
+        }
 
         // ==================== TRENDS - GÉNÉRATION DE PROMPTS ====================
         function showTrends() {
@@ -8054,8 +11097,9 @@ ${profile ? `Adapte au style ${profile.style}, plateforme ${currentState.platfor
                     AgencySystem.trackContent(currentState.platform, currentState.format, currentState.structure, currentState.generatedContent);
                 }
                 updateMemoryIndicator();
-                
+
                 document.getElementById('actionButtons').style.display = 'flex'; document.getElementById('visualSection').style.display = 'block';
+                displayTipsWidget(); // Afficher les bonnes pratiques
             } catch (e) {
                 out.innerHTML = `<div class="output-placeholder"><p>❌ ${e.message}</p></div>`;
             }
@@ -8314,8 +11358,9 @@ Crée le contenu COMPLET prêt à publier.`;
                 // 📊 Analytics Supabase
                 const contentType = currentState.format === 'pub' ? 'pub' : 'organic';
                 Analytics.trackContent(currentState.structure, currentState.platform, currentState.format, currentState.currentPillar, contentType);
-                
+
                 document.getElementById('actionButtons').style.display = 'flex'; document.getElementById('visualSection').style.display = 'block';
+                displayTipsWidget(); // Afficher les bonnes pratiques
             } catch (e) {
                 out.innerHTML = `<div class="output-placeholder"><p>❌ ${e.message}</p></div>`;
             }
@@ -8394,41 +11439,46 @@ Crée le contenu COMPLET prêt à publier.`;
         // ==================== VARIANTES ====================
         async function generateVariantes() {
             if (!currentState.generatedContent) { showToast('❌ ' + t('toasts.generate_first_short')); return; }
-            
-            // Ajouter à la suite dans le même panneau
+
             const outputContent = document.getElementById('outputContent');
-            const streamOutput = document.getElementById('streamOutput');
-            
+
+            // Sauvegarder le contenu actuel
+            const currentHTML = outputContent.innerHTML;
+
             // Créer un nouveau div pour les variantes
             const variantesDiv = document.createElement('div');
             variantesDiv.id = 'variantesStreamOutput';
             variantesDiv.className = 'output-text';
             variantesDiv.style.cssText = 'margin-top: 30px; padding-top: 25px; border-top: 3px dashed #f093fb;';
-            variantesDiv.innerHTML = '<h2 style="color: #f5576c;">🎭 3 Variantes de ton contenu</h2>';
-            streamOutput.appendChild(variantesDiv);
-            
+
+            // Ajouter le div des variantes au contenu existant
+            outputContent.appendChild(variantesDiv);
+
             // Scroll vers le bas
             outputContent.scrollTop = outputContent.scrollHeight;
-            
+
             const prompt = `TEXTE ORIGINAL :
 "${currentState.generatedContent.substring(0, 800)}"
 
-Propose 3 VARIANTES :
+Propose 3 VARIANTES du texte ci-dessus :
 
 ## 🎭 VARIANTE 1 : Ton INSPIRANT
-[Plus d'émotion, d'inspiration]
+[Réécris avec plus d'émotion et d'inspiration]
 
 ## 🎯 VARIANTE 2 : Ton DIRECT/PUNCHY
-[Plus percutant, sans détour]
+[Réécris de manière plus percutante, sans détour]
 
 ## 😄 VARIANTE 3 : Ton STORYTELLING
-[Comme une histoire personnelle]`;
+[Réécris comme une histoire personnelle]
 
-            try { 
-                await callAIStream(prompt, variantesDiv); 
+Génère les 3 variantes complètes.`;
+
+            try {
+                await callAIStream(prompt, variantesDiv);
                 currentState.generatedContent += '\n\n' + variantesDiv.innerText;
-            } catch (e) { 
-                variantesDiv.innerHTML += `<p>❌ ${e.message}</p>`; 
+                showToast('✅ 3 variantes générées !');
+            } catch (e) {
+                variantesDiv.innerHTML = `<p style="color: #e74c3c;">❌ ${e.message}</p>`;
             }
         }
 
@@ -8973,6 +12023,24 @@ Pour chaque suggestion :
             localStorage.setItem('sos_welcome_shown', 'true');
         }
 
+        // Déconnexion
+        async function handleLogout() {
+            try {
+                if (window.supabaseApp?.auth) {
+                    await window.supabaseApp.auth.signOut();
+                }
+                // Nettoyer le localStorage
+                localStorage.removeItem('sos_welcome_shown');
+                localStorage.removeItem('sos_onboarding_complete');
+                // Rediriger vers la page de login
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Erreur déconnexion:', error);
+                // Rediriger quand même
+                window.location.href = 'login.html';
+            }
+        }
+
         // Vérifier si c'est la première visite (après connexion)
         function checkFirstVisit() {
             // Afficher le popup uniquement si l'utilisateur n'a jamais vu le popup de bienvenue
@@ -9009,7 +12077,41 @@ Pour chaque suggestion :
             return callAI(prompt, true);
         }
 
+        // Son de réflexion Tithot - son magique doux
+        function playThinkingSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const now = audioContext.currentTime;
+
+                // Créer un son "magique" avec plusieurs notes
+                const notes = [523, 659, 784]; // Do, Mi, Sol (accord majeur)
+
+                notes.forEach((freq, i) => {
+                    const osc = audioContext.createOscillator();
+                    const gain = audioContext.createGain();
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now);
+
+                    gain.gain.setValueAtTime(0, now + i * 0.08);
+                    gain.gain.linearRampToValueAtTime(0.08, now + i * 0.08 + 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.4);
+
+                    osc.connect(gain);
+                    gain.connect(audioContext.destination);
+
+                    osc.start(now + i * 0.08);
+                    osc.stop(now + i * 0.08 + 0.5);
+                });
+            } catch (e) {
+                console.log('Audio not supported');
+            }
+        }
+
         async function callAIStream(prompt, outputElement, usePerplexity = false) {
+            // Jouer le son de réflexion
+            playThinkingSound();
+
             // Afficher animation Lottie
             outputElement.innerHTML = `
                 <div style="text-align: center; padding: 30px;">
@@ -9313,7 +12415,7 @@ Propose 6 à 10 créneaux de publication sur les 2 prochaines semaines, en alter
             resultsDiv.innerHTML = html;
         }
         
-        // ==================== MA VOIX ====================
+        // ==================== MON STYLE ====================
         const VOICE_SAMPLES_KEY = 'tithot_voice_samples';
         
         function getVoiceSamples() {
@@ -9451,7 +12553,7 @@ L'IA va analyser ton style d'écriture unique !"></textarea>
                         
                         ${samples.length >= 2 ? `
                             <button class="voice-btn voice-btn-primary" onclick="analyzeVoice()" style="width: 100%; margin-top: 20px; padding: 15px;">
-                                🎤 Analyser ma voix (${samples.length} textes)
+                                🎤 Analyser mon style (${samples.length} textes)
                             </button>
                         ` : `
                             <div style="text-align: center; margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px;">
@@ -9484,10 +12586,10 @@ L'IA va analyser ton style d'écriture unique !"></textarea>
             showToast('✅ ' + t('toasts.style_saved'));
         }
 
-        // Callback après configuration de Ma Voix
+        // Callback après configuration de Mon Style
         let voiceModalCallback = null;
 
-        // Ouvrir Ma Voix avec callback (pour retour au wizard)
+        // Ouvrir Mon Style avec callback (pour retour au wizard)
         function showVoiceModalWithCallback(callback) {
             voiceModalCallback = callback;
             showVoiceModal();
@@ -9658,7 +12760,7 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
         /* Chatbot Widget */
         .chatbot-widget {
             position: fixed;
-            bottom: 55px; /* Ajusté pour le footer légal */
+            bottom: 100px; /* Ajusté pour le footer légal + reminder bar */
             right: 25px;
             z-index: 9999;
             font-family: 'Poppins', sans-serif;
@@ -9912,6 +13014,17 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
         }
     </style>
 
+    <!-- Contextual Reminder Bar -->
+    <div class="contextual-reminder" id="contextualReminder">
+        <div class="reminder-nav">
+            <button class="reminder-nav-btn" onclick="prevReminder()">◀</button>
+            <button class="reminder-nav-btn" onclick="nextReminder()">▶</button>
+        </div>
+        <span class="reminder-icon" id="reminderIcon">💡</span>
+        <span class="reminder-text" id="reminderText">Sélectionne une plateforme pour voir les bonnes pratiques</span>
+        <button class="reminder-close" onclick="hideReminder()">✕</button>
+    </div>
+
     <!-- Footer légal -->
     <footer class="legal-footer">
         <div class="legal-footer-content">
@@ -10006,7 +13119,7 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
             faq: [
                 {
                     keywords: ['essai', 'gratuit', 'trial', '14 jours', 'tester', 'test', 'free'],
-                    answer_fr: "L'essai gratuit dure <strong>14 jours</strong>, sans carte bancaire ! Vous avez accès à toutes les fonctionnalités : génération illimitée, Ma Voix, Planning IA, exports... À la fin, vous choisissez de souscrire ou non. 🚀",
+                    answer_fr: "L'essai gratuit dure <strong>14 jours</strong>, sans carte bancaire ! Vous avez accès à toutes les fonctionnalités : génération illimitée, Mon Style, Planning IA, exports... À la fin, vous choisissez de souscrire ou non. 🚀",
                     answer_en: "The free trial lasts <strong>14 days</strong>, no credit card required! You get access to all features: unlimited generation, My Voice, AI Planning, exports... At the end, you choose whether to subscribe or not. 🚀"
                 },
                 {
@@ -10015,8 +13128,8 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
                     answer_en: "Our plans: <strong>Solo</strong> at €39/month, <strong>Agency Starter</strong> (10 clients) at €99/month, <strong>Agency Scale</strong> (30 clients) at €199/month, and <strong>Enterprise</strong> on quote. All include the 14-day free trial! 💰"
                 },
                 {
-                    keywords: ['ma voix', 'voix', 'style', 'ton', 'personnaliser', 'voice', 'my voice', 'customize'],
-                    answer_fr: "\"Ma Voix\" analyse vos textes pour capturer votre style unique ! <strong>Conseil important :</strong> utilisez des textes vraiment écrits par vous (pas générés par IA) pour un résultat authentique. Plus vous ajoutez de textes, plus la fidélité augmente. 🎤",
+                    keywords: ['mon style', 'voix', 'style', 'ton', 'personnaliser', 'voice', 'my voice', 'customize'],
+                    answer_fr: "\"Mon Style\" analyse vos textes pour capturer votre style unique ! <strong>Conseil important :</strong> utilisez des textes vraiment écrits par vous (pas générés par IA) pour un résultat authentique. Plus vous ajoutez de textes, plus la fidélité augmente. 🎤",
                     answer_en: "\"My Voice\" analyzes your texts to capture your unique style! <strong>Important tip:</strong> use texts actually written by you (not AI-generated) for an authentic result. The more texts you add, the higher the fidelity. 🎤"
                 },
                 {
@@ -10076,7 +13189,7 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
                 },
                 {
                     keywords: ['bonjour', 'salut', 'hello', 'coucou', 'hey', 'hi'],
-                    answer_fr: "Bonjour ! 👋 Je suis l'assistant SOS Storytelling. Je peux répondre à vos questions sur les fonctionnalités, les tarifs, Ma Voix, le Planning IA... Que souhaitez-vous savoir ?",
+                    answer_fr: "Bonjour ! 👋 Je suis l'assistant SOS Storytelling. Je peux répondre à vos questions sur les fonctionnalités, les tarifs, Mon Style, le Planning IA... Que souhaitez-vous savoir ?",
                     answer_en: "Hello! 👋 I'm the SOS Storytelling assistant. I can answer your questions about features, pricing, My Voice, AI Planning... What would you like to know?"
                 }
             ],
@@ -10084,7 +13197,7 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
             // Questions suggérées (bilingues)
             quickReplies_fr: [
                 "Comment fonctionne l'essai gratuit ?",
-                "Qu'est-ce que Ma Voix ?",
+                "Qu'est-ce que Mon Style ?",
                 "Quels sont les tarifs ?",
                 "Comment exporter mes contenus ?"
             ],
@@ -10142,7 +13255,7 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
                 const lang = I18N?.getLanguage() || 'fr';
                 const welcomeMsg = lang === 'en'
                     ? "Hello! 👋 I'm the SOS Storytelling assistant.<br><br>I can answer your questions about features, pricing, My Voice, AI Planning..."
-                    : "Bonjour ! 👋 Je suis l'assistant SOS Storytelling.<br><br>Je peux répondre à vos questions sur les fonctionnalités, les tarifs, Ma Voix, le Planning IA...";
+                    : "Bonjour ! 👋 Je suis l'assistant SOS Storytelling.<br><br>Je peux répondre à vos questions sur les fonctionnalités, les tarifs, Mon Style, le Planning IA...";
                 const quickReplies = this.getQuickReplies();
                 messages.innerHTML = `
                     <div class="chat-message bot">
@@ -10213,7 +13326,7 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
                 // Réponse par défaut (fallback email)
                 return lang === 'en'
                     ? "I'm not sure I understand your question. 🤔<br><br>For a personalized response, contact us: <a href='mailto:contact@myinnerquest.fr'>contact@myinnerquest.fr</a><br><br>Or try rephrasing with words like: pricing, free trial, My Voice, planning, export, agency..."
-                    : "Je ne suis pas sûr de comprendre votre question. 🤔<br><br>Pour une réponse personnalisée, contactez-nous : <a href='mailto:contact@myinnerquest.fr'>contact@myinnerquest.fr</a><br><br>Ou essayez de reformuler avec des mots comme : tarif, essai gratuit, Ma Voix, planning, export, agence...";
+                    : "Je ne suis pas sûr de comprendre votre question. 🤔<br><br>Pour une réponse personnalisée, contactez-nous : <a href='mailto:contact@myinnerquest.fr'>contact@myinnerquest.fr</a><br><br>Ou essayez de reformuler avec des mots comme : tarif, essai gratuit, Mon Style, planning, export, agence...";
             },
             
             addMessage(content, type) {
@@ -10322,7 +13435,7 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
     </script>
 
     <!-- Module Prospects -->
-    <script src="prospects-module.js?v=20241205"></script>
+    <script src="prospects-module.js?v=20251225d"></script>
     <script>
         let prospectsModuleInitialized = false;
 
@@ -10330,16 +13443,23 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
             document.getElementById('prospectsModal').classList.add('active');
             document.body.style.overflow = 'hidden';
 
-            if (!prospectsModuleInitialized && typeof ProspectsModule !== 'undefined') {
-                ProspectsModule.init().then(() => {
-                    const container = document.getElementById('prospectsContent');
-                    if (container) {
-                        container.innerHTML = '';
-                        container.appendChild(ProspectsModule.createProspectsPage());
+            if (typeof ProspectsModule !== 'undefined') {
+                if (!prospectsModuleInitialized) {
+                    ProspectsModule.init().then(() => {
+                        const container = document.getElementById('prospectsContent');
+                        if (container) {
+                            container.innerHTML = '';
+                            container.appendChild(ProspectsModule.createProspectsPage());
+                            ProspectsModule.renderProspectsList();
+                        }
+                    });
+                    prospectsModuleInitialized = true;
+                } else {
+                    // Recharger les données si deja initialise
+                    ProspectsModule.loadProspects().then(() => {
                         ProspectsModule.renderProspectsList();
-                    }
-                });
-                prospectsModuleInitialized = true;
+                    });
+                }
             }
         }
 
@@ -10620,7 +13740,191 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
                     }
                 }
             }
+
+            // Afficher le hint paramètres
+            showSettingsHintIfNeeded();
+
+            // Verifier si des leads sont passes via URL (extension Sales Navigator)
+            checkForLeadsImport();
         });
+
+        // Fonction pour afficher le hint paramètres
+        function showSettingsHintIfNeeded() {
+            // Ne pas afficher si "ne plus montrer" a été cliqué
+            if (localStorage.getItem('settings_hint_dismissed')) return;
+
+            // Afficher après un court délai
+            setTimeout(() => {
+                const hint = document.getElementById('settingsHint');
+                if (hint) {
+                    hint.classList.add('show');
+                }
+            }, 3000);
+        }
+
+        // Fermer le hint paramètres
+        function closeSettingsHint(permanent = false) {
+            const hint = document.getElementById('settingsHint');
+            if (hint) {
+                hint.classList.remove('show');
+                if (permanent) {
+                    localStorage.setItem('settings_hint_dismissed', 'true');
+                }
+            }
+        }
+
+        // Verifier et importer les leads depuis l'URL (extension Sales Navigator)
+        async function checkForLeadsImport() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const leadsData = urlParams.get('import_leads');
+
+            if (!leadsData) return;
+
+            try {
+                const leads = JSON.parse(decodeURIComponent(leadsData));
+
+                if (!leads || leads.length === 0) return;
+
+                // Nettoyer l'URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+
+                // Afficher modal de confirmation
+                showLeadsImportModal(leads);
+            } catch (error) {
+                console.error('Erreur import leads:', error);
+                showToast('Erreur lors de l\'import des leads', 'error');
+            }
+        }
+
+        // Modal pour confirmer l'import des leads
+        function showLeadsImportModal(leads) {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.id = 'leadsImportModal';
+            modal.innerHTML = [
+                '<div class="modal" style="max-width: 600px;">',
+                '<div class="modal-header" style="background: linear-gradient(135deg, #0077B5, #00A0DC); color: white;">',
+                '<h3 style="color: white;">Import Sales Navigator</h3>',
+                '<button class="modal-close" onclick="document.getElementById(\'leadsImportModal\').remove()" style="color: white;">&times;</button>',
+                '</div>',
+                '<div class="modal-body" style="padding: 25px;">',
+                '<div style="text-align: center; margin-bottom: 20px;">',
+                '<div style="font-size: 3em;">🎉</div>',
+                '<h4>' + leads.length + ' lead(s) prets a importer</h4>',
+                '</div>',
+                '<div style="max-height: 200px; overflow-y: auto; margin-bottom: 20px; background: #f8f9fa; border-radius: 10px; padding: 15px;">',
+                leads.slice(0, 10).map(function(l) {
+                    return '<div style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>' + l.first_name + ' ' + l.last_name + '</strong><br><span style="color: #666; font-size: 0.9em;">' + (l.job_title || '') + (l.company ? ' @ ' + l.company : '') + '</span></div>';
+                }).join(''),
+                leads.length > 10 ? '<div style="padding: 8px 0; color: #888;">+ ' + (leads.length - 10) + ' autre(s)...</div>' : '',
+                '</div>',
+                '<button class="btn btn-primary" style="width: 100%; padding: 15px;" onclick="importLeadsFromExtension()">',
+                'Importer dans mes prospects',
+                '</button>',
+                '</div>',
+                '</div>'
+            ].join('');
+
+            // Stocker les leads temporairement
+            window._pendingLeadsImport = leads;
+
+            document.body.appendChild(modal);
+            modal.classList.add('active');
+        }
+
+        // Importer les leads dans Supabase
+        async function importLeadsFromExtension() {
+            const leads = window._pendingLeadsImport;
+            if (!leads || leads.length === 0) return;
+
+            const btn = document.querySelector('#leadsImportModal .btn-primary');
+            btn.disabled = true;
+            btn.textContent = 'Import en cours...';
+
+            try {
+                const user = await getCurrentUser();
+                if (!user) {
+                    showToast('Connectez-vous pour importer les leads', 'error');
+                    return;
+                }
+
+                // Formater les leads pour Supabase
+                const formattedLeads = leads.map(function(lead) {
+                    var firstName = (lead.first_name || 'unknown').toLowerCase().replace(/[^a-z]/g, '');
+                    var lastName = (lead.last_name || '').toLowerCase().replace(/[^a-z]/g, '');
+                    var company = (lead.company || 'unknown').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20);
+                    var uniqueId = '';
+                    if (lead.linkedin_url) {
+                        var match = lead.linkedin_url.match(/\/in\/([^\/]+)/);
+                        if (match) uniqueId = match[1].slice(0, 10);
+                    }
+                    var email = firstName + '.' + lastName + (uniqueId ? '.' + uniqueId : '') + '@' + company + '.linkedin.placeholder';
+
+                    return {
+                        user_id: user.id,
+                        email: email,
+                        first_name: lead.first_name,
+                        last_name: lead.last_name,
+                        job_title: lead.job_title,
+                        company: lead.company,
+                        linkedin_url: lead.linkedin_url,
+                        city: lead.location,
+                        source: 'linkedin_extension',
+                        status: 'new'
+                    };
+                });
+
+                // Inserer dans Supabase
+                var imported = 0;
+                var duplicates = 0;
+
+                console.log('[SOS Import] Inserting', formattedLeads.length, 'leads');
+                console.log('[SOS Import] First lead:', formattedLeads[0]);
+
+                for (var i = 0; i < formattedLeads.length; i++) {
+                    var lead = formattedLeads[i];
+                    var result = await window.supabaseApp.from('prospects').insert(lead);
+
+                    console.log('[SOS Import] Lead', i, 'result:', result);
+
+                    if (!result.error) {
+                        imported++;
+                    } else {
+                        console.error('[SOS Import] Error inserting lead:', result.error);
+                        if (result.error.code === '23505') {
+                            duplicates++;
+                        }
+                    }
+                }
+
+                showToast(imported + ' lead(s) importes ! ' + (duplicates > 0 ? '(' + duplicates + ' doublons ignores)' : ''), 'success');
+
+                // Fermer le modal et ouvrir les prospects
+                document.getElementById('leadsImportModal').remove();
+                window._pendingLeadsImport = null;
+
+                // Rafraichir le module prospects si charge
+                if (typeof ProspectsModule !== 'undefined') {
+                    await ProspectsModule.loadProspects();
+                }
+
+                // Ouvrir la modal prospects
+                showProspectsModal();
+
+            } catch (error) {
+                console.error('Erreur import:', error);
+                showToast('Erreur: ' + error.message, 'error');
+                btn.disabled = false;
+                btn.textContent = 'Reessayer';
+            }
+        }
+
+        // Helper pour obtenir l'utilisateur courant
+        async function getCurrentUser() {
+            if (!window.supabaseApp) return null;
+            var result = await window.supabaseApp.auth.getUser();
+            return result.data ? result.data.user : null;
+        }
     </script>
 
     <!-- Bandeau Cookies RGPD -->
