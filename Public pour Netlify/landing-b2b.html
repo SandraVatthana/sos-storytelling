@@ -1,0 +1,1623 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- SEO Title (58 caractères) -->
+    <title>SOS Storytelling | Outil IA white label pour bootcamps et coachs</title>
+
+    <!-- Meta Description (158 caractères) -->
+    <meta name="description" content="Vos clientes créent du contenu avec leur style, vous gardez la main. Solution IA pour bootcamps 50-150+ participantes. Made in France. Réservez une démo.">
+
+    <!-- Langue et région -->
+    <meta http-equiv="content-language" content="fr-FR">
+
+    <!-- Robots -->
+    <meta name="robots" content="index, follow">
+
+    <!-- Canonical -->
+    <link rel="canonical" href="https://sosstorytelling.fr">
+
+    <!-- Open Graph (partage réseaux sociaux) -->
+    <meta property="og:title" content="SOS Storytelling | Outil IA white label pour bootcamps">
+    <meta property="og:description" content="Vos clientes créent du contenu avec leur style, vous gardez la main. Dashboard coach, messages personnalisés, white label complet.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sosstorytelling.fr">
+    <meta property="og:image" content="https://sosstorytelling.fr/og-image.png">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:site_name" content="SOS Storytelling">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="SOS Storytelling | Outil IA white label pour bootcamps">
+    <meta name="twitter:description" content="Vos clientes créent du contenu avec leur style, vous gardez la main.">
+    <meta name="twitter:image" content="https://sosstorytelling.fr/og-image.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+    <!-- Preconnect pour performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Schema.org (Données structurées) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "SOS Storytelling",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "description": "Outil IA en white label pour bootcamps et programmes d'accompagnement. Création de contenu, dashboard coach, messages personnalisés.",
+        "offers": {
+            "@type": "Offer",
+            "price": "2925",
+            "priceCurrency": "EUR",
+            "priceValidUntil": "2025-12-31"
+        },
+        "provider": {
+            "@type": "Organization",
+            "name": "My Inner Quest",
+            "url": "https://myinnerquest.fr",
+            "address": {
+                "@type": "PostalAddress",
+                "addressCountry": "FR",
+                "addressRegion": "Nouvelle-Aquitaine"
+            }
+        }
+    }
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366F1;
+            --primary-dark: #4F46E5;
+            --primary-vivid: #4338CA;
+            --secondary: #8B5CF6;
+            --accent: #EC4899;
+            --accent-warm: #F97316;
+            --dark: #1E293B;
+            --gray-700: #374151;
+            --gray-600: #475569;
+            --gray-400: #94A3B8;
+            --gray-200: #E2E8F0;
+            --gray-100: #F8FAFC;
+            --gray-50: #FAFBFC;
+            --white: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .section {
+            padding: 80px 0;
+        }
+
+        .section-white {
+            background: var(--white);
+        }
+
+        .section-gray {
+            background: var(--gray-100);
+        }
+
+        .section-light {
+            background: linear-gradient(180deg, var(--gray-50) 0%, var(--white) 100%);
+        }
+
+        .section-dark {
+            background: linear-gradient(135deg, var(--dark) 0%, #0F172A 100%);
+            color: var(--white);
+        }
+
+        .section-gradient {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--white);
+        }
+
+        /* Section separator */
+        .section-separator {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gray-200), transparent);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h1 {
+            font-size: clamp(2.2rem, 4.5vw, 3rem);
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 16px;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        h4 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--gray-700);
+            max-width: 580px;
+            margin: 0 auto 28px;
+            line-height: 1.7;
+        }
+
+        .text-accent {
+            color: var(--accent-warm);
+            font-weight: 600;
+        }
+
+        .section-dark .subtitle {
+            color: var(--gray-400);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 32px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-vivid) 0%, var(--secondary) 100%);
+            color: var(--white);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.55);
+        }
+
+        .btn-primary.btn-large {
+            padding: 18px 40px;
+            font-size: 1.15rem;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            padding: 14px 28px;
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        .btn-white {
+            background: var(--white);
+            color: var(--primary);
+        }
+
+        .btn-white:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--gray-200);
+            padding: 16px 0;
+        }
+
+        .navbar .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            color: var(--gray-600);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-cta {
+            padding: 10px 20px;
+            font-size: 0.95rem;
+            color: var(--white) !important;
+        }
+
+        .hero {
+            padding: 140px 0 60px;
+            background: linear-gradient(180deg, #F8FAFF 0%, var(--white) 60%, var(--gray-50) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at 30% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+                        radial-gradient(ellipse at 70% 80%, rgba(139, 92, 246, 0.06) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            max-width: 720px;
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-cta {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .hero-cta-buttons {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .hero-badges {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            color: var(--gray-700);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .badge span:first-child {
+            font-size: 1rem;
+        }
+
+        /* Reassurance Band */
+        .reassurance-band {
+            background: var(--white);
+            border-top: 1px solid var(--gray-200);
+            border-bottom: 1px solid var(--gray-200);
+            padding: 24px 0;
+        }
+
+        .reassurance-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .reassurance-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+            color: var(--gray-700);
+        }
+
+        .reassurance-item span:first-child {
+            font-size: 1.2rem;
+        }
+
+        .reassurance-item strong {
+            color: var(--primary);
+        }
+
+        /* Testimonial Mini */
+        .testimonial-mini {
+            max-width: 500px;
+            margin: 24px auto 0;
+            padding: 20px 24px;
+            background: var(--white);
+            border-radius: 16px;
+            border: 1px solid var(--gray-200);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            text-align: left;
+        }
+
+        .testimonial-mini p {
+            font-size: 0.95rem;
+            color: var(--gray-700);
+            font-style: italic;
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .testimonial-mini .author {
+            font-size: 0.85rem;
+            color: var(--gray-600);
+            font-style: normal;
+        }
+
+        .testimonial-mini .author strong {
+            color: var(--dark);
+        }
+
+        .problem-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+            margin-top: 60px;
+        }
+
+        .problem-card {
+            background: var(--white);
+            padding: 32px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .problem-icon {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+        }
+
+        .problem-card h4 {
+            color: var(--dark);
+            font-size: 1.1rem;
+        }
+
+        .problem-card p {
+            color: var(--gray-600);
+            font-size: 0.95rem;
+        }
+
+        .solution-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+            margin-top: 60px;
+        }
+
+        .solution-card {
+            background: var(--white);
+            padding: 32px;
+            border-radius: 20px;
+            border: 1px solid var(--gray-200);
+            transition: all 0.3s ease;
+        }
+
+        .solution-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.15);
+            transform: translateY(-5px);
+        }
+
+        .solution-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        .solution-card ul {
+            list-style: none;
+            margin-top: 16px;
+        }
+
+        .solution-card li {
+            padding: 6px 0;
+            color: var(--gray-600);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .solution-card li::before {
+            content: "•";
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .steps-container {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            margin-top: 60px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .step {
+            display: flex;
+            gap: 24px;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 1.25rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-content h4 {
+            color: var(--white);
+        }
+
+        .step-content p {
+            color: var(--gray-400);
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+            margin-top: 40px;
+        }
+
+        .tech-card {
+            background: var(--white);
+            padding: 24px;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .tech-card h4 {
+            color: var(--dark);
+            margin-bottom: 16px;
+        }
+
+        .tech-list {
+            list-style: none;
+        }
+
+        .tech-list li {
+            padding: 8px 0;
+            color: var(--gray-600);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .tech-list li:last-child {
+            border-bottom: none;
+        }
+
+        .tech-benefits {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin-top: 50px;
+        }
+
+        .tech-benefit {
+            text-align: center;
+        }
+
+        .tech-benefit-icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+
+        .tech-benefit h4 {
+            color: var(--dark);
+            font-size: 1.1rem;
+        }
+
+        .tech-benefit p {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-top: 60px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .feature-card h4 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95rem;
+        }
+
+        .audience-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+            margin-top: 60px;
+        }
+
+        .audience-card {
+            background: var(--white);
+            padding: 32px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .audience-icon {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+        }
+
+        .audience-card h4 {
+            color: var(--dark);
+        }
+
+        .audience-card p {
+            color: var(--gray-600);
+            margin-bottom: 16px;
+        }
+
+        .audience-result {
+            background: var(--gray-100);
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+        }
+
+        .audience-result strong {
+            color: var(--primary);
+        }
+
+        .pricing-card {
+            max-width: 600px;
+            margin: 60px auto 0;
+            background: var(--white);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        .pricing-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--white);
+            padding: 32px;
+            text-align: center;
+        }
+
+        .pricing-header h3 {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .pricing-price {
+            font-size: 3rem;
+            font-weight: 800;
+        }
+
+        .pricing-period {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .pricing-body {
+            padding: 32px;
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 24px;
+        }
+
+        .pricing-features li {
+            padding: 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .pricing-features li:last-child {
+            border-bottom: none;
+        }
+
+        .pricing-check {
+            color: #10B981;
+            font-size: 1.2rem;
+        }
+
+        .pricing-setup {
+            background: var(--gray-100);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+
+        .pricing-setup h4 {
+            color: var(--dark);
+            margin-bottom: 12px;
+        }
+
+        .pricing-setup ul {
+            list-style: none;
+            font-size: 0.9rem;
+            color: var(--gray-600);
+        }
+
+        .pricing-setup li {
+            padding: 4px 0;
+        }
+
+        .pricing-note {
+            text-align: center;
+            margin-top: 32px;
+            color: var(--gray-600);
+            font-size: 0.95rem;
+        }
+
+        .pricing-note strong {
+            color: var(--primary);
+        }
+
+        .after-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+            margin-top: 60px;
+        }
+
+        .after-card {
+            background: var(--white);
+            padding: 28px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .after-card h4 {
+            color: var(--primary);
+            margin-bottom: 16px;
+        }
+
+        .after-card ul {
+            list-style: none;
+        }
+
+        .after-card li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--gray-600);
+        }
+
+        .faq-container {
+            max-width: 800px;
+            margin: 60px auto 0;
+        }
+
+        .faq-item {
+            background: var(--white);
+            border-radius: 16px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .faq-question {
+            width: 100%;
+            padding: 24px;
+            background: none;
+            border: none;
+            text-align: left;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .faq-question:hover {
+            background: var(--gray-100);
+        }
+
+        .faq-icon {
+            font-size: 1.5rem;
+            color: var(--primary);
+            transition: transform 0.3s;
+        }
+
+        .faq-item.active .faq-icon {
+            transform: rotate(45deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 500px;
+        }
+
+        .faq-answer-content {
+            padding: 0 24px 24px;
+            color: var(--gray-600);
+            line-height: 1.7;
+        }
+
+        .cta-section {
+            text-align: center;
+        }
+
+        .cta-section h2 {
+            color: var(--white);
+        }
+
+        .cta-section .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .cta-reassurance {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 32px;
+        }
+
+        .cta-reassurance span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.95rem;
+        }
+
+        .footer {
+            background: var(--dark);
+            color: var(--white);
+            padding: 60px 0 30px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+            gap: 32px;
+            margin-bottom: 40px;
+        }
+
+        .footer-brand p {
+            color: var(--gray-400);
+            margin-top: 16px;
+            font-size: 0.95rem;
+        }
+
+        .footer h4 {
+            color: var(--white);
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: var(--gray-400);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--white);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 24px;
+            text-align: center;
+            color: var(--gray-400);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .section {
+                padding: 50px 0;
+            }
+
+            .hero {
+                padding: 110px 0 40px;
+            }
+
+            .hero-cta-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .hero-cta-buttons .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .hero-badges {
+                gap: 8px;
+            }
+
+            .badge {
+                font-size: 0.75rem;
+                padding: 6px 12px;
+            }
+
+            .reassurance-content {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .testimonial-mini {
+                margin: 16px auto 0;
+                padding: 16px 20px;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+
+            .step {
+                flex-direction: column;
+                text-align: center;
+                align-items: center;
+            }
+
+            .pricing-price {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="#" class="logo">SOS Storytelling</a>
+            <div class="nav-links">
+                <a href="#solution">Solution</a>
+                <a href="#features">Fonctionnalités</a>
+                <a href="#pricing">Tarifs</a>
+                <a href="#faq">FAQ</a>
+                <a href="https://calendly.com/VOTRE_LIEN" target="_blank" class="btn btn-primary nav-cta">Réserver une démo</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Vos clientes créent du contenu avec leur style.<br><span class="text-gradient">Vous gardez la main.</span></h1>
+                <p class="subtitle">L'outil IA <span class="text-accent">en white label</span> pour bootcamps et programmes d'accompagnement. Vos clientes produisent posts, newsletters et emails — vous suivez leur progression en temps réel.</p>
+
+                <div class="hero-cta">
+                    <div class="hero-cta-buttons">
+                        <a href="https://calendly.com/VOTRE_LIEN" target="_blank" class="btn btn-primary btn-large">Réserver une démo →</a>
+                        <a href="#features" class="btn btn-outline">Voir les fonctionnalités</a>
+                    </div>
+
+                    <div class="hero-badges">
+                        <div class="badge">
+                            <span>🚀</span>
+                            <span>100+ participantes par cohorte</span>
+                        </div>
+                        <div class="badge">
+                            <span>🎨</span>
+                            <span>White label complet</span>
+                        </div>
+                        <div class="badge">
+                            <span>🔑</span>
+                            <span>Vos propres clés API</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-mini">
+                    <p>"On cherchait une solution pour que nos 120 clientes créent du contenu sans qu'on doive les accompagner une par une. SOS nous a fait gagner un temps fou."</p>
+                    <div class="author">— <strong>Coach bootcamp entrepreneuriat</strong>, programme 12 semaines</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- REASSURANCE BAND -->
+    <section class="reassurance-band">
+        <div class="container">
+            <div class="reassurance-content">
+                <div class="reassurance-item">
+                    <span>✓</span>
+                    <span>Conçu pour <strong>100+ participantes</strong></span>
+                </div>
+                <div class="reassurance-item">
+                    <span>✓</span>
+                    <span>Accessible dès <strong>50 clientes</strong></span>
+                </div>
+                <div class="reassurance-item">
+                    <span>✓</span>
+                    <span>Mise en place en <strong>quelques jours</strong></span>
+                </div>
+                <div class="reassurance-item">
+                    <span>✓</span>
+                    <span>Support <strong>prioritaire</strong></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROBLEM SECTION -->
+    <section class="section section-white">
+        <div class="container">
+            <div class="text-center">
+                <h2>Vous formez des entrepreneures à créer du contenu.<br><span class="text-gradient">Mais vous ne pouvez pas être partout.</span></h2>
+            </div>
+
+            <div class="problem-grid">
+                <div class="problem-card">
+                    <div class="problem-icon">😩</div>
+                    <h4>"Mes clientes galèrent seules avec ChatGPT"</h4>
+                    <p>Résultats génériques, pas leur style, elles abandonnent ou produisent du contenu qui ne leur ressemble pas.</p>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-icon">👀</div>
+                    <h4>"Je ne sais pas qui avance et qui décroche"</h4>
+                    <p>Impossible de suivre 150 personnes manuellement. Les coups de mou passent inaperçus jusqu'à ce qu'il soit trop tard.</p>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-icon">🤷‍♀️</div>
+                    <h4>"J'ai délégué à mes coachs mais je perds la main"</h4>
+                    <p>Votre ADN se dilue. Vos clientes ne sentent plus votre présence. Elles ont l'impression d'être accompagnées par "une équipe", pas par vous.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SOLUTION SECTION -->
+    <section id="solution" class="section section-gray">
+        <div class="container">
+            <div class="text-center">
+                <h2>Un outil à votre image. Des clientes autonomes.<br><span class="text-gradient">Vous aux commandes.</span></h2>
+            </div>
+
+            <div class="solution-grid">
+                <div class="solution-card">
+                    <div class="solution-icon">🎨</div>
+                    <h3>White Label Complet</h3>
+                    <p>Vos couleurs, votre logo, votre nom. Vos clientes pensent utiliser VOTRE outil — parce que c'est le cas.</p>
+                    <ul>
+                        <li><strong>IA personnalisée</strong> : vous choisissez son nom ("Nina réfléchit..." au lieu d'un message générique)</li>
+                        <li><strong>Animation sur mesure</strong> : votre propre animation Lottie pendant que l'IA génère</li>
+                        <li>Vos frameworks et prompts secrets intégrés</li>
+                        <li>Votre domaine si vous le souhaitez</li>
+                    </ul>
+                </div>
+                <div class="solution-card">
+                    <div class="solution-icon">💌</div>
+                    <h3>Messages Personnalisés à Grande Échelle</h3>
+                    <p>Vous écrivez UN message le soir. Chaque cliente reçoit SA version le matin.</p>
+                    <ul>
+                        <li>Variables automatiques : prénom, progression, objectif du jour</li>
+                        <li>Notification push sur leur téléphone</li>
+                        <li>Elles se sentent accompagnées par VOUS, même quand vous dormez</li>
+                    </ul>
+                </div>
+                <div class="solution-card">
+                    <div class="solution-icon">📊</div>
+                    <h3>Dashboard Coach</h3>
+                    <p>Vos coachs voient exactement qui a besoin d'aide. Plus besoin de demander "qui a fait ses devoirs ?".</p>
+                    <ul>
+                        <li>Alertes automatiques : mood bas, retard, inactivité</li>
+                        <li>Métriques de progression par cliente</li>
+                        <li>Chat intégré coach ↔ cliente</li>
+                        <li>Vue globale pour vous : toutes les cohortes</li>
+                    </ul>
+                </div>
+                <div class="solution-card">
+                    <div class="solution-icon">🚀</div>
+                    <h3>Tout-en-Un pour Vos Clientes</h3>
+                    <p>Posts LinkedIn, newsletters, emails de prospection, mails de lancement — tout au même endroit.</p>
+                    <ul>
+                        <li>Style cloné en 3 textes (fini le contenu générique)</li>
+                        <li>Vos frameworks propriétaires pré-intégrés</li>
+                        <li>Export vers leurs outils existants</li>
+                        <li>Prospection LinkedIn : import de contacts, messages personnalisés</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- STEPS SECTION -->
+    <section class="section section-dark">
+        <div class="container">
+            <div class="text-center">
+                <h2>Opérationnel en quelques jours</h2>
+                <p class="subtitle">Pas de migration complexe. On s'occupe de tout.</p>
+            </div>
+
+            <div class="steps-container">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>On configure votre espace</h4>
+                        <p>Vos couleurs, votre logo, vos frameworks. On importe votre liste de clientes et coachs. Vous branchez vos clés API.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Vous formez vos coachs (1h)</h4>
+                        <p>Un call de 60 minutes pour qu'ils maîtrisent l'outil. Ils formeront vos clientes ensuite.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Vos clientes créent, vous suivez</h4>
+                        <p>Elles produisent du contenu avec leur style. Vous voyez tout depuis votre dashboard.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TECH SECTION -->
+    <section class="section section-white">
+        <div class="container">
+            <div class="text-center">
+                <h2>Vous gardez le contrôle sur vos coûts d'IA</h2>
+                <p class="subtitle">SOS Storytelling utilise vos propres clés API. Vous payez directement Anthropic (Claude) et Perplexity — pas de marge cachée, pas d'enfermement.</p>
+            </div>
+
+            <div class="tech-grid">
+                <div class="tech-card">
+                    <h4>Ce que vous payez à SOS</h4>
+                    <ul class="tech-list">
+                        <li>Plateforme & automatisations</li>
+                        <li>Dashboard coach & métriques</li>
+                        <li>Support & mises à jour</li>
+                        <li>White label complet</li>
+                    </ul>
+                </div>
+                <div class="tech-card">
+                    <h4>Ce que vous payez de votre côté</h4>
+                    <ul class="tech-list">
+                        <li>Claude (Anthropic) : ~100-300€/mois*</li>
+                        <li>Perplexity (optionnel) : ~20€/mois</li>
+                    </ul>
+                    <p style="font-size: 0.85rem; color: var(--gray-400); margin-top: 12px;">*Variable selon le nombre de clientes et leur usage</p>
+                </div>
+            </div>
+
+            <div class="tech-benefits">
+                <div class="tech-benefit">
+                    <div class="tech-benefit-icon">✓</div>
+                    <h4>Transparence</h4>
+                    <p>Vous savez exactement ce que vous payez à chaque fournisseur. Pas de surprise.</p>
+                </div>
+                <div class="tech-benefit">
+                    <div class="tech-benefit-icon">🔓</div>
+                    <h4>Liberté</h4>
+                    <p>Si les prix de l'IA baissent, vous en profitez directement. Pas d'intermédiaire.</p>
+                </div>
+                <div class="tech-benefit">
+                    <div class="tech-benefit-icon">🎯</div>
+                    <h4>Contrôle</h4>
+                    <p>Vous mettez vos propres plafonds de dépenses. Vous suivez votre consommation en temps réel.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES SECTION -->
+    <section id="features" class="section section-gradient">
+        <div class="container">
+            <div class="text-center">
+                <h2>Tout ce dont vos clientes ont besoin. Rien de plus.</h2>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h4>📱 Posts réseaux sociaux</h4>
+                    <p>LinkedIn, Instagram — avec LEUR style, pas un ton générique</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📧 Newsletters</h4>
+                    <p>Structure, accroche, corps, CTA — prêtes à envoyer</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🚀 Emails de lancement</h4>
+                    <p>Séquences de vente qui convertissent</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🔍 Prospection LinkedIn</h4>
+                    <p>Import de contacts, messages personnalisés à grande échelle</p>
+                </div>
+                <div class="feature-card">
+                    <h4>💡 Idées contextualisées</h4>
+                    <p>Suggestions basées sur leur secteur et l'actualité</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📈 Métriques</h4>
+                    <p>Contenus créés, progression, engagement — pour vous ET pour elles</p>
+                </div>
+                <div class="feature-card">
+                    <h4>💬 Chat coach intégré</h4>
+                    <p>Vos coachs échangent avec leurs clientes sans quitter l'outil</p>
+                </div>
+                <div class="feature-card">
+                    <h4>😊 Suivi du mood</h4>
+                    <p>Vos clientes indiquent comment elles vont — alertes automatiques si coup de mou</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AUDIENCE SECTION -->
+    <section class="section section-gray">
+        <div class="container">
+            <div class="text-center">
+                <h2>Conçu pour les programmes d'accompagnement ambitieux</h2>
+            </div>
+
+            <div class="audience-grid">
+                <div class="audience-card">
+                    <div class="audience-icon">🎓</div>
+                    <h4>Bootcamps Business</h4>
+                    <p>Vous formez des cohortes de 50 à 200 entrepreneures. Vous voulez qu'elles créent du contenu sans les prendre par la main une par une.</p>
+                    <div class="audience-result">
+                        <strong>→ Résultat :</strong> Vos clientes sont autonomes. Vos coachs savent qui aider. Vous voyez tout.
+                    </div>
+                </div>
+                <div class="audience-card">
+                    <div class="audience-icon">👩‍🏫</div>
+                    <h4>Coachs & Formateurs</h4>
+                    <p>Vous accompagnez des entrepreneures sur le personal branding ou le business. Vous voulez un outil qui parle comme VOUS.</p>
+                    <div class="audience-result">
+                        <strong>→ Résultat :</strong> Votre ADN est partout. Vos clientes sentent votre présence même quand vous dormez.
+                    </div>
+                </div>
+                <div class="audience-card">
+                    <div class="audience-icon">🏢</div>
+                    <h4>Incubateurs & Accélérateurs</h4>
+                    <p>Vous accompagnez des startups early-stage. La création de contenu est un levier clé mais vous n'avez pas le temps de former chacun.</p>
+                    <div class="audience-result">
+                        <strong>→ Résultat :</strong> Un outil prêt à l'emploi pour vos startups, avec votre marque dessus.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRICING SECTION -->
+    <section id="pricing" class="section">
+        <div class="container">
+            <div class="text-center">
+                <h2>Un forfait simple. Tout inclus.</h2>
+            </div>
+
+            <div class="pricing-card">
+                <div class="pricing-header">
+                    <h3>FORFAIT BOOTCAMP 100+</h3>
+                    <div class="pricing-price">2 925€<span class="pricing-period">/mois</span></div>
+                    <p style="font-size: 1.1rem; margin-top: 8px;">~20 €/personne/mois – moins qu'un resto</p>
+                    <p style="opacity: 0.9; margin-top: 12px;">Engagement 3 mois (durée d'une cohorte)</p>
+                </div>
+                <div class="pricing-body">
+                    <ul class="pricing-features">
+                        <li><span class="pricing-check">✓</span> Jusqu'à 150 clientes</li>
+                        <li><span class="pricing-check">✓</span> Jusqu'à 45 coachs</li>
+                        <li><span class="pricing-check">✓</span> White label complet</li>
+                        <li><span class="pricing-check">✓</span> Import de vos frameworks & prompts</li>
+                        <li><span class="pricing-check">✓</span> Messages quotidiens personnalisés</li>
+                        <li><span class="pricing-check">✓</span> Dashboard coach avec alertes</li>
+                        <li><span class="pricing-check">✓</span> App installable (PWA) avec notifications push</li>
+                        <li><span class="pricing-check">✓</span> Support prioritaire</li>
+                        <li><span class="pricing-check">✓</span> Mises à jour incluses</li>
+                    </ul>
+
+                    <div class="pricing-setup">
+                        <h4>Setup initial : 1 500€ (one-shot)</h4>
+                        <ul>
+                            <li>• Configuration white label</li>
+                            <li>• Call de formation coachs (1h)</li>
+                            <li>• Import de vos frameworks</li>
+                            <li>• Accompagnement configuration API</li>
+                        </ul>
+                    </div>
+
+                    <a href="https://calendly.com/VOTRE_LIEN" target="_blank" class="btn btn-primary" style="width: 100%; justify-content: center;">Réserver une démo →</a>
+                </div>
+            </div>
+
+            <div style="max-width: 600px; margin: 32px auto 0; background: var(--gray-100); padding: 24px; border-radius: 16px; text-align: center;">
+                <h4 style="color: var(--dark); margin-bottom: 8px;">Programme plus petit ?</h4>
+                <p style="color: var(--gray-600); font-size: 1.1rem;"><strong style="color: var(--primary);">Forfait Bootcamp 50</strong> (jusqu'à 50 clientes) à partir de <strong>1 200 €/mois</strong></p>
+            </div>
+
+            <p class="pricing-note">
+                <em>Coûts API (Claude, Perplexity) : environ 100-300€/mois selon l'usage, payés directement aux fournisseurs.</em><br><br>
+                Besoin d'un forfait sur mesure ? <a href="mailto:contact@myinnerquest.fr" style="color: var(--primary);">Contactez-nous →</a>
+            </p>
+        </div>
+    </section>
+
+    <!-- AFTER BOOTCAMP SECTION -->
+    <section class="section section-gray">
+        <div class="container">
+            <div class="text-center">
+                <h2>Et après le bootcamp ?</h2>
+                <p class="subtitle">Vos clientes peuvent continuer en individuel</p>
+            </div>
+
+            <div class="after-grid">
+                <div class="after-card">
+                    <h4>✓ Ce qu'elles gardent</h4>
+                    <ul>
+                        <li>✓ Tout leur historique de contenus</li>
+                        <li>✓ Leur style cloné</li>
+                        <li>✓ Leurs listes de prospection</li>
+                    </ul>
+                </div>
+                <div class="after-card">
+                    <h4>→ Ce qui change</h4>
+                    <ul>
+                        <li>• Interface SOS Storytelling (plus votre white label)</li>
+                        <li>• 19€/mois (avec code promo exclusif)</li>
+                        <li>• Plus d'accès aux messages quotidiens ni au chat coach</li>
+                    </ul>
+                </div>
+                <div class="after-card">
+                    <h4>💰 Pour vous</h4>
+                    <ul>
+                        <li>• Commission sur chaque ancienne cliente qui continue</li>
+                        <li>• Revenus passifs</li>
+                        <li>• Vos clientes restent dans l'écosystème</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ SECTION -->
+    <section id="faq" class="section">
+        <div class="container">
+            <div class="text-center">
+                <h2>Questions fréquentes</h2>
+            </div>
+
+            <div class="faq-container">
+                <div class="faq-item">
+                    <button class="faq-question">
+                        Mes clientes peuvent-elles continuer après le bootcamp ?
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Oui ! À la fin du programme, elles reçoivent une offre spéciale pour continuer en individuel (19€/mois avec un code promo exclusif). Elles gardent tout leur historique et leur style cloné.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        Qui paie les coûts d'IA (Claude, etc.) ?
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Vous utilisez vos propres clés API. Vous payez directement Anthropic et Perplexity — comptez environ 100-300€/mois selon l'usage de votre cohorte. Avantage : transparence totale, pas de marge cachée, et si les prix baissent, vous en profitez direct.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        Est-ce que vous voyez mes prompts/frameworks ?
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Non. Vos prompts restent confidentiels. Vous les importez vous-même via l'interface admin. Nous ne voyons que la structure technique, pas le contenu.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        Combien de temps pour le setup ?
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Quelques jours maximum. On configure ensemble, vous faites un call de validation, et c'est parti pour votre prochaine cohorte.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        Mes clientes doivent-elles télécharger une app ?
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Non. C'est une webapp (PWA) qui s'installe sur leur téléphone en un clic, sans passer par l'App Store. Elles reçoivent les notifications push comme une vraie app.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        Puis-je avoir plusieurs cohortes en parallèle ?
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Oui. Chaque cohorte a son propre espace, ses propres coachs assignés, ses propres métriques. Vous voyez tout depuis un dashboard global.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        Que se passe-t-il si une cliente a un problème technique ?
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Vos coachs sont formés pour gérer le support de premier niveau. Pour les problèmes techniques complexes, notre équipe intervient sous 24h.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        Je peux tester avant de m'engager ?
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            On fait une démo personnalisée de 30 minutes où vous voyez l'outil avec vos couleurs et votre cas d'usage. Pas de pitch générique.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA SECTION -->
+    <section class="section section-gradient cta-section">
+        <div class="container">
+            <h2>Prête à scaler votre accompagnement ?</h2>
+            <p class="subtitle">Réservez une démo de 30 minutes. On vous montre l'outil avec vos couleurs, vos frameworks, votre cas d'usage.</p>
+            <a href="https://calendly.com/VOTRE_LIEN" target="_blank" class="btn btn-white">Réserver une démo →</a>
+
+            <div class="cta-reassurance">
+                <span>✓ Démo personnalisée, pas un pitch générique</span>
+                <span>✓ On répond à toutes vos questions</span>
+                <span>✓ Zéro engagement avant d'avoir vu l'outil</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- MADE IN FRANCE BANNER -->
+    <div style="background: linear-gradient(135deg, #1E3A5F 0%, #2D4A6F 100%); color: white; padding: 16px 0; text-align: center;">
+        <div class="container">
+            <span style="font-size: 1rem;">🇫🇷 Solution française · Données hébergées en Europe · Support en français</span>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="#" class="logo">SOS Storytelling</a>
+                    <p>L'outil IA en white label pour les bootcamps et programmes d'accompagnement.<br>Créé avec 💜 par My Inner Quest à Linxe, France.</p>
+                </div>
+                <div>
+                    <h4>Produit</h4>
+                    <ul class="footer-links">
+                        <li><a href="#features">Fonctionnalités</a></li>
+                        <li><a href="#pricing">Tarifs</a></li>
+                        <li><a href="#faq">FAQ</a></li>
+                        <li><a href="https://calendly.com/VOTRE_LIEN" target="_blank">Démo</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Ressources</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Guide de démarrage</a></li>
+                        <li><a href="#">Études de cas</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Légal</h4>
+                    <ul class="footer-links">
+                        <li><a href="mentions-legales.html">Mentions légales</a></li>
+                        <li><a href="cgv.html">CGV</a></li>
+                        <li><a href="confidentialite.html">Politique de confidentialité</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Contact</h4>
+                    <ul class="footer-links">
+                        <li><a href="mailto:contact@myinnerquest.fr">contact@myinnerquest.fr</a></li>
+                        <li><a href="https://linkedin.com/in/VOTRE_PROFIL" target="_blank">LinkedIn</a></li>
+                        <li><span style="color: var(--gray-400);">Nouvelle-Aquitaine, France</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Footer SEO Text -->
+            <p style="font-size: 0.85rem; color: var(--gray-400); max-width: 800px; margin: 32px auto 0; text-align: center; line-height: 1.6;">
+                SOS Storytelling est une solution SaaS française d'aide à la création de contenu pour les bootcamps, programmes d'accompagnement et coachs business. Notre outil IA en white label permet aux formateurs de suivre leurs cohortes (50 à 150+ participantes) avec un dashboard coach, des messages personnalisés et une plateforme de création de contenu intégrée.
+            </p>
+
+            <div class="footer-bottom">
+                © 2025 SOS Storytelling by My Inner Quest. Tous droits réservés.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // FAQ Accordion
+        document.querySelectorAll('.faq-question').forEach(button => {
+            button.addEventListener('click', () => {
+                const item = button.parentElement;
+                const isActive = item.classList.contains('active');
+                document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+                if (!isActive) {
+                    item.classList.add('active');
+                }
+            });
+        });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.1)';
+            } else {
+                navbar.style.boxShadow = 'none';
+            }
+        });
+    </script>
+
+</body>
+</html>

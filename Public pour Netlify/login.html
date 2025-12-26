@@ -10,7 +10,16 @@
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <!-- Organization Loader (white label) -->
+    <script src="organization-loader.js"></script>
+
     <style>
+        :root {
+            --primary: #6366F1;
+            --secondary: #8B5CF6;
+            --accent: #A855F7;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -19,7 +28,7 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A855F7 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 50%, var(--accent) 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -83,14 +92,14 @@
 
         .form-group input:focus {
             outline: none;
-            border-color: #6366F1;
+            border-color: var(--primary);
             box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
         }
 
         .submit-btn {
             width: 100%;
             padding: 16px;
-            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
             border: none;
             border-radius: 12px;
@@ -149,7 +158,7 @@
         }
 
         .magic-link-btn:hover {
-            border-color: #6366F1;
+            border-color: var(--primary);
             background: #f0f0ff;
         }
 
@@ -195,7 +204,7 @@
 
         .tab.active {
             background: white;
-            color: #6366F1;
+            color: var(--primary);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
@@ -207,7 +216,7 @@
         }
 
         .footer a {
-            color: #6366F1;
+            color: var(--primary);
             text-decoration: none;
             font-weight: 500;
         }
@@ -247,7 +256,7 @@
         }
 
         .demo-user:hover {
-            border-color: #6366F1;
+            border-color: var(--primary);
             background: #f0f0ff;
         }
 
@@ -259,7 +268,14 @@
         .demo-user .demo-role {
             font-size: 0.75rem;
             font-weight: 600;
-            color: #6366F1;
+            color: var(--primary);
+        }
+
+        /* Logo white label */
+        .logo-img {
+            max-width: 120px;
+            max-height: 60px;
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -267,9 +283,10 @@
     <div class="login-container">
         <div class="login-card">
             <div class="logo">
-                <div class="logo-icon">✍️</div>
-                <h1 id="appName">SOS Storytelling</h1>
-                <p>Plateforme B2B pour bootcamps</p>
+                <img id="orgLogo" class="logo-img org-logo" src="" alt="" style="display: none;">
+                <div class="logo-icon" id="logoIcon">&#x270D;&#xFE0F;</div>
+                <h1 id="appName" class="app-name">SOS Storytelling</h1>
+                <p id="appSubtitle">Plateforme B2B pour bootcamps</p>
             </div>
 
             <!-- Tabs -->
@@ -441,13 +458,28 @@
 
                 if (error) throw error;
 
-                // Parse invite code to find org
-                let orgId = 'sos_default';
+                // Use current org from white label, or parse invite code
+                let orgId = window.CURRENT_ORG_ID || 'sos_default';
                 let cohortId = null;
 
-                if (inviteCode) {
+                // If we have a white label org, use it
+                if (window.CURRENT_ORG_ID) {
+                    // Find active cohort for this org
+                    const { data: cohortData } = await db
+                        .from('cohorts')
+                        .select('id')
+                        .eq('organization_id', orgId)
+                        .eq('is_active', true)
+                        .order('created_at', { ascending: false })
+                        .limit(1)
+                        .single();
+
+                    if (cohortData) {
+                        cohortId = cohortData.id;
+                    }
+                } else if (inviteCode) {
                     // Try to find organization from invite code
-                    const { data: orgData } = await supabase
+                    const { data: orgData } = await db
                         .from('organizations')
                         .select('id')
                         .ilike('slug', inviteCode.split('-').slice(0, 2).join('-'))
@@ -457,7 +489,7 @@
                         orgId = orgData.id;
 
                         // Find active cohort
-                        const { data: cohortData } = await supabase
+                        const { data: cohortData } = await db
                             .from('cohorts')
                             .select('id')
                             .eq('organization_id', orgId)
@@ -481,6 +513,12 @@
                     first_name: firstName,
                     email: email
                 });
+
+                // Check for referral code in URL
+                const refCode = new URLSearchParams(window.location.search).get('ref');
+                if (refCode) {
+                    await handleReferral(data.user.id, refCode);
+                }
 
                 showSuccess('Compte cree ! Verifie ton email pour confirmer.');
 
@@ -596,6 +634,47 @@
         }
 
         // ============================================
+        // REFERRAL HANDLING
+        // ============================================
+        async function handleReferral(userId, refCode) {
+            if (!refCode) return;
+
+            try {
+                // Find affiliate by referral code
+                const { data: affiliate, error: affError } = await db
+                    .from('affiliates')
+                    .select('id')
+                    .eq('referral_code', refCode.toUpperCase())
+                    .eq('status', 'active')
+                    .single();
+
+                if (affError || !affiliate) {
+                    console.log('Referral code not found:', refCode);
+                    return;
+                }
+
+                // Create pending referral
+                const { error: pendingError } = await db
+                    .from('pending_referrals')
+                    .insert({
+                        user_id: userId,
+                        affiliate_id: affiliate.id,
+                        referral_code: refCode.toUpperCase(),
+                        source: 'link',
+                        landing_page: window.location.href
+                    });
+
+                if (pendingError) {
+                    console.error('Error creating pending referral:', pendingError);
+                } else {
+                    console.log('Pending referral created for:', refCode);
+                }
+            } catch (err) {
+                console.error('Referral handling error:', err);
+            }
+        }
+
+        // ============================================
         // CHECK EXISTING SESSION
         // ============================================
         async function checkSession() {
@@ -608,25 +687,47 @@
         // Check on load
         checkSession();
 
-        // Get org from URL for white labeling
-        const urlParams = new URLSearchParams(window.location.search);
-        const orgSlug = urlParams.get('org');
-
-        if (orgSlug) {
-            // Load org branding
-            (async () => {
-                const { data: org } = await supabase
-                    .from('organizations')
-                    .select('*')
-                    .eq('slug', orgSlug)
-                    .single();
+        // ============================================
+        // WHITE LABEL INITIALIZATION
+        // ============================================
+        async function initWhiteLabel() {
+            // Wait for Supabase to be ready
+            if (typeof window.OrganizationLoader !== 'undefined') {
+                const org = await window.OrganizationLoader.init();
 
                 if (org) {
+                    // Update app name
                     document.getElementById('appName').textContent = org.app_name || org.name;
-                    document.body.style.background = `linear-gradient(135deg, ${org.primary_color} 0%, ${org.secondary_color} 100%)`;
+
+                    // Update subtitle if welcome_message exists
+                    if (org.welcome_message) {
+                        document.getElementById('appSubtitle').textContent = org.welcome_message;
+                    } else {
+                        document.getElementById('appSubtitle').textContent = 'Bienvenue sur ' + (org.app_name || org.name);
+                    }
+
+                    // Show logo if available
+                    if (org.logo_url) {
+                        const logoImg = document.getElementById('orgLogo');
+                        logoImg.src = org.logo_url;
+                        logoImg.alt = org.app_name || org.name;
+                        logoImg.style.display = 'block';
+                        document.getElementById('logoIcon').style.display = 'none';
+                    }
+
+                    // Update page title
+                    document.title = `Connexion - ${org.app_name || org.name}`;
+
+                    // Store org ID for registration
+                    window.CURRENT_ORG_ID = org.id;
+
+                    console.log('[Login] White label applique:', org.app_name);
                 }
-            })();
+            }
         }
+
+        // Initialize white label
+        initWhiteLabel();
     </script>
 </body>
 </html>
