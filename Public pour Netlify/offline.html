@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hors ligne - SOS Storytelling</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .offline-icon {
+            font-size: 80px;
+            margin-bottom: 30px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 400px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .retry-btn {
+            padding: 15px 40px;
+            background: white;
+            color: #6366F1;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .retry-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .tips {
+            margin-top: 50px;
+            padding: 25px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            max-width: 400px;
+        }
+
+        .tips h3 {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .tips ul {
+            list-style: none;
+            text-align: left;
+        }
+
+        .tips li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-icon">📡</div>
+
+    <h1>Pas de connexion</h1>
+
+    <p>
+        Tu es actuellement hors ligne. Verifie ta connexion internet et reessaie.
+    </p>
+
+    <button class="retry-btn" onclick="location.reload()">
+        Reessayer
+    </button>
+
+    <div class="tips">
+        <h3>En attendant, tu peux :</h3>
+        <ul>
+            <li>✍️ Preparer tes idees de contenu sur papier</li>
+            <li>📝 Lister tes sujets pour la semaine</li>
+            <li>🎯 Reflechir a ton audience cible</li>
+            <li>💡 Noter tes hooks qui te viennent en tete</li>
+        </ul>
+    </div>
+
+    <script>
+        // Check if back online
+        window.addEventListener('online', () => {
+            location.reload();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1892 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title id="appTitle">SOS Storytelling</title>
+    <link rel="icon" id="appFavicon" href="favicon.svg" type="image/svg+xml">
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" id="themeColor" content="#6366F1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Lottie -->
+    <script type="module" src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs"></script>
+
+    <!-- Styles de base -->
+    <style>
+        :root {
+            --primary: #6366F1;
+            --primary-light: #818CF8;
+            --secondary: #8B5CF6;
+            --accent: #F59E0B;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-logo {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 20px;
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        /* Header */
+        .header {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-logo {
+            height: 36px;
+            width: auto;
+        }
+
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: var(--bg);
+            border-radius: 20px;
+            font-size: 0.875rem;
+        }
+
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        .role-badge {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .role-badge.admin { background: #FEE2E2; color: #DC2626; }
+        .role-badge.coach { background: #DBEAFE; color: #2563EB; }
+        .role-badge.client { background: #D1FAE5; color: #059669; }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            gap: 5px;
+            background: var(--card-bg);
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .nav-tab:hover {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .nav-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+        }
+
+        .btn-secondary {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        /* Alerts */
+        .alert-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .alert-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            background: var(--bg);
+            border-radius: 8px;
+            border-left: 4px solid var(--warning);
+        }
+
+        .alert-item.high { border-left-color: var(--danger); }
+        .alert-item.low { border-left-color: var(--success); }
+
+        .alert-icon {
+            font-size: 1.5rem;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .alert-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Client List */
+        .client-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .client-row {
+            display: grid;
+            grid-template-columns: 1fr 80px 80px 80px 100px;
+            gap: 10px;
+            align-items: center;
+            padding: 12px 15px;
+            background: var(--bg);
+            border-radius: 8px;
+        }
+
+        .client-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .client-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .client-name {
+            font-weight: 500;
+        }
+
+        .mood-emoji {
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .status-badge.on-track { background: #D1FAE5; color: #059669; }
+        .status-badge.behind { background: #FEF3C7; color: #D97706; }
+        .status-badge.alert { background: #FEE2E2; color: #DC2626; }
+
+        /* Daily Message Preview */
+        .message-preview {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .message-preview h3 {
+            margin-bottom: 15px;
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .message-content {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .message-author {
+            margin-top: 15px;
+            text-align: right;
+            font-style: italic;
+            opacity: 0.8;
+        }
+
+        /* Mood Selector */
+        .mood-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .mood-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            background: var(--card-bg);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mood-btn:hover {
+            transform: scale(1.1);
+            border-color: var(--primary);
+        }
+
+        .mood-btn.selected {
+            border-color: var(--primary);
+            background: var(--primary);
+            transform: scale(1.15);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .quick-action {
+            padding: 25px 15px;
+            border-radius: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-action:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .quick-action-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .quick-action-label {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        /* Views */
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        /* Chat */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .chat-message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+
+        .chat-message.sent {
+            background: var(--primary);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-message.received {
+            background: var(--bg);
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            border-top: 1px solid var(--border);
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            outline: none;
+        }
+
+        .chat-input button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-tabs {
+                padding: 10px;
+            }
+
+            .nav-tab {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+
+            .main-content {
+                padding: 15px;
+            }
+
+            .client-row {
+                grid-template-columns: 1fr 60px 60px;
+            }
+
+            .client-row > *:nth-child(n+4) {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <dotlottie-wc class="loading-logo" src="https://lottie.host/eeab1c36-2031-4942-bf72-95b983b64077/hNKxxXfdmq.lottie" autoplay loop></dotlottie-wc>
+        <p class="loading-text" id="loadingText">Chargement...</p>
+    </div>
+
+    <!-- App Container -->
+    <div id="appContainer" style="display: none;">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <img src="favicon.svg" alt="Logo" class="header-logo" id="headerLogo">
+                <span class="header-title" id="headerTitle">SOS Storytelling</span>
+            </div>
+            <div class="header-right">
+                <div class="user-badge">
+                    <div class="user-avatar" id="userAvatar">?</div>
+                    <span id="userName">Utilisateur</span>
+                    <span class="role-badge" id="userRole">client</span>
+                </div>
+                <button class="btn btn-secondary" onclick="logout()">Deconnexion</button>
+            </div>
+        </header>
+
+        <!-- Navigation (changes based on role) -->
+        <nav class="nav-tabs" id="navTabs">
+            <!-- Filled dynamically -->
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- ================== ADMIN VIEWS ================== -->
+
+            <!-- Admin: Dashboard -->
+            <div class="view" id="view-admin-dashboard">
+                <h2 style="margin-bottom: 20px;">Tableau de bord</h2>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="statTotalClients">0</div>
+                        <div class="stat-label">Clientes actives</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statTotalCoaches">0</div>
+                        <div class="stat-label">Coachs</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statOnTrack">0%</div>
+                        <div class="stat-label">On track</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statAlerts">0</div>
+                        <div class="stat-label">Alertes</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Alertes recentes</h3>
+                        <button class="btn btn-secondary">Voir tout</button>
+                    </div>
+                    <div class="alert-list" id="adminAlertsList">
+                        <div class="alert-item high">
+                            <span class="alert-icon">🔴</span>
+                            <div class="alert-content">
+                                <div class="alert-title">Marie D. - Mood bas depuis 3 jours</div>
+                                <div class="alert-desc">Coach: Jasmine - Derniere activite: il y a 2 jours</div>
+                            </div>
+                            <button class="btn btn-secondary">Voir</button>
+                        </div>
+                        <div class="alert-item">
+                            <span class="alert-icon">🟠</span>
+                            <div class="alert-content">
+                                <div class="alert-title">5 clientes en retard sur le planning</div>
+                                <div class="alert-desc">Cohorte Janvier 2025</div>
+                            </div>
+                            <button class="btn btn-secondary">Voir</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin: White Label -->
+            <div class="view" id="view-admin-whitelabel">
+                <h2 style="margin-bottom: 20px;">Configuration White Label</h2>
+
+                <div class="card">
+                    <h3 class="card-title" style="margin-bottom: 20px;">Identite visuelle</h3>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Nom de l'app</label>
+                            <input type="text" id="wlAppName" placeholder="RamenTaFraise" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Logo</label>
+                            <input type="file" id="wlLogo" accept="image/*" style="width: 100%;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Couleur principale</label>
+                            <input type="color" id="wlPrimaryColor" value="#FF6B6B" style="width: 100%; height: 40px; border: none; cursor: pointer;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Couleur secondaire</label>
+                            <input type="color" id="wlSecondaryColor" value="#4ECDC4" style="width: 100%; height: 40px; border: none; cursor: pointer;">
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">Message de chargement</label>
+                        <input type="text" id="wlLoadingMessage" placeholder="Nina reflechit..." style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                    </div>
+
+                    <div style="margin-top: 20px; display: flex; gap: 10px;">
+                        <button class="btn btn-primary" onclick="saveWhiteLabel()">Sauvegarder</button>
+                        <button class="btn btn-secondary" onclick="previewWhiteLabel()">Previsualiser</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin: Prompts & Frameworks -->
+            <div class="view" id="view-admin-prompts">
+                <h2 style="margin-bottom: 20px;">Mes Frameworks & Prompts</h2>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Frameworks de contenu</h3>
+                        <button class="btn btn-primary" onclick="showAddFramework()">+ Ajouter</button>
+                    </div>
+                    <div id="frameworksList">
+                        <div style="padding: 20px; text-align: center; color: var(--text-muted);">
+                            Aucun framework personnalise. Cliquez sur "Ajouter" pour en creer un.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Prompts personnalises</h3>
+                        <button class="btn btn-primary" onclick="showAddPrompt()">+ Ajouter</button>
+                    </div>
+                    <div id="promptsList">
+                        <div style="padding: 20px; text-align: center; color: var(--text-muted);">
+                            Aucun prompt personnalise. Cliquez sur "Ajouter" pour en creer un.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin: Daily Messages -->
+            <div class="view" id="view-admin-messages">
+                <h2 style="margin-bottom: 20px;">Messages quotidiens</h2>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Programmer un message</h3>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">Pour la cohorte</label>
+                        <select id="msgCohort" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                            <option value="">Selectionner une cohorte...</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">Date et heure</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="date" id="msgDate" style="flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                            <input type="time" id="msgTime" value="07:00" style="width: 120px; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">Message</label>
+                        <textarea id="msgTemplate" rows="8" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit;" placeholder="Hey {PRENOM} !
+
+Jour {JOUR}/90 - {ETAPE_ACTUELLE}
+
+{FEEDBACK_PERSONNALISE}
+
+Ton objectif aujourd'hui : {OBJECTIF_JOUR}
+
+Go go go !
+                    — Nina"></textarea>
+                    </div>
+
+                    <div style="background: var(--bg); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                        <strong>Variables disponibles :</strong><br>
+                        <code>{PRENOM}</code> <code>{JOUR}</code> <code>{ETAPE_ACTUELLE}</code> <code>{ACTION_HIER}</code>
+                        <code>{FEEDBACK_PERSONNALISE}</code> <code>{OBJECTIF_JOUR}</code> <code>{NB_POSTS}</code>
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-secondary" onclick="previewMessage()">Previsualiser</button>
+                        <button class="btn btn-primary" onclick="scheduleMessage()">Programmer</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin: Cohorts -->
+            <div class="view" id="view-admin-cohorts">
+                <h2 style="margin-bottom: 20px;">Gestion des cohortes</h2>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Cohortes actives</h3>
+                        <button class="btn btn-primary" onclick="showAddCohort()">+ Nouvelle cohorte</button>
+                    </div>
+                    <div id="cohortsList">
+                        <!-- Filled dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================== COACH VIEWS ================== -->
+
+            <!-- Coach: Dashboard -->
+            <div class="view" id="view-coach-dashboard">
+                <h2 style="margin-bottom: 20px;">Mon tableau de bord</h2>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="coachStatClients">0</div>
+                        <div class="stat-label">Mes clientes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="coachStatOnTrack">0</div>
+                        <div class="stat-label">On track</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="coachStatAlerts">0</div>
+                        <div class="stat-label">Alertes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="coachStatMessages">0</div>
+                        <div class="stat-label">Messages non lus</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Alertes</h3>
+                    </div>
+                    <div class="alert-list" id="coachAlertsList">
+                        <!-- Filled dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coach: My Clients -->
+            <div class="view" id="view-coach-clients">
+                <h2 style="margin-bottom: 20px;">Mes clientes</h2>
+
+                <div class="card">
+                    <div class="client-list" id="coachClientsList">
+                        <div class="client-row" style="font-weight: 600; background: transparent;">
+                            <div>Nom</div>
+                            <div style="text-align: center;">Jour</div>
+                            <div style="text-align: center;">Posts</div>
+                            <div style="text-align: center;">Mood</div>
+                            <div style="text-align: center;">Statut</div>
+                        </div>
+                        <!-- Filled dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coach: Chat -->
+            <div class="view" id="view-coach-chat">
+                <h2 style="margin-bottom: 20px;">Messages</h2>
+
+                <div style="display: grid; grid-template-columns: 250px 1fr; gap: 20px;">
+                    <div class="card" style="padding: 0;">
+                        <div style="padding: 15px; border-bottom: 1px solid var(--border); font-weight: 600;">
+                            Conversations
+                        </div>
+                        <div id="chatConversations">
+                            <!-- Filled dynamically -->
+                        </div>
+                    </div>
+                    <div class="chat-container" id="chatContainer">
+                        <div class="chat-messages" id="chatMessages">
+                            <p style="text-align: center; color: var(--text-muted); margin-top: 50%;">
+                                Selectionnez une conversation
+                            </p>
+                        </div>
+                        <div class="chat-input">
+                            <input type="text" id="chatInput" placeholder="Ecrire un message...">
+                            <button onclick="sendChatMessage()">➤</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================== CLIENT VIEWS ================== -->
+
+            <!-- Client: Home -->
+            <div class="view" id="view-client-home">
+                <!-- Daily Message -->
+                <div class="message-preview" id="clientDailyMessage">
+                    <h3>Message du jour</h3>
+                    <div class="message-content" id="clientMessageContent">
+                        Chargement du message...
+                    </div>
+                    <div class="message-author" id="clientMessageAuthor">— Nina</div>
+                </div>
+
+                <!-- Mood Selector -->
+                <div class="card">
+                    <h3 class="card-title" style="text-align: center; margin-bottom: 15px;">Comment tu te sens aujourd'hui ?</h3>
+                    <div class="mood-selector">
+                        <button class="mood-btn" data-mood="sad" onclick="selectMood('sad')">😢</button>
+                        <button class="mood-btn" data-mood="meh" onclick="selectMood('meh')">😐</button>
+                        <button class="mood-btn" data-mood="good" onclick="selectMood('good')">😊</button>
+                        <button class="mood-btn" data-mood="great" onclick="selectMood('great')">🔥</button>
+                        <button class="mood-btn" data-mood="amazing" onclick="selectMood('amazing')">🚀</button>
+                    </div>
+                    <div style="text-align: center;">
+                        <input type="text" id="moodNote" placeholder="Un mot sur ta journee ? (optionnel)" style="width: 80%; max-width: 400px; padding: 10px; border: 1px solid var(--border); border-radius: 20px; text-align: center;">
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <h3 style="margin: 25px 0 15px;">Que veux-tu creer ?</h3>
+                <div class="quick-actions">
+                    <div class="quick-action" onclick="goToCreate('post')">
+                        <div class="quick-action-icon">📱</div>
+                        <div class="quick-action-label">Post</div>
+                    </div>
+                    <div class="quick-action" onclick="goToCreate('newsletter')">
+                        <div class="quick-action-icon">📧</div>
+                        <div class="quick-action-label">Newsletter</div>
+                    </div>
+                    <div class="quick-action" onclick="goToCreate('email')">
+                        <div class="quick-action-icon">🚀</div>
+                        <div class="quick-action-label">Email</div>
+                    </div>
+                    <div class="quick-action" onclick="goToCreate('prospection')">
+                        <div class="quick-action-icon">🔍</div>
+                        <div class="quick-action-label">Prospection</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Client: Create -->
+            <div class="view" id="view-client-create">
+                <h2 style="margin-bottom: 20px;">Creer du contenu</h2>
+
+                <div class="card">
+                    <p style="text-align: center; padding: 40px; color: var(--text-muted);">
+                        Interface de creation de contenu<br>
+                        (Integre l'app.html existante ici)
+                    </p>
+                </div>
+            </div>
+
+            <!-- Client: Progress -->
+            <div class="view" id="view-client-progress">
+                <h2 style="margin-bottom: 20px;">Ma progression</h2>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="clientDay">1</div>
+                        <div class="stat-label">Jour du bootcamp</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="clientPosts">0</div>
+                        <div class="stat-label">Posts crees</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="clientNewsletters">0</div>
+                        <div class="stat-label">Newsletters</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="clientStreak">0</div>
+                        <div class="stat-label">Jours consecutifs</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title" style="margin-bottom: 15px;">Mes victoires</h3>
+                    <div id="clientWins">
+                        <p style="color: var(--text-muted);">Aucune victoire enregistree. Partage tes succes !</p>
+                    </div>
+                    <button class="btn btn-primary" style="margin-top: 15px;" onclick="showAddWin()">+ Ajouter une victoire</button>
+                </div>
+            </div>
+
+            <!-- Client: Chat with Coach -->
+            <div class="view" id="view-client-coach">
+                <h2 style="margin-bottom: 20px;">Parler a ma coach</h2>
+
+                <div class="chat-container">
+                    <div class="chat-messages" id="clientChatMessages">
+                        <!-- Filled dynamically -->
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" id="clientChatInput" placeholder="Ecrire a ta coach...">
+                        <button onclick="sendClientMessage()">➤</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURATION
+        // ============================================
+        const SUPABASE_URL = 'https://cuwkbxleeapxeyzdzqdr.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN1d2tieGxlZWFweGV5emR6cWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzEyNTEyNDAsImV4cCI6MjA0NjgyNzI0MH0.XYXMxXcLgvEd6DcS8Dxz5c_V9K3g4YqW5L0E4X8GRXE';
+
+        const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ============================================
+        // STATE
+        // ============================================
+        let currentUser = null;
+        let currentOrgUser = null;
+        let currentOrg = null;
+        let currentCohort = null;
+        let currentView = null;
+
+        // ============================================
+        // NAVIGATION BY ROLE
+        // ============================================
+        const NAV_CONFIG = {
+            admin: [
+                { id: 'admin-dashboard', label: 'Tableau de bord', icon: '📊' },
+                { id: 'admin-cohorts', label: 'Cohortes', icon: '👥' },
+                { id: 'admin-messages', label: 'Messages', icon: '💌' },
+                { id: 'admin-prompts', label: 'Prompts', icon: '🤖' },
+                { id: 'admin-whitelabel', label: 'White Label', icon: '🎨' },
+            ],
+            coach: [
+                { id: 'coach-dashboard', label: 'Tableau de bord', icon: '📊' },
+                { id: 'coach-clients', label: 'Mes clientes', icon: '👥' },
+                { id: 'coach-chat', label: 'Messages', icon: '💬' },
+            ],
+            client: [
+                { id: 'client-home', label: 'Accueil', icon: '🏠' },
+                { id: 'client-create', label: 'Creer', icon: '✨' },
+                { id: 'client-progress', label: 'Progression', icon: '📈' },
+                { id: 'client-coach', label: 'Ma coach', icon: '💬' },
+            ]
+        };
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        async function init() {
+            try {
+                // Check auth
+                const { data: { user } } = await db.auth.getUser();
+
+                if (!user) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                currentUser = user;
+
+                // Get org_user info
+                const { data: orgUser, error } = await supabase
+                    .from('org_users')
+                    .select('*, organizations(*), cohorts(*)')
+                    .eq('user_id', user.id)
+                    .single();
+
+                if (error || !orgUser) {
+                    console.error('No org_user found:', error);
+                    // For demo, create a mock user
+                    currentOrgUser = {
+                        id: 'demo',
+                        role: 'client',
+                        first_name: 'Demo',
+                        last_name: 'User',
+                        current_day: 15,
+                        posts_count: 7
+                    };
+                    currentOrg = {
+                        app_name: 'SOS Storytelling',
+                        primary_color: '#6366F1',
+                        secondary_color: '#8B5CF6'
+                    };
+                } else {
+                    currentOrgUser = orgUser;
+                    currentOrg = orgUser.organizations;
+                    currentCohort = orgUser.cohorts;
+                }
+
+                // Apply white label
+                applyWhiteLabel();
+
+                // Setup navigation
+                setupNavigation();
+
+                // Show app
+                document.getElementById('loadingScreen').classList.add('hidden');
+                document.getElementById('appContainer').style.display = 'block';
+
+                // Load initial view
+                const firstNav = NAV_CONFIG[currentOrgUser.role]?.[0];
+                if (firstNav) {
+                    showView(firstNav.id);
+                }
+
+            } catch (error) {
+                console.error('Init error:', error);
+                document.getElementById('loadingText').textContent = 'Erreur de chargement';
+            }
+        }
+
+        // ============================================
+        // WHITE LABEL
+        // ============================================
+        function applyWhiteLabel() {
+            if (!currentOrg) return;
+
+            // Update CSS variables
+            document.documentElement.style.setProperty('--primary', currentOrg.primary_color || '#6366F1');
+            document.documentElement.style.setProperty('--secondary', currentOrg.secondary_color || '#8B5CF6');
+
+            // Update title
+            document.getElementById('appTitle').textContent = currentOrg.app_name || 'SOS Storytelling';
+            document.getElementById('headerTitle').textContent = currentOrg.app_name || 'SOS Storytelling';
+            document.getElementById('themeColor').content = currentOrg.primary_color || '#6366F1';
+
+            // Update logo
+            if (currentOrg.logo_url) {
+                document.getElementById('headerLogo').src = currentOrg.logo_url;
+            }
+
+            // Update loading message
+            if (currentOrg.loading_message) {
+                document.getElementById('loadingText').textContent = currentOrg.loading_message;
+            }
+
+            // Update user badge
+            const initials = (currentOrgUser.first_name?.[0] || '') + (currentOrgUser.last_name?.[0] || '');
+            document.getElementById('userAvatar').textContent = initials || '?';
+            document.getElementById('userName').textContent = currentOrgUser.first_name || 'Utilisateur';
+            document.getElementById('userRole').textContent = currentOrgUser.role;
+            document.getElementById('userRole').className = `role-badge ${currentOrgUser.role}`;
+        }
+
+        // ============================================
+        // NAVIGATION
+        // ============================================
+        function setupNavigation() {
+            const navTabs = document.getElementById('navTabs');
+            const role = currentOrgUser?.role || 'client';
+            const navItems = NAV_CONFIG[role] || NAV_CONFIG.client;
+
+            navTabs.innerHTML = navItems.map(item => `
+                <button class="nav-tab" data-view="${item.id}" onclick="showView('${item.id}')">
+                    <span>${item.icon}</span>
+                    <span>${item.label}</span>
+                </button>
+            `).join('');
+        }
+
+        function showView(viewId) {
+            // Hide all views
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+
+            // Show selected view
+            const view = document.getElementById(`view-${viewId}`);
+            if (view) {
+                view.classList.add('active');
+                currentView = viewId;
+
+                // Update nav
+                document.querySelectorAll('.nav-tab').forEach(tab => {
+                    tab.classList.toggle('active', tab.dataset.view === viewId);
+                });
+
+                // Load view data
+                loadViewData(viewId);
+            }
+        }
+
+        async function loadViewData(viewId) {
+            switch (viewId) {
+                case 'admin-dashboard':
+                    await loadAdminDashboard();
+                    break;
+                case 'coach-dashboard':
+                    await loadCoachDashboard();
+                    break;
+                case 'coach-clients':
+                    await loadCoachClients();
+                    break;
+                case 'client-home':
+                    await loadClientHome();
+                    break;
+                case 'client-progress':
+                    await loadClientProgress();
+                    break;
+            }
+        }
+
+        // ============================================
+        // ADMIN FUNCTIONS
+        // ============================================
+        async function loadAdminDashboard() {
+            // Demo data
+            document.getElementById('statTotalClients').textContent = '142';
+            document.getElementById('statTotalCoaches').textContent = '45';
+            document.getElementById('statOnTrack').textContent = '87%';
+            document.getElementById('statAlerts').textContent = '8';
+        }
+
+        async function saveWhiteLabel() {
+            const updates = {
+                app_name: document.getElementById('wlAppName').value,
+                primary_color: document.getElementById('wlPrimaryColor').value,
+                secondary_color: document.getElementById('wlSecondaryColor').value,
+                loading_message: document.getElementById('wlLoadingMessage').value
+            };
+
+            try {
+                const { error } = await supabase
+                    .from('organizations')
+                    .update(updates)
+                    .eq('id', currentOrg.id);
+
+                if (error) throw error;
+
+                alert('Configuration sauvegardee !');
+                Object.assign(currentOrg, updates);
+                applyWhiteLabel();
+            } catch (error) {
+                console.error('Save error:', error);
+                alert('Erreur lors de la sauvegarde');
+            }
+        }
+
+        function previewWhiteLabel() {
+            document.documentElement.style.setProperty('--primary', document.getElementById('wlPrimaryColor').value);
+            document.documentElement.style.setProperty('--secondary', document.getElementById('wlSecondaryColor').value);
+            document.getElementById('headerTitle').textContent = document.getElementById('wlAppName').value || 'Preview';
+        }
+
+        // ============================================
+        // COACH FUNCTIONS
+        // ============================================
+        async function loadCoachDashboard() {
+            // Demo data
+            document.getElementById('coachStatClients').textContent = '8';
+            document.getElementById('coachStatOnTrack').textContent = '6';
+            document.getElementById('coachStatAlerts').textContent = '2';
+            document.getElementById('coachStatMessages').textContent = '3';
+        }
+
+        async function loadCoachClients() {
+            const clientsList = document.getElementById('coachClientsList');
+
+            // Demo data
+            const clients = [
+                { name: 'Marie D.', day: 15, posts: 3, mood: '😢', status: 'alert' },
+                { name: 'Sophie L.', day: 15, posts: 0, mood: '😐', status: 'behind' },
+                { name: 'Lea M.', day: 15, posts: 7, mood: '😊', status: 'on-track' },
+                { name: 'Julie R.', day: 15, posts: 5, mood: '🔥', status: 'on-track' },
+                { name: 'Emma B.', day: 15, posts: 4, mood: '😊', status: 'on-track' },
+            ];
+
+            const header = clientsList.querySelector('.client-row');
+            clientsList.innerHTML = '';
+            clientsList.appendChild(header);
+
+            clients.forEach(client => {
+                const row = document.createElement('div');
+                row.className = 'client-row';
+                row.innerHTML = `
+                    <div class="client-info">
+                        <div class="client-avatar">${client.name.split(' ').map(n => n[0]).join('')}</div>
+                        <span class="client-name">${client.name}</span>
+                    </div>
+                    <div style="text-align: center;">${client.day}</div>
+                    <div style="text-align: center;">${client.posts}</div>
+                    <div class="mood-emoji">${client.mood}</div>
+                    <div><span class="status-badge ${client.status}">${client.status === 'on-track' ? 'On track' : client.status === 'behind' ? 'Retard' : 'Alerte'}</span></div>
+                `;
+                clientsList.appendChild(row);
+            });
+        }
+
+        // ============================================
+        // CLIENT FUNCTIONS
+        // ============================================
+        async function loadClientHome() {
+            // Demo daily message
+            const messageContent = `Hey ${currentOrgUser.first_name || 'toi'} !
+
+Jour ${currentOrgUser.current_day || 15}/90 — Tu es a mi-chemin du premier mois !
+
+Hier, tu as publie ton post sur l'echec de ton premier lancement. 2 340 vues, 47 likes.
+C'est ton meilleur score depuis le debut. 🎉
+
+Aujourd'hui, ton objectif : ecrire le hook de ton post "origine".
+
+Go go go ! 🚀`;
+
+            document.getElementById('clientMessageContent').textContent = messageContent;
+            document.getElementById('clientMessageAuthor').textContent = `— ${currentOrg?.app_name || 'Nina'}`;
+        }
+
+        async function loadClientProgress() {
+            document.getElementById('clientDay').textContent = currentOrgUser.current_day || 1;
+            document.getElementById('clientPosts').textContent = currentOrgUser.posts_count || 0;
+            document.getElementById('clientNewsletters').textContent = currentOrgUser.newsletters_count || 0;
+        }
+
+        function selectMood(mood) {
+            document.querySelectorAll('.mood-btn').forEach(btn => {
+                btn.classList.toggle('selected', btn.dataset.mood === mood);
+            });
+
+            // Save mood
+            saveMood(mood);
+        }
+
+        async function saveMood(mood) {
+            const moodEmojis = {
+                sad: '😢',
+                meh: '😐',
+                good: '😊',
+                great: '🔥',
+                amazing: '🚀'
+            };
+
+            try {
+                await supabase
+                    .from('org_users')
+                    .update({
+                        mood_today: moodEmojis[mood],
+                        mood_note: document.getElementById('moodNote').value,
+                        mood_updated_at: new Date().toISOString()
+                    })
+                    .eq('id', currentOrgUser.id);
+
+                // Also save to history
+                await supabase
+                    .from('mood_history')
+                    .insert({
+                        user_id: currentOrgUser.id,
+                        mood: moodEmojis[mood],
+                        note: document.getElementById('moodNote').value
+                    });
+
+            } catch (error) {
+                console.error('Mood save error:', error);
+            }
+        }
+
+        function goToCreate(type) {
+            // For now, redirect to main app
+            window.location.href = `app.html?type=${type}`;
+        }
+
+        // ============================================
+        // AUTH
+        // ============================================
+        async function logout() {
+            await db.auth.signOut();
+            window.location.href = 'login.html';
+        }
+
+        // ============================================
+        // INIT
+        // ============================================
+        document.addEventListener('DOMContentLoaded', init);
+
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('SW registered'))
+                .catch(err => console.log('SW registration failed'));
+        }
+
+        // ============================================
+        // PROMPTS & FRAMEWORKS MANAGEMENT
+        // ============================================
+
+        let promptTemplates = [];
+        let editingPromptId = null;
+        let editingFrameworkId = null;
+
+        // Load prompt templates
+        async function loadPromptTemplates() {
+            try {
+                const { data, error } = await supabase
+                    .from('prompt_templates')
+                    .select('*')
+                    .order('display_order');
+
+                if (!error && data) {
+                    promptTemplates = data;
+                }
+            } catch (e) {
+                console.error('Error loading templates:', e);
+            }
+        }
+
+        // Show add prompt modal
+        function showAddPrompt() {
+            editingPromptId = null;
+            document.getElementById('promptModal').classList.add('show');
+            document.getElementById('promptModalTitle').textContent = '+ Ajouter un prompt';
+            document.getElementById('promptName').value = '';
+            document.getElementById('promptType').value = '';
+            document.getElementById('promptContent').value = '';
+            document.getElementById('promptReplaceDefault').checked = false;
+        }
+
+        // Show add framework modal
+        function showAddFramework() {
+            editingFrameworkId = null;
+            document.getElementById('frameworkModal').classList.add('show');
+            document.getElementById('frameworkModalTitle').textContent = '+ Ajouter un framework';
+            document.getElementById('frameworkName').value = '';
+            document.getElementById('frameworkCategory').value = '';
+            document.getElementById('frameworkContent').value = '';
+        }
+
+        // Close modals
+        function closePromptModal() {
+            document.getElementById('promptModal').classList.remove('show');
+        }
+
+        function closeFrameworkModal() {
+            document.getElementById('frameworkModal').classList.remove('show');
+        }
+
+        // Save prompt
+        async function savePrompt() {
+            const name = document.getElementById('promptName').value.trim();
+            const type = document.getElementById('promptType').value;
+            const content = document.getElementById('promptContent').value.trim();
+            const replaceDefault = document.getElementById('promptReplaceDefault').checked;
+
+            if (!name || !type || !content) {
+                alert('Remplis tous les champs obligatoires');
+                return;
+            }
+
+            const promptData = {
+                organization_id: currentOrg.id,
+                name,
+                prompt_type: type,
+                prompt_content: content,
+                replaces_default: replaceDefault,
+                is_active: true
+            };
+
+            try {
+                if (editingPromptId) {
+                    await supabase
+                        .from('org_prompts')
+                        .update(promptData)
+                        .eq('id', editingPromptId);
+                } else {
+                    await supabase
+                        .from('org_prompts')
+                        .insert(promptData);
+                }
+
+                closePromptModal();
+                loadOrgPrompts();
+                alert('Prompt sauvegarde !');
+            } catch (error) {
+                console.error('Save error:', error);
+                alert('Erreur lors de la sauvegarde');
+            }
+        }
+
+        // Save framework
+        async function saveFramework() {
+            const name = document.getElementById('frameworkName').value.trim();
+            const category = document.getElementById('frameworkCategory').value;
+            const content = document.getElementById('frameworkContent').value.trim();
+
+            if (!name || !category || !content) {
+                alert('Remplis tous les champs obligatoires');
+                return;
+            }
+
+            const frameworkData = {
+                organization_id: currentOrg.id,
+                name,
+                category,
+                content,
+                is_active: true
+            };
+
+            try {
+                if (editingFrameworkId) {
+                    await supabase
+                        .from('org_frameworks')
+                        .update(frameworkData)
+                        .eq('id', editingFrameworkId);
+                } else {
+                    await supabase
+                        .from('org_frameworks')
+                        .insert(frameworkData);
+                }
+
+                closeFrameworkModal();
+                loadOrgFrameworks();
+                alert('Framework sauvegarde !');
+            } catch (error) {
+                console.error('Save error:', error);
+                alert('Erreur lors de la sauvegarde');
+            }
+        }
+
+        // Load org prompts
+        async function loadOrgPrompts() {
+            if (!currentOrg?.id) return;
+
+            try {
+                const { data, error } = await supabase
+                    .from('org_prompts')
+                    .select('*')
+                    .eq('organization_id', currentOrg.id)
+                    .eq('is_active', true)
+                    .order('created_at', { ascending: false });
+
+                const container = document.getElementById('promptsList');
+
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">Aucun prompt personnalise. Cliquez sur "Ajouter" pour en creer un.</div>';
+                    return;
+                }
+
+                container.innerHTML = data.map(prompt => `
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--bg); border-radius: 8px; margin-bottom: 8px;">
+                        <div>
+                            <strong>${prompt.name}</strong>
+                            <span style="font-size: 0.8rem; color: var(--text-muted); margin-left: 10px;">${prompt.prompt_type}</span>
+                            ${prompt.replaces_default ? '<span style="font-size: 0.7rem; background: var(--primary); color: white; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">Actif</span>' : ''}
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-secondary" onclick="testPrompt('${prompt.id}')">Tester</button>
+                            <button class="btn btn-secondary" onclick="editPrompt('${prompt.id}')">Modifier</button>
+                            <button class="btn btn-secondary" onclick="deletePrompt('${prompt.id}')" style="color: var(--danger);">Supprimer</button>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('Load prompts error:', error);
+            }
+        }
+
+        // Load org frameworks
+        async function loadOrgFrameworks() {
+            if (!currentOrg?.id) return;
+
+            try {
+                const { data, error } = await supabase
+                    .from('org_frameworks')
+                    .select('*')
+                    .eq('organization_id', currentOrg.id)
+                    .eq('is_active', true)
+                    .order('created_at', { ascending: false });
+
+                const container = document.getElementById('frameworksList');
+
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">Aucun framework personnalise. Cliquez sur "Ajouter" pour en creer un.</div>';
+                    return;
+                }
+
+                container.innerHTML = data.map(fw => `
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--bg); border-radius: 8px; margin-bottom: 8px;">
+                        <div>
+                            <strong>${fw.name}</strong>
+                            <span style="font-size: 0.8rem; color: var(--text-muted); margin-left: 10px;">${fw.category}</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-secondary" onclick="editFramework('${fw.id}')">Modifier</button>
+                            <button class="btn btn-secondary" onclick="deleteFramework('${fw.id}')" style="color: var(--danger);">Supprimer</button>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('Load frameworks error:', error);
+            }
+        }
+
+        // Edit prompt
+        async function editPrompt(id) {
+            const { data: prompt } = await supabase
+                .from('org_prompts')
+                .select('*')
+                .eq('id', id)
+                .single();
+
+            if (prompt) {
+                editingPromptId = id;
+                document.getElementById('promptModal').classList.add('show');
+                document.getElementById('promptModalTitle').textContent = 'Modifier le prompt';
+                document.getElementById('promptName').value = prompt.name;
+                document.getElementById('promptType').value = prompt.prompt_type;
+                document.getElementById('promptContent').value = prompt.prompt_content;
+                document.getElementById('promptReplaceDefault').checked = prompt.replaces_default;
+            }
+        }
+
+        // Delete prompt
+        async function deletePrompt(id) {
+            if (!confirm('Supprimer ce prompt ?')) return;
+
+            await supabase
+                .from('org_prompts')
+                .update({ is_active: false })
+                .eq('id', id);
+
+            loadOrgPrompts();
+        }
+
+        // Delete framework
+        async function deleteFramework(id) {
+            if (!confirm('Supprimer ce framework ?')) return;
+
+            await supabase
+                .from('org_frameworks')
+                .update({ is_active: false })
+                .eq('id', id);
+
+            loadOrgFrameworks();
+        }
+
+        // Test prompt
+        async function testPrompt(id) {
+            document.getElementById('promptTestModal').classList.add('show');
+            document.getElementById('testPromptId').value = id;
+            document.getElementById('testResult').innerHTML = '';
+        }
+
+        async function runPromptTest() {
+            const id = document.getElementById('testPromptId').value;
+            const topic = document.getElementById('testTopic').value;
+            const audience = document.getElementById('testAudience').value;
+
+            const { data: prompt } = await supabase
+                .from('org_prompts')
+                .select('*')
+                .eq('id', id)
+                .single();
+
+            if (!prompt) return;
+
+            // Replace variables
+            let finalPrompt = prompt.prompt_content
+                .replace(/\{topic\}/gi, topic)
+                .replace(/\{audience\}/gi, audience)
+                .replace(/\{tone\}/gi, 'Direct et chaleureux');
+
+            document.getElementById('testResult').innerHTML = `
+                <div style="background: var(--bg); padding: 15px; border-radius: 8px; margin-top: 15px;">
+                    <strong>Prompt compile :</strong>
+                    <pre style="white-space: pre-wrap; margin-top: 10px; font-size: 0.85rem;">${finalPrompt}</pre>
+                </div>
+                <p style="margin-top: 15px; color: var(--text-muted); font-size: 0.9rem;">
+                    Pour tester avec l'IA, copie ce prompt et utilise-le dans l'interface de creation.
+                </p>
+            `;
+        }
+
+        function closeTestModal() {
+            document.getElementById('promptTestModal').classList.remove('show');
+        }
+
+        // Use template
+        function usePromptTemplate(templateId) {
+            const template = promptTemplates.find(t => t.id === templateId);
+            if (template) {
+                document.getElementById('promptContent').value = template.prompt_content;
+                document.getElementById('promptType').value = template.category === 'hooks' ? 'hook_generator' :
+                    template.category === 'posts' ? 'post_writer' :
+                    template.category === 'newsletters' ? 'newsletter_writer' : 'post_writer';
+                closeTemplateModal();
+            }
+        }
+
+        function showTemplateModal() {
+            loadPromptTemplates().then(() => {
+                document.getElementById('templateModal').classList.add('show');
+                renderTemplates();
+            });
+        }
+
+        function closeTemplateModal() {
+            document.getElementById('templateModal').classList.remove('show');
+        }
+
+        function renderTemplates() {
+            const container = document.getElementById('templateList');
+            const grouped = {};
+
+            promptTemplates.forEach(t => {
+                if (!grouped[t.category]) grouped[t.category] = [];
+                grouped[t.category].push(t);
+            });
+
+            container.innerHTML = Object.entries(grouped).map(([category, templates]) => `
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 10px; text-transform: capitalize;">${category}</h4>
+                    ${templates.map(t => `
+                        <div style="padding: 12px; background: var(--bg); border-radius: 8px; margin-bottom: 8px; cursor: pointer;" onclick="usePromptTemplate('${t.id}')">
+                            <strong>${t.name}</strong>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">${t.description || ''}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            `).join('');
+        }
+
+        // Load data when viewing prompts tab
+        const originalLoadViewData = loadViewData;
+        loadViewData = async function(viewId) {
+            await originalLoadViewData(viewId);
+            if (viewId === 'admin-prompts') {
+                loadOrgPrompts();
+                loadOrgFrameworks();
+            }
+        };
+    </script>
+
+    <!-- ============================================ -->
+    <!-- MODALS -->
+    <!-- ============================================ -->
+
+    <!-- Prompt Modal -->
+    <div id="promptModal" class="modal-overlay" onclick="if(event.target===this) closePromptModal()">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 id="promptModalTitle">+ Ajouter un prompt</h3>
+                <button onclick="closePromptModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Nom du prompt *</label>
+                    <input type="text" id="promptName" placeholder="Ex: Mon generateur de hooks" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Type *</label>
+                    <select id="promptType" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                        <option value="">Selectionner...</option>
+                        <option value="hook_generator">Generateur de hooks</option>
+                        <option value="post_writer">Redacteur de posts</option>
+                        <option value="newsletter_writer">Redacteur de newsletters</option>
+                        <option value="email_writer">Redacteur d'emails</option>
+                        <option value="dm_writer">Redacteur de DM</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                        <label style="font-weight: 500;">Contenu du prompt *</label>
+                        <button class="btn btn-secondary" onclick="showTemplateModal()" style="font-size: 0.8rem; padding: 5px 10px;">Partir d'un template</button>
+                    </div>
+                    <textarea id="promptContent" rows="12" placeholder="Tu es un copywriter expert...
+
+REGLES :
+- ...
+
+SUJET : {topic}
+AUDIENCE : {audience}
+
+Genere..." style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-family: monospace; font-size: 0.9rem;"></textarea>
+                </div>
+
+                <div style="background: var(--bg); padding: 12px; border-radius: 8px; margin-bottom: 15px;">
+                    <strong style="font-size: 0.85rem;">Variables disponibles :</strong>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;">
+                        <code style="background: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem;">{topic}</code>
+                        <code style="background: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem;">{audience}</code>
+                        <code style="background: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem;">{tone}</code>
+                        <code style="background: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem;">{platform}</code>
+                        <code style="background: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem;">{client_name}</code>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="promptReplaceDefault">
+                        <span>Remplacer le prompt par defaut (les clientes utiliseront ce prompt)</span>
+                    </label>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button class="btn btn-secondary" onclick="closePromptModal()">Annuler</button>
+                    <button class="btn btn-primary" onclick="savePrompt()">Sauvegarder</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Framework Modal -->
+    <div id="frameworkModal" class="modal-overlay" onclick="if(event.target===this) closeFrameworkModal()">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 id="frameworkModalTitle">+ Ajouter un framework</h3>
+                <button onclick="closeFrameworkModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Nom du framework *</label>
+                    <input type="text" id="frameworkName" placeholder="Ex: Structure Post LinkedIn" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Categorie *</label>
+                    <select id="frameworkCategory" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                        <option value="">Selectionner...</option>
+                        <option value="post">Post</option>
+                        <option value="newsletter">Newsletter</option>
+                        <option value="email">Email</option>
+                        <option value="hook">Hook</option>
+                        <option value="dm">DM Prospection</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Structure du framework *</label>
+                    <textarea id="frameworkContent" rows="12" placeholder="1. HOOK (2 lignes)
+Objectif : Capter l'attention
+
+2. PROBLEME (3-4 lignes)
+Objectif : Creer l'identification
+
+3. SOLUTION (3-4 lignes)
+Objectif : Apporter de la valeur
+
+4. CTA (1-2 lignes)
+Objectif : Engager le lecteur" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-family: monospace; font-size: 0.9rem;"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button class="btn btn-secondary" onclick="closeFrameworkModal()">Annuler</button>
+                    <button class="btn btn-primary" onclick="saveFramework()">Sauvegarder</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template Modal -->
+    <div id="templateModal" class="modal-overlay" onclick="if(event.target===this) closeTemplateModal()">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>Choisir un template</h3>
+                <button onclick="closeTemplateModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <div class="modal-body" id="templateList" style="max-height: 400px; overflow-y: auto;">
+                <!-- Filled dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Test Prompt Modal -->
+    <div id="promptTestModal" class="modal-overlay" onclick="if(event.target===this) closeTestModal()">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>Tester le prompt</h3>
+                <button onclick="closeTestModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="testPromptId">
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">{topic}</label>
+                    <input type="text" id="testTopic" placeholder="Ex: Comment vaincre le syndrome de l'imposteur" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">{audience}</label>
+                    <input type="text" id="testAudience" placeholder="Ex: Entrepreneures qui lancent leur activite" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                </div>
+
+                <button class="btn btn-primary" onclick="runPromptTest()" style="width: 100%;">Tester</button>
+
+                <div id="testResult"></div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Modal styles */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 16px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-header h3 {
+            font-size: 1.2rem;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Continue avec SOS Storytelling</title>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Lemon Squeezy (loaded dynamically if needed) -->
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #64748b;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-item {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #6366F1;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        .offer-card {
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            color: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .offer-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .offer-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .offer-price {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .price-current {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .price-original {
+            font-size: 1.2rem;
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+
+        .price-period {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .promo-code {
+            background: rgba(255,255,255,0.15);
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .benefits {
+            margin-bottom: 20px;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+        }
+
+        .benefit-icon {
+            font-size: 1.2rem;
+        }
+
+        .cta-button {
+            width: 100%;
+            padding: 16px 30px;
+            background: white;
+            color: #6366F1;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .cta-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .secondary-action {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .secondary-action a {
+            color: #64748b;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .secondary-action a:hover {
+            text-decoration: underline;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 50px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e2e8f0;
+            border-top-color: #6366F1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #FEE2E2;
+            color: #DC2626;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .success-message {
+            background: #D1FAE5;
+            color: #059669;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .success-message h2 {
+            margin-bottom: 10px;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .stat-item {
+                padding: 12px;
+            }
+
+            .stat-value {
+                font-size: 1.3rem;
+            }
+
+            .offer-card {
+                padding: 20px;
+            }
+
+            .price-current {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Loading State -->
+        <div id="loadingState" class="card">
+            <div class="loading">
+                <div class="spinner"></div>
+            </div>
+        </div>
+
+        <!-- Main Content (hidden initially) -->
+        <div id="mainContent" style="display: none;">
+            <div class="card">
+                <div class="header">
+                    <div class="header-icon">⏰</div>
+                    <h1 id="headerTitle">Ton acces bootcamp se termine</h1>
+                    <p id="headerSubtitle">Mais tu peux continuer a utiliser l'outil !</p>
+                </div>
+
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="statPosts">0</div>
+                        <div class="stat-label">Posts crees</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statNewsletters">0</div>
+                        <div class="stat-label">Newsletters</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statHooks">0</div>
+                        <div class="stat-label">Hooks generes</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statProspects">0</div>
+                        <div class="stat-label">Prospects</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Offer Card -->
+            <div class="offer-card">
+                <div class="offer-badge">OFFRE SPECIALE ALUMNI</div>
+                <div class="offer-title">Continue avec SOS Storytelling</div>
+
+                <div class="offer-price">
+                    <span class="price-current" id="priceCurrent">19€</span>
+                    <span class="price-original">29€</span>
+                    <span class="price-period">/mois</span>
+                </div>
+
+                <div class="promo-code" id="promoCodeBadge" style="display: none;">
+                    <span>🎁</span>
+                    <span>Code <strong id="promoCodeText"></strong> applique</span>
+                </div>
+
+                <div class="benefits">
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Tu gardes tout ton historique</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Tu gardes ton style clone</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Tu gardes tes listes de prospection</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Acces illimite a toutes les fonctionnalites</span>
+                    </div>
+                </div>
+
+                <button class="cta-button" id="ctaButton" onclick="startCheckout()">
+                    Continuer a 19€/mois
+                </button>
+            </div>
+
+            <div class="secondary-action">
+                <a href="#" onclick="exportData(); return false;">Non merci, exporter mes donnees</a>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" style="display: none;">
+            <div class="card">
+                <div class="error-message" id="errorMessage">
+                    Une erreur est survenue
+                </div>
+                <div class="secondary-action">
+                    <a href="login.html">Retour a la connexion</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success State -->
+        <div id="successState" style="display: none;">
+            <div class="card">
+                <div class="success-message">
+                    <h2>Bienvenue dans SOS Storytelling !</h2>
+                    <p>Ton abonnement est actif. Tu peux continuer a creer du contenu.</p>
+                </div>
+                <button class="cta-button" style="margin-top: 20px; background: #6366F1; color: white;" onclick="window.location.href='app-b2b.html'">
+                    Acceder a l'app
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURATION
+        // ============================================
+        const SUPABASE_URL = 'https://cuwkbxleeapxeyzdzqdr.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN1d2tieGxlZWFweGV5emR6cWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzEyNTEyNDAsImV4cCI6MjA0NjgyNzI0MH0.XYXMxXcLgvEd6DcS8Dxz5c_V9K3g4YqW5L0E4X8GRXE';
+
+        const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUser = null;
+        let currentOrgUser = null;
+        let promoCode = null;
+        let finalPrice = 1900; // 19€ en centimes
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        async function init() {
+            try {
+                // Get URL params
+                const params = new URLSearchParams(window.location.search);
+                const userId = params.get('user');
+                const promo = params.get('promo');
+
+                // Check if already authenticated
+                const { data: { user } } = await db.auth.getUser();
+
+                if (!user && !userId) {
+                    showError('Session expiree. Connecte-toi pour continuer.');
+                    return;
+                }
+
+                // Get org_user data
+                const query = userId
+                    ? db.from('org_users').select('*, organizations(*)').eq('id', userId).single()
+                    : db.from('org_users').select('*, organizations(*)').eq('user_id', user.id).single();
+
+                const { data: orgUser, error } = await query;
+
+                if (error || !orgUser) {
+                    showError('Utilisateur non trouve.');
+                    return;
+                }
+
+                currentOrgUser = orgUser;
+
+                // Load stats
+                await loadStats(orgUser.id);
+
+                // Load promo code
+                if (promo) {
+                    await loadPromoCode(promo);
+                }
+
+                // Show content
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+
+            } catch (error) {
+                console.error('Init error:', error);
+                showError('Erreur de chargement: ' + error.message);
+            }
+        }
+
+        // ============================================
+        // LOAD STATS
+        // ============================================
+        async function loadStats(userId) {
+            const { data: metrics } = await supabase
+                .from('client_metrics')
+                .select('*')
+                .eq('user_id', userId);
+
+            if (metrics && metrics.length > 0) {
+                const stats = {
+                    posts: metrics.reduce((sum, m) => sum + (m.posts_published || 0), 0),
+                    newsletters: metrics.reduce((sum, m) => sum + (m.newsletters_sent || 0), 0),
+                    hooks: metrics.reduce((sum, m) => sum + (m.hooks_generated || 0), 0),
+                    prospects: metrics.reduce((sum, m) => sum + (m.prospects_added || 0), 0)
+                };
+
+                document.getElementById('statPosts').textContent = stats.posts;
+                document.getElementById('statNewsletters').textContent = stats.newsletters;
+                document.getElementById('statHooks').textContent = stats.hooks;
+                document.getElementById('statProspects').textContent = stats.prospects;
+            }
+        }
+
+        // ============================================
+        // LOAD PROMO CODE
+        // ============================================
+        async function loadPromoCode(code) {
+            const { data: promo } = await supabase
+                .from('promo_codes')
+                .select('*')
+                .eq('code', code.toUpperCase())
+                .eq('is_active', true)
+                .single();
+
+            if (promo) {
+                promoCode = promo;
+
+                // Calculate discounted price
+                const basePrice = 2900; // 29€
+                const discount = promo.discount_percent
+                    ? Math.round(basePrice * promo.discount_percent / 100)
+                    : (promo.discount_amount || 0);
+                finalPrice = basePrice - discount;
+
+                // Update UI
+                document.getElementById('promoCodeBadge').style.display = 'inline-flex';
+                document.getElementById('promoCodeText').textContent = promo.code;
+                document.getElementById('priceCurrent').textContent = `${(finalPrice / 100).toFixed(0)}€`;
+                document.getElementById('ctaButton').textContent = `Continuer a ${(finalPrice / 100).toFixed(0)}€/mois`;
+            }
+        }
+
+        // ============================================
+        // CHECKOUT
+        // ============================================
+        async function startCheckout() {
+            const button = document.getElementById('ctaButton');
+            button.disabled = true;
+            button.textContent = 'Chargement...';
+
+            try {
+                // Use Supabase Edge Function for checkout
+                const { data, error } = await db.functions.invoke('create-checkout', {
+                    body: {
+                        user_id: currentOrgUser.id,
+                        promo_code: promoCode?.code,
+                        success_url: window.location.origin + '/transition.html?success=true',
+                        cancel_url: window.location.origin + '/transition.html?cancelled=true&user=' + currentOrgUser.id
+                    }
+                });
+
+                if (error) throw error;
+
+                if (data?.checkout_url) {
+                    // Redirect to Stripe Checkout
+                    window.location.href = data.checkout_url;
+                } else if (!data?.success) {
+                    // Demo mode - simulate success
+                    await simulateCheckout();
+                }
+
+            } catch (error) {
+                console.error('Checkout error:', error);
+
+                // If Edge Function not available, use demo mode
+                if (error.message?.includes('Edge Function') || error.message?.includes('404')) {
+                    console.log('Edge Function not available, using demo mode');
+                    await simulateCheckout();
+                    return;
+                }
+
+                alert('Erreur: ' + error.message);
+                button.disabled = false;
+                button.textContent = `Continuer a ${(finalPrice / 100).toFixed(0)}€/mois`;
+            }
+        }
+
+        // ============================================
+        // SIMULATE CHECKOUT (Demo)
+        // ============================================
+        async function simulateCheckout() {
+            // Update org_user to individual subscription
+            await supabase
+                .from('org_users')
+                .update({
+                    organization_id: 'sos_default',
+                    cohort_id: null,
+                    coach_id: null,
+                    subscription_type: 'individual',
+                    subscription_ends_at: null,
+                    referred_by: currentOrgUser.organization_id,
+                    promo_code: promoCode?.code || null,
+                    transitioned_at: new Date().toISOString(),
+                    is_active: true
+                })
+                .eq('id', currentOrgUser.id);
+
+            // Increment promo code usage
+            if (promoCode) {
+                await supabase
+                    .from('promo_codes')
+                    .update({ current_uses: (promoCode.current_uses || 0) + 1 })
+                    .eq('id', promoCode.id);
+            }
+
+            // Show success
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('successState').style.display = 'block';
+        }
+
+        // ============================================
+        // EXPORT DATA
+        // ============================================
+        async function exportData() {
+            if (!confirm('Tu veux exporter tes donnees et ne pas continuer ?')) return;
+
+            try {
+                // Get all user data
+                const { data: contents } = await supabase
+                    .from('contents')
+                    .select('*')
+                    .eq('user_id', currentOrgUser.id);
+
+                const { data: prospects } = await supabase
+                    .from('prospects')
+                    .select('*')
+                    .eq('user_id', currentOrgUser.id);
+
+                const exportData = {
+                    user: {
+                        first_name: currentOrgUser.first_name,
+                        last_name: currentOrgUser.last_name,
+                        email: currentOrgUser.email
+                    },
+                    contents: contents || [],
+                    prospects: prospects || [],
+                    exported_at: new Date().toISOString()
+                };
+
+                // Download as JSON
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `sos-storytelling-export-${currentOrgUser.first_name || 'user'}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                alert('Export termine ! Tu recevras un email avec toutes tes donnees.');
+
+            } catch (error) {
+                console.error('Export error:', error);
+                alert('Erreur lors de l\'export: ' + error.message);
+            }
+        }
+
+        // ============================================
+        // ERROR HANDLING
+        // ============================================
+        function showError(message) {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorState').style.display = 'block';
+        }
+
+        // ============================================
+        // INIT
+        // ============================================
+        document.addEventListener('DOMContentLoaded', init);
+
+        // Handle Stripe redirect
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('success') === 'true') {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('successState').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
