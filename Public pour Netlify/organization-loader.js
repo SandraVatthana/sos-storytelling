@@ -32,8 +32,8 @@ function detectDomain() {
   const hostname = window.location.hostname;
   const parts = hostname.split('.');
 
-  // Developpement local
-  if (ORG_CONFIG.localDomains.includes(hostname) || hostname.includes('localhost')) {
+  // Developpement local ou URLs Netlify de preview
+  if (ORG_CONFIG.localDomains.includes(hostname) || hostname.includes('localhost') || hostname.includes('netlify.app')) {
     // En local, on peut simuler avec un parametre URL ?org=ramentafraise
     const urlParams = new URLSearchParams(window.location.search);
     const orgParam = urlParams.get('org');

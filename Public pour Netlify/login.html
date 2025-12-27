@@ -283,8 +283,7 @@
     <div class="login-container">
         <div class="login-card">
             <div class="logo">
-                <img id="orgLogo" class="logo-img org-logo" src="" alt="" style="display: none;">
-                <div class="logo-icon" id="logoIcon">&#x270D;&#xFE0F;</div>
+                <img id="orgLogo" class="logo-img org-logo" src="logo-sos-storytelling.png" alt="SOS Storytelling" style="height: 60px; margin-bottom: 15px;">
                 <h1 id="appName" class="app-name">SOS Storytelling</h1>
                 <p id="appSubtitle">Plateforme B2B pour bootcamps</p>
             </div>
@@ -325,7 +324,7 @@
             <!-- Register Form (hidden) -->
             <form id="registerForm" style="display: none;" onsubmit="handleRegister(event)">
                 <div class="form-group">
-                    <label>Prenom</label>
+                    <label>Prénom</label>
                     <input type="text" id="registerFirstName" placeholder="Sandra" required>
                 </div>
 
@@ -345,32 +344,14 @@
                 </div>
 
                 <button type="submit" class="submit-btn" id="registerBtn">
-                    Creer mon compte
+                    Créer mon compte
                 </button>
             </form>
 
             <div class="footer">
-                <a href="transition.html">Deja un compte bootcamp ?</a>
+                <a href="transition.html">Déjà un compte bootcamp ?</a>
             </div>
 
-            <!-- Demo Users -->
-            <div class="demo-section">
-                <h3>Mode Demo (cliquer pour tester)</h3>
-                <div class="demo-users">
-                    <div class="demo-user" onclick="loginAsDemo('admin')">
-                        <div class="demo-icon">&#x1F469;&#x200D;&#x1F4BC;</div>
-                        <div class="demo-role">Admin</div>
-                    </div>
-                    <div class="demo-user" onclick="loginAsDemo('coach')">
-                        <div class="demo-icon">&#x1F469;&#x200D;&#x1F3EB;</div>
-                        <div class="demo-role">Coach</div>
-                    </div>
-                    <div class="demo-user" onclick="loginAsDemo('client')">
-                        <div class="demo-icon">&#x1F481;&#x200D;&#x2640;&#xFE0F;</div>
-                        <div class="demo-role">Cliente</div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -378,8 +359,8 @@
         // ============================================
         // CONFIGURATION
         // ============================================
-        const SUPABASE_URL = 'https://cuwkbxleeapxeyzdzqdr.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN1d2tieGxlZWFweGV5emR6cWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzEyNTEyNDAsImV4cCI6MjA0NjgyNzI0MH0.XYXMxXcLgvEd6DcS8Dxz5c_V9K3g4YqW5L0E4X8GRXE';
+        const SUPABASE_URL = 'https://pyxidmnckpnrargygwnf.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eGlkbW5ja3BucmFyZ3lnd25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyMzc4NzIsImV4cCI6MjA3OTgxMzg3Mn0.atm-LVna_TQyPuACZgA4ngJzzgIfJQJIdnLd9lCpOns';
 
         const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -442,7 +423,7 @@
             const btn = document.getElementById('registerBtn');
 
             btn.disabled = true;
-            btn.textContent = 'Creation...';
+            btn.textContent = 'Création...';
 
             try {
                 // Create auth user
@@ -526,7 +507,7 @@
                 showError(error.message);
             } finally {
                 btn.disabled = false;
-                btn.textContent = 'Creer mon compte';
+                btn.textContent = 'Créer mon compte';
             }
         }
 
@@ -551,7 +532,7 @@
 
                 if (error) throw error;
 
-                showSuccess('Magic link envoye ! Check ta boite mail.');
+                showSuccess('Magic link envoyé ! Vérifie ta boîte mail.');
 
             } catch (error) {
                 showError(error.message);
@@ -594,7 +575,7 @@
         // ROLE REDIRECT
         // ============================================
         async function redirectBasedOnRole(userId) {
-            const { data: orgUser } = await supabase
+            const { data: orgUser } = await db
                 .from('org_users')
                 .select('*, organizations(*)')
                 .eq('user_id', userId)
@@ -607,10 +588,17 @@
                     organization_id: 'sos_default',
                     role: 'client'
                 });
+                // New clients go to content creation app
+                window.location.href = 'app.html';
+                return;
             }
 
-            // All roles go to the same app, view is determined by role
-            window.location.href = 'app-b2b.html';
+            // Redirect based on role
+            if (orgUser.role === 'admin' || orgUser.role === 'coach') {
+                window.location.href = 'app-b2b.html';
+            } else {
+                window.location.href = 'app.html';
+            }
         }
 
         // ============================================

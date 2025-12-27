@@ -12,6 +12,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.8.5/dist/dotlottie-wc.js" type="module"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="organization-loader.js"></script>
     <link rel="stylesheet" href="agent-styles.css?v=20241205d">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -2445,6 +2447,11 @@
                     <a class="dropdown-item" onclick="closeDropdowns(); handleLogout()" style="color: #ff6b6b;">🚪 <span data-i18n="menu.logout">Déconnexion</span></a>
                 </div>
             </div>
+
+            <!-- Bouton retour menu principal -->
+            <a href="app-b2b.html" class="btn btn-dashboard" id="dashboardBtn" style="background: linear-gradient(135deg, #6366F1, #8B5CF6); color: white; border: none;">
+                ← Retour au menu
+            </a>
 
             <div id="languageToggleContainer"></div>
         </div>
@@ -9135,7 +9142,45 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
         }
 
         // ==================== INITIALISATION ====================
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Initialiser le white label si disponible
+            if (typeof window.OrganizationLoader !== 'undefined') {
+                const org = await window.OrganizationLoader.init();
+                if (org) {
+                    console.log('[App] White label actif:', org.app_name);
+                    // Mettre à jour le titre de la page
+                    if (org.app_name) {
+                        document.title = org.app_name;
+                        const headerTitle = document.querySelector('.header-title');
+                        if (headerTitle) headerTitle.textContent = org.app_name;
+                    }
+                    // Mettre à jour le logo
+                    if (org.logo_url) {
+                        const headerLogo = document.querySelector('.header-logo');
+                        if (headerLogo) headerLogo.innerHTML = `<img src="${org.logo_url}" alt="${org.app_name}" style="height: 40px;">`;
+                    }
+                }
+            }
+
+            // Vérifier si l'utilisateur est admin/coach pour afficher le bouton Dashboard
+            try {
+                const { data: { user } } = await window.supabase.auth.getUser();
+                if (user) {
+                    const { data: orgUser } = await window.supabase
+                        .from('org_users')
+                        .select('role')
+                        .eq('user_id', user.id)
+                        .single();
+
+                    if (orgUser && (orgUser.role === 'admin' || orgUser.role === 'coach')) {
+                        const dashboardBtn = document.getElementById('dashboardBtn');
+                        if (dashboardBtn) dashboardBtn.style.display = 'inline-flex';
+                    }
+                }
+            } catch (e) {
+                console.log('[App] Pas de vérification de rôle:', e.message);
+            }
+
             initSelectors();
             updateProfileButton();
             updatePillarSuggestion();
