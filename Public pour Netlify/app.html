@@ -15,6 +15,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="organization-loader.js"></script>
     <link rel="stylesheet" href="agent-styles.css?v=20241205d">
+    <link rel="stylesheet" href="missions-styles.css?v=20241230b">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Poppins', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 50%, #f093fb 100%); }
@@ -2416,6 +2417,7 @@
                         <a class="dropdown-item" onclick="closeDropdowns(); showProspectsModal()">👥 <span data-i18n="menu.my_prospects">Mes prospects</span></a>
                         <a class="dropdown-item" onclick="closeDropdowns(); showCampaignsModal()">📧 <span data-i18n="menu.create_campaign">Créer une campagne</span></a>
                         <a class="dropdown-item" onclick="closeDropdowns(); AgentAutopilot.openAutopilotModal()">🤖 Agent Autopilot</a>
+                        <a class="dropdown-item" onclick="closeDropdowns(); MissionsModule.openMissionsModal()" style="background: linear-gradient(135deg, #f093fb, #f5576c); color: white; border-radius: 8px; margin-top: 4px;">🚀 <span data-i18n="menu.missions">Missions Multi-Agents</span></a>
                         <a class="dropdown-item" onclick="closeDropdowns(); showBrevoConfigModal()">🔗 <span data-i18n="menu.config_brevo">Configurer Brevo</span></a>
                     </div>
                 </div>
@@ -2511,6 +2513,27 @@
                     </div>
                     <div class="quick-action-title" data-i18n="quick_actions.create_campaign">Campagnes emails</div>
                     <div class="quick-action-time"><span class="time-icon">⚡</span> 5 min</div>
+                </div>
+
+                <div class="quick-action-card" onclick="MissionsModule.openMissionsModal()" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                    <div class="quick-action-icon">
+                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                            <defs>
+                                <linearGradient id="iconGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#fff;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#ffe0f0;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            <circle cx="24" cy="24" r="16" stroke="url(#iconGrad3)" stroke-width="2.5" fill="none"/>
+                            <path d="M24 14V24L30 28" stroke="url(#iconGrad3)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M16 8L12 4" stroke="url(#iconGrad3)" stroke-width="2.5" stroke-linecap="round"/>
+                            <path d="M32 8L36 4" stroke="url(#iconGrad3)" stroke-width="2.5" stroke-linecap="round"/>
+                            <circle cx="38" cy="14" r="4" fill="url(#iconGrad3)"/>
+                            <circle cx="10" cy="14" r="4" fill="url(#iconGrad3)"/>
+                        </svg>
+                    </div>
+                    <div class="quick-action-title" style="color: white;">Missions Multi-Agents</div>
+                    <div class="quick-action-time" style="background: rgba(255,255,255,0.3);"><span class="time-icon">🚀</span> Autopilot</div>
                 </div>
 
             </div>
@@ -13770,6 +13793,7 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
 
     <!-- Module Agent Autopilot -->
     <script src="agent-module.js?v=20241205n"></script>
+    <script src="missions-module.js?v=20241230b"></script>
     <script>
         // Initialiser l'Agent Autopilot et vérifier le statut
         document.addEventListener('DOMContentLoaded', async function() {
