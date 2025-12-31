@@ -1,0 +1,769 @@
+/* =====================================================
+   MISSIONS MULTI-AGENTS - Styles CSS
+   SOS Storytelling - Autopilot Multi-Agents
+   ===================================================== */
+
+/* ==================== MODAL MISSIONS ==================== */
+.missions-modal {
+    max-width: 900px;
+    width: 95%;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.missions-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--gray-200);
+    padding: 0 24px;
+    background: var(--gray-50);
+}
+
+.missions-tabs .tab-btn {
+    padding: 16px 24px;
+    background: transparent;
+    border: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gray-500);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+}
+
+.missions-tabs .tab-btn:hover {
+    color: var(--primary);
+}
+
+.missions-tabs .tab-btn.active {
+    color: var(--primary);
+}
+
+.missions-tabs .tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--primary);
+}
+
+.missions-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+}
+
+.missions-content .tab-content {
+    display: none;
+}
+
+.missions-content .tab-content.active {
+    display: block;
+}
+
+/* ==================== NEW MISSION SCREEN ==================== */
+.new-mission-screen {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.mission-input-section {
+    margin-bottom: 32px;
+}
+
+.mission-input-section h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--gray-900);
+}
+
+.mission-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.mission-input-wrapper textarea {
+    width: 100%;
+    padding: 16px;
+    border: 2px solid var(--gray-200);
+    border-radius: 12px;
+    font-size: 15px;
+    line-height: 1.5;
+    resize: none;
+    transition: border-color 0.2s;
+}
+
+.mission-input-wrapper textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.btn-launch-mission {
+    align-self: flex-end;
+    padding: 14px 28px;
+    background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3);
+}
+
+.btn-launch-mission:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+}
+
+/* Templates Section */
+.mission-templates-section h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gray-500);
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.templates-categories {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.template-category h5 {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gray-700);
+    margin-bottom: 12px;
+}
+
+.template-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.template-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.template-card:hover {
+    background: white;
+    border-color: var(--primary);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.template-icon {
+    font-size: 18px;
+}
+
+.template-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--gray-700);
+}
+
+/* ==================== PROGRESS SCREEN ==================== */
+.mission-progress-screen {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.progress-header {
+    margin-bottom: 32px;
+}
+
+.progress-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.progress-header h3 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 8px;
+}
+
+.mission-command {
+    font-size: 14px;
+    color: var(--gray-500);
+    font-style: italic;
+}
+
+.progress-bar-container {
+    position: relative;
+    height: 8px;
+    background: var(--gray-200);
+    border-radius: 4px;
+    margin-bottom: 32px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary) 0%, #7c3aed 100%);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.progress-percent {
+    position: absolute;
+    right: 0;
+    top: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray-600);
+}
+
+.progress-steps {
+    text-align: left;
+    margin-bottom: 24px;
+}
+
+.progress-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    background: var(--gray-50);
+    transition: all 0.3s;
+}
+
+.progress-step.running {
+    background: rgba(124, 58, 237, 0.1);
+    border-left: 3px solid var(--primary);
+}
+
+.progress-step.completed {
+    opacity: 0.7;
+}
+
+.progress-step .step-status {
+    font-size: 18px;
+}
+
+.progress-step .step-label {
+    flex: 1;
+    font-size: 14px;
+    color: var(--gray-700);
+}
+
+.progress-step .step-duration {
+    font-size: 12px;
+    color: var(--gray-400);
+}
+
+.progress-thinking {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px;
+    background: var(--gray-50);
+    border-radius: 8px;
+    margin-bottom: 24px;
+}
+
+.thinking-icon {
+    font-size: 20px;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.thinking-text {
+    font-size: 14px;
+    color: var(--gray-600);
+    font-style: italic;
+}
+
+.progress-actions {
+    padding-top: 16px;
+    border-top: 1px solid var(--gray-200);
+}
+
+/* ==================== REVIEW SCREEN ==================== */
+.mission-review-screen {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.review-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.review-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.review-header h3 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+.review-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.overview-card {
+    background: var(--gray-50);
+    padding: 16px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.overview-label {
+    display: block;
+    font-size: 12px;
+    color: var(--gray-500);
+    margin-bottom: 4px;
+}
+
+.overview-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+.review-section {
+    margin-bottom: 24px;
+}
+
+.review-section h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: 12px;
+}
+
+.review-items {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Output Cards */
+.output-card {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    padding: 16px;
+    transition: all 0.2s;
+}
+
+.output-card:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.output-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.output-position {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.output-date {
+    font-size: 12px;
+    color: var(--gray-500);
+}
+
+.output-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 4px;
+}
+
+.output-subject {
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 4px;
+}
+
+.output-preview {
+    font-size: 13px;
+    color: var(--gray-500);
+    line-height: 1.4;
+}
+
+.output-warnings {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.warning-badge {
+    font-size: 11px;
+    padding: 4px 8px;
+    background: #fef3c7;
+    color: #92400e;
+    border-radius: 4px;
+}
+
+/* Verification Section */
+.verification-section {
+    background: var(--gray-50);
+    padding: 16px;
+    border-radius: 10px;
+}
+
+.verification-score {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.score-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--gray-200);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.score-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+    border-radius: 4px;
+    transition: width 0.5s;
+}
+
+.score-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gray-700);
+}
+
+.verification-details {
+    display: flex;
+    gap: 12px;
+}
+
+.verification-ok {
+    color: #059669;
+    font-size: 13px;
+}
+
+.verification-warning {
+    color: #d97706;
+    font-size: 13px;
+}
+
+.verification-error {
+    color: #dc2626;
+    font-size: 13px;
+}
+
+/* Impact Section */
+.impact-section {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+    padding: 16px;
+    border-radius: 10px;
+}
+
+.impact-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.impact-item {
+    background: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--gray-700);
+}
+
+/* Review Actions */
+.review-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding-top: 24px;
+    border-top: 1px solid var(--gray-200);
+}
+
+/* ==================== MISSIONS LIST ==================== */
+.missions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.mission-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.mission-card:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.mission-card.ready_for_review {
+    border-left: 3px solid var(--primary);
+}
+
+.mission-card.failed {
+    border-left: 3px solid #dc2626;
+    opacity: 0.7;
+}
+
+.mission-status {
+    flex-shrink: 0;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-badge.pending {
+    background: var(--gray-100);
+    color: var(--gray-600);
+}
+
+.status-badge.processing {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.status-badge.review {
+    background: #f3e8ff;
+    color: #7c3aed;
+}
+
+.status-badge.approved,
+.status-badge.completed {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.status-badge.failed {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.status-badge.cancelled {
+    background: var(--gray-100);
+    color: var(--gray-500);
+}
+
+.mission-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.mission-card .mission-command {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gray-900);
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mission-meta {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--gray-500);
+}
+
+.mission-progress {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.progress-mini {
+    width: 60px;
+    height: 4px;
+    background: var(--gray-200);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-mini-bar {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 2px;
+}
+
+/* ==================== EMPTY STATE ==================== */
+.empty-state {
+    text-align: center;
+    padding: 48px 24px;
+}
+
+.empty-state p {
+    color: var(--gray-500);
+    margin-bottom: 16px;
+}
+
+/* ==================== BUTTONS ==================== */
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-icon:hover {
+    background: var(--gray-50);
+    border-color: var(--gray-300);
+}
+
+.btn-primary {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+}
+
+.btn-secondary {
+    padding: 12px 24px;
+    background: white;
+    color: var(--gray-700);
+    border: 1px solid var(--gray-300);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background: var(--gray-50);
+    border-color: var(--gray-400);
+}
+
+/* ==================== LOADING & ERROR ==================== */
+.loading {
+    text-align: center;
+    padding: 24px;
+    color: var(--gray-500);
+}
+
+.error {
+    text-align: center;
+    padding: 24px;
+    color: #dc2626;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 640px) {
+    .missions-modal {
+        max-height: 100vh;
+        border-radius: 0;
+    }
+
+    .missions-tabs {
+        padding: 0 16px;
+    }
+
+    .missions-tabs .tab-btn {
+        padding: 12px 16px;
+        font-size: 13px;
+    }
+
+    .missions-content {
+        padding: 16px;
+    }
+
+    .template-cards {
+        flex-direction: column;
+    }
+
+    .review-actions {
+        flex-direction: column;
+    }
+
+    .review-actions button {
+        width: 100%;
+    }
+}
