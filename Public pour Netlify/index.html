@@ -298,6 +298,55 @@
             color: var(--white) !important;
         }
 
+        /* Bouton avec halo jaune */
+        .btn-glow-yellow {
+            position: relative;
+            box-shadow:
+                0 0 15px rgba(251, 191, 36, 0.5),
+                0 0 30px rgba(251, 191, 36, 0.3),
+                0 4px 15px rgba(99, 102, 241, 0.3);
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        .btn-glow-yellow::before {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            background: linear-gradient(135deg, #FCD34D, #FBBF24, #F59E0B);
+            border-radius: inherit;
+            z-index: -1;
+            opacity: 0.5;
+            filter: blur(8px);
+        }
+
+        .btn-glow-yellow:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 0 25px rgba(251, 191, 36, 0.7),
+                0 0 50px rgba(251, 191, 36, 0.4),
+                0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-glow-yellow:hover::before {
+            opacity: 0.8;
+            filter: blur(12px);
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow:
+                    0 0 15px rgba(251, 191, 36, 0.5),
+                    0 0 30px rgba(251, 191, 36, 0.3),
+                    0 4px 15px rgba(99, 102, 241, 0.3);
+            }
+            50% {
+                box-shadow:
+                    0 0 20px rgba(251, 191, 36, 0.6),
+                    0 0 40px rgba(251, 191, 36, 0.4),
+                    0 4px 20px rgba(99, 102, 241, 0.4);
+            }
+        }
+
         .hero {
             padding: 140px 0 60px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
@@ -452,9 +501,14 @@
             }
             .hero-content {
                 text-align: center;
+                order: 1;
+            }
+            .hero-carousel {
+                order: 2;
+                margin-top: 30px;
             }
             .hero-mockup {
-                order: -1;
+                order: 2;
             }
         }
 
@@ -1135,7 +1189,7 @@
                 <a href="#features">Fonctionnalités</a>
                 <a href="#pricing">Tarifs</a>
                 <a href="#faq">FAQ</a>
-                <a href="https://calendly.com/sandra-devonssay/demo-sos-storytelling" target="_blank" class="btn btn-primary nav-cta">Réserver une démo</a>
+                <a href="login.html" class="btn btn-primary nav-cta btn-glow-yellow">Tester gratuitement</a>
             </div>
         </div>
     </nav>

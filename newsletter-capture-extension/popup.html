@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newsletter Capture</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <!-- Écran de verrouillage (PIN) -->
+    <div id="lockScreen" class="screen">
+        <div class="logo">📩</div>
+        <h1>Newsletter Capture</h1>
+        <p class="subtitle">Accès réservé</p>
+
+        <div class="pin-container">
+            <input type="password" id="pinInput" placeholder="Entrer le PIN" maxlength="6" autofocus>
+            <button id="unlockBtn" class="btn btn-primary">Déverrouiller</button>
+        </div>
+
+        <p id="pinError" class="error" style="display: none;">PIN incorrect</p>
+    </div>
+
+    <!-- Écran principal (après déverrouillage) -->
+    <div id="mainScreen" class="screen" style="display: none;">
+        <div class="header">
+            <div class="logo-small">📩</div>
+            <h2>Newsletter Capture</h2>
+            <button id="settingsBtn" class="btn-icon" title="Paramètres">⚙️</button>
+            <button id="lockBtn" class="btn-icon" title="Verrouiller">🔒</button>
+        </div>
+
+        <!-- Formulaire de capture -->
+        <div class="capture-form">
+            <div class="form-group">
+                <label for="sourceInput">Source / Auteur</label>
+                <input type="text" id="sourceInput" placeholder="Ex: Nina Ramen, Caroline Mignaux...">
+            </div>
+
+            <div class="form-group">
+                <label for="subjectInput">Sujet de la newsletter</label>
+                <input type="text" id="subjectInput" placeholder="Ex: 5 erreurs LinkedIn à éviter">
+            </div>
+
+            <div class="form-group">
+                <label for="contentInput">Contenu (extrait automatiquement ou coller)</label>
+                <textarea id="contentInput" rows="8" placeholder="Le contenu de la newsletter sera extrait automatiquement ou tu peux le coller ici..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="urlInput">URL (optionnel)</label>
+                <input type="text" id="urlInput" placeholder="https://...">
+            </div>
+
+            <div class="form-group">
+                <label for="tagsInput">Tags (séparés par des virgules)</label>
+                <input type="text" id="tagsInput" placeholder="linkedin, algorithme, hooks...">
+            </div>
+
+            <div class="actions">
+                <button id="extractBtn" class="btn btn-secondary">🔍 Extraire de la page</button>
+                <button id="captureBtn" class="btn btn-primary">📥 Capturer</button>
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div id="status" class="status" style="display: none;"></div>
+
+        <!-- Historique récent -->
+        <div class="history-section">
+            <h3>Captures récentes</h3>
+            <div id="historyList" class="history-list">
+                <p class="empty">Aucune capture récente</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Écran de configuration (premier lancement) -->
+    <div id="setupScreen" class="screen" style="display: none;">
+        <div class="logo">⚙️</div>
+        <h1>Configuration initiale</h1>
+        <p class="subtitle">Définis ton PIN secret et connecte Supabase</p>
+
+        <div class="setup-form">
+            <div class="form-group">
+                <label for="newPinInput">Créer un PIN (4-6 chiffres)</label>
+                <input type="password" id="newPinInput" placeholder="Ex: 1234" maxlength="6">
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPinInput">Confirmer le PIN</label>
+                <input type="password" id="confirmPinInput" placeholder="Confirmer..." maxlength="6">
+            </div>
+
+            <div class="form-group">
+                <label for="supabaseUrlInput">URL Supabase</label>
+                <input type="text" id="supabaseUrlInput" placeholder="https://xxx.supabase.co">
+            </div>
+
+            <div class="form-group">
+                <label for="supabaseKeyInput">Clé Anon Supabase</label>
+                <input type="password" id="supabaseKeyInput" placeholder="eyJhbGciOiJ...">
+            </div>
+
+            <button id="saveSetupBtn" class="btn btn-primary">Sauvegarder</button>
+        </div>
+
+        <p id="setupError" class="error" style="display: none;"></p>
+    </div>
+
+    <!-- Écran Paramètres (modification) -->
+    <div id="settingsScreen" class="screen" style="display: none;">
+        <div class="header">
+            <button id="backBtn" class="btn-icon" title="Retour">←</button>
+            <h2>Paramètres</h2>
+        </div>
+
+        <div class="setup-form">
+            <div class="form-group">
+                <label for="editSupabaseUrl">URL Supabase</label>
+                <input type="text" id="editSupabaseUrl" placeholder="https://xxx.supabase.co">
+            </div>
+
+            <div class="form-group">
+                <label for="editSupabaseKey">Clé Anon Supabase</label>
+                <input type="password" id="editSupabaseKey" placeholder="eyJhbGciOiJ...">
+            </div>
+
+            <button id="saveSettingsBtn" class="btn btn-primary">Sauvegarder</button>
+
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <button id="resetAllBtn" class="btn btn-secondary" style="width: 100%; background: rgba(255,71,87,0.2); border-color: rgba(255,71,87,0.4); color: #ff4757;">🗑️ Tout réinitialiser</button>
+            </div>
+        </div>
+
+        <p id="settingsError" class="error" style="display: none;"></p>
+        <p id="settingsSuccess" class="success" style="display: none;"></p>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

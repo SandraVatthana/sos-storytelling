@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configuration - Newsletter Scraper</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 4px 24px rgba(124, 58, 237, 0.1);
+    }
+
+    h1 {
+      font-size: 24px;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 32px;
+    }
+
+    .section {
+      margin-bottom: 28px;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #7c3aed;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #444;
+      margin-bottom: 6px;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .field input:focus {
+      outline: none;
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+    }
+
+    .field .hint {
+      font-size: 12px;
+      color: #888;
+      margin-top: 6px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+    }
+
+    .btn-secondary {
+      background: #f3f4f6;
+      color: #444;
+      margin-left: 12px;
+    }
+
+    .btn-secondary:hover {
+      background: #e5e7eb;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      margin-top: 24px;
+    }
+
+    .status {
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    .status.success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .status.error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* History section */
+    .history-list {
+      list-style: none;
+    }
+
+    .history-item {
+      padding: 12px 0;
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 13px;
+    }
+
+    .history-item:last-child {
+      border-bottom: none;
+    }
+
+    .history-source {
+      font-weight: 600;
+      color: #7c3aed;
+    }
+
+    .history-subject {
+      color: #444;
+      margin-top: 4px;
+    }
+
+    .history-date {
+      color: #888;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .empty-history {
+      color: #888;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⚙️ Configuration</h1>
+    <p class="subtitle">Newsletter Scraper - SOS Storytelling</p>
+
+    <!-- Supabase Config -->
+    <div class="section">
+      <h2 class="section-title">Connexion Supabase</h2>
+      
+      <div class="field">
+        <label for="supabase-url">URL du projet</label>
+        <input type="text" id="supabase-url" placeholder="https://xxxxx.supabase.co">
+        <p class="hint">Trouve ça dans Settings → API de ton projet Supabase</p>
+      </div>
+
+      <div class="field">
+        <label for="supabase-key">Clé API (anon/public)</label>
+        <input type="password" id="supabase-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+        <p class="hint">Utilise la clé "anon" (publique), pas la clé "service_role"</p>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button class="btn btn-primary" id="save-btn">💾 Sauvegarder</button>
+      <button class="btn btn-secondary" id="test-btn">🧪 Tester la connexion</button>
+    </div>
+
+    <div id="status" class="status hidden"></div>
+
+    <!-- History -->
+    <div class="section" style="margin-top: 40px;">
+      <h2 class="section-title">📋 Dernières captures</h2>
+      <ul class="history-list" id="history-list">
+        <li class="empty-history">Aucune capture pour l'instant</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // ========================================
+    // Options Page Script
+    // ========================================
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Charger les valeurs sauvegardées
+      const stored = await chrome.storage.local.get(['supabaseUrl', 'supabaseKey', 'captureHistory']);
+      
+      if (stored.supabaseUrl) {
+        document.getElementById('supabase-url').value = stored.supabaseUrl;
+      }
+      if (stored.supabaseKey) {
+        document.getElementById('supabase-key').value = stored.supabaseKey;
+      }
+      
+      // Afficher l'historique
+      renderHistory(stored.captureHistory || []);
+
+      // Bouton Sauvegarder
+      document.getElementById('save-btn').addEventListener('click', async () => {
+        const url = document.getElementById('supabase-url').value.trim();
+        const key = document.getElementById('supabase-key').value.trim();
+
+        if (!url || !key) {
+          showStatus('error', '⚠️ Remplis les deux champs');
+          return;
+        }
+
+        await chrome.storage.local.set({
+          supabaseUrl: url,
+          supabaseKey: key
+        });
+
+        showStatus('success', '✅ Configuration sauvegardée !');
+      });
+
+      // Bouton Tester
+      document.getElementById('test-btn').addEventListener('click', async () => {
+        const url = document.getElementById('supabase-url').value.trim();
+        const key = document.getElementById('supabase-key').value.trim();
+
+        if (!url || !key) {
+          showStatus('error', '⚠️ Remplis les deux champs d\'abord');
+          return;
+        }
+
+        showStatus('loading', '🔄 Test en cours...');
+
+        try {
+          const response = await fetch(`${url}/rest/v1/newsletter_raw?limit=1`, {
+            headers: {
+              'apikey': key,
+              'Authorization': `Bearer ${key}`
+            }
+          });
+
+          if (response.ok) {
+            showStatus('success', '✅ Connexion réussie ! La table newsletter_raw existe.');
+          } else if (response.status === 404) {
+            showStatus('error', '⚠️ Connexion OK mais la table "newsletter_raw" n\'existe pas. Crée-la dans Supabase.');
+          } else {
+            showStatus('error', `❌ Erreur ${response.status}: vérifie tes identifiants`);
+          }
+        } catch (error) {
+          showStatus('error', `❌ Erreur de connexion: ${error.message}`);
+        }
+      });
+    });
+
+    function showStatus(type, message) {
+      const el = document.getElementById('status');
+      el.textContent = message;
+      el.className = `status ${type}`;
+      el.classList.remove('hidden');
+    }
+
+    function renderHistory(history) {
+      const list = document.getElementById('history-list');
+      
+      if (!history || history.length === 0) {
+        list.innerHTML = '<li class="empty-history">Aucune capture pour l\'instant</li>';
+        return;
+      }
+
+      list.innerHTML = history.map(item => `
+        <li class="history-item">
+          <div class="history-source">${item.source}</div>
+          <div class="history-subject">${item.subject}</div>
+          <div class="history-date">${new Date(item.captured_at).toLocaleString('fr-FR')}</div>
+        </li>
+      `).join('');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+{
+  "manifest_version": 3,
+  "name": "Newsletter Capture - SOS",
+  "version": "1.0.0",
+  "description": "Capture les newsletters pour SOS Storytelling (usage privé)",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://mail.google.com/*",
+    "https://*.substack.com/*",
+    "https://*.beehiiv.com/*",
+    "https://*.convertkit.com/*",
+    "https://*.mailchimp.com/*",
+    "https://*.supabase.co/*",
+    "https://*/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://mail.google.com/*"],
+      "js": ["content-gmail.js"],
+      "css": ["content.css"]
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}

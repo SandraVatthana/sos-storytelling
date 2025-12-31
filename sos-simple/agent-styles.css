@@ -1,0 +1,1367 @@
+/* =====================================================
+   AGENT AUTOPILOT - Styles CSS
+   SOS Storytelling
+   ===================================================== */
+
+/* ==================== MODAL ==================== */
+/* Override pour l'overlay Autopilot */
+#autopilot-modal.modal-overlay {
+    background: rgba(0, 0, 0, 0.85) !important;
+    backdrop-filter: blur(5px);
+}
+
+.autopilot-modal {
+    max-width: 900px;
+    width: 95%;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background: #1a1a2e !important;
+    border-radius: 16px;
+    border: 1px solid #333;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+.autopilot-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid #333;
+    background: #1a1a2e;
+    flex-shrink: 0;
+}
+
+.autopilot-tabs .tab-btn {
+    flex: 1;
+    padding: 12px 16px;
+    background: transparent;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+}
+
+.autopilot-tabs .tab-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+
+.autopilot-tabs .tab-btn.active {
+    background: rgba(99, 102, 241, 0.2);
+    color: #6366f1;
+    border-bottom: 2px solid #6366f1;
+}
+
+.autopilot-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background: #1a1a2e;
+}
+
+.autopilot-content .tab-content {
+    display: none;
+}
+
+.autopilot-content .tab-content.active {
+    display: block;
+}
+
+/* ==================== DASHBOARD ==================== */
+.agent-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.agent-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 12px;
+    border: 1px solid #333;
+}
+
+.agent-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.agent-status .status-text {
+    color: #fff;
+}
+
+.agent-status .status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+.agent-status.running .status-dot {
+    background: #22c55e;
+    box-shadow: 0 0 10px #22c55e;
+}
+
+.agent-status.stopped .status-dot {
+    background: #f59e0b;
+    box-shadow: none;
+    animation: none;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.btn-agent-toggle {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-agent-toggle.start {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+}
+
+.btn-agent-toggle.start:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+}
+
+.btn-agent-toggle.stop {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+}
+
+.btn-agent-toggle.stop:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+/* Stats Grid */
+.agent-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+@media (max-width: 768px) {
+    .agent-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.stat-card {
+    background: #1a1a2e;
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    border: 1px solid #333;
+}
+
+.stat-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #888;
+    margin-top: 4px;
+}
+
+.stat-progress {
+    height: 4px;
+    background: #333;
+    border-radius: 2px;
+    margin-top: 8px;
+    overflow: hidden;
+}
+
+.stat-progress .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+    border-radius: 2px;
+    transition: width 0.3s;
+}
+
+/* Sections */
+.agent-section {
+    background: #1a1a2e;
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid #333;
+}
+
+.agent-section h3 {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    color: #fff;
+}
+
+/* Hot Prospects */
+.hot-prospects-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.hot-prospect-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.hot-prospect-card .prospect-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.hot-prospect-card .prospect-info strong {
+    color: #fff;
+}
+
+.hot-prospect-card .prospect-company {
+    font-size: 12px;
+    color: #888;
+}
+
+.hot-prospect-card .prospect-signals {
+    display: flex;
+    gap: 8px;
+}
+
+.hot-prospect-card .signal {
+    font-size: 11px;
+    padding: 2px 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.hot-prospect-card .signal.hot {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+/* Actions List */
+.actions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.action-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.action-item .action-icon {
+    font-size: 16px;
+}
+
+.action-item .action-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.action-item .action-type {
+    color: #fff;
+}
+
+.action-item .action-prospect {
+    font-size: 11px;
+    color: #888;
+}
+
+.action-item .action-time {
+    font-size: 11px;
+    color: #666;
+}
+
+/* ==================== CONFIGURATION ==================== */
+.agent-config {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.agent-config h3 {
+    margin: 0 0 8px 0;
+    color: #fff;
+}
+
+.config-section {
+    background: #1a1a2e;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #333;
+}
+
+.config-section h4 {
+    margin: 0 0 16px 0;
+    font-size: 14px;
+    color: #6366f1;
+}
+
+.config-row {
+    margin-bottom: 16px;
+}
+
+.config-row:last-child {
+    margin-bottom: 0;
+}
+
+.config-row label {
+    display: block;
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 6px;
+}
+
+.config-row input,
+.config-row select,
+.config-row textarea {
+    width: 100%;
+    padding: 10px 12px;
+    background: #0f0f1a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 14px;
+}
+
+.config-row input:focus,
+.config-row select:focus,
+.config-row textarea:focus {
+    outline: none;
+    border-color: #6366f1;
+}
+
+.config-row-inline {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.config-row-inline label {
+    display: block;
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 6px;
+}
+
+.config-row-inline input,
+.config-row-inline select {
+    width: 100%;
+    padding: 10px 12px;
+    background: #0f0f1a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 14px;
+}
+
+.time-range {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.time-range input {
+    width: 60px;
+    text-align: center;
+}
+
+.time-range span {
+    color: #888;
+}
+
+.working-days {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.day-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    background: #0f0f1a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.day-checkbox:has(input:checked) {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: #6366f1;
+}
+
+.day-checkbox input {
+    display: none;
+}
+
+.day-checkbox span {
+    font-size: 12px;
+    color: #fff;
+}
+
+.config-actions {
+    text-align: center;
+    padding-top: 16px;
+}
+
+/* ==================== TEMPLATES ==================== */
+.agent-templates {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.templates-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.templates-header h3 {
+    margin: 0;
+    color: #fff;
+}
+
+.templates-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.empty-templates {
+    text-align: center;
+    padding: 40px;
+    background: #1a1a2e;
+    border-radius: 12px;
+    border: 1px dashed #333;
+}
+
+.empty-templates p {
+    margin-bottom: 16px;
+    color: #888;
+}
+
+.template-card {
+    background: #1a1a2e;
+    border-radius: 12px;
+    border: 1px solid #333;
+    overflow: hidden;
+}
+
+.template-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgba(99, 102, 241, 0.1);
+    border-bottom: 1px solid #333;
+}
+
+.template-position {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #6366f1;
+    color: #fff;
+    border-radius: 50%;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.template-header .template-name {
+    flex: 1;
+    background: transparent;
+    border: 1px solid transparent;
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.template-header .template-name:hover {
+    border-color: #333;
+}
+
+.template-header .template-name:focus {
+    border-color: #6366f1;
+    outline: none;
+}
+
+.template-delay {
+    font-size: 12px;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    color: #888;
+}
+
+.template-content {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.template-field label {
+    display: block;
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+
+.template-field input,
+.template-field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    background: #0f0f1a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 13px;
+    font-family: inherit;
+}
+
+.template-field textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.template-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding-top: 8px;
+    border-top: 1px solid #222;
+}
+
+.template-options label {
+    display: block;
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.template-options input,
+.template-options select {
+    width: 100%;
+    padding: 8px 10px;
+    background: #0f0f1a;
+    border: 1px solid #333;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 12px;
+}
+
+/* ==================== LOGS ==================== */
+.agent-logs {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.logs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logs-header h3 {
+    margin: 0;
+    color: #fff;
+}
+
+.logs-header select {
+    padding: 8px 12px;
+    background: #1a1a2e;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 13px;
+}
+
+.logs-list {
+    background: #0f0f1a;
+    border-radius: 12px;
+    border: 1px solid #333;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.log-entry {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 14px;
+    border-bottom: 1px solid #222;
+    font-size: 13px;
+}
+
+.log-entry:last-child {
+    border-bottom: none;
+}
+
+.log-entry .log-icon {
+    font-size: 14px;
+}
+
+.log-entry .log-time {
+    color: #666;
+    font-size: 11px;
+    min-width: 100px;
+}
+
+.log-entry .log-message {
+    flex: 1;
+    color: #ccc;
+}
+
+.log-entry.log-error .log-message {
+    color: #ef4444;
+}
+
+.log-entry.log-decision .log-message {
+    color: #f59e0b;
+}
+
+.log-entry.log-action .log-message {
+    color: #22c55e;
+}
+
+.log-entry .log-data {
+    margin-top: 8px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    font-size: 11px;
+    color: #888;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+/* ==================== UTILITIES ==================== */
+.btn-icon {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    font-size: 16px;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.btn-icon:hover {
+    opacity: 1;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    background: rgba(99, 102, 241, 0.2);
+    border: 1px solid #6366f1;
+    color: #6366f1;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-small:hover {
+    background: #6366f1;
+    color: #fff;
+}
+
+.btn-secondary {
+    padding: 8px 16px;
+    background: transparent;
+    border: 1px solid #6366f1;
+    color: #6366f1;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background: rgba(99, 102, 241, 0.2);
+}
+
+.loading, .empty {
+    color: #666;
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+}
+
+/* ==================== AUTOPILOT BUTTON ==================== */
+.btn-autopilot {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-autopilot::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn-autopilot:hover::before {
+    left: 100%;
+}
+
+.btn-autopilot:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.btn-autopilot.active {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+
+.btn-autopilot .pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: #22c55e;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+}
+
+.btn-autopilot.active .pulse-dot {
+    background: #fff;
+}
+
+/* ==================== IMPORT CSV ==================== */
+.import-section {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+.import-area {
+    text-align: center;
+    padding: 20px;
+}
+
+.btn-import {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 28px;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-import:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(34, 197, 94, 0.4);
+}
+
+.import-hint {
+    margin-top: 12px;
+    font-size: 12px;
+    color: #666;
+}
+
+#import-status {
+    margin-top: 15px;
+}
+
+#import-status .importing {
+    color: #f59e0b;
+    font-weight: 500;
+}
+
+#import-status .success {
+    color: #22c55e;
+    font-weight: 500;
+}
+
+#import-status .error,
+#manual-add-status .error {
+    color: #ef4444;
+    font-weight: 500;
+}
+
+#manual-add-status .importing {
+    color: #f59e0b;
+    font-weight: 500;
+}
+
+#manual-add-status .success {
+    color: #22c55e;
+    font-weight: 500;
+}
+
+/* Import Tabs */
+.import-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #333;
+}
+
+.import-tab {
+    flex: 1;
+    padding: 12px 16px;
+    background: #0f0f1a;
+    border: none;
+    color: #888;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.import-tab:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+
+.import-tab.active {
+    background: rgba(99, 102, 241, 0.2);
+    color: #6366f1;
+}
+
+.import-tab-content {
+    display: none;
+}
+
+.import-tab-content.active {
+    display: block;
+}
+
+/* Manual Add Form */
+.manual-add-form {
+    padding: 10px;
+}
+
+.manual-add-form .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.manual-add-form input {
+    padding: 12px 14px;
+    background: #0f0f1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.manual-add-form input:focus {
+    outline: none;
+    border-color: #6366f1;
+}
+
+.manual-add-form input::placeholder {
+    color: #666;
+}
+
+.btn-add-prospect {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-add-prospect:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+}
+
+#manual-add-status {
+    margin-top: 12px;
+    text-align: center;
+}
+
+@media (max-width: 500px) {
+    .manual-add-form .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==================== PENDING EMAILS (VALIDATION HUMAINE) ==================== */
+.pending-emails-section {
+    background: linear-gradient(135deg, #1a1a2e 0%, #1e293b 100%);
+    border: 1px solid #f59e0b33;
+}
+
+.section-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.section-header-row h3 {
+    margin: 0;
+}
+
+.pending-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    background: #ef4444;
+    color: #fff;
+    border-radius: 11px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 8px;
+    animation: badge-pulse 2s infinite;
+}
+
+@keyframes badge-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.btn-approve-all {
+    padding: 8px 14px;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-approve-all:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(34, 197, 94, 0.4);
+}
+
+.section-description {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 16px;
+}
+
+.pending-emails-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.pending-email-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 14px;
+    transition: all 0.2s;
+}
+
+.pending-email-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: #6366f1;
+}
+
+.pending-email-card .email-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.pending-email-card .recipient-info strong {
+    color: #fff;
+    display: block;
+}
+
+.pending-email-card .email-address {
+    font-size: 12px;
+    color: #888;
+}
+
+.pending-email-card .email-date {
+    font-size: 11px;
+    color: #666;
+}
+
+.pending-email-card .email-subject {
+    font-size: 13px;
+    color: #ccc;
+    margin-bottom: 8px;
+}
+
+.pending-email-card .email-subject strong {
+    color: #888;
+}
+
+.pending-email-card .email-preview {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 12px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    max-height: 60px;
+    overflow: hidden;
+}
+
+.pending-email-card .email-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.pending-email-card .btn-preview {
+    padding: 6px 12px;
+    background: rgba(99, 102, 241, 0.2);
+    border: 1px solid #6366f1;
+    color: #6366f1;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pending-email-card .btn-preview:hover {
+    background: #6366f1;
+    color: #fff;
+}
+
+.pending-email-card .btn-approve {
+    padding: 6px 14px;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    border: none;
+    color: white;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pending-email-card .btn-approve:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(34, 197, 94, 0.4);
+}
+
+.pending-email-card .btn-reject {
+    padding: 6px 12px;
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid #ef4444;
+    color: #ef4444;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pending-email-card .btn-reject:hover {
+    background: #ef4444;
+    color: #fff;
+}
+
+.pending-emails-list .empty-state {
+    text-align: center;
+    padding: 30px 20px;
+    color: #666;
+}
+
+.pending-emails-list .empty-state p {
+    margin: 0;
+}
+
+.pending-emails-list .empty-state .hint {
+    font-size: 12px;
+    margin-top: 8px;
+    color: #555;
+}
+
+/* Email Preview Modal */
+.email-preview-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 20px;
+}
+
+.email-preview-content {
+    background: #1a1a2e;
+    border-radius: 16px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    border: 1px solid #333;
+    position: relative;
+}
+
+.email-preview-content .close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.email-preview-content .close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.email-preview-content h3 {
+    padding: 20px 24px;
+    margin: 0;
+    border-bottom: 1px solid #333;
+    color: #fff;
+}
+
+.email-full-preview {
+    padding: 24px;
+}
+
+.email-full-preview .preview-field {
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.email-full-preview .preview-field label {
+    color: #888;
+    width: 50px;
+    display: inline-block;
+}
+
+.email-full-preview .preview-field span {
+    color: #fff;
+}
+
+.email-full-preview .preview-body {
+    margin-top: 20px;
+    padding: 20px;
+    background: #0f0f1a;
+    border-radius: 8px;
+    border: 1px solid #333;
+    color: #ccc;
+    line-height: 1.8;
+    font-size: 14px;
+}
+
+.preview-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    padding: 16px 24px;
+    border-top: 1px solid #333;
+}
+
+/* Hint inline for RGPD */
+.hint-inline {
+    font-size: 10px;
+    color: #f59e0b;
+    font-weight: normal;
+}
+
+/* ==================== WARM-UP TOGGLE ==================== */
+.warmup-toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 26px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #333;
+    transition: 0.3s;
+    border-radius: 26px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #666;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(22px);
+    background-color: white;
+}
+
+.toggle-label {
+    font-size: 13px;
+    color: #888;
+}
+
+.warmup-hint {
+    font-size: 11px;
+    color: #666;
+    margin-top: 8px;
+    padding: 10px;
+    background: rgba(34, 197, 94, 0.1);
+    border-radius: 6px;
+    border-left: 3px solid #22c55e;
+}
+
+/* ==================== SPAM ALERTS ==================== */
+.pending-email-card.spam-warning {
+    border-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.05);
+}
+
+.spam-alert {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid #f59e0b;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.spam-alert .spam-icon {
+    font-size: 18px;
+}
+
+.spam-alert > span:last-of-type {
+    color: #f59e0b;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.spam-warnings-list {
+    width: 100%;
+    margin: 8px 0 0 0;
+    padding: 0 0 0 20px;
+    font-size: 11px;
+    color: #b45309;
+}
+
+.spam-warnings-list li {
+    margin-bottom: 4px;
+}
+
+.spam-warnings-list li:last-child {
+    margin-bottom: 0;
+}

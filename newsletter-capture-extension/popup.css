@@ -1,0 +1,314 @@
+/* ==================== POPUP STYLES ==================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 380px;
+    min-height: 400px;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #fff;
+}
+
+.screen {
+    padding: 20px;
+}
+
+/* ==================== LOGO & HEADERS ==================== */
+
+.logo {
+    font-size: 3em;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.logo-small {
+    font-size: 1.5em;
+}
+
+h1 {
+    text-align: center;
+    font-size: 1.4em;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+h2 {
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+h3 {
+    font-size: 0.9em;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #a0a0a0;
+}
+
+.subtitle {
+    text-align: center;
+    color: #888;
+    font-size: 0.9em;
+    margin-bottom: 25px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.header h2 {
+    flex: 1;
+}
+
+/* ==================== BUTTONS ==================== */
+
+.btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.btn-secondary:hover {
+    background: rgba(255,255,255,0.15);
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    font-size: 1.2em;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.btn-icon:hover {
+    opacity: 1;
+}
+
+/* ==================== FORMS ==================== */
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.8em;
+    color: #a0a0a0;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    color: white;
+    font-size: 0.9em;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    background: rgba(255,255,255,0.12);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #666;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+}
+
+/* ==================== PIN SCREEN ==================== */
+
+.pin-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 200px;
+    margin: 0 auto;
+}
+
+.pin-container input {
+    text-align: center;
+    font-size: 1.5em;
+    letter-spacing: 8px;
+    padding: 15px;
+}
+
+/* ==================== ACTIONS ==================== */
+
+.actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.actions .btn {
+    flex: 1;
+}
+
+/* ==================== STATUS ==================== */
+
+.status {
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+    font-size: 0.85em;
+    text-align: center;
+}
+
+.status.success {
+    background: rgba(46, 213, 115, 0.2);
+    border: 1px solid rgba(46, 213, 115, 0.4);
+    color: #2ed573;
+}
+
+.status.error {
+    background: rgba(255, 71, 87, 0.2);
+    border: 1px solid rgba(255, 71, 87, 0.4);
+    color: #ff4757;
+}
+
+.status.loading {
+    background: rgba(102, 126, 234, 0.2);
+    border: 1px solid rgba(102, 126, 234, 0.4);
+    color: #667eea;
+}
+
+.error {
+    color: #ff4757;
+}
+
+.success {
+    color: #2ed573;
+    background: rgba(46, 213, 115, 0.2);
+    border: 1px solid rgba(46, 213, 115, 0.4);
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.85em;
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* ==================== HISTORY ==================== */
+
+.history-section {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.history-list {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.history-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.history-item-icon {
+    font-size: 1.2em;
+}
+
+.history-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.history-item-source {
+    font-weight: 600;
+    font-size: 0.85em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.history-item-date {
+    font-size: 0.75em;
+    color: #888;
+}
+
+.empty {
+    color: #666;
+    font-size: 0.85em;
+    text-align: center;
+    padding: 20px;
+}
+
+/* ==================== SETUP SCREEN ==================== */
+
+.setup-form {
+    margin-top: 20px;
+}
+
+.setup-form .btn {
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* ==================== SCROLLBAR ==================== */
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.05);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.3);
+}

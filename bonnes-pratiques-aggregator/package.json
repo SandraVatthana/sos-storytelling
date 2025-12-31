@@ -1,0 +1,19 @@
+{
+  "name": "bonnes-pratiques-aggregator",
+  "version": "1.0.0",
+  "description": "Agrégateur IA pour extraire les bonnes pratiques des newsletters",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "process": "node index.js --process",
+    "test-extraction": "node test-extraction.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.27.0",
+    "@supabase/supabase-js": "^2.39.0",
+    "dotenv": "^16.3.1"
+  },
+  "author": "Sandra - My Inner Quest",
+  "license": "PRIVATE"
+}

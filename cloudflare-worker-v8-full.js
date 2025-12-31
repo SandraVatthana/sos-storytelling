@@ -846,28 +846,56 @@ async function handleFrontendRequest(request, env, corsHeaders) {
 ${profileContext}
 STYLE: Energique, bienveillante, utilise des emojis. Maximum 400 mots.`;
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01"
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 2000,
-        system: systemPrompt,
-        messages: body.messages
-      })
+    const requestBody = JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 2000,
+      system: systemPrompt,
+      messages: body.messages
     });
 
-    if (!response.ok) {
+    // Retry avec backoff exponentiel pour erreurs 529 (API overloaded)
+    const maxRetries = 3;
+    let lastError = null;
+
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": env.ANTHROPIC_API_KEY,
+          "anthropic-version": "2023-06-01"
+        },
+        body: requestBody
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return new Response(JSON.stringify(data), { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } });
+      }
+
+      // Erreur 529 = API overloaded, on retry avec backoff
+      if (response.status === 529 && attempt < maxRetries - 1) {
+        const waitTime = Math.pow(2, attempt) * 1000; // 1s, 2s, 4s
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+        continue;
+      }
+
       const errorData = await response.text();
+      lastError = { status: response.status, details: errorData };
+
+      // Erreur 529 finale : message plus clair pour l'utilisateur
+      if (response.status === 529) {
+        return jsonResponse({
+          error: "L'IA est temporairement surchargée. Réessaye dans quelques secondes.",
+          code: "AI_OVERLOADED",
+          details: errorData
+        }, 503, corsHeaders);
+      }
+
       return jsonResponse({ error: `Erreur API: ${response.status}`, details: errorData }, response.status, corsHeaders);
     }
 
-    const data = await response.json();
-    return new Response(JSON.stringify(data), { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } });
+    return jsonResponse({ error: "Erreur après plusieurs tentatives", details: lastError }, 503, corsHeaders);
 
   } catch (error) {
     return jsonResponse({ error: "Erreur serveur", message: error.message }, 500, corsHeaders);

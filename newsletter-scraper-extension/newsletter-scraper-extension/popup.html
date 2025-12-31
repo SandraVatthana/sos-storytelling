@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Newsletter Scraper</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <h1>📩 Newsletter Scraper</h1>
+      <p class="subtitle">SOS Storytelling</p>
+    </header>
+
+    <!-- Main capture form -->
+    <main class="main">
+      <!-- Source field -->
+      <div class="field">
+        <label for="source">Source</label>
+        <select id="source">
+          <option value="">-- Sélectionner --</option>
+          <option value="nina-ramen">Nina Ramen</option>
+          <option value="caroline-mignaux">Caroline Mignaux</option>
+          <option value="laurine-bemer">Laurine Bemer</option>
+          <option value="autre">Autre...</option>
+        </select>
+        <input type="text" id="source-custom" placeholder="Nom de la source" style="display: none;">
+      </div>
+
+      <!-- Tags field -->
+      <div class="field">
+        <label>Tags</label>
+        <div class="tags-container">
+          <label class="tag-checkbox">
+            <input type="checkbox" name="tags" value="linkedin"> LinkedIn
+          </label>
+          <label class="tag-checkbox">
+            <input type="checkbox" name="tags" value="instagram"> Instagram
+          </label>
+          <label class="tag-checkbox">
+            <input type="checkbox" name="tags" value="tiktok"> TikTok
+          </label>
+          <label class="tag-checkbox">
+            <input type="checkbox" name="tags" value="algorithme"> Algorithme
+          </label>
+          <label class="tag-checkbox">
+            <input type="checkbox" name="tags" value="format"> Format
+          </label>
+          <label class="tag-checkbox">
+            <input type="checkbox" name="tags" value="engagement"> Engagement
+          </label>
+        </div>
+      </div>
+
+      <!-- Capture mode -->
+      <div class="field">
+        <label>Mode de capture</label>
+        <div class="capture-mode">
+          <label class="radio-option">
+            <input type="radio" name="mode" value="full" checked> Page entière
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="mode" value="selection"> Sélection uniquement
+          </label>
+        </div>
+      </div>
+
+      <!-- Capture button -->
+      <button id="capture-btn" class="btn-primary">
+        📥 Capturer cette newsletter
+      </button>
+
+      <!-- Status message -->
+      <div id="status" class="status hidden"></div>
+    </main>
+
+    <!-- Footer with settings link -->
+    <footer class="footer">
+      <a href="options.html" target="_blank" id="settings-link">⚙️ Configuration</a>
+      <span class="separator">|</span>
+      <a href="#" id="history-link">📋 Historique</a>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
