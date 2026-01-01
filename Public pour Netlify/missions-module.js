@@ -55,38 +55,23 @@ window.MissionsModule = (function() {
             }
 
             console.log('Missions module init - userId:', currentUserId);
-            await loadTemplates();
+            loadTemplates();
         } catch (error) {
             console.error('Erreur init missions:', error);
         }
     }
 
     // ==================== TEMPLATES ====================
-    async function loadTemplates() {
-        try {
-            const response = await fetch(`${WORKER_URL}/missions/templates`);
-            const data = await response.json();
-            if (data.success && Array.isArray(data.templates)) {
-                templates = data.templates;
-            } else {
-                // Templates par défaut si l'API ne répond pas
-                templates = getDefaultTemplates();
-            }
-        } catch (e) {
-            console.error('Erreur chargement templates:', e);
-            // Templates par défaut en cas d'erreur
-            templates = getDefaultTemplates();
-        }
+    function loadTemplates() {
+        // Utiliser uniquement les templates par défaut (simples et clairs)
+        templates = getDefaultTemplates();
     }
 
     function getDefaultTemplates() {
         return [
-            { id: '1', name: 'Séquence emails', category: 'emails', icon: '📧', suggested_command: 'Crée une séquence de 5 emails sur [SUJET], envoi mardi 9h, sur 5 semaines' },
-            { id: '2', name: 'Newsletter hebdo', category: 'emails', icon: '📰', suggested_command: 'Crée une newsletter sur [SUJET] pour cette semaine' },
-            { id: '3', name: 'Prospection LinkedIn', category: 'prospection', icon: '🎯', suggested_command: 'Lance une campagne de prospection vers [CIBLE] sur LinkedIn' },
-            { id: '4', name: 'Calendrier mensuel', category: 'content', icon: '📅', suggested_command: 'Crée un calendrier de contenu pour le mois prochain sur [THÈME]' },
-            { id: '5', name: 'Relance prospects', category: 'followup', icon: '🔄', suggested_command: 'Relance les prospects inactifs depuis 30 jours' },
-            { id: '6', name: 'Analyse concurrence', category: 'analysis', icon: '🔍', suggested_command: 'Analyse les 5 principaux concurrents sur [MARCHÉ]' }
+            { id: '1', name: 'Séquence emails', category: 'emails', icon: '📧', suggested_command: 'Crée une séquence de 5 emails pour vendre ma formation, envoi mardi 9h, sur 5 semaines' },
+            { id: '2', name: 'Newsletter', category: 'emails', icon: '📰', suggested_command: 'Crée une newsletter sur les tendances de mon secteur pour cette semaine' },
+            { id: '3', name: 'Calendrier posts', category: 'content', icon: '📅', suggested_command: 'Crée un calendrier de 12 posts pour le mois prochain sur mes offres' }
         ];
     }
 
@@ -143,14 +128,29 @@ window.MissionsModule = (function() {
     }
 
     function switchTab(tab) {
+        // Mettre à jour les boutons d'onglets
         document.querySelectorAll('.missions-tabs .tab-btn').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.tab === tab);
         });
-        document.querySelectorAll('.missions-content .tab-content').forEach(content => {
-            content.classList.remove('active');
-        });
-        document.getElementById(`tab-${tab}`).classList.add('active');
 
+        // Recréer la structure des onglets si elle a été détruite (après erreur/progression)
+        const content = document.querySelector('.missions-content');
+        if (content && !document.getElementById('tab-new')) {
+            content.innerHTML = `
+                <div id="tab-new" class="tab-content"></div>
+                <div id="tab-active" class="tab-content"></div>
+                <div id="tab-history" class="tab-content"></div>
+            `;
+        }
+
+        // Masquer tous les onglets et afficher le bon
+        document.querySelectorAll('.missions-content .tab-content').forEach(el => {
+            el.classList.remove('active');
+        });
+        const tabEl = document.getElementById(`tab-${tab}`);
+        if (tabEl) tabEl.classList.add('active');
+
+        // Rendre le contenu de l'onglet
         switch (tab) {
             case 'new': renderNewMissionTab(); break;
             case 'active': renderActiveMissionsTab(); break;
@@ -163,52 +163,31 @@ window.MissionsModule = (function() {
         const container = document.getElementById('tab-new');
         if (!container) return;
 
-        // Grouper les templates par catégorie
-        const categories = {
-            'emails': { label: '📧 Emails', templates: [] },
-            'prospection': { label: '🎯 Prospection', templates: [] },
-            'content': { label: '📅 Contenu', templates: [] },
-            'followup': { label: '🔄 Relances', templates: [] },
-            'transformation': { label: '📄 Transformation', templates: [] },
-            'analysis': { label: '🔍 Analyse', templates: [] }
-        };
-
         // S'assurer que templates est un tableau
         const safeTemplates = Array.isArray(templates) ? templates : getDefaultTemplates();
-        safeTemplates.forEach(t => {
-            if (t && t.category && categories[t.category]) {
-                categories[t.category].templates.push(t);
-            }
-        });
 
         container.innerHTML = `
             <div class="new-mission-screen">
                 <div class="mission-input-section">
-                    <h3>Qu'est-ce que tu veux accomplir ?</h3>
+                    <h3>🤖 Décris ta mission en une phrase</h3>
+                    <p style="color: #666; font-size: 0.9em; margin-bottom: 12px;">L'IA va créer et planifier tout automatiquement</p>
                     <div class="mission-input-wrapper">
                         <textarea id="mission-command"
-                            placeholder="Ex: Crée une séquence de 5 emails sur le GEO, mardi 9h, sur 5 semaines"
+                            placeholder="Ex: Crée une séquence de 5 emails pour vendre ma formation, envoi mardi 9h, sur 5 semaines"
                             rows="3"></textarea>
                         <button class="btn-launch-mission" onclick="MissionsModule.launchMission()">
-                            🚀 Lancer la mission
+                            🚀 Lancer
                         </button>
                     </div>
                 </div>
 
                 <div class="mission-templates-section">
-                    <h4>💡 Idées de missions</h4>
-                    <div class="templates-categories">
-                        ${Object.entries(categories).map(([key, cat]) => `
-                            <div class="template-category">
-                                <h5>${cat.label}</h5>
-                                <div class="template-cards">
-                                    ${cat.templates.map(t => `
-                                        <div class="template-card" onclick="MissionsModule.selectTemplate('${t.id}')">
-                                            <span class="template-icon">${t.icon}</span>
-                                            <span class="template-name">${t.name}</span>
-                                        </div>
-                                    `).join('')}
-                                </div>
+                    <h4>💡 Exemples de missions</h4>
+                    <div class="template-cards-simple">
+                        ${safeTemplates.map(t => `
+                            <div class="template-card-simple" onclick="MissionsModule.selectTemplate('${t.id}')">
+                                <span class="template-icon">${t.icon}</span>
+                                <span class="template-name">${t.name}</span>
                             </div>
                         `).join('')}
                     </div>
@@ -235,7 +214,22 @@ window.MissionsModule = (function() {
             return;
         }
 
-        showToast('🚀 Lancement de la mission...');
+        // Afficher un feedback visuel immédiat
+        const launchBtn = document.querySelector('.btn-launch-mission');
+        if (launchBtn) {
+            launchBtn.disabled = true;
+            launchBtn.innerHTML = '<span class="audit-spinner" style="display: inline-block; width: 16px; height: 16px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 8px;"></span> Lancement...';
+        }
+
+        // Ajouter un message visible
+        const feedbackDiv = document.createElement('div');
+        feedbackDiv.id = 'launch-feedback';
+        feedbackDiv.style.cssText = 'background: #dc3545; color: white; padding: 12px 20px; border-radius: 8px; margin-top: 15px; text-align: center; font-weight: 500; animation: pulse 1s infinite;';
+        feedbackDiv.innerHTML = '🚀 Mission en cours de lancement... Veuillez patienter';
+        const commandContainer = document.querySelector('.mission-input-container');
+        if (commandContainer && !document.getElementById('launch-feedback')) {
+            commandContainer.appendChild(feedbackDiv);
+        }
 
         try {
             // Créer la mission
@@ -248,6 +242,10 @@ window.MissionsModule = (function() {
                     organization_id: currentOrgId
                 })
             });
+
+            if (!createResponse.ok) {
+                throw new Error('Service temporairement indisponible. Vérifie la configuration du worker.');
+            }
 
             const createResult = await createResponse.json();
 
@@ -272,8 +270,38 @@ window.MissionsModule = (function() {
 
         } catch (error) {
             console.error('Erreur lancement mission:', error);
-            showToast('❌ ' + error.message, 'error');
+            // Afficher un écran d'erreur explicite
+            showMissionError(command, error.message);
         }
+    }
+
+    function showMissionError(command, errorMessage) {
+        const container = document.querySelector('.missions-content');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="mission-error-screen" style="text-align: center; padding: 40px 20px;">
+                <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
+                <h3 style="color: #e74c3c; margin-bottom: 15px;">Mission impossible pour le moment</h3>
+                <p style="color: #666; margin-bottom: 20px;">${escapeHtml(errorMessage)}</p>
+
+                <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin: 20px 0; text-align: left;">
+                    <h4 style="margin-bottom: 10px;">🔧 Pour que ça fonctionne :</h4>
+                    <ol style="color: #555; line-height: 1.8; margin-left: 20px;">
+                        <li>Va dans Cloudflare Dashboard → Workers</li>
+                        <li>Sélectionne <strong>sos-missions-agent</strong></li>
+                        <li>Settings → Variables and Secrets</li>
+                        <li>Vérifie que <code>supabase_url</code> n'a pas d'espace à la fin</li>
+                    </ol>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <button class="btn-secondary" onclick="MissionsModule.switchTab('new')" style="padding: 12px 24px;">
+                        ← Retour
+                    </button>
+                </div>
+            </div>
+        `;
     }
 
     // ==================== ÉCRAN DE PROGRESSION ====================
@@ -284,9 +312,19 @@ window.MissionsModule = (function() {
         container.innerHTML = `
             <div class="mission-progress-screen">
                 <div class="progress-header">
-                    <div class="progress-icon">🔄</div>
+                    <dotlottie-wc
+                        src="https://lottie.host/eeab1c36-2031-4942-bf72-95b983b64077/hNKxxXfdmq.lottie"
+                        style="width: 120px; height: 120px; margin: 0 auto; display: block;"
+                        autoplay
+                        loop>
+                    </dotlottie-wc>
                     <h3>Mission en cours</h3>
                     <p class="mission-command" id="progress-command">Chargement...</p>
+                </div>
+
+                <div class="mission-patience-notice" style="background: linear-gradient(135deg, #fff3cd, #ffeeba); border: 1px solid #ffc107; border-radius: 12px; padding: 16px; margin: 20px 0; text-align: center;">
+                    <p style="margin: 0; color: #856404; font-weight: 500;">⏳ Merci de patienter</p>
+                    <p style="margin: 8px 0 0 0; color: #856404; font-size: 0.9em;">La génération peut prendre 2-3 minutes.<br><strong>Ne fermez pas cette page.</strong></p>
                 </div>
 
                 <div class="progress-bar-container">
