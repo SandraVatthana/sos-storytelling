@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion en cours... - SOS Storytelling</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', -apple-system, sans-serif;
+      background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      text-align: center;
+      padding: 2rem;
+    }
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid rgba(139, 92, 246, 0.2);
+      border-top-color: #8b5cf6;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 2rem;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    p {
+      color: rgba(255,255,255,0.6);
+    }
+    .error {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      margin-top: 1rem;
+      display: none;
+    }
+    .error.visible {
+      display: block;
+    }
+    .btn {
+      display: inline-block;
+      margin-top: 1.5rem;
+      padding: 0.75rem 2rem;
+      background: #8b5cf6;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 500;
+    }
+    .btn:hover {
+      background: #7c3aed;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="spinner" id="spinner"></div>
+    <h1 id="title">Connexion en cours...</h1>
+    <p id="message">Récupération des autorisations...</p>
+
+    <div class="error" id="errorBox">
+      <p id="errorMessage"></p>
+    </div>
+
+    <a href="app.html" class="btn" id="backBtn" style="display: none;">Retour à l'application</a>
+  </div>
+
+  <script>
+    // Récupérer les paramètres de l'URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const error = urlParams.get('error');
+    const state = urlParams.get('state');
+
+    const spinner = document.getElementById('spinner');
+    const title = document.getElementById('title');
+    const message = document.getElementById('message');
+    const errorBox = document.getElementById('errorBox');
+    const errorMessage = document.getElementById('errorMessage');
+    const backBtn = document.getElementById('backBtn');
+
+    if (error) {
+      // Erreur OAuth
+      spinner.style.display = 'none';
+      title.textContent = 'Connexion annulée';
+      message.textContent = 'Tu as annulé la connexion ou une erreur est survenue.';
+      errorBox.classList.add('visible');
+      errorMessage.textContent = error;
+      backBtn.style.display = 'inline-block';
+    } else if (code) {
+      // Succès - rediriger vers l'app avec le code
+      message.textContent = 'Autorisation reçue, redirection...';
+
+      // Rediriger vers l'app avec les paramètres OAuth
+      setTimeout(() => {
+        window.location.href = `app.html?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state || '')}#inbox`;
+      }, 500);
+    } else {
+      // Pas de code ni d'erreur
+      spinner.style.display = 'none';
+      title.textContent = 'Erreur';
+      message.textContent = 'Paramètres OAuth manquants.';
+      backBtn.style.display = 'inline-block';
+    }
+  </script>
+</body>
+</html>

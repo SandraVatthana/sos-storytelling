@@ -13,6 +13,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.8.5/dist/dotlottie-wc.js" type="module"></script>
     <link rel="stylesheet" href="agent-styles.css?v=20241205d">
+    <link rel="stylesheet" href="missions-styles.css?v=20241230">
+    <link rel="stylesheet" href="inbox-styles.css?v=20260102">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Poppins', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 50%, #f093fb 100%); }
@@ -2414,6 +2416,11 @@
                         <a class="dropdown-item" onclick="closeDropdowns(); showProspectsModal()">👥 <span data-i18n="menu.my_prospects">Mes prospects</span></a>
                         <a class="dropdown-item" onclick="closeDropdowns(); showCampaignsModal()">📧 <span data-i18n="menu.create_campaign">Créer une campagne</span></a>
                         <a class="dropdown-item" onclick="closeDropdowns(); AgentAutopilot.openAutopilotModal()">🤖 Agent Autopilot</a>
+                        <a class="dropdown-item" onclick="closeDropdowns(); MissionsModule.openMissionsModal()" style="background: linear-gradient(135deg, #f093fb, #f5576c); color: white; border-radius: 8px; margin-top: 4px;">🚀 <span data-i18n="menu.missions">Missions Multi-Agents</span></a>
+                        <a class="dropdown-item menu-highlight" onclick="closeDropdowns(); showInboxModal()" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; border-radius: 8px; margin-top: 4px; position: relative;">
+                            📬 Inbox Intelligente
+                            <span class="menu-badge" id="menuInboxBadge" style="display: none;">0</span>
+                        </a>
                         <a class="dropdown-item" onclick="closeDropdowns(); showBrevoConfigModal()">🔗 <span data-i18n="menu.config_brevo">Configurer Brevo</span></a>
                     </div>
                 </div>
@@ -2504,6 +2511,24 @@
                     </div>
                     <div class="quick-action-title" data-i18n="quick_actions.create_campaign">Campagnes emails</div>
                     <div class="quick-action-time"><span class="time-icon">⚡</span> 5 min</div>
+                </div>
+
+                <div class="quick-action-card" onclick="MissionsModule.openMissionsModal()" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                    <div class="quick-action-icon">
+                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                            <defs>
+                                <linearGradient id="iconGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#fff;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#ffe0f0;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            <circle cx="24" cy="24" r="18" stroke="url(#iconGrad3)" stroke-width="2.5" fill="none"/>
+                            <path d="M24 14V24L32 28" stroke="url(#iconGrad3)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M16 8L14 4M32 8L34 4M8 16L4 14M40 16L44 14" stroke="url(#iconGrad3)" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div class="quick-action-title" style="color: white;">Missions Autopilot</div>
+                    <div class="quick-action-time" style="background: rgba(255,255,255,0.3);"><span class="time-icon">🚀</span> Auto</div>
                 </div>
 
             </div>
@@ -3802,8 +3827,18 @@ Solution  | Présenter votre solution</pre>
         </div>
     </div>
 
-
-
+    <!-- Inbox Intelligente Modal -->
+    <div class="modal-overlay" id="inboxModal">
+        <div class="modal" style="max-width: 1200px; width: 95%; max-height: 95vh; overflow: hidden; display: flex; flex-direction: column;">
+            <div class="modal-header" style="flex-shrink: 0;">
+                <h2 class="modal-title" style="color: white;">📬 Inbox Intelligente</h2>
+                <button class="modal-close" onclick="closeInboxModal()">&times;</button>
+            </div>
+            <div id="inboxContainer" style="flex: 1; overflow-y: auto; padding: 0;">
+                <!-- Le contenu sera injecté par inbox-module.js -->
+            </div>
+        </div>
+    </div>
 
     <!-- Welcome Popup - Guide vers démo guidée -->
     <div class="welcome-popup-overlay" id="welcomePopup">
@@ -13725,6 +13760,7 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
 
     <!-- Module Agent Autopilot -->
     <script src="agent-module.js?v=20241205n"></script>
+    <script src="missions-module.js?v=20241230"></script>
     <script>
         // Initialiser l'Agent Autopilot et vérifier le statut
         document.addEventListener('DOMContentLoaded', async function() {
@@ -14046,6 +14082,47 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
 
         // Initialiser au chargement
         document.addEventListener('DOMContentLoaded', initCookieBanner);
+    </script>
+
+    <!-- Module Inbox Intelligente -->
+    <script src="inbox-module.js?v=20260102"></script>
+    <script>
+        let inboxInitialized = false;
+
+        // Ouvrir le modal Inbox
+        function showInboxModal() {
+            document.getElementById('inboxModal').classList.add('active');
+
+            // Initialiser le module si pas encore fait
+            if (!inboxInitialized && typeof InboxModule !== 'undefined') {
+                InboxModule.init();
+                inboxInitialized = true;
+            }
+        }
+
+        // Fermer le modal Inbox
+        function closeInboxModal() {
+            document.getElementById('inboxModal').classList.remove('active');
+        }
+
+        // Fermer en cliquant sur l'overlay
+        document.getElementById('inboxModal')?.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-overlay')) {
+                closeInboxModal();
+            }
+        });
+
+        // Vérifier les paramètres OAuth au chargement
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const state = urlParams.get('state');
+
+            if (code && state === 'gmail_oauth') {
+                // Ouvrir automatiquement l'inbox pour traiter le callback
+                showInboxModal();
+            }
+        });
     </script>
 
 </body>
