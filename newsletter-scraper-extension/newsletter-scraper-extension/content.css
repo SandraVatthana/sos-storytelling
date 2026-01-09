@@ -1,0 +1,11 @@
+/* 
+ * Content Script CSS
+ * Styles optionnels injectés dans Gmail/Substack
+ * Pour l'instant vide - peut servir à highlighter la sélection, etc.
+ */
+
+/* Indicateur visuel quand l'extension est active (optionnel) */
+.newsletter-scraper-active {
+  outline: 2px dashed #7c3aed !important;
+  outline-offset: 4px;
+}

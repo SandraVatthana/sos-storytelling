@@ -8,12 +8,234 @@ const CampaignsModule = {
     campaigns: [],
     currentCampaign: null,
     selectedProspects: [],
+    selectedProspectIds: new Set(), // IDs des prospects sélectionnés individuellement
+    currentFilter: 'all', // Filtre actif: all, new, sales_navigator, imported
     sequenceEmails: [], // [{position, delay_days, subject_template, body_template}]
     generatedPreviews: [],
     previewIndex: 0,
 
     // API URL
     API_URL: 'https://sos-storytelling-api.sandra-devonssay.workers.dev',
+
+    // Templates de séquences pré-construits
+    SEQUENCE_TEMPLATES: {
+        intro: {
+            id: 'intro',
+            name: '🤝 Prise de contact',
+            description: 'Idéal pour un premier contact avec un prospect froid',
+            emails: [
+                {
+                    position: 1,
+                    delay_days: 0,
+                    subject_template: 'Une idée pour {company}',
+                    body_template: `Bonjour {first_name},
+
+Je me permets de vous contacter car j'ai remarqué {company} dans mon secteur.
+
+[Décris brièvement ta proposition de valeur ici]
+
+Seriez-vous disponible pour un court échange de 15 minutes cette semaine ?
+
+Bien cordialement`,
+                    send_condition: 'always'
+                },
+                {
+                    position: 2,
+                    delay_days: 3,
+                    subject_template: 'Re: Une idée pour {company}',
+                    body_template: `Bonjour {first_name},
+
+Je me permets de revenir vers vous concernant mon précédent message.
+
+Je comprends que vous êtes probablement débordé(e), mais je pense vraiment que cette discussion pourrait vous être utile.
+
+Seriez-vous disponible 15 minutes cette semaine ?`,
+                    send_condition: 'no_reply'
+                },
+                {
+                    position: 3,
+                    delay_days: 7,
+                    subject_template: 'Dernier essai - {company}',
+                    body_template: `Bonjour {first_name},
+
+Je ne veux pas être insistant, c'est mon dernier message.
+
+Si ce n'est pas le bon moment, pas de souci - je comprendrai parfaitement.
+
+Sinon, je reste disponible si vous souhaitez en discuter.
+
+Bonne continuation !`,
+                    send_condition: 'no_reply'
+                }
+            ]
+        },
+        value: {
+            id: 'value',
+            name: '💡 Proposition de valeur',
+            description: 'Mettez en avant les bénéfices pour le prospect',
+            emails: [
+                {
+                    position: 1,
+                    delay_days: 0,
+                    subject_template: '{first_name}, [X résultats] pour {company} ?',
+                    body_template: `Bonjour {first_name},
+
+Je travaille avec des entreprises comme {company} pour [décrire le bénéfice principal].
+
+Récemment, j'ai aidé un client à [résultat concret et chiffré].
+
+Voici comment : [1-2 phrases sur la méthode]
+
+Est-ce un sujet qui vous intéresse pour {company} ?`,
+                    send_condition: 'always'
+                },
+                {
+                    position: 2,
+                    delay_days: 4,
+                    subject_template: 'Re: [Cas client] qui pourrait vous inspirer',
+                    body_template: `Bonjour {first_name},
+
+Suite à mon précédent message, voici un exemple concret :
+
+📊 [Nom client] avait le même défi que {company}
+✅ Résultat : [chiffre/résultat obtenu]
+⏱️ En seulement [durée]
+
+Souhaitez-vous que je vous montre comment nous avons fait ?
+
+15 minutes suffisent pour voir si c'est applicable à votre cas.`,
+                    send_condition: 'no_reply'
+                },
+                {
+                    position: 3,
+                    delay_days: 7,
+                    subject_template: 'Question rapide pour vous',
+                    body_template: `{first_name},
+
+Je comprends que vous êtes occupé(e).
+
+Une simple question : est-ce que [problème que vous résolvez] est un sujet d'actualité pour {company} ?
+
+Si oui → je vous propose un échange de 10 min
+Si non → pas de souci, je ne vous dérangerai plus
+
+Qu'en pensez-vous ?`,
+                    send_condition: 'no_reply'
+                }
+            ]
+        },
+        case_study: {
+            id: 'case_study',
+            name: '📊 Étude de cas',
+            description: 'Partagez des résultats concrets pour convaincre',
+            emails: [
+                {
+                    position: 1,
+                    delay_days: 0,
+                    subject_template: 'Comment [client] a obtenu [résultat]',
+                    body_template: `Bonjour {first_name},
+
+Je voulais partager avec vous une étude de cas qui pourrait vous intéresser.
+
+📌 Le défi : [décrire le problème initial]
+💡 La solution : [votre approche]
+📈 Le résultat : [chiffres concrets]
+
+Je me suis dit que {company} pourrait bénéficier d'une approche similaire.
+
+Avez-vous 15 minutes pour en discuter ?`,
+                    send_condition: 'always'
+                },
+                {
+                    position: 2,
+                    delay_days: 5,
+                    subject_template: 'Re: Les 3 étapes clés du succès de [client]',
+                    body_template: `{first_name},
+
+Suite à mon précédent email, voici les 3 étapes qui ont fait la différence :
+
+1️⃣ [Étape 1 - courte description]
+2️⃣ [Étape 2 - courte description]
+3️⃣ [Étape 3 - courte description]
+
+Ces étapes sont applicables à {company}.
+
+Voulez-vous que je vous montre comment ?`,
+                    send_condition: 'no_reply'
+                },
+                {
+                    position: 3,
+                    delay_days: 10,
+                    subject_template: 'Dernière chance - Ressource gratuite',
+                    body_template: `{first_name},
+
+C'est mon dernier message sur ce sujet.
+
+J'ai préparé [une ressource/un guide] qui récapitule notre méthodologie.
+
+Souhaitez-vous que je vous l'envoie ? C'est gratuit et sans engagement.
+
+Si ce n'est pas le bon moment, je comprendrai.`,
+                    send_condition: 'no_reply'
+                }
+            ]
+        },
+        meeting: {
+            id: 'meeting',
+            name: '📅 Prise de RDV direct',
+            description: 'Allez droit au but pour décrocher un appel',
+            emails: [
+                {
+                    position: 1,
+                    delay_days: 0,
+                    subject_template: 'Appel de 15 min - {company}',
+                    body_template: `Bonjour {first_name},
+
+Je suis [Votre nom], [votre titre/spécialité].
+
+Je travaille avec des [type de clients] pour [bénéfice principal].
+
+J'aimerais vous présenter [votre offre] en 15 minutes chrono.
+
+📅 Êtes-vous disponible cette semaine ?
+
+[Lien Calendly ou créneaux proposés]`,
+                    send_condition: 'always'
+                },
+                {
+                    position: 2,
+                    delay_days: 2,
+                    subject_template: 'Re: Créneaux disponibles cette semaine',
+                    body_template: `{first_name},
+
+Je me permets de revenir vers vous.
+
+Voici mes disponibilités :
+• [Jour 1] : [heure]
+• [Jour 2] : [heure]
+• [Jour 3] : [heure]
+
+Lequel vous conviendrait le mieux ?`,
+                    send_condition: 'no_reply'
+                },
+                {
+                    position: 3,
+                    delay_days: 5,
+                    subject_template: 'Dernière tentative 🙂',
+                    body_template: `{first_name},
+
+Je ne veux pas être insistant.
+
+Si ce n'est pas le bon moment, dites-le-moi simplement et je ne vous dérangerai plus.
+
+Sinon, mon calendrier est ouvert : [lien Calendly]
+
+Bonne journée !`,
+                    send_condition: 'no_reply'
+                }
+            ]
+        }
+    },
 
     /**
      * Initialise le module
@@ -26,7 +248,7 @@ const CampaignsModule = {
      * Charge les campagnes depuis Supabase
      */
     async loadCampaigns() {
-        if (!window.supabase) return;
+        if (!window.supabase?.auth) return;
 
         try {
             const { data: { user } } = await window.supabase.auth.getUser();
@@ -50,6 +272,7 @@ const CampaignsModule = {
      * Obtient le token d'auth
      */
     async getAuthToken() {
+        if (!window.supabase?.auth) return null;
         const { data: { session } } = await window.supabase.auth.getSession();
         return session?.access_token;
     },
@@ -64,12 +287,12 @@ const CampaignsModule = {
         container.innerHTML = `
             <div class="campaigns-header">
                 <div class="campaigns-title-section">
-                    <h2>📧 Mes Campagnes Email</h2>
-                    <p>Crée et gère tes séquences d'emails automatisées</p>
+                    <h2>📧 ${t('campaigns.title')}</h2>
+                    <p>${t('campaigns.subtitle')}</p>
                 </div>
                 <div class="campaigns-actions">
                     <button class="btn btn-primary" onclick="CampaignsModule.openNewCampaignWizard()">
-                        <span class="btn-icon">+</span> Nouvelle campagne
+                        <span class="btn-icon">+</span> ${t('campaigns.new_campaign')}
                     </button>
                 </div>
             </div>
@@ -88,9 +311,9 @@ const CampaignsModule = {
             container.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-icon">📧</div>
-                    <p>Aucune campagne pour le moment</p>
+                    <p>${t('campaigns.empty')}</p>
                     <button class="btn btn-primary" onclick="CampaignsModule.openNewCampaignWizard()">
-                        Nouvelle campagne
+                        ${t('campaigns.new_campaign')}
                     </button>
                 </div>
             `;
@@ -113,15 +336,15 @@ const CampaignsModule = {
                 <div class="campaign-stats">
                     <div class="stat">
                         <span class="stat-value">${c.emails_sent || 0}</span>
-                        <span class="stat-label">Envoyés</span>
+                        <span class="stat-label">${t('campaigns.stats.sent')}</span>
                     </div>
                     <div class="stat">
                         <span class="stat-value">${c.emails_opened || 0}</span>
-                        <span class="stat-label">Ouverts</span>
+                        <span class="stat-label">${t('campaigns.stats.opened')}</span>
                     </div>
                     <div class="stat">
                         <span class="stat-value">${c.emails_replied || 0}</span>
-                        <span class="stat-label">Réponses</span>
+                        <span class="stat-label">${t('campaigns.stats.replied')}</span>
                     </div>
                 </div>
                 <div class="campaign-actions">
@@ -133,12 +356,12 @@ const CampaignsModule = {
 
     getStatusLabel(status) {
         const labels = {
-            draft: 'Brouillon',
-            scheduled: 'Programme',
-            sending: 'En cours',
-            paused: 'En pause',
-            sent: 'Termine',
-            completed: 'Termine'
+            draft: t('campaigns.status.draft'),
+            scheduled: t('campaigns.status.scheduled'),
+            sending: t('campaigns.status.sending'),
+            paused: t('campaigns.status.paused'),
+            sent: t('campaigns.status.sent'),
+            completed: t('campaigns.status.sent')
         };
         return labels[status] || status;
     },
@@ -148,34 +371,34 @@ const CampaignsModule = {
             case 'draft':
                 return `
                     <button class="btn btn-primary btn-small" onclick="CampaignsModule.openEditWizard('${campaign.id}')">
-                        Configurer
+                        ${t('actions.edit')}
                     </button>
                     <button class="btn btn-small btn-danger" onclick="CampaignsModule.confirmDelete('${campaign.id}')">
-                        Supprimer
+                        ${t('actions.delete')}
                     </button>
                 `;
             case 'sending':
                 return `
                     <button class="btn btn-small" onclick="CampaignsModule.viewCampaignDetails('${campaign.id}')">
-                        Voir details
+                        ${t('view_details')}
                     </button>
                     <button class="btn btn-small btn-warning" onclick="CampaignsModule.pauseCampaign('${campaign.id}')">
-                        Pause
+                        ${t('campaigns.actions.pause')}
                     </button>
                 `;
             case 'paused':
                 return `
                     <button class="btn btn-small btn-primary" onclick="CampaignsModule.resumeCampaign('${campaign.id}')">
-                        Reprendre
+                        ${t('campaigns.actions.resume')}
                     </button>
                     <button class="btn btn-small" onclick="CampaignsModule.viewCampaignDetails('${campaign.id}')">
-                        Voir details
+                        ${t('view_details')}
                     </button>
                 `;
             default:
                 return `
                     <button class="btn btn-small" onclick="CampaignsModule.viewCampaignDetails('${campaign.id}')">
-                        Voir details
+                        ${t('view_details')}
                     </button>
                 `;
         }
@@ -188,6 +411,8 @@ const CampaignsModule = {
     openNewCampaignWizard() {
         this.currentCampaign = null;
         this.selectedProspects = [];
+        this.outreachConfig = null;
+        this.selectedSenders = null; // Multi-adresses selection
         this.sequenceEmails = [
             { position: 1, delay_days: 0, subject_template: '', body_template: '', send_condition: 'always' }
         ];
@@ -229,11 +454,15 @@ const CampaignsModule = {
     },
 
     openWizardModal() {
+        // Reset des sélections prospects
+        this.selectedProspectIds = new Set();
+        this.currentFilter = 'all';
+
         const modal = document.createElement('div');
-        modal.className = 'modal-overlay';
+        modal.className = 'modal-overlay active';
         modal.id = 'campaignWizard';
         modal.innerHTML = `
-            <div class="modal campaign-wizard-modal">
+            <div class="modal campaign-wizard-modal" style="max-width: 800px; width: 95%; max-height: 90vh; overflow-y: auto;">
                 <div class="wizard-steps" id="wizardSteps">
                     ${this.renderWizardSteps()}
                 </div>
@@ -245,14 +474,16 @@ const CampaignsModule = {
         `;
 
         document.body.appendChild(modal);
+        document.body.style.overflow = 'hidden';
     },
 
     renderWizardSteps() {
         const steps = [
             { num: 1, label: 'Campagne' },
             { num: 2, label: 'Prospects' },
-            { num: 3, label: 'Sequence' },
-            { num: 4, label: 'Lancement' }
+            { num: 3, label: 'Config' },
+            { num: 4, label: 'Emails' },
+            { num: 5, label: 'Lancement' }
         ];
 
         return steps.map(s => `
@@ -267,8 +498,9 @@ const CampaignsModule = {
         switch (this.currentStep) {
             case 1: return this.renderStep1();
             case 2: return this.renderStep2();
-            case 3: return this.renderStep3();
-            case 4: return this.renderStep4();
+            case 3: return this.renderStep3_Config();
+            case 4: return this.renderStep4_Emails();
+            case 5: return this.renderStep5_Launch();
             default: return '';
         }
     },
@@ -276,14 +508,154 @@ const CampaignsModule = {
     updateWizard() {
         document.getElementById('wizardSteps').innerHTML = this.renderWizardSteps();
         document.getElementById('wizardContent').innerHTML = this.renderCurrentStep();
+
+        // Charger les sender chips si on est à l'étape 3
+        if (this.currentStep === 3) {
+            setTimeout(() => this.loadSenderChips(), 100);
+        }
     },
 
     closeWizard() {
         const modal = document.getElementById('campaignWizard');
         if (modal) modal.remove();
+        document.body.style.overflow = '';
         this.currentCampaign = null;
         this.sequenceEmails = [];
         this.selectedProspects = [];
+        this.selectedSenders = null; // Reset sender selection
+    },
+
+    async handleWizardImport(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const importZone = document.getElementById('wizardImportZone');
+        if (importZone) {
+            importZone.innerHTML = '<div style="text-align: center; padding: 20px;"><div class="loading-spinner"></div><p>Import en cours...</p></div>';
+        }
+
+        try {
+            const text = await file.text();
+            const lines = text.split(/\r?\n/).filter(line => line.trim());
+
+            if (lines.length < 2) {
+                throw new Error('Le fichier CSV semble vide');
+            }
+
+            // Parse CSV - détecter le séparateur
+            const firstLine = lines[0];
+            const separator = firstLine.includes(';') ? ';' : ',';
+
+            const headers = firstLine.split(separator).map(h => h.trim().toLowerCase().replace(/"/g, '').normalize('NFD').replace(/[\u0300-\u036f]/g, ''));
+            console.log('=== IMPORT CSV DEBUG ===');
+            console.log('Séparateur:', separator);
+            console.log('Headers détectés:', headers);
+            console.log('Nombre de lignes:', lines.length);
+
+            const prospects = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(separator).map(v => v.trim().replace(/"/g, ''));
+                if (values.length < 2 || !values.some(v => v)) continue;
+
+                const prospect = {};
+                headers.forEach((header, idx) => {
+                    const value = values[idx] || '';
+                    // Matching plus flexible
+                    if (header.includes('mail') || header === 'e-mail' || header === 'courriel') {
+                        prospect.email = value;
+                    } else if (header.includes('prenom') || header.includes('first') || header === 'firstname' || header === 'given') {
+                        prospect.first_name = value;
+                    } else if ((header.includes('nom') && !header.includes('prenom')) || header.includes('last') || header === 'lastname' || header === 'family' || header === 'surname') {
+                        prospect.last_name = value;
+                    } else if (header.includes('entreprise') || header.includes('company') || header.includes('societe') || header.includes('organisation')) {
+                        prospect.company = value;
+                    } else if (header.includes('poste') || header.includes('title') || header.includes('fonction') || header.includes('job') || header.includes('role')) {
+                        prospect.job_title = value;
+                    } else if (header.includes('linkedin')) {
+                        prospect.linkedin_url = value;
+                    }
+                });
+
+                // Si pas de mapping trouvé, essayer position par défaut (email en premier ou second)
+                if (!prospect.email && values[0] && values[0].includes('@')) {
+                    prospect.email = values[0];
+                    prospect.first_name = prospect.first_name || values[1] || 'Contact';
+                } else if (!prospect.email && values[1] && values[1].includes('@')) {
+                    prospect.email = values[1];
+                    prospect.first_name = prospect.first_name || values[0] || 'Contact';
+                }
+
+                if (prospect.email && prospect.email.includes('@')) {
+                    prospect.first_name = prospect.first_name || 'Contact';
+                    prospect.status = 'new';
+                    prospects.push(prospect);
+                    if (prospects.length === 1) {
+                        console.log('Premier prospect:', prospect);
+                    }
+                } else if (i === 1) {
+                    console.log('Première ligne non valide:', { values, prospect });
+                }
+            }
+
+            console.log('Prospects parsés:', prospects.length);
+
+            if (prospects.length === 0) {
+                throw new Error('Aucun prospect valide trouvé. Colonnes détectées: ' + headers.join(', ') + '. Assurez-vous d\'avoir une colonne email.');
+            }
+
+            // Sauvegarder les prospects
+            if (typeof ProspectsModule !== 'undefined') {
+                // Essayer d'abord de sauvegarder dans Supabase
+                try {
+                    if (window.supabase?.auth && typeof ProspectsModule.importProspects === 'function') {
+                        const { data: { user } } = await window.supabase.auth.getUser();
+                        if (user) {
+                            console.log('Import Supabase:', prospects.length, 'prospects');
+                            await ProspectsModule.importProspects(prospects, 'csv_wizard');
+                            // Les prospects sont maintenant dans ProspectsModule.prospects via loadProspects()
+                        } else {
+                            throw new Error('Non connecté');
+                        }
+                    } else {
+                        throw new Error('Supabase non disponible');
+                    }
+                } catch (e) {
+                    // Fallback mode local
+                    console.log('Import local (fallback):', prospects.length, 'prospects -', e.message);
+                    const prospectsWithIds = prospects.map((p, i) => ({
+                        ...p,
+                        id: 'local_' + Date.now() + '_' + i,
+                        source: 'csv_wizard',
+                        status: 'new'
+                    }));
+                    ProspectsModule.prospects = [...(ProspectsModule.prospects || []), ...prospectsWithIds];
+                }
+            }
+
+            // Rafraîchir le wizard
+            if (importZone) {
+                importZone.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #4caf50;">
+                        <div style="font-size: 2em;">✅</div>
+                        <p><strong>${prospects.length} prospects importés !</strong></p>
+                        <button class="btn btn-primary" onclick="CampaignsModule.updateWizard()">Continuer</button>
+                    </div>
+                `;
+            }
+
+        } catch (error) {
+            console.error('Import error:', error);
+            if (importZone) {
+                importZone.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #f44336;">
+                        <div style="font-size: 2em;">❌</div>
+                        <p><strong>Erreur:</strong> ${error.message}</p>
+                        <button class="btn btn-secondary" onclick="CampaignsModule.updateWizard()">Réessayer</button>
+                    </div>
+                `;
+            }
+        }
     },
 
     // ==========================================
@@ -332,8 +704,11 @@ const CampaignsModule = {
                 </div>
 
                 <div class="wizard-actions">
-                    <button class="btn btn-secondary" onclick="CampaignsModule.closeWizard()">
-                        Annuler
+                    <button class="btn btn-secondary" onclick="CampaignsModule.backToEmailChoice()">
+                        ← Retour
+                    </button>
+                    <button class="btn btn-cancel" onclick="CampaignsModule.closeWizard()">
+                        ✕ Annuler
                     </button>
                     <button class="btn btn-primary" onclick="CampaignsModule.saveStep1()">
                         Continuer →
@@ -343,37 +718,57 @@ const CampaignsModule = {
         `;
     },
 
-    async saveStep1() {
-        const name = document.getElementById('campaignName').value.trim();
-        const goal = document.getElementById('campaignGoal').value.trim();
-        const senderEmail = document.getElementById('senderEmail').value.trim();
-        const senderName = document.getElementById('senderName').value.trim();
-        const language = document.getElementById('campaignLanguage').value;
+    backToEmailChoice() {
+        this.closeWizard();
+        closeCampaignsModal();
+        if (typeof showEmailChoiceModal === 'function') {
+            showEmailChoiceModal();
+        }
+    },
 
-        if (!name || !goal || !senderEmail || !senderName) {
-            alert('Tous les champs marques * sont obligatoires');
+    async saveStep1() {
+        const name = document.getElementById('campaignName')?.value?.trim() || '';
+        const goal = document.getElementById('campaignGoal')?.value?.trim() || '';
+        const senderEmail = document.getElementById('senderEmail')?.value?.trim() || '';
+        const senderName = document.getElementById('senderName')?.value?.trim() || '';
+        const language = document.getElementById('campaignLanguage')?.value || 'fr';
+
+        // Validation détaillée
+        const missing = [];
+        if (!name) missing.push('Nom de la campagne');
+        if (!goal) missing.push('Objectif');
+        if (!senderEmail) missing.push('Email expéditeur');
+        if (!senderName) missing.push('Nom expéditeur');
+
+        if (missing.length > 0) {
+            alert('Champs manquants : ' + missing.join(', '));
             return;
         }
 
-        try {
-            const campaignData = {
-                name, goal,
-                sender_email: senderEmail,
-                sender_name: senderName,
-                language
-            };
+        const campaignData = {
+            name, goal,
+            sender_email: senderEmail,
+            sender_name: senderName,
+            language
+        };
 
+        try {
             const token = await this.getAuthToken();
 
-            if (this.currentCampaign) {
+            if (this.currentCampaign?.id) {
                 // Update
                 const response = await fetch(`${this.API_URL}/api/campaigns/${this.currentCampaign.id}`, {
                     method: 'PUT',
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify(campaignData)
                 });
-                const data = await response.json();
-                this.currentCampaign = data.campaign;
+                if (response.ok) {
+                    const data = await response.json();
+                    this.currentCampaign = data.campaign;
+                } else {
+                    console.warn('API Update failed, using local mode');
+                    this.currentCampaign = { ...this.currentCampaign, ...campaignData };
+                }
             } else {
                 // Create
                 const response = await fetch(`${this.API_URL}/api/campaigns`, {
@@ -381,17 +776,23 @@ const CampaignsModule = {
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify(campaignData)
                 });
-                const data = await response.json();
-                this.currentCampaign = data.campaign;
+                if (response.ok) {
+                    const data = await response.json();
+                    this.currentCampaign = data.campaign;
+                } else {
+                    console.warn('API Create failed, using local mode');
+                    this.currentCampaign = { id: 'local_' + Date.now(), ...campaignData, status: 'draft' };
+                }
             }
-
-            this.currentStep = 2;
-            this.updateWizard();
-
         } catch (error) {
-            console.error('Error saving campaign:', error);
-            alert('Erreur lors de la sauvegarde');
+            console.warn('API non disponible, mode local:', error.message);
+            // Mode local - créer une campagne locale
+            this.currentCampaign = { id: 'local_' + Date.now(), ...campaignData, status: 'draft' };
         }
+
+        console.log('Campagne:', this.currentCampaign);
+        this.currentStep = 2;
+        this.updateWizard();
     },
 
     // ==========================================
@@ -402,86 +803,250 @@ const CampaignsModule = {
         const prospects = ProspectsModule?.prospects || [];
         const stats = ProspectsModule?.getStats() || { total: 0, new: 0 };
 
+        // Compter par source
+        const salesNavProspects = prospects.filter(p => p.source === 'linkedin_extension' || p.source === 'linkedin_sales_navigator');
+        const importedProspects = prospects.filter(p => p.source === 'csv_import' || p.source === 'manual' || (!p.source));
+        const newProspects = prospects.filter(p => p.status === 'new');
+
+        // Filtrer selon le filtre actif
+        const getFilteredProspects = () => {
+            switch(this.currentFilter) {
+                case 'new': return newProspects;
+                case 'sales_navigator': return salesNavProspects;
+                case 'imported': return importedProspects;
+                default: return prospects;
+            }
+        };
+        const filteredProspects = getFilteredProspects();
+
+        // Initialiser la sélection si vide
+        if (this.selectedProspectIds.size === 0 && prospects.length > 0) {
+            prospects.forEach(p => this.selectedProspectIds.add(p.id));
+        }
+
+        const selectedCount = this.selectedProspectIds.size;
+        const allFilteredSelected = filteredProspects.every(p => this.selectedProspectIds.has(p.id));
+
         return `
             <div class="wizard-step-content">
-                <h3>👥 Selectionner les prospects</h3>
+                <h3>👥 Sélectionner les prospects</h3>
 
-                <div class="prospect-filter-options">
-                    <label class="radio-card">
-                        <input type="radio" name="prospectFilter" value="all" checked>
-                        <div class="radio-content">
-                            <strong>Tous les prospects</strong>
-                            <span class="count">${stats.total}</span>
-                        </div>
-                    </label>
-                    <label class="radio-card">
-                        <input type="radio" name="prospectFilter" value="new">
-                        <div class="radio-content">
-                            <strong>Nouveaux uniquement</strong>
-                            <span class="count">${stats.new}</span>
-                        </div>
-                    </label>
+                <!-- Filtres en chips -->
+                <div class="prospect-filter-chips">
+                    <button class="filter-chip ${this.currentFilter === 'all' ? 'active' : ''}" onclick="CampaignsModule.setFilter('all')">
+                        📋 Tous <span class="chip-count">${prospects.length}</span>
+                    </button>
+                    <button class="filter-chip ${this.currentFilter === 'new' ? 'active' : ''}" onclick="CampaignsModule.setFilter('new')">
+                        ✨ Nouveaux <span class="chip-count">${newProspects.length}</span>
+                    </button>
+                </div>
+
+                <!-- Barre de sélection -->
+                <div class="prospect-selection-bar">
+                    <div class="selection-info">
+                        <input type="checkbox" id="selectAllProspects" ${allFilteredSelected ? 'checked' : ''} onchange="CampaignsModule.toggleSelectAll(this.checked)">
+                        <label for="selectAllProspects">
+                            <strong>${selectedCount}</strong> prospect${selectedCount > 1 ? 's' : ''} sélectionné${selectedCount > 1 ? 's' : ''}
+                        </label>
+                    </div>
+                    <div class="selection-actions">
+                        <button class="btn-link" onclick="CampaignsModule.selectAllFiltered()">Tout sélectionner</button>
+                        <button class="btn-link" onclick="CampaignsModule.deselectAllFiltered()">Tout désélectionner</button>
+                    </div>
                 </div>
 
                 ${prospects.length === 0 ? `
                     <div class="warning-box">
-                        <p>⚠️ Aucun prospect importe. <a href="#" onclick="document.querySelector('[data-tab=prospects]').click()">Importer des prospects</a> d'abord.</p>
+                        <p>⚠️ Aucun prospect importé.</p>
                     </div>
                 ` : `
-                    <div class="selected-prospects-preview">
-                        <h4>Apercu des prospects</h4>
-                        <div class="prospects-mini-list">
-                            ${prospects.slice(0, 5).map(p => `
-                                <div class="prospect-mini">
-                                    <strong>${p.first_name} ${p.last_name || ''}</strong>
-                                    <span>${p.company || p.email}</span>
+                    <!-- Liste scrollable avec checkboxes -->
+                    <div class="prospects-checkbox-list">
+                        ${filteredProspects.map(p => `
+                            <label class="prospect-checkbox-item ${this.selectedProspectIds.has(p.id) ? 'selected' : ''}">
+                                <input type="checkbox"
+                                       data-id="${p.id}"
+                                       ${this.selectedProspectIds.has(p.id) ? 'checked' : ''}
+                                       onchange="CampaignsModule.toggleProspect('${p.id}', this.checked)">
+                                <div class="prospect-info">
+                                    <div class="prospect-name">${p.first_name} ${p.last_name || ''}</div>
+                                    <div class="prospect-details">
+                                        ${p.job_title ? `<span>${p.job_title}</span>` : ''}
+                                        ${p.company ? `<span>@ ${p.company}</span>` : ''}
+                                    </div>
+                                    <div class="prospect-email">${p.email || '(pas d\'email)'}</div>
                                 </div>
-                            `).join('')}
-                            ${prospects.length > 5 ? `<p class="more">+ ${prospects.length - 5} autres...</p>` : ''}
-                        </div>
+                                <div class="prospect-badges">
+                                    ${p.status === 'new' ? '<span class="badge badge-new">Nouveau</span>' : ''}
+                                    ${(p.source === 'linkedin_extension' || p.source === 'linkedin_sales_navigator') ? '<span class="badge badge-linkedin">💼 SN</span>' : ''}
+                                    ${(p.source === 'csv_import') ? '<span class="badge badge-csv">📥</span>' : ''}
+                                </div>
+                            </label>
+                        `).join('')}
+                        ${filteredProspects.length === 0 ? '<div class="no-prospects-message">Aucun prospect dans cette catégorie</div>' : ''}
                     </div>
                 `}
+
+                <div class="prospect-actions-grid">
+                    <div class="prospect-action-card" onclick="document.getElementById('wizardCsvInput').click()">
+                        <div class="action-icon">📥</div>
+                        <div class="action-title">Importer CSV</div>
+                        <div class="action-desc">Importer depuis un fichier</div>
+                        <input type="file" id="wizardCsvInput" accept=".csv" style="display: none;" onchange="CampaignsModule.handleWizardImport(event)">
+                    </div>
+                    <div class="prospect-action-card" onclick="CampaignsModule.showAddProspectForm()">
+                        <div class="action-icon">➕</div>
+                        <div class="action-title">Ajouter manuellement</div>
+                        <div class="action-desc">Entrer un prospect</div>
+                    </div>
+                </div>
+
+                <div id="addProspectForm" class="add-prospect-form" style="display: none;">
+                    <h4>➕ Ajouter un prospect</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Prénom *</label>
+                            <input type="text" id="manualFirstName" placeholder="Marie">
+                        </div>
+                        <div class="form-group">
+                            <label>Nom</label>
+                            <input type="text" id="manualLastName" placeholder="Dupont">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Email *</label>
+                        <input type="email" id="manualEmail" placeholder="marie@exemple.com">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Entreprise</label>
+                            <input type="text" id="manualCompany" placeholder="Agence X">
+                        </div>
+                        <div class="form-group">
+                            <label>Poste</label>
+                            <input type="text" id="manualJobTitle" placeholder="CEO">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" onclick="CampaignsModule.hideAddProspectForm()">Annuler</button>
+                        <button class="btn btn-primary" onclick="CampaignsModule.addManualProspect()">Ajouter</button>
+                    </div>
+                </div>
 
                 <div class="wizard-actions">
                     <button class="btn btn-secondary" onclick="CampaignsModule.goToStep(1)">
                         ← Retour
                     </button>
-                    <button class="btn btn-primary" onclick="CampaignsModule.saveStep2()" ${prospects.length === 0 ? 'disabled' : ''}>
-                        Continuer →
+                    <button class="btn btn-cancel" onclick="CampaignsModule.closeWizard()">
+                        ✕ Annuler
+                    </button>
+                    <button class="btn btn-primary" onclick="CampaignsModule.saveStep2()" ${selectedCount === 0 ? 'disabled' : ''}>
+                        Continuer avec ${selectedCount} prospect${selectedCount > 1 ? 's' : ''} →
                     </button>
                 </div>
             </div>
         `;
     },
 
-    async saveStep2() {
-        const filter = document.querySelector('input[name="prospectFilter"]:checked').value;
-        let prospects = ProspectsModule?.prospects || [];
-
-        if (filter === 'new') {
-            prospects = prospects.filter(p => p.status === 'new');
-        }
-
-        if (prospects.length === 0) {
-            alert('Aucun prospect a contacter');
-            return;
-        }
-
-        this.selectedProspects = prospects;
-
-        // Mettre a jour la campagne
-        const token = await this.getAuthToken();
-        await fetch(`${this.API_URL}/api/campaigns/${this.currentCampaign.id}`, {
-            method: 'PUT',
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                total_prospects: prospects.length,
-                prospect_filter: { status: filter }
-            })
-        });
-
-        this.currentStep = 3;
+    // Méthodes de gestion des filtres et sélection
+    setFilter(filter) {
+        this.currentFilter = filter;
         this.updateWizard();
+    },
+
+    toggleProspect(id, checked) {
+        if (checked) {
+            this.selectedProspectIds.add(id);
+        } else {
+            this.selectedProspectIds.delete(id);
+        }
+        this.updateWizard();
+    },
+
+    toggleSelectAll(checked) {
+        const prospects = ProspectsModule?.prospects || [];
+        const filteredProspects = this.getFilteredProspectsList();
+
+        filteredProspects.forEach(p => {
+            if (checked) {
+                this.selectedProspectIds.add(p.id);
+            } else {
+                this.selectedProspectIds.delete(p.id);
+            }
+        });
+        this.updateWizard();
+    },
+
+    selectAllFiltered() {
+        const filteredProspects = this.getFilteredProspectsList();
+        filteredProspects.forEach(p => this.selectedProspectIds.add(p.id));
+        this.updateWizard();
+    },
+
+    deselectAllFiltered() {
+        const filteredProspects = this.getFilteredProspectsList();
+        filteredProspects.forEach(p => this.selectedProspectIds.delete(p.id));
+        this.updateWizard();
+    },
+
+    getFilteredProspectsList() {
+        const prospects = ProspectsModule?.prospects || [];
+        switch(this.currentFilter) {
+            case 'new': return prospects.filter(p => p.status === 'new');
+            case 'sales_navigator': return prospects.filter(p => p.source === 'linkedin_extension' || p.source === 'linkedin_sales_navigator');
+            case 'imported': return prospects.filter(p => p.source === 'csv_import' || p.source === 'manual' || (!p.source));
+            default: return prospects;
+        }
+    },
+
+    async saveStep2() {
+        try {
+            const allProspects = ProspectsModule?.prospects || [];
+
+            // Filtrer selon les IDs sélectionnés
+            const prospects = allProspects.filter(p => this.selectedProspectIds.has(p.id));
+
+            console.log('saveStep2 - selected prospects:', prospects.length);
+
+            if (prospects.length === 0) {
+                alert('Aucun prospect sélectionné. Veuillez sélectionner au moins un prospect.');
+                return;
+            }
+
+            this.selectedProspects = prospects;
+
+            // Mettre a jour la campagne si elle existe
+            if (this.currentCampaign?.id) {
+                try {
+                    const token = await this.getAuthToken();
+                    const response = await fetch(`${this.API_URL}/api/campaigns/${this.currentCampaign.id}`, {
+                        method: 'PUT',
+                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            total_prospects: prospects.length,
+                            prospect_ids: Array.from(this.selectedProspectIds)
+                        })
+                    });
+
+                    if (!response.ok) {
+                        console.warn('API non disponible, mode local activé');
+                    }
+                } catch (apiError) {
+                    console.warn('Mode hors-ligne:', apiError.message);
+                }
+            } else {
+                // Mode local sans API
+                this.currentCampaign = this.currentCampaign || {};
+                this.currentCampaign.total_prospects = prospects.length;
+                console.log('Mode local - campagne:', this.currentCampaign);
+            }
+
+            this.currentStep = 3;
+            this.updateWizard();
+        } catch (error) {
+            console.error('Erreur saveStep2:', error);
+            alert('Une erreur est survenue. Vérifiez la console pour plus de détails.');
+        }
     },
 
     goToStep(step) {
@@ -490,14 +1055,438 @@ const CampaignsModule = {
     },
 
     // ==========================================
-    // STEP 3: SEQUENCE D'EMAILS
+    // STEP 3: MES DONNÉES CLÉS (CONFIG OUTREACH)
     // ==========================================
 
-    renderStep3() {
+    renderStep3_Config() {
+        const config = this.outreachConfig || {};
+        // Récupérer "Ma Voix" depuis le profil utilisateur
+        const userProfile = this.getUserVoiceProfile();
+        const hasVoice = userProfile && userProfile.voiceProfile;
+        // Utiliser le style global comme défaut si pas de config locale
+        const defaultFormalStyle = userProfile?.formalStyle || 'tu';
+        const currentFormalStyle = config.formal_style || defaultFormalStyle;
+
         return `
             <div class="wizard-step-content">
-                <h3>📝 Creer la sequence d'emails</h3>
-                <p class="step-description">Definissez les emails de votre sequence. L'IA peut generer le contenu ou vous pouvez l'ecrire vous-meme.</p>
+                <h3>⚙️ Mes données clés</h3>
+                <p class="step-description">Ces infos seront intégrées intelligemment dans tes emails par l'IA.</p>
+
+                ${hasVoice ? `
+                <div class="voice-integration-box">
+                    <label class="voice-checkbox">
+                        <input type="checkbox" id="useMyVoice" ${config.use_my_voice !== false ? 'checked' : ''}>
+                        <span class="checkbox-label">
+                            <strong>🎤 Utiliser "Ma Voix"</strong>
+                            <small>L'IA reprendra ton style d'écriture personnel</small>
+                        </span>
+                    </label>
+                    <button type="button" class="btn-edit-voice" onclick="CampaignsModule.openVoiceFromWizard()">
+                        ✏️ Modifier
+                    </button>
+                </div>
+                ` : `
+                <div class="voice-integration-box no-voice clickable" onclick="CampaignsModule.openVoiceFromWizard()">
+                    <span class="no-voice-icon">🎤</span>
+                    <span class="no-voice-text">Configure "Ma Voix" pour que l'IA écrive comme toi</span>
+                    <span class="configure-btn">Configurer →</span>
+                </div>
+                `}
+
+                <div class="form-group">
+                    <label>🎯 Mon offre * <span class="label-hint">(ce que tu proposes)</span></label>
+                    <textarea id="userOffer" rows="3" placeholder="Ex: J'aide les agences à créer du contenu 3x plus vite grâce à l'IA, sans perdre leur style.">${config.user_offer || ''}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>📰 Mon actualité <span class="label-hint">(optionnel)</span></label>
+                    <input type="text" id="userNews" placeholder="Ex: Je viens de lancer SOS Storytelling" value="${config.user_news || ''}">
+                </div>
+
+                <div class="form-group">
+                    <label>⭐ Ma preuve sociale <span class="label-hint">(optionnel)</span></label>
+                    <input type="text" id="userSocialProof" placeholder="Ex: Déjà 40 bêta-testeurs, dont 3 agences" value="${config.user_social_proof || ''}">
+                </div>
+
+                <div class="form-group">
+                    <label>📞 Mon CTA * <span class="label-hint">(ce que tu veux qu'ils fassent)</span></label>
+                    <input type="text" id="userCta" placeholder="Ex: 15 min pour te montrer comment ça marche" value="${config.user_cta || ''}">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>👋 Style d'adresse</label>
+                        <div class="style-toggle">
+                            <label class="style-option ${currentFormalStyle === 'tu' ? 'active' : ''}" onclick="CampaignsModule.selectStyle('tu')">
+                                <input type="radio" name="formalStyle" value="tu" ${currentFormalStyle === 'tu' ? 'checked' : ''}>
+                                <span>Tu</span>
+                            </label>
+                            <label class="style-option ${currentFormalStyle === 'vous' ? 'active' : ''}" onclick="CampaignsModule.selectStyle('vous')">
+                                <input type="radio" name="formalStyle" value="vous" ${currentFormalStyle === 'vous' ? 'checked' : ''}>
+                                <span>Vous</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>🎨 Ton du message</label>
+                        <div class="tone-toggle">
+                            <label class="tone-option ${(config.tone || 'pro') === 'pro' ? 'active' : ''}" onclick="CampaignsModule.selectTone('pro')">
+                                <input type="radio" name="toneSetting" value="pro" ${(config.tone || 'pro') === 'pro' ? 'checked' : ''}>
+                                <span>Pro</span>
+                            </label>
+                            <label class="tone-option ${config.tone === 'expert' ? 'active' : ''}" onclick="CampaignsModule.selectTone('expert')">
+                                <input type="radio" name="toneSetting" value="expert" ${config.tone === 'expert' ? 'checked' : ''}>
+                                <span>Expert</span>
+                            </label>
+                            <label class="tone-option ${config.tone === 'chaleureux' ? 'active' : ''}" onclick="CampaignsModule.selectTone('chaleureux')">
+                                <input type="radio" name="toneSetting" value="chaleureux" ${config.tone === 'chaleureux' ? 'checked' : ''}>
+                                <span>Chaleureux</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Multi-Adresses Email (Best Practice 2026) -->
+                <div class="sender-selection-section" id="senderSelectionSection">
+                    <div class="sender-selection-header">
+                        <h4>📧 Adresses d'envoi</h4>
+                        <span class="sender-selection-badge">20 emails/jour/adresse</span>
+                    </div>
+                    <div id="senderChipsContainer">
+                        <!-- Chargé dynamiquement -->
+                        <div style="text-align: center; padding: 15px; color: #888;">
+                            <small>Chargement des adresses...</small>
+                        </div>
+                    </div>
+                    <div class="sender-mini-stats" id="senderMiniStats" style="display: none;">
+                        <div class="mini-stat">
+                            <span class="mini-stat-value" id="miniStatCapacity">0</span>
+                            <span class="mini-stat-label">Capacité totale</span>
+                        </div>
+                        <div class="mini-stat">
+                            <span class="mini-stat-value" id="miniStatRemaining">0</span>
+                            <span class="mini-stat-label">Disponibles</span>
+                        </div>
+                        <div class="mini-stat">
+                            <span class="mini-stat-value" id="miniStatSelected">0</span>
+                            <span class="mini-stat-label">Sélectionnées</span>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px; text-align: right;">
+                        <button type="button" class="btn-link" onclick="CampaignsModule.openSenderManager()" style="color: #667eea; font-size: 0.85em; cursor: pointer; background: none; border: none; text-decoration: underline;">
+                            + Gérer mes adresses
+                        </button>
+                    </div>
+                </div>
+
+                <div class="wizard-actions">
+                    <button class="btn btn-secondary" onclick="CampaignsModule.goToStep(2)">
+                        ← Retour
+                    </button>
+                    <button class="btn btn-cancel" onclick="CampaignsModule.closeWizard()">
+                        ✕ Annuler
+                    </button>
+                    <button class="btn btn-primary" onclick="CampaignsModule.saveStep3_Config()">
+                        Continuer →
+                    </button>
+                </div>
+            </div>
+        `;
+    },
+
+    // Charger les adresses sender pour la sélection
+    async loadSenderChips() {
+        const container = document.getElementById('senderChipsContainer');
+        const statsContainer = document.getElementById('senderMiniStats');
+        if (!container) return;
+
+        try {
+            // Initialiser le module si pas fait
+            if (typeof SenderEmailsModule !== 'undefined') {
+                await SenderEmailsModule.init();
+                const senders = SenderEmailsModule.getSenders();
+                const stats = SenderEmailsModule.getStatsData();
+
+                if (senders.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-senders-inline">
+                            <p>Aucune adresse email configurée</p>
+                            <button class="btn btn-primary btn-small" onclick="CampaignsModule.openSenderManager()">
+                                + Ajouter une adresse
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Générer les chips
+                const chips = senders.map(sender => {
+                    const effectiveLimit = sender.warmup_enabled ? sender.warmup_current_limit : sender.daily_limit;
+                    const remaining = Math.max(0, effectiveLimit - (sender.emails_sent_today || 0));
+                    const atLimit = remaining === 0;
+                    const isSelected = this.selectedSenders?.includes(sender.id) || (!this.selectedSenders && sender.is_active);
+
+                    return `
+                        <button type="button"
+                                class="sender-chip ${isSelected ? 'selected' : ''} ${atLimit ? 'disabled' : ''}"
+                                onclick="CampaignsModule.toggleSenderChip('${sender.id}')"
+                                ${atLimit ? 'disabled' : ''}>
+                            <span class="chip-email">${sender.email}</span>
+                            <span class="chip-remaining">${remaining} restants</span>
+                        </button>
+                    `;
+                }).join('');
+
+                container.innerHTML = `<div class="sender-chips">${chips}</div>`;
+
+                // Afficher les mini stats
+                if (statsContainer) {
+                    statsContainer.style.display = 'flex';
+                    document.getElementById('miniStatCapacity').textContent = stats.total_available_today || 0;
+                    document.getElementById('miniStatRemaining').textContent = stats.total_remaining_today || 0;
+                    const selectedCount = this.selectedSenders?.length || senders.filter(s => s.is_active).length;
+                    document.getElementById('miniStatSelected').textContent = selectedCount;
+                }
+
+                // Initialiser selectedSenders si pas fait
+                if (!this.selectedSenders) {
+                    this.selectedSenders = senders.filter(s => s.is_active && !((s.warmup_enabled ? s.warmup_current_limit : s.daily_limit) - (s.emails_sent_today || 0) <= 0)).map(s => s.id);
+                }
+            }
+        } catch (error) {
+            console.error('Erreur chargement senders:', error);
+            container.innerHTML = `
+                <div style="text-align: center; padding: 15px; color: #888;">
+                    <small>Erreur de chargement des adresses</small>
+                </div>
+            `;
+        }
+    },
+
+    toggleSenderChip(senderId) {
+        if (!this.selectedSenders) this.selectedSenders = [];
+
+        const index = this.selectedSenders.indexOf(senderId);
+        if (index > -1) {
+            this.selectedSenders.splice(index, 1);
+        } else {
+            this.selectedSenders.push(senderId);
+        }
+
+        // Mettre à jour l'UI
+        const chip = document.querySelector(`.sender-chip[onclick*="${senderId}"]`);
+        if (chip) {
+            chip.classList.toggle('selected');
+        }
+
+        // Mettre à jour le compteur
+        const selectedCountEl = document.getElementById('miniStatSelected');
+        if (selectedCountEl) {
+            selectedCountEl.textContent = this.selectedSenders.length;
+        }
+    },
+
+    openSenderManager() {
+        // Créer une modal pour gérer les adresses
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay active';
+        modal.id = 'senderManagerModal';
+        modal.innerHTML = `
+            <div class="modal sender-manager-modal" style="max-width: 700px; width: 95%; max-height: 90vh; overflow-y: auto;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 12px 12px 0 0;">
+                    <h2 style="margin: 0;">📧 Gérer mes adresses d'envoi</h2>
+                    <button class="modal-close" onclick="CampaignsModule.closeSenderManager()" style="color: white; font-size: 1.5em; background: none; border: none; cursor: pointer;">&times;</button>
+                </div>
+                <div id="senderManagerContent" style="padding: 20px;">
+                    <!-- Rendu par SenderEmailsModule -->
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        // Rendre le panneau
+        if (typeof SenderEmailsModule !== 'undefined') {
+            SenderEmailsModule.renderSendersPanel('senderManagerContent');
+        }
+    },
+
+    closeSenderManager() {
+        const modal = document.getElementById('senderManagerModal');
+        if (modal) modal.remove();
+        // Recharger les chips
+        this.loadSenderChips();
+    },
+
+    saveStep3_Config() {
+        const userOffer = document.getElementById('userOffer')?.value?.trim();
+        const userCta = document.getElementById('userCta')?.value?.trim();
+
+        if (!userOffer || !userCta) {
+            alert('Les champs "Mon offre" et "Mon CTA" sont obligatoires.');
+            return;
+        }
+
+        // Vérifier qu'au moins une adresse est sélectionnée
+        if (!this.selectedSenders || this.selectedSenders.length === 0) {
+            alert('Sélectionnez au moins une adresse email d\'envoi.');
+            return;
+        }
+
+        this.outreachConfig = {
+            user_offer: userOffer,
+            user_news: document.getElementById('userNews')?.value?.trim() || '',
+            user_social_proof: document.getElementById('userSocialProof')?.value?.trim() || '',
+            user_cta: userCta,
+            formal_style: document.querySelector('input[name="formalStyle"]:checked')?.value || 'tu',
+            tone: document.querySelector('input[name="toneSetting"]:checked')?.value || 'pro',
+            use_my_voice: document.getElementById('useMyVoice')?.checked !== false,
+            sender_email_ids: this.selectedSenders // Multi-adresses sélectionnées
+        };
+
+        console.log('Config outreach:', this.outreachConfig);
+        this.currentStep = 4;
+        this.updateWizard();
+    },
+
+    selectStyle(style) {
+        // Mettre à jour le radio
+        document.querySelector(`input[name="formalStyle"][value="${style}"]`).checked = true;
+        // Mettre à jour les classes visuelles
+        document.querySelectorAll('.style-option').forEach(el => el.classList.remove('active'));
+        document.querySelector(`input[name="formalStyle"][value="${style}"]`).closest('.style-option').classList.add('active');
+    },
+
+    selectTone(tone) {
+        // Mettre à jour le radio
+        document.querySelector(`input[name="toneSetting"][value="${tone}"]`).checked = true;
+        // Mettre à jour les classes visuelles
+        document.querySelectorAll('.tone-option').forEach(el => el.classList.remove('active'));
+        document.querySelector(`input[name="toneSetting"][value="${tone}"]`).closest('.tone-option').classList.add('active');
+    },
+
+    getUserVoiceProfile() {
+        // Récupérer le profil utilisateur depuis localStorage
+        try {
+            const saved = localStorage.getItem('voyageCreatifUserProfile');
+            if (saved) {
+                return JSON.parse(saved);
+            }
+        } catch (e) {
+            console.error('Error loading user profile:', e);
+        }
+        return null;
+    },
+
+    openVoiceFromWizard() {
+        // Sauvegarder l'état actuel du wizard
+        const wizardState = {
+            step: this.currentStep,
+            campaign: this.currentCampaign,
+            prospects: this.selectedProspects,
+            config: this.outreachConfig,
+            emails: this.sequenceEmails
+        };
+
+        // Fermer le wizard temporairement
+        this.closeWizard();
+
+        // Ouvrir "Ma Voix" avec callback pour revenir au wizard
+        if (typeof showVoiceModalWithCallback === 'function') {
+            showVoiceModalWithCallback(() => {
+                // Restaurer l'état et rouvrir le wizard
+                this.currentStep = wizardState.step;
+                this.currentCampaign = wizardState.campaign;
+                this.selectedProspects = wizardState.prospects;
+                this.outreachConfig = wizardState.config;
+                this.sequenceEmails = wizardState.emails;
+                this.openWizardModal();
+            });
+        } else {
+            // Fallback si la fonction n'est pas disponible
+            alert('Veuillez configurer "Ma Voix" dans Paramètres, puis relancez le wizard.');
+        }
+    },
+
+    showAddProspectForm() {
+        document.getElementById('addProspectForm').style.display = 'block';
+    },
+
+    hideAddProspectForm() {
+        document.getElementById('addProspectForm').style.display = 'none';
+        // Reset form
+        document.getElementById('manualFirstName').value = '';
+        document.getElementById('manualLastName').value = '';
+        document.getElementById('manualEmail').value = '';
+        document.getElementById('manualCompany').value = '';
+        document.getElementById('manualJobTitle').value = '';
+    },
+
+    addManualProspect() {
+        const firstName = document.getElementById('manualFirstName').value.trim();
+        const lastName = document.getElementById('manualLastName').value.trim();
+        const email = document.getElementById('manualEmail').value.trim();
+        const company = document.getElementById('manualCompany').value.trim();
+        const jobTitle = document.getElementById('manualJobTitle').value.trim();
+
+        if (!firstName || !email) {
+            alert('Le prénom et l\'email sont obligatoires.');
+            return;
+        }
+
+        if (!email.includes('@')) {
+            alert('Veuillez entrer un email valide.');
+            return;
+        }
+
+        const prospect = {
+            id: 'local_' + Date.now(),
+            first_name: firstName,
+            last_name: lastName,
+            email: email,
+            company: company,
+            job_title: jobTitle,
+            status: 'new',
+            source: 'manual'
+        };
+
+        // Ajouter au ProspectsModule
+        if (typeof ProspectsModule !== 'undefined') {
+            ProspectsModule.prospects = [...(ProspectsModule.prospects || []), prospect];
+        }
+
+        console.log('Prospect ajouté:', prospect);
+        this.hideAddProspectForm();
+        this.updateWizard();
+    },
+
+    // ==========================================
+    // STEP 4: SEQUENCE D'EMAILS
+    // ==========================================
+
+    renderStep4_Emails() {
+        return `
+            <div class="wizard-step-content">
+                <h3>📝 Créer la séquence d'emails</h3>
+                <p class="step-description">Utilisez un template ou créez votre séquence personnalisée.</p>
+
+                <div class="template-selector">
+                    <h4>📋 Choisir un template de séquence</h4>
+                    <div class="template-cards">
+                        ${Object.values(this.SEQUENCE_TEMPLATES).map(template => `
+                            <div class="template-card" onclick="CampaignsModule.applyTemplate('${template.id}')">
+                                <div class="template-name">${template.name}</div>
+                                <div class="template-desc">${template.description}</div>
+                                <div class="template-meta">${template.emails.length} emails</div>
+                            </div>
+                        `).join('')}
+                        <div class="template-card template-custom" onclick="CampaignsModule.startFromScratch()">
+                            <div class="template-name">✍️ Personnalisé</div>
+                            <div class="template-desc">Créez votre propre séquence</div>
+                            <div class="template-meta">De zéro</div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="sequence-emails" id="sequenceEmails">
                     ${this.sequenceEmails.map((email, index) => this.renderSequenceEmail(email, index)).join('')}
@@ -510,23 +1499,26 @@ const CampaignsModule = {
                 ` : ''}
 
                 <div class="sequence-tips">
-                    <p>💡 <strong>Conseil :</strong> 3 emails max dans une sequence, au-dela ca devient du spam.</p>
-                    <p>💡 Les relances ne sont envoyees que si le prospect n'a pas repondu.</p>
+                    <p>💡 <strong>Conseil :</strong> 3 emails max dans une séquence, au-delà ça devient du spam.</p>
+                    <p>💡 Les relances ne sont envoyées que si le prospect n'a pas répondu.</p>
                 </div>
 
                 <div class="ai-generation-box">
-                    <h4>🤖 Generation IA</h4>
-                    <p>L'IA peut generer une sequence complete basee sur votre objectif</p>
-                    <button class="btn btn-secondary" onclick="CampaignsModule.generateSequenceWithAI()">
-                        Generer avec l'IA
+                    <h4>🤖 Génération IA</h4>
+                    <p>L'IA va générer une séquence personnalisée basée sur tes données clés et chaque prospect.</p>
+                    <button class="btn btn-primary" onclick="CampaignsModule.generateSequenceWithAI()">
+                        ✨ Générer les emails avec l'IA
                     </button>
                 </div>
 
                 <div class="wizard-actions">
-                    <button class="btn btn-secondary" onclick="CampaignsModule.goToStep(2)">
+                    <button class="btn btn-secondary" onclick="CampaignsModule.goToStep(3)">
                         ← Retour
                     </button>
-                    <button class="btn btn-primary" onclick="CampaignsModule.saveStep3()">
+                    <button class="btn btn-cancel" onclick="CampaignsModule.closeWizard()">
+                        ✕ Annuler
+                    </button>
+                    <button class="btn btn-primary" onclick="CampaignsModule.saveStep4_Emails()">
                         Continuer →
                     </button>
                 </div>
@@ -581,12 +1573,19 @@ const CampaignsModule = {
 
                 <div class="form-group">
                     <label>Corps de l'email</label>
-                    <textarea class="email-body" rows="6"
+                    <textarea class="email-body" rows="6" id="emailBody_${index}"
                               placeholder="Hello {first_name},
 
 ${isFirst ? 'Votre premier message de contact...' : 'Votre message de relance...'}"
                               onchange="CampaignsModule.updateEmailBody(${index}, this.value)">${email.body_template || ''}</textarea>
                     <p class="field-hint">Variables : {first_name}, {last_name}, {company}, {job_title}</p>
+
+                    <div class="spintax-actions">
+                        <button class="btn btn-spintax" onclick="CampaignsModule.generateSpintax(${index})" title="Generer des variations pour eviter le spam">
+                            🎰 Generer Spintax
+                        </button>
+                        <span class="spintax-info">Cree des variations automatiques pour une meilleure delivrabilite</span>
+                    </div>
                 </div>
             </div>
         `;
@@ -606,6 +1605,49 @@ ${isFirst ? 'Votre premier message de contact...' : 'Votre message de relance...
 
         document.getElementById('sequenceEmails').innerHTML =
             this.sequenceEmails.map((email, index) => this.renderSequenceEmail(email, index)).join('');
+    },
+
+    /**
+     * Applique un template de séquence pré-défini
+     */
+    applyTemplate(templateId) {
+        const template = this.SEQUENCE_TEMPLATES[templateId];
+        if (!template) {
+            console.error('Template non trouvé:', templateId);
+            return;
+        }
+
+        // Copier les emails du template
+        this.sequenceEmails = template.emails.map(email => ({
+            ...email,
+            subject_template: email.subject_template,
+            body_template: email.body_template
+        }));
+
+        // Mettre à jour l'affichage
+        document.getElementById('sequenceEmails').innerHTML =
+            this.sequenceEmails.map((email, index) => this.renderSequenceEmail(email, index)).join('');
+
+        // Notification
+        if (typeof showToast === 'function') {
+            showToast(`Template "${template.name}" appliqué !`, 'success');
+        }
+    },
+
+    /**
+     * Commence une séquence vierge
+     */
+    startFromScratch() {
+        this.sequenceEmails = [
+            { position: 1, delay_days: 0, subject_template: '', body_template: '', send_condition: 'always' }
+        ];
+
+        document.getElementById('sequenceEmails').innerHTML =
+            this.sequenceEmails.map((email, index) => this.renderSequenceEmail(email, index)).join('');
+
+        if (typeof showToast === 'function') {
+            showToast('Séquence vierge créée', 'info');
+        }
     },
 
     removeSequenceEmail(index) {
@@ -632,60 +1674,441 @@ ${isFirst ? 'Votre premier message de contact...' : 'Votre message de relance...
         this.sequenceEmails[index].body_template = value;
     },
 
-    async generateSequenceWithAI() {
-        const content = document.getElementById('wizardContent');
-        const originalContent = content.innerHTML;
+    /**
+     * Genere une version spintax de l'email pour eviter les filtres spam
+     */
+    async generateSpintax(index) {
+        const emailBody = this.sequenceEmails[index]?.body_template;
 
-        content.innerHTML = `
-            <div class="generating-state">
-                <div class="spinner"></div>
-                <p>Generation de la sequence en cours...</p>
-            </div>
-        `;
+        if (!emailBody || emailBody.trim().length < 20) {
+            alert('Ecris d\'abord le contenu de ton email avant de generer le spintax.');
+            return;
+        }
+
+        const btn = document.querySelector(`[onclick="CampaignsModule.generateSpintax(${index})"]`);
+        const originalText = btn?.innerHTML;
+        if (btn) {
+            btn.innerHTML = '⏳ Generation...';
+            btn.disabled = true;
+        }
 
         try {
-            const token = await this.getAuthToken();
-            const response = await fetch(`${this.API_URL}/api/campaigns/${this.currentCampaign.id}/sequence/generate`, {
+            const response = await fetch(`${this.API_URL}/api/spintax`, {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    num_emails: 3,
-                    delays: [0, 3, 7]
+                    email: emailBody,
+                    variations: 3,
+                    language: 'fr'
                 })
             });
 
             const data = await response.json();
 
-            if (data.generated_emails) {
-                this.sequenceEmails = data.generated_emails;
+            if (data.success && data.spintax) {
+                // Afficher le modal avec le resultat
+                this.showSpintaxResultModal(index, emailBody, data.spintax, data.combinations);
+            } else {
+                alert('Erreur lors de la generation du spintax. Reessaie.');
             }
-
-            this.updateWizard();
-
         } catch (error) {
-            console.error('Error generating sequence:', error);
-            content.innerHTML = originalContent;
-            alert('Erreur lors de la generation');
+            console.error('Spintax error:', error);
+            alert('Erreur de connexion. Verifie ta connexion internet.');
+        } finally {
+            if (btn) {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
         }
     },
 
-    async saveStep3() {
+    /**
+     * Affiche le modal avec le resultat spintax
+     */
+    showSpintaxResultModal(index, original, spintax, combinations) {
+        const existingModal = document.getElementById('spintaxResultModal');
+        if (existingModal) existingModal.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'spintaxResultModal';
+        modal.className = 'modal-overlay active';
+        modal.innerHTML = `
+            <div class="modal" style="max-width: 700px; width: 95%;">
+                <div class="modal-header">
+                    <h2>🎰 Spintax genere</h2>
+                    <button class="modal-close" onclick="document.getElementById('spintaxResultModal').remove()">&times;</button>
+                </div>
+                <div class="modal-content">
+                    <div class="spintax-result-info">
+                        <div class="spintax-stat">
+                            <span class="stat-number">${combinations.toLocaleString()}</span>
+                            <span class="stat-label">combinaisons possibles</span>
+                        </div>
+                        <p class="spintax-tip">💡 Chaque destinataire recevra une version unique de ton email !</p>
+                    </div>
+
+                    <div class="spintax-preview">
+                        <label>Version Spintax :</label>
+                        <textarea id="spintaxOutput" rows="10" readonly style="font-family: monospace; font-size: 0.85em; background: #f5f5f5;">${spintax}</textarea>
+                    </div>
+
+                    <div class="spintax-actions-modal">
+                        <button class="btn btn-secondary" onclick="CampaignsModule.copySpintax()">
+                            📋 Copier
+                        </button>
+                        <button class="btn btn-primary" onclick="CampaignsModule.applySpintax(${index})">
+                            ✅ Utiliser ce spintax
+                        </button>
+                    </div>
+
+                    <div class="spintax-example">
+                        <label>Exemple de rendu (1 version aleatoire) :</label>
+                        <div class="example-render" id="spintaxExampleRender">
+                            ${this.spinText(spintax)}
+                        </div>
+                        <button class="btn btn-small btn-secondary" onclick="CampaignsModule.refreshSpintaxExample('${spintax.replace(/'/g, "\\'")}')">
+                            🔄 Voir une autre version
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Stocker le spintax temporairement
+        this.tempSpintax = spintax;
+
+        document.body.appendChild(modal);
+    },
+
+    /**
+     * Copie le spintax dans le presse-papier
+     */
+    copySpintax() {
+        const textarea = document.getElementById('spintaxOutput');
+        if (textarea) {
+            navigator.clipboard.writeText(textarea.value);
+            alert('Spintax copie !');
+        }
+    },
+
+    /**
+     * Applique le spintax a l'email
+     */
+    applySpintax(index) {
+        if (this.tempSpintax) {
+            this.sequenceEmails[index].body_template = this.tempSpintax;
+
+            // Mettre a jour le textarea
+            const textarea = document.getElementById(`emailBody_${index}`);
+            if (textarea) {
+                textarea.value = this.tempSpintax;
+            }
+
+            document.getElementById('spintaxResultModal')?.remove();
+            alert('Spintax applique ! Ton email utilisera maintenant des variations automatiques.');
+        }
+    },
+
+    /**
+     * Rafraichit l'exemple de rendu spintax
+     */
+    refreshSpintaxExample(spintax) {
+        const render = document.getElementById('spintaxExampleRender');
+        if (render && spintax) {
+            render.innerHTML = this.spinText(spintax.replace(/\\'/g, "'"));
+        }
+    },
+
+    /**
+     * Deroule un spintax en une version aleatoire
+     */
+    spinText(spintaxText) {
+        return spintaxText.replace(/\{([^{}]+)\}/g, (match, options) => {
+            const choices = options.split('|');
+            return choices[Math.floor(Math.random() * choices.length)];
+        });
+    },
+
+    async generateSequenceWithAI() {
+        const content = document.getElementById('wizardContent');
+
+        content.innerHTML = `
+            <div class="generating-state">
+                <div class="spinner"></div>
+                <p>🎤 L'IA génère tes emails personnalisés...</p>
+                <p style="font-size: 0.85em; color: #888; margin-top: 10px;">Cela peut prendre quelques secondes</p>
+            </div>
+        `;
+
+        const config = this.outreachConfig || {};
+        const style = config.formal_style === 'vous' ? 'vous' : 'tu';
+        const tone = config.tone || 'pro';
+        const useMyVoice = config.use_my_voice !== false;
+
+        // Récupérer "Ma Voix" si activé
+        let voiceProfile = null;
+        if (useMyVoice) {
+            voiceProfile = this.getUserVoiceProfile();
+        }
+
+        // Essayer de générer avec l'IA
+        if (window.callAI && voiceProfile?.voiceProfile) {
+            try {
+                const emails = await this.generateWithRealAI(config, style, tone, voiceProfile);
+                if (emails && emails.length > 0) {
+                    this.sequenceEmails = emails;
+                    console.log('Séquence générée par IA:', this.sequenceEmails);
+                    this.updateWizard();
+                    return;
+                }
+            } catch (error) {
+                console.error('Erreur génération IA, fallback templates:', error);
+            }
+        }
+
+        // Fallback sur les templates si pas d'IA ou erreur
+        this.sequenceEmails = this.buildEmailSequence(config, style, tone, voiceProfile);
+        console.log('Séquence générée (templates):', { style, tone, useMyVoice });
+        this.updateWizard();
+    },
+
+    async generateWithRealAI(config, style, tone, voiceProfile) {
+        const vp = voiceProfile.voiceProfile;
+        const senderName = this.currentCampaign?.sender_name || voiceProfile.nom || 'Moi';
+
+        const toneDescriptions = {
+            pro: 'professionnel et direct',
+            expert: 'expert et autoritaire, montrant ton expertise',
+            chaleureux: 'chaleureux et humain, créant une vraie connexion'
+        };
+
+        const prompt = `Tu es un expert en cold emailing. Génère une séquence de 3 emails de prospection.
+
+INFORMATIONS ESSENTIELLES :
+- Mon offre : ${config.user_offer}
+- Mon actualité : ${config.user_news || 'Aucune'}
+- Ma preuve sociale : ${config.user_social_proof || 'Aucune'}
+- Mon CTA : ${config.user_cta}
+- Style d'adresse : ${style === 'vous' ? 'Vouvoiement' : 'Tutoiement'}
+- Ton souhaité : ${toneDescriptions[tone] || toneDescriptions.pro}
+- Mon prénom : ${senderName}
+
+MA VOIX (TRÈS IMPORTANT - reproduis ce style) :
+- Ton général : ${vp.ton || 'Non défini'}
+- Longueur des phrases : ${vp.longueurPhrases || 'Variable'}
+- Expressions favorites : ${vp.expressions || 'Aucune en particulier'}
+- Style de ponctuation : ${vp.ponctuation || 'Standard'}
+- Style narratif : ${vp.styleNarratif || 'Direct'}
+${voiceProfile.messageUnique ? `- Ce qui me rend unique : ${voiceProfile.messageUnique}` : ''}
+${voiceProfile.domaine ? `- Mon domaine : ${voiceProfile.domaine}` : ''}
+
+RÈGLES ABSOLUES :
+1. Utilise {first_name} pour le prénom du prospect
+2. Email 1 (J+0) : Premier contact, présentation de l'offre
+3. Email 2 (J+3) : Relance douce, rappel de valeur
+4. Email 3 (J+7) : Dernière relance, sans pression
+5. Max 150 mots par email
+6. Reproduis VRAIMENT mon style d'écriture (expressions, ponctuation, ton)
+7. Pas de langage corporate ou générique
+8. GRAMMAIRE PARFAITE : vérifie les accords, conjugaisons, majuscules (ex: "J'offre" pas "j'offre" en début de phrase)
+9. Évite les répétitions et les phrases maladroites
+10. Intègre naturellement mes infos (offre, actu, preuve sociale, CTA) sans les copier-coller mot pour mot
+
+⚠️ RÈGLE CRITIQUE - TUTOIEMENT/VOUVOIEMENT :
+- Style demandé : ${style === 'vous' ? 'VOUVOIEMENT UNIQUEMENT (vous, votre, vos)' : 'TUTOIEMENT UNIQUEMENT (tu, ton, ta, tes)'}
+- Tu dois utiliser EXCLUSIVEMENT ce style dans TOUS les emails, du début à la fin
+- Ne mélange JAMAIS tu/vous dans le même email
+- Vérifie chaque phrase pour t'assurer du bon style
+
+Réponds UNIQUEMENT avec ce JSON (sans markdown, sans explication) :
+{
+  "emails": [
+    {
+      "subject": "Objet email 1",
+      "body": "Corps email 1"
+    },
+    {
+      "subject": "Objet email 2",
+      "body": "Corps email 2"
+    },
+    {
+      "subject": "Objet email 3",
+      "body": "Corps email 3"
+    }
+  ]
+}`;
+
+        const response = await window.callAI(prompt);
+
+        // Parser le JSON
+        const jsonMatch = response.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error('Format invalide');
+
+        const data = JSON.parse(jsonMatch[0]);
+
+        if (!data.emails || data.emails.length < 3) {
+            throw new Error('Emails manquants');
+        }
+
+        // Convertir au format attendu
+        return data.emails.map((email, index) => ({
+            position: index + 1,
+            delay_days: index === 0 ? 0 : (index === 1 ? 3 : 7),
+            subject_template: email.subject,
+            body_template: email.body,
+            send_condition: index === 0 ? 'always' : 'no_reply'
+        }));
+    },
+
+    buildEmailSequence(config, style, tone, voiceProfile) {
+        const senderName = this.currentCampaign?.sender_name || voiceProfile?.nom || 'Moi';
+
+        // Définir les variations selon le ton
+        const toneVariants = {
+            pro: {
+                greeting: style === 'vous' ? 'Bonjour' : 'Bonjour',
+                closing: style === 'vous' ? 'Bien cordialement' : 'Cordialement',
+                intro: style === 'vous' ? 'Je me permets de vous contacter.' : 'Je me permets de te contacter.',
+                followup: style === 'vous' ? 'Je me permets de revenir vers vous' : 'Je me permets de revenir vers toi',
+                lastChance: style === 'vous' ? 'Je ne souhaite pas vous importuner davantage.' : 'Je ne veux pas t\'importuner davantage.',
+                ctaIntro: style === 'vous' ? 'Auriez-vous' : 'Aurais-tu',
+                ctaSuffix: style === 'vous' ? 'à m\'accorder pour' : 'à m\'accorder pour',
+                question: style === 'vous' ? 'Avez-vous eu l\'occasion' : 'As-tu eu l\'occasion'
+            },
+            expert: {
+                greeting: style === 'vous' ? 'Bonjour' : 'Bonjour',
+                closing: style === 'vous' ? 'À votre disposition' : 'À ta disposition',
+                intro: style === 'vous' ? 'Suite à mon analyse de votre activité.' : 'Suite à mon analyse de ton activité.',
+                followup: style === 'vous' ? 'Je reviens vers vous concernant' : 'Je reviens vers toi concernant',
+                lastChance: style === 'vous' ? 'Je comprends que votre temps est précieux.' : 'Je comprends que ton temps est précieux.',
+                ctaIntro: style === 'vous' ? 'Auriez-vous' : 'Aurais-tu',
+                ctaSuffix: style === 'vous' ? 'à m\'accorder pour' : 'à m\'accorder pour',
+                question: style === 'vous' ? 'Avez-vous eu le temps d\'examiner' : 'As-tu eu le temps d\'examiner'
+            },
+            chaleureux: {
+                greeting: style === 'vous' ? 'Bonjour' : 'Salut',
+                closing: style === 'vous' ? 'Au plaisir d\'échanger' : 'À très vite',
+                intro: style === 'vous' ? 'J\'espère que vous allez bien !' : 'J\'espère que tu vas bien !',
+                followup: style === 'vous' ? 'Je voulais reprendre contact avec vous' : 'Je voulais reprendre contact avec toi',
+                lastChance: style === 'vous' ? 'Je ne vais pas vous embêter plus longtemps !' : 'Je ne vais pas t\'embêter plus longtemps !',
+                ctaIntro: style === 'vous' ? 'Ça vous dirait,' : 'Ça te dirait,',
+                ctaSuffix: 'pour',
+                question: style === 'vous' ? 'Avez-vous pu jeter un œil' : 'As-tu pu jeter un œil'
+            }
+        };
+
+        const t = toneVariants[tone] || toneVariants.pro;
+        const stylePron = style === 'vous' ? 'votre' : 'ton';
+
+        // Intégrer "Ma Voix" si disponible (profil analysé par IA)
+        let voiceSignature = '';
+        let voiceOpener = '';
+        let voiceExpressions = '';
+
+        if (voiceProfile && voiceProfile.voiceProfile) {
+            const vp = voiceProfile.voiceProfile;
+
+            // Ajouter une expression caractéristique si disponible
+            if (vp.expressions) {
+                voiceExpressions = `\n\n${vp.expressions.split(',')[0]?.trim() || ''}`;
+            }
+
+            // Adapter selon le domaine du profil utilisateur
+            if (voiceProfile.domaine) {
+                voiceOpener = `En tant que ${voiceProfile.domaine}, `;
+            }
+
+            // Ajouter le message unique si présent
+            if (voiceProfile.messageUnique) {
+                voiceSignature = `\n\nPS: ${voiceProfile.messageUnique}`;
+            }
+
+            console.log('Ma Voix intégrée:', { ton: vp.ton, expressions: vp.expressions });
+        } else if (voiceProfile) {
+            // Fallback sur le profil basique
+            if (voiceProfile.messageUnique) {
+                voiceSignature = `\n\nPS: ${voiceProfile.messageUnique}`;
+            }
+            if (voiceProfile.domaine) {
+                voiceOpener = `En tant que ${voiceProfile.domaine}, `;
+            }
+        }
+
+        return [
+            {
+                position: 1,
+                delay_days: 0,
+                subject_template: tone === 'expert'
+                    ? `Une opportunité pour ${stylePron} activité`
+                    : tone === 'chaleureux'
+                        ? `Une idée qui pourrait ${style === 'vous' ? 'vous' : 'te'} plaire`
+                        : `Une idée pour ${stylePron} contenu`,
+                body_template: `${t.greeting} {first_name},
+
+${t.intro}
+
+${voiceOpener}${config.user_offer || "J'aide les professionnels à créer du contenu plus efficacement."}
+
+${config.user_news ? config.user_news + '\n\n' : ''}${config.user_social_proof ? config.user_social_proof + '\n\n' : ''}${t.ctaIntro} ${config.user_cta || '15 min'}${t.ctaSuffix ? ' ' + t.ctaSuffix : ''} en discuter ?
+
+${t.closing},
+${senderName}${voiceSignature}`,
+                send_condition: 'always'
+            },
+            {
+                position: 2,
+                delay_days: 3,
+                subject_template: `Re: ${tone === 'expert' ? 'Une opportunité' : 'Une idée'} pour ${stylePron} ${tone === 'expert' ? 'activité' : 'contenu'}`,
+                body_template: `${t.greeting} {first_name},
+
+${t.followup} mon précédent message.
+
+${t.question} d'y jeter un œil ?
+
+Je reste ${style === 'vous' ? 'à votre disposition' : 'dispo'} si ${style === 'vous' ? 'vous avez' : 'tu as'} des questions.
+
+${t.closing},
+${senderName}`,
+                send_condition: 'no_reply'
+            },
+            {
+                position: 3,
+                delay_days: 7,
+                subject_template: tone === 'chaleureux' ? `Un dernier petit mot` : `Dernière relance`,
+                body_template: `${t.greeting} {first_name},
+
+${t.lastChance}
+
+Si ${style === 'vous' ? 'le' : 'ton'} timing n'est pas le bon, pas de souci.
+${style === 'vous' ? 'Mais si cela vous intéresse' : 'Mais si ça t\'intéresse'}, je reste ${style === 'vous' ? 'disponible' : 'dispo'}.
+
+${tone === 'chaleureux' ? 'Bonne continuation !' : 'Bonne continuation,'}
+${senderName}`,
+                send_condition: 'no_reply'
+            }
+        ];
+    },
+
+    async saveStep4_Emails() {
         // Valider qu'au moins le premier email est rempli
         const firstEmail = this.sequenceEmails[0];
         if (!firstEmail.subject_template || !firstEmail.body_template) {
-            alert('Veuillez remplir au moins le premier email de la sequence');
+            alert('Veuillez remplir au moins le premier email de la séquence');
             return;
         }
 
         try {
-            const token = await this.getAuthToken();
-            await fetch(`${this.API_URL}/api/campaigns/${this.currentCampaign.id}/sequence`, {
-                method: 'PUT',
-                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ emails: this.sequenceEmails })
-            });
+            // Sauvegarder si API disponible
+            if (this.currentCampaign?.id && !this.currentCampaign.id.startsWith('local_')) {
+                const token = await this.getAuthToken();
+                await fetch(`${this.API_URL}/api/campaigns/${this.currentCampaign.id}/sequence`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ emails: this.sequenceEmails })
+                });
+            }
 
-            // Generer les previews
+            // Générer les previews
             this.generatedPreviews = this.selectedProspects.slice(0, 5).map(prospect => ({
                 prospect,
                 emails: this.sequenceEmails.map(seq => ({
@@ -695,12 +2118,14 @@ ${isFirst ? 'Votre premier message de contact...' : 'Votre message de relance...
                 }))
             }));
 
-            this.currentStep = 4;
+            this.currentStep = 5;
             this.updateWizard();
 
         } catch (error) {
             console.error('Error saving sequence:', error);
-            alert('Erreur lors de la sauvegarde');
+            // Continuer même en cas d'erreur API
+            this.currentStep = 5;
+            this.updateWizard();
         }
     },
 
@@ -714,16 +2139,16 @@ ${isFirst ? 'Votre premier message de contact...' : 'Votre message de relance...
     },
 
     // ==========================================
-    // STEP 4: PREVIEW & LANCEMENT
+    // STEP 5: PREVIEW & LANCEMENT
     // ==========================================
 
-    renderStep4() {
+    renderStep5_Launch() {
         const preview = this.generatedPreviews[this.previewIndex];
         if (!preview) {
             return `
                 <div class="wizard-step-content">
-                    <p>Aucun apercu disponible</p>
-                    <button class="btn btn-secondary" onclick="CampaignsModule.goToStep(3)">← Retour</button>
+                    <p>Aucun aperçu disponible. Générez d'abord les emails.</p>
+                    <button class="btn btn-secondary" onclick="CampaignsModule.goToStep(4)">← Retour</button>
                 </div>
             `;
         }
@@ -817,8 +2242,11 @@ ${isFirst ? 'Votre premier message de contact...' : 'Votre message de relance...
                 </div>
 
                 <div class="wizard-actions">
-                    <button class="btn btn-secondary" onclick="CampaignsModule.goToStep(3)">
+                    <button class="btn btn-secondary" onclick="CampaignsModule.goToStep(4)">
                         ← Retour
+                    </button>
+                    <button class="btn btn-cancel" onclick="CampaignsModule.closeWizard()">
+                        ✕ Annuler
                     </button>
                     <button class="btn btn-primary btn-launch" onclick="CampaignsModule.launchCampaign()">
                         🚀 Lancer la campagne
@@ -875,6 +2303,33 @@ ${isFirst ? 'Votre premier message de contact...' : 'Votre message de relance...
             </div>
         `;
 
+        // Mode local - simuler le lancement
+        if (this.currentCampaign?.id?.startsWith('local_') || !window.supabase?.auth) {
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            content.innerHTML = `
+                <div class="launch-success">
+                    <div class="success-icon">🚀</div>
+                    <h3>Campagne prête !</h3>
+                    <p><strong>${this.selectedProspects.length}</strong> prospects × <strong>${this.sequenceEmails.length}</strong> email(s)</p>
+                    <div class="demo-notice" style="background: #fff3cd; padding: 15px; border-radius: 10px; margin: 20px 0;">
+                        <p style="margin: 0; color: #856404;">⚠️ <strong>Mode démo</strong> - Pour envoyer réellement les emails, connectez-vous à votre compte.</p>
+                    </div>
+                    <div class="preview-emails" style="text-align: left; margin-top: 20px;">
+                        <h4>📧 Aperçu du premier email :</h4>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; font-family: monospace; font-size: 0.9em;">
+                            <p><strong>Objet:</strong> ${this.sequenceEmails[0]?.subject_template || 'N/A'}</p>
+                            <hr style="border: none; border-top: 1px solid #ddd; margin: 10px 0;">
+                            <p style="white-space: pre-wrap;">${this.sequenceEmails[0]?.body_template?.replace(/{first_name}/g, this.selectedProspects[0]?.first_name || 'Marie') || 'N/A'}</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" style="margin-top: 20px;" onclick="CampaignsModule.closeWizard();">
+                        Fermer
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
         try {
             const token = await this.getAuthToken();
             const response = await fetch(`${this.API_URL}/api/campaigns/${this.currentCampaign.id}/start`, {
@@ -895,9 +2350,9 @@ ${isFirst ? 'Votre premier message de contact...' : 'Votre message de relance...
                 content.innerHTML = `
                     <div class="launch-success">
                         <div class="success-icon">🚀</div>
-                        <h3>Campagne lancee !</h3>
+                        <h3>Campagne lancée !</h3>
                         <p>${data.prospects_count} prospects vont recevoir ${data.sequence_emails} email(s)</p>
-                        ${scheduled_at ? `<p>Premier envoi prevu : ${new Date(data.first_send_at).toLocaleString()}</p>` : ''}
+                        ${scheduled_at ? `<p>Premier envoi prévu : ${new Date(data.first_send_at).toLocaleString()}</p>` : ''}
                         <button class="btn btn-primary" onclick="CampaignsModule.closeWizard(); CampaignsModule.loadCampaigns(); CampaignsModule.renderCampaignsList();">
                             Fermer
                         </button>
@@ -915,7 +2370,7 @@ ${isFirst ? 'Votre premier message de contact...' : 'Votre message de relance...
                     <h3>Erreur</h3>
                     <p>${error.message}</p>
                     <button class="btn btn-secondary" onclick="CampaignsModule.goToStep(4)">
-                        Reessayer
+                        Réessayer
                     </button>
                 </div>
             `;
@@ -1447,9 +2902,313 @@ sequenceStyles.textContent = `
 .wizard-actions {
     display: flex;
     justify-content: space-between;
+    gap: 10px;
     margin-top: 30px;
     padding-top: 20px;
     border-top: 1px solid #e0e0e0;
+}
+
+.wizard-actions .btn-cancel {
+    background: transparent;
+    color: #999;
+    border: 1px solid #ddd;
+    font-size: 0.9em;
+}
+
+.wizard-actions .btn-cancel:hover {
+    background: #f5f5f5;
+    color: #666;
+    border-color: #ccc;
+}
+
+/* Form Layout */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+@media (max-width: 600px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Config Step Styles */
+.label-hint {
+    font-weight: 400;
+    color: #888;
+    font-size: 0.85em;
+}
+
+.style-toggle {
+    display: flex;
+    gap: 10px;
+}
+
+.style-option {
+    flex: 1;
+    padding: 15px 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.style-option:hover {
+    border-color: #667eea;
+    background: #f8f9ff;
+}
+
+.style-option.active,
+.style-option:has(input:checked) {
+    border-color: #667eea;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.style-option input {
+    display: none;
+}
+
+.style-option span {
+    font-weight: 600;
+    font-size: 1.1em;
+}
+
+/* Tone Toggle */
+.tone-toggle {
+    display: flex;
+    gap: 8px;
+}
+
+.tone-option {
+    flex: 1;
+    padding: 12px 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    font-size: 0.9em;
+}
+
+.tone-option:hover {
+    border-color: #667eea;
+    background: #f8f9ff;
+}
+
+.tone-option.active,
+.tone-option:has(input:checked) {
+    border-color: #667eea;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.tone-option input {
+    display: none;
+}
+
+.tone-option span {
+    font-weight: 600;
+}
+
+/* Voice Integration Box */
+.voice-integration-box {
+    background: linear-gradient(135deg, #f0f4ff, #f8f0ff);
+    border: 2px solid #667eea;
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+}
+
+.voice-integration-box.no-voice {
+    background: #f8f9fa;
+    border-color: #ddd;
+    border-style: dashed;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #888;
+}
+
+.voice-integration-box .no-voice-icon {
+    font-size: 1.5em;
+    opacity: 0.5;
+}
+
+.voice-integration-box .no-voice-text {
+    font-size: 0.9em;
+}
+
+.voice-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.voice-checkbox input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    accent-color: #667eea;
+}
+
+.voice-checkbox .checkbox-label {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.voice-checkbox .checkbox-label strong {
+    color: #333;
+}
+
+.voice-checkbox .checkbox-label small {
+    color: #666;
+    font-size: 0.85em;
+}
+
+.voice-integration-box.clickable {
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.voice-integration-box.clickable:hover {
+    border-color: #667eea;
+    background: #f0f4ff;
+    transform: translateY(-1px);
+}
+
+.voice-integration-box .configure-btn {
+    margin-left: auto;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.voice-integration-box:not(.no-voice) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.btn-edit-voice {
+    background: transparent;
+    border: 1px solid #667eea;
+    color: #667eea;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: all 0.2s;
+}
+
+.btn-edit-voice:hover {
+    background: #667eea;
+    color: white;
+}
+
+/* Prospect Actions Grid */
+.prospect-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.prospect-action-card {
+    background: white;
+    border: 2px dashed #e0e0e0;
+    border-radius: 12px;
+    padding: 25px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.prospect-action-card:hover {
+    border-color: #667eea;
+    background: #f8f9ff;
+    transform: translateY(-2px);
+}
+
+.prospect-action-card .action-icon {
+    font-size: 2em;
+    margin-bottom: 10px;
+}
+
+.prospect-action-card .action-title {
+    font-weight: 600;
+    color: #333;
+}
+
+.prospect-action-card .action-desc {
+    font-size: 0.85em;
+    color: #888;
+    margin-top: 5px;
+}
+
+/* Add Prospect Form */
+.add-prospect-form {
+    background: #f8f9ff;
+    border: 2px solid #667eea;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.add-prospect-form h4 {
+    margin: 0 0 15px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.add-prospect-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.add-prospect-fields input {
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.95em;
+}
+
+.add-prospect-fields input:focus {
+    border-color: #667eea;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.add-prospect-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+@media (max-width: 500px) {
+    .prospect-actions-grid {
+        grid-template-columns: 1fr;
+    }
+    .add-prospect-fields {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Prospect Selection */
@@ -1474,6 +3233,12 @@ sequenceStyles.textContent = `
 .radio-card:has(input:checked) {
     border-color: #667eea;
     background: #f0f4ff;
+}
+
+.radio-card.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
 }
 
 .radio-card input {
@@ -1530,6 +3295,195 @@ sequenceStyles.textContent = `
     color: #888;
     font-style: italic;
     margin: 10px 0 0;
+}
+
+/* NEW: Filter Chips */
+.prospect-filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.2s;
+}
+
+.filter-chip:hover:not(:disabled) {
+    border-color: #667eea;
+}
+
+.filter-chip.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-color: transparent;
+    color: white;
+}
+
+.filter-chip:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.filter-chip .chip-count {
+    background: rgba(0,0,0,0.1);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.85em;
+}
+
+.filter-chip.active .chip-count {
+    background: rgba(255,255,255,0.25);
+}
+
+/* Selection Bar */
+.prospect-selection-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.selection-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.selection-info input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.selection-info label {
+    cursor: pointer;
+    color: #333;
+}
+
+.selection-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    color: #667eea;
+    cursor: pointer;
+    font-size: 0.9em;
+    padding: 0;
+}
+
+.btn-link:hover {
+    text-decoration: underline;
+}
+
+/* Checkbox List */
+.prospects-checkbox-list {
+    max-height: 350px;
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.prospect-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.prospect-checkbox-item:last-child {
+    border-bottom: none;
+}
+
+.prospect-checkbox-item:hover {
+    background: #f8f9fa;
+}
+
+.prospect-checkbox-item.selected {
+    background: #f0f4ff;
+}
+
+.prospect-checkbox-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.prospect-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.prospect-name {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 2px;
+}
+
+.prospect-details {
+    font-size: 0.85em;
+    color: #666;
+    display: flex;
+    gap: 5px;
+}
+
+.prospect-email {
+    font-size: 0.8em;
+    color: #888;
+    margin-top: 2px;
+}
+
+.prospect-badges {
+    display: flex;
+    gap: 5px;
+    flex-shrink: 0;
+}
+
+.badge {
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 0.75em;
+    font-weight: 500;
+}
+
+.badge-new {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.badge-linkedin {
+    background: #e3f2fd;
+    color: #0077B5;
+}
+
+.badge-csv {
+    background: #fff3e0;
+    color: #e65100;
+}
+
+.no-prospects-message {
+    padding: 40px;
+    text-align: center;
+    color: #888;
 }
 
 /* Preview Navigation */
@@ -1853,6 +3807,44 @@ sequenceStyles.textContent = `
     color: #856404;
 }
 
+.wizard-import-zone {
+    margin-top: 15px;
+}
+
+.wizard-import-zone .import-dropzone {
+    border: 3px dashed #667eea;
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: #f8f9ff;
+}
+
+.wizard-import-zone .import-dropzone:hover {
+    background: #eef1ff;
+    border-color: #5a6fd6;
+}
+
+.wizard-import-zone .dropzone-icon {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+.wizard-import-zone .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #e0e0e0;
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 15px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
 /* Campaign Details Modal */
 .campaign-details-modal {
     width: 95%;
@@ -2117,6 +4109,207 @@ sequenceStyles.textContent = `
     .prospect-company-col,
     .prospect-step-col {
         display: none;
+    }
+}
+
+/* Spintax Feature */
+.spintax-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #e0e0e0;
+}
+
+.btn-spintax {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.85em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-spintax:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(238, 90, 36, 0.3);
+}
+
+.btn-spintax:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.spintax-info {
+    font-size: 0.75em;
+    color: #888;
+    font-style: italic;
+}
+
+.spintax-result-info {
+    background: linear-gradient(135deg, #f0fff4, #e8f5e9);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    margin-bottom: 20px;
+    border: 2px solid #c8e6c9;
+}
+
+.spintax-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.spintax-stat .stat-number {
+    font-size: 2.5em;
+    font-weight: 800;
+    color: #2e7d32;
+}
+
+.spintax-stat .stat-label {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.spintax-tip {
+    margin: 0;
+    color: #2e7d32;
+    font-size: 0.9em;
+}
+
+.spintax-preview {
+    margin-bottom: 20px;
+}
+
+.spintax-preview label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.spintax-preview textarea {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+}
+
+.spintax-actions-modal {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.spintax-example {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 12px;
+}
+
+.spintax-example label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 0.9em;
+}
+
+.example-render {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 10px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    font-size: 0.9em;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 0.8em;
+}
+
+/* Template Selector Styles */
+.template-selector {
+    margin-bottom: 25px;
+    padding: 20px;
+    background: linear-gradient(135deg, #f8f9ff, #f0f4ff);
+    border-radius: 15px;
+}
+
+.template-selector h4 {
+    margin: 0 0 15px;
+    color: #333;
+    font-size: 1em;
+}
+
+.template-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+}
+
+.template-card {
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.template-card:hover {
+    border-color: #667eea;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15);
+    transform: translateY(-2px);
+}
+
+.template-card.template-custom {
+    border-style: dashed;
+    background: #fafafa;
+}
+
+.template-name {
+    font-weight: 700;
+    font-size: 0.95em;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.template-desc {
+    font-size: 0.75em;
+    color: #666;
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+
+.template-meta {
+    font-size: 0.7em;
+    color: #999;
+    background: #f0f0f0;
+    padding: 3px 8px;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+@media (max-width: 600px) {
+    .template-cards {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 `;

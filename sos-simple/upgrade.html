@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passe au niveau supérieur - SOS Storytelling</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .expired-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            color: white;
+            font-size: 2.5em;
+            font-weight: 800;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1em;
+            max-width: 500px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .stats-reminder {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            color: #f093fb;
+            font-size: 2em;
+            font-weight: 800;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9em;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+
+        .pricing-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 35px 30px;
+            text-align: center;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(240, 147, 251, 0.3);
+        }
+
+        .pricing-card.popular {
+            border: 2px solid #f093fb;
+            transform: scale(1.02);
+        }
+
+        .pricing-card.popular:hover {
+            transform: scale(1.02) translateY(-5px);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 700;
+        }
+
+        .pricing-card h3 {
+            color: white;
+            font-size: 1.4em;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .pricing-subtitle {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9em;
+            margin-bottom: 20px;
+        }
+
+        .price {
+            font-size: 2.5em;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .price span {
+            font-size: 0.4em;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .features {
+            list-style: none;
+            margin: 25px 0;
+            text-align: left;
+        }
+
+        .features li {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 8px 0;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .features li::before {
+            content: '✓';
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .btn-upgrade {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-upgrade:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(240, 147, 251, 0.3);
+        }
+
+        .btn-upgrade.secondary {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-upgrade.secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: none;
+        }
+
+        .footer-links {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.5);
+            text-decoration: none;
+            font-size: 0.9em;
+            margin: 0 15px;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: #f093fb;
+        }
+
+        .guarantee {
+            text-align: center;
+            margin-top: 40px;
+            padding: 25px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 15px;
+        }
+
+        .guarantee-text {
+            color: #10b981;
+            font-size: 0.95em;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8em; }
+            .stats-reminder { gap: 20px; }
+            .pricing-card.popular { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="expired-badge">Ta période d'essai est terminée</div>
+            <h1>Tu as aimé SOS Storytelling ?<br>Continue l'aventure !</h1>
+            <p class="subtitle">Choisis le plan qui te correspond et reprends là où tu t'es arrêté.</p>
+        </div>
+
+        <div class="stats-reminder" id="statsReminder">
+            <!-- Les stats seront injectées ici via JS -->
+        </div>
+
+        <div class="pricing-grid">
+            <article class="pricing-card">
+                <h3>Solo</h3>
+                <p class="pricing-subtitle">Pour les créateurs individuels</p>
+                <div class="price">39€<span>/mois</span></div>
+                <ul class="features">
+                    <li>Contenus illimités</li>
+                    <li>Ma Voix complète</li>
+                    <li>TRENDS illimité</li>
+                    <li>Planning IA</li>
+                    <li>Export CSV & outils</li>
+                </ul>
+                <a href="https://myinnerquest.lemonsqueezy.com/buy/74412bb8-7df8-4d11-a7bb-c8434dc687a7" class="btn-upgrade secondary">Choisir Solo</a>
+            </article>
+
+            <article class="pricing-card popular">
+                <span class="popular-badge">Recommandé</span>
+                <h3>Agence Starter</h3>
+                <p class="pricing-subtitle">Jusqu'à 10 clients</p>
+                <div class="price">99€<span>/mois</span></div>
+                <ul class="features">
+                    <li>Tout de Solo +</li>
+                    <li>Voix PAR CLIENT</li>
+                    <li>Import CSV clients</li>
+                    <li>Dashboard analytics</li>
+                    <li>Support dédié</li>
+                </ul>
+                <a href="https://myinnerquest.lemonsqueezy.com/buy/c743c114-dc29-48a3-b34b-0fd30d3db204" class="btn-upgrade">Choisir Starter</a>
+            </article>
+
+            <article class="pricing-card">
+                <h3>Agence Scale</h3>
+                <p class="pricing-subtitle">Jusqu'à 30 clients</p>
+                <div class="price">199€<span>/mois</span></div>
+                <ul class="features">
+                    <li>Tout de Starter +</li>
+                    <li>30 profils de voix</li>
+                    <li>Analytics avancées</li>
+                    <li>Exports bulk</li>
+                    <li>Onboarding équipe</li>
+                </ul>
+                <a href="https://myinnerquest.lemonsqueezy.com/buy/0177ea61-1b2b-4897-8913-2f6b0ce8afa7" class="btn-upgrade secondary">Choisir Scale</a>
+            </article>
+        </div>
+
+        <div class="guarantee">
+            <p class="guarantee-text">Satisfait ou remboursé pendant 30 jours. Annulation en 1 clic.</p>
+        </div>
+
+        <div class="footer-links">
+            <a href="index.html">Retour au site</a>
+            <a href="mailto:contact@myinnerquest.fr">Une question ?</a>
+            <a href="#" onclick="logout()">Se déconnecter</a>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://pyxidmnckpnrargygwnf.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eGlkbW5ja3BucmFyZ3lnd25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyMzc4NzIsImV4cCI6MjA3OTgxMzg3Mn0.atm-LVna_TQyPuACZgA4ngJzzgIfJQJIdnLd9lCpOns';
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Charger les stats de l'utilisateur
+        async function loadUserStats() {
+            const { data: { session } } = await supabase.auth.getSession();
+
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const { data: userData } = await supabase
+                .from('users')
+                .select('contents_generated, created_at')
+                .eq('email', session.user.email.toLowerCase())
+                .single();
+
+            if (userData && userData.contents_generated > 0) {
+                const statsHtml = `
+                    <div class="stat-item">
+                        <div class="stat-number">${userData.contents_generated}</div>
+                        <div class="stat-label">contenus créés</div>
+                    </div>
+                `;
+                document.getElementById('statsReminder').innerHTML = statsHtml;
+            }
+        }
+
+        loadUserStats();
+
+        // Déconnexion
+        async function logout() {
+            await supabase.auth.signOut();
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

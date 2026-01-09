@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- VERSION 2025-12-11 - Mise à jour Dashboard Agence + Aide guidée -->
+<!-- VERSION 2026-01-07-v1 - Ajout Mode Collaboration (Workspaces, Team, Notifications) -->
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -14,7 +14,9 @@
     <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.8.5/dist/dotlottie-wc.js" type="module"></script>
     <link rel="stylesheet" href="agent-styles.css?v=20241205d">
     <link rel="stylesheet" href="missions-styles.css?v=20241230">
-    <link rel="stylesheet" href="inbox-styles.css?v=20260102">
+    <link rel="stylesheet" href="inbox-styles.css?v=20260102b">
+    <link rel="stylesheet" href="sender-emails-styles.css?v=20260109">
+    <link rel="stylesheet" href="collaboration-styles.css?v=20260107">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Poppins', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 50%, #f093fb 100%); }
@@ -575,6 +577,9 @@
 
         .btn-newsletter { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
         .btn-favorites { background: linear-gradient(135deg, #f093fb, #f5576c); color: white; }
+        .btn-prospector { background: linear-gradient(135deg, #f15a24, #ff8a50); color: white; position: relative; overflow: hidden; }
+        .btn-prospector::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); animation: shimmer 2s infinite; }
+        @keyframes shimmer { 0% { left: -100%; } 100% { left: 100%; } }
         .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
 
         .main-container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
@@ -646,10 +651,35 @@
         .structure-name { font-weight: 600; font-size: 0.85em; color: #333; }
 
         .format-grid, .platform-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-        .format-chip, .platform-chip { padding: 8px 16px; border: 2px solid #e0e0e0; border-radius: 20px; cursor: pointer; transition: all 0.2s; font-size: 0.9em; display: flex; align-items: center; gap: 6px; background: white; color: #333; }
-        .format-chip:hover, .platform-chip:hover { border-color: #f093fb; }
+        .format-chip, .platform-chip, .tone-chip { padding: 8px 16px; border: 2px solid #e0e0e0; border-radius: 20px; cursor: pointer; transition: all 0.2s; font-size: 0.9em; display: flex; align-items: center; gap: 6px; background: white; color: #333; }
+        .format-chip:hover, .platform-chip:hover, .tone-chip:hover { border-color: #f093fb; }
         .format-chip.active { background: linear-gradient(135deg, #f093fb, #f5576c); border-color: transparent; color: white; }
         .platform-chip.active { background: linear-gradient(135deg, #667eea, #764ba2); border-color: transparent; color: white; }
+        .tone-chip.active { background: linear-gradient(135deg, #9c27b0, #7b1fa2); border-color: transparent; color: white; }
+        .tone-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+        .tone-hint { font-size: 0.8em; color: #888; margin-top: 10px; font-style: italic; }
+
+        /* Mode Création Toggle */
+        .creation-mode-toggle { display: flex; flex-direction: column; gap: 8px; }
+        .mode-option { display: flex; align-items: center; gap: 10px; padding: 12px 15px; background: white; border: 2px solid #e0e0e0; border-radius: 12px; cursor: pointer; transition: all 0.2s; }
+        .mode-option:hover { border-color: #f093fb; }
+        .mode-option:has(input:checked) { border-color: #f093fb; background: linear-gradient(135deg, #fff5fc, #fff0f5); }
+        .mode-option input[type="radio"] { accent-color: #f093fb; width: 18px; height: 18px; }
+        .mode-label { font-weight: 600; color: #333; }
+        .mode-desc { font-size: 0.85em; color: #888; margin-left: auto; }
+
+        /* Sélecteur de jour */
+        .strategy-day-selector { margin-top: 12px; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .strategy-day-dropdown { width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-family: inherit; font-size: 0.95em; background: white; cursor: pointer; transition: all 0.2s; }
+        .strategy-day-dropdown:focus { outline: none; border-color: #f093fb; }
+
+        /* Questions d'extraction */
+        .extraction-questions { margin-top: 15px; padding: 15px; background: linear-gradient(135deg, #f8f9ff, #f0f4ff); border-radius: 12px; border-left: 4px solid #667eea; }
+        .extraction-questions h4 { margin: 0 0 10px 0; color: #667eea; font-size: 0.95em; }
+        .extraction-questions ul { margin: 0; padding-left: 20px; }
+        .extraction-questions li { margin-bottom: 8px; color: #555; font-size: 0.9em; line-height: 1.4; }
+        .extraction-questions .day-objective { background: linear-gradient(135deg, #11998e, #38ef7d); color: white; padding: 8px 12px; border-radius: 8px; font-size: 0.85em; margin-bottom: 12px; display: inline-block; }
 
         .idea-input { width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 12px; font-family: inherit; font-size: 1em; resize: vertical; min-height: 100px; transition: all 0.3s; }
         .idea-input:focus { outline: none; border-color: #f093fb; box-shadow: 0 0 0 4px rgba(240,147,251,0.15); }
@@ -790,6 +820,63 @@
             font-weight: 600;
             color: #333;
             margin-bottom: 12px;
+        }
+        /* Toggle header for emotion section */
+        .emotion-toggle-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #fef6ff, #fff0f9);
+            border: 1px solid #f0e0f5;
+            border-radius: 12px;
+            margin-bottom: 0;
+            transition: all 0.2s ease;
+        }
+        .emotion-toggle-header:hover {
+            background: linear-gradient(135deg, #fdf0ff, #ffe8f6);
+            border-color: #f093fb;
+        }
+        .emotion-toggle-header .toggle-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .emotion-toggle-header .toggle-label {
+            font-size: 0.95em;
+            font-weight: 600;
+            color: #333;
+        }
+        .emotion-toggle-header .selected-vibe {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: white;
+            border: 1px solid #f093fb;
+            border-radius: 20px;
+            font-size: 0.85em;
+            color: #9333ea;
+        }
+        .emotion-toggle-header .toggle-arrow {
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+            color: #9333ea;
+        }
+        .hooks-emotion-section.expanded .toggle-arrow {
+            transform: rotate(180deg);
+        }
+        .emotion-chips-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
+            opacity: 0;
+        }
+        .hooks-emotion-section.expanded .emotion-chips-container {
+            max-height: 300px;
+            padding-top: 15px;
+            opacity: 1;
         }
         .emotion-chips {
             display: flex;
@@ -1806,21 +1893,42 @@
         .demo-badge { position: fixed; bottom: 100px; left: 30px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 20px; border-radius: 30px; font-weight: 600; cursor: pointer; box-shadow: 0 5px 20px rgba(102,126,234,0.4); z-index: 100; display: none; align-items: center; gap: 8px; }
         .demo-badge:hover { transform: scale(1.05); box-shadow: 0 5px 30px rgba(102,126,234,0.6); }
 
-        /* Welcome Popup - Guide vers démo guidée */
-        .welcome-popup-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1001; padding: 20px; animation: fadeIn 0.3s ease; }
+        /* Welcome Popup - Démo guidée */
+        .welcome-popup-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1001; padding: 20px; animation: fadeIn 0.3s ease; }
         .welcome-popup-overlay.show { display: flex; }
-        .welcome-popup { background: white; border-radius: 20px; padding: 30px; max-width: 420px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: popIn 0.4s ease; }
-        .welcome-popup-emoji { font-size: 3em; margin-bottom: 15px; }
-        .welcome-popup-title { font-size: 1.5em; font-weight: 700; color: #333; margin-bottom: 10px; }
+        .welcome-popup { background: white; border-radius: 20px; padding: 30px; max-width: 450px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: popIn 0.4s ease; position: relative; }
+        .welcome-popup-close { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 1.5em; color: #999; cursor: pointer; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .welcome-popup-close:hover { background: #f0f0f0; color: #333; }
+        .welcome-popup-emoji { font-size: 3.5em; margin-bottom: 15px; }
+        .welcome-popup-title { font-size: 1.6em; font-weight: 700; color: #333; margin-bottom: 10px; }
         .welcome-popup-text { color: #666; font-size: 1em; line-height: 1.6; margin-bottom: 20px; }
-        .welcome-popup-highlight { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 20px; border-radius: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px; }
-        .welcome-popup-btn { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 14px 30px; border-radius: 12px; font-size: 1.1em; font-weight: 600; cursor: pointer; transition: all 0.3s; font-family: inherit; }
+        .welcome-popup-features { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; text-align: left; }
+        .welcome-popup-feature { display: flex; align-items: center; gap: 12px; padding: 12px 15px; background: #f8f9ff; border-radius: 12px; }
+        .welcome-popup-feature-icon { font-size: 1.5em; }
+        .welcome-popup-feature-text { color: #444; font-size: 0.95em; }
+        .welcome-popup-btn { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 16px 35px; border-radius: 12px; font-size: 1.1em; font-weight: 600; cursor: pointer; transition: all 0.3s; font-family: inherit; width: 100%; }
         .welcome-popup-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102,126,234,0.4); }
+        .welcome-popup-skip { background: none; border: none; color: #999; font-size: 0.9em; cursor: pointer; margin-top: 15px; padding: 10px; font-family: inherit; }
+        .welcome-popup-skip:hover { color: #666; text-decoration: underline; }
+        .welcome-popup-checkbox { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; }
+        .welcome-popup-checkbox input { width: 18px; height: 18px; cursor: pointer; accent-color: #667eea; }
+        .welcome-popup-checkbox label { color: #888; font-size: 0.85em; cursor: pointer; }
         @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
         /* Memory indicator */
         .memory-indicator { background: rgba(102,126,234,0.1); border-radius: 10px; padding: 10px 15px; margin-bottom: 15px; font-size: 0.85em; color: #667eea; display: flex; align-items: center; gap: 8px; }
         .memory-indicator strong { font-weight: 600; }
+
+        /* Profile reminder */
+        .profile-reminder { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 1px solid #f59e0b; border-radius: 12px; padding: 12px 16px; margin-bottom: 15px; font-size: 0.85em; color: #92400e; display: flex; align-items: center; gap: 10px; animation: reminderPulse 2s ease-in-out infinite; cursor: pointer; transition: transform 0.2s; }
+        .profile-reminder:hover { transform: scale(1.02); }
+        .profile-reminder-icon { font-size: 1.3em; animation: bounce 1s ease-in-out infinite; }
+        .profile-reminder-text { flex: 1; line-height: 1.4; }
+        .profile-reminder-text strong { color: #78350f; }
+        .profile-reminder-close { background: none; border: none; color: #b45309; font-size: 1.2em; cursor: pointer; padding: 0 5px; opacity: 0.7; }
+        .profile-reminder-close:hover { opacity: 1; }
+        @keyframes reminderPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); } 50% { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); } }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
 
         /* Export Button */
         .action-btn.export { background: linear-gradient(135deg, #667eea, #764ba2); border: none; color: white; }
@@ -2308,15 +2416,13 @@
         .import-result.error { background: #f8d7da; color: #721c24; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
     <script src="i18n.js"></script>
     <script>
         // ==================== AUTH GUARD ====================
         // Vérifie que l'utilisateur est connecté et a un abonnement valide
         (async function checkAuth() {
-            const SUPABASE_URL = 'https://pyxidmnckpnrargygwnf.supabase.co';
-            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eGlkbW5ja3BucmFyZ3lnd25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyMzc4NzIsImV4cCI6MjA3OTgxMzg3Mn0.atm-LVna_TQyPuACZgA4ngJzzgIfJQJIdnLd9lCpOns';
-
-            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            const supabase = initSupabase();
             // Exposer globalement pour les modules
             window.supabaseApp = supabase;
 
@@ -2379,7 +2485,7 @@
     <style>.logo-img { width: 40px; height: 40px; border-radius: 8px; object-fit: contain; }</style>
     <header class="header">
         <a href="#" onclick="showHomePage(); return false;" class="header-left" style="text-decoration: none; color: inherit;">
-                        <img src="data:image/webp;base64,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" alt="Logo" class="logo-img">
+                        <img src="logo-sos-storytelling.png" alt="SOS Storytelling" class="logo-img">
             <span class="header-title">SOS Storytelling</span>
         </a>
         <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
@@ -2422,9 +2528,15 @@
                             <span class="menu-badge" id="menuInboxBadge" style="display: none;">0</span>
                         </a>
                         <a class="dropdown-item" onclick="closeDropdowns(); showBrevoConfigModal()">🔗 <span data-i18n="menu.config_brevo">Configurer Brevo</span></a>
+                        <a class="dropdown-item" onclick="closeDropdowns(); showReportsModal()" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 8px; margin-top: 4px;">📊 Rapports & Analytics</a>
                     </div>
                 </div>
             </div>
+
+            <!-- Bouton Prospection par DM -->
+            <a href="https://sosextensionprosp.netlify.app/prospects?from=sos" target="_blank" class="btn btn-prospector" title="Prospection Instagram/TikTok par DM">
+                🎯 Prospecter
+            </a>
 
             <!-- Dropdown Dashboard -->
             <div class="header-dropdown">
@@ -2448,8 +2560,41 @@
                 <div class="dropdown-menu" id="settingsDropdown">
                     <a class="dropdown-item" onclick="closeDropdowns(); Onboarding.forceShow()">👤 <span data-i18n="menu.my_profile">Mon profil</span></a>
                     <a class="dropdown-item" onclick="closeDropdowns(); showVoiceModal()">🎤 <span data-i18n="menu.my_voice">Mon Style</span></a>
+                    <a class="dropdown-item" id="teamManagementBtn" onclick="closeDropdowns(); CollaborationModule.showTeamModal()" style="display: none; background: linear-gradient(135deg, #11998e, #38ef7d); color: white; margin-top: 8px; border-radius: 8px;">👥 <span data-i18n="menu.team">Mon équipe</span></a>
                     <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 8px 0;"></div>
                     <a class="dropdown-item" onclick="closeDropdowns(); handleLogout()" style="color: #ff6b6b;">🚪 <span data-i18n="menu.logout">Déconnexion</span></a>
+                </div>
+            </div>
+
+            <!-- Workspace Switcher (Plans Agence uniquement) -->
+            <div class="workspace-switcher" id="workspaceSwitcher">
+                <div class="workspace-current" onclick="CollaborationModule.toggleWorkspaceDropdown()">
+                    <span class="workspace-logo">🏢</span>
+                    <span class="workspace-name">Chargement...</span>
+                    <span class="workspace-arrow">▼</span>
+                </div>
+                <div class="workspace-dropdown">
+                    <div class="workspace-dropdown-list"></div>
+                </div>
+            </div>
+
+            <!-- Notifications (Plans Agence uniquement) -->
+            <div style="position: relative;">
+                <button class="notification-btn" id="notificationBtn" onclick="CollaborationModule.toggleNotificationDropdown()">
+                    🔔
+                    <span class="notification-badge" id="notificationBadge">0</span>
+                </button>
+                <div class="notification-dropdown" id="notificationDropdown">
+                    <div class="notification-header">
+                        <h3>🔔 Notifications</h3>
+                        <button class="notification-mark-all" onclick="CollaborationModule.markAllNotificationsRead()">Tout lire</button>
+                    </div>
+                    <div class="notification-list" id="notificationList">
+                        <div class="notification-empty">
+                            <span class="notification-empty-icon">🔔</span>
+                            <span>Aucune notification</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -2531,6 +2676,25 @@
                     <div class="quick-action-time" style="background: rgba(255,255,255,0.3);"><span class="time-icon">🚀</span> Auto</div>
                 </div>
 
+                <!-- Prospecter - Prospection par DM -->
+                <a href="https://sosextensionprosp.netlify.app/prospects?from=sos" target="_blank" class="quick-action-card" style="background: linear-gradient(135deg, #f15a24, #ff8a50); text-decoration: none;">
+                    <div class="quick-action-icon">
+                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                            <defs>
+                                <linearGradient id="iconGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#fff;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#ffe0d0;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            <circle cx="20" cy="20" r="12" stroke="url(#iconGrad4)" stroke-width="2.5" fill="none"/>
+                            <path d="M30 30L40 40" stroke="url(#iconGrad4)" stroke-width="3" stroke-linecap="round"/>
+                            <path d="M20 14V20H26" stroke="url(#iconGrad4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="quick-action-title" style="color: white;">Prospecter</div>
+                    <div class="quick-action-time" style="background: rgba(255,255,255,0.3);"><span class="time-icon">🎯</span> Insta/TikTok</div>
+                </a>
+
             </div>
         </div>
 
@@ -2546,6 +2710,13 @@
         <div class="content-layout" id="contentLayout" style="display: none;">
             <div class="panel config-panel" id="configPanel">
                 <h2 class="panel-title">⚙️ <span data-i18n="config.title">Configuration</span></h2>
+
+                <!-- Profile Reminder -->
+                <div class="profile-reminder" id="profileReminder" onclick="openOnboardingModal()" style="display: none;">
+                    <span class="profile-reminder-icon">💡</span>
+                    <span class="profile-reminder-text">Pense à remplir <strong>Mon Profil</strong> et <strong>Mon Style</strong> pour personnaliser tes contenus !</span>
+                    <button class="profile-reminder-close" onclick="event.stopPropagation(); hideProfileReminder();" title="Fermer">✕</button>
+                </div>
 
                 <div id="memoryIndicator" class="memory-indicator" style="display: none;">
                     🧠 <span id="memoryText"></span>
@@ -2616,6 +2787,8 @@
                             <div class="platform-chip" data-platform="tiktok">🎵 TikTok</div>
                             <div class="platform-chip" data-platform="twitter">𝕏 Twitter</div>
                             <div class="platform-chip" data-platform="facebook">👥 Facebook</div>
+                            <div class="platform-chip" data-platform="youtube">🎬 YouTube</div>
+                            <div class="platform-chip" data-platform="substack">📨 Substack</div>
                         </div>
                     </div>
                 </div>
@@ -2650,6 +2823,34 @@
                             <div class="audience-preview-desc" id="audiencePreviewDesc"></div>
                             <div class="audience-preview-tags" id="audiencePreviewTags"></div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- TOGGLE TON / STYLE -->
+                <div class="config-section" id="toneSection">
+                    <button class="section-toggle" id="toneToggle" onclick="toggleSection('tone')">
+                        <span class="section-toggle-left">
+                            <span class="section-toggle-icon">🎭</span>
+                            <span>Ton</span>
+                        </span>
+                        <span class="section-toggle-right">
+                            <span class="section-toggle-value" id="toneValue">Defaut (profil)</span>
+                            <span class="section-toggle-arrow" id="toneArrow">▼</span>
+                        </span>
+                    </button>
+                    <div class="section-toggle-content" id="toneContent" style="display: none;">
+                        <div class="tone-grid" id="toneGrid">
+                            <div class="tone-chip active" data-tone="default">🎯 Defaut (profil)</div>
+                            <div class="tone-chip" data-tone="inspirant">✨ Inspirant</div>
+                            <div class="tone-chip" data-tone="educatif">📚 Educatif</div>
+                            <div class="tone-chip" data-tone="authentique">💎 Authentique</div>
+                            <div class="tone-chip" data-tone="humour">😄 Humour</div>
+                            <div class="tone-chip" data-tone="provocateur">🔥 Provocateur</div>
+                            <div class="tone-chip" data-tone="minimaliste">✂️ Minimaliste</div>
+                            <div class="tone-chip" data-tone="storytelling">📖 Storytelling</div>
+                            <div class="tone-chip" data-tone="emotionnel">💜 Emotionnel</div>
+                        </div>
+                        <p class="tone-hint">💡 "Defaut" utilise le style de ton profil. Choisis un autre pour ce contenu uniquement.</p>
                     </div>
                 </div>
 
@@ -2732,6 +2933,52 @@
                     </div>
                 </div>
 
+                <!-- MODE CRÉATION -->
+                <div class="config-section" id="creationModeSection">
+                    <label class="config-label">🚀 Mode création</label>
+                    <div class="creation-mode-toggle">
+                        <label class="mode-option">
+                            <input type="radio" name="creationMode" value="libre" checked onchange="toggleCreationMode('libre')">
+                            <span class="mode-label">✍️ Libre</span>
+                            <span class="mode-desc">Mon idée, mon style</span>
+                        </label>
+                        <label class="mode-option">
+                            <input type="radio" name="creationMode" value="strategie" onchange="toggleCreationMode('strategie')">
+                            <span class="mode-label">🎯 20 Jours Stratégiques</span>
+                            <span class="mode-desc">Contenus qui vendent</span>
+                        </label>
+                    </div>
+
+                    <!-- Sélecteur de jour (caché par défaut) -->
+                    <div id="strategyDaySelector" class="strategy-day-selector" style="display: none;">
+                        <select id="strategyDay" class="strategy-day-dropdown" onchange="loadStrategyDay()">
+                            <option value="1">Jour 1 — Dégommer une objection client</option>
+                            <option value="2">Jour 2 — Opinion impopulaire</option>
+                            <option value="3">Jour 3 — Ce que j'aurais aimé savoir</option>
+                            <option value="4">Jour 4 — 5 conseils à mon moi du passé</option>
+                            <option value="5">Jour 5 — 3 erreurs que fait ton client</option>
+                            <option value="6">Jour 6 — Les obstacles de mon parcours</option>
+                            <option value="7">Jour 7 — Le secret des meilleurs</option>
+                            <option value="8">Jour 8 — Déconstruire une idée reçue</option>
+                            <option value="9">Jour 9 — Fausses croyances des clients</option>
+                            <option value="10">Jour 10 — Les pièges à éviter</option>
+                            <option value="11">Jour 11 — Se positionner en autorité</option>
+                            <option value="12">Jour 12 — 3 règles d'or de ton expertise</option>
+                            <option value="13">Jour 13 — La rencontre qui a changé ma vie</option>
+                            <option value="14">Jour 14 — Réponse à une question fréquente</option>
+                            <option value="15">Jour 15 — Étude de cas client</option>
+                            <option value="16">Jour 16 — Transformation avant/après</option>
+                            <option value="17">Jour 17 — Les paradigmes ont changé</option>
+                            <option value="18">Jour 18 — Portrait inspirant</option>
+                            <option value="19">Jour 19 — Pratique répandue à bannir</option>
+                            <option value="20">Jour 20 — Raconter un échec + leçon</option>
+                        </select>
+
+                        <!-- Questions d'extraction -->
+                        <div id="extractionQuestions" class="extraction-questions"></div>
+                    </div>
+                </div>
+
                 <div class="config-section" id="ideaSection">
                     <label class="config-label">💡 <span data-i18n="config.idea">Ton idée / sujet</span></label>
                     <textarea class="idea-input" id="ideaInput" data-i18n-placeholder="config.idea_placeholder" placeholder="Décris ton idée ou colle ici un texte que tu veux améliorer..."></textarea>
@@ -2752,7 +2999,7 @@
             <div class="panel output-panel" id="outputPanel">
                 <!-- ==================== ÉTAPE HOOKS ==================== -->
                 <div id="hooksSection" style="display: none;">
-                    <h2 class="panel-title">🪝 <span>Choisis ton hook</span></h2>
+                    <h2 class="panel-title">🪝 <span>Avant de lancer les résultats, choisis ton accroche (hook)</span></h2>
 
                     <!-- Rappel du brief (lecture seule) -->
                     <div class="hooks-brief-recap" id="hooksBriefRecap">
@@ -2762,50 +3009,58 @@
                         </div>
                     </div>
 
-                    <!-- Sélecteur de vibe émotionnelle -->
-                    <div class="hooks-emotion-section">
-                        <label class="hooks-label">🎭 Quelle vibe pour ton hook ?</label>
-                        <div class="emotion-chips" id="emotionChips">
-                            <button class="emotion-chip active" data-emotion="inspiration" onclick="selectEmotion('inspiration')">
-                                <span class="emotion-icon">✨</span>
-                                <span class="emotion-name">Inspiration</span>
-                            </button>
-                            <button class="emotion-chip" data-emotion="admiration" onclick="selectEmotion('admiration')">
-                                <span class="emotion-icon">🌟</span>
-                                <span class="emotion-name">Admiration</span>
-                            </button>
-                            <button class="emotion-chip" data-emotion="vulnerabilite" onclick="selectEmotion('vulnerabilite')">
-                                <span class="emotion-icon">💔</span>
-                                <span class="emotion-name">Vulnérabilité</span>
-                            </button>
-                            <button class="emotion-chip" data-emotion="coup-de-gueule" onclick="selectEmotion('coup-de-gueule')">
-                                <span class="emotion-icon">🔥</span>
-                                <span class="emotion-name">Coup de gueule</span>
-                            </button>
-                            <button class="emotion-chip" data-emotion="humour" onclick="selectEmotion('humour')">
-                                <span class="emotion-icon">😄</span>
-                                <span class="emotion-name">Humour</span>
-                            </button>
-                            <button class="emotion-chip" data-emotion="curiosite" onclick="selectEmotion('curiosite')">
-                                <span class="emotion-icon">🤔</span>
-                                <span class="emotion-name">Curiosité</span>
-                            </button>
-                            <button class="emotion-chip" data-emotion="expert" onclick="selectEmotion('expert')">
-                                <span class="emotion-icon">🎓</span>
-                                <span class="emotion-name">Expert</span>
-                            </button>
-                            <button class="emotion-chip" data-emotion="teasing" onclick="selectEmotion('teasing')">
-                                <span class="emotion-icon">😏</span>
-                                <span class="emotion-name">Teasing</span>
-                            </button>
-                            <button class="emotion-chip" data-emotion="motivation" onclick="selectEmotion('motivation')">
-                                <span class="emotion-icon">💪</span>
-                                <span class="emotion-name">Motivation</span>
-                            </button>
-                            <button class="emotion-chip" data-emotion="confession" onclick="selectEmotion('confession')">
-                                <span class="emotion-icon">🤫</span>
-                                <span class="emotion-name">Confession</span>
-                            </button>
+                    <!-- Sélecteur de vibe émotionnelle (toggle) -->
+                    <div class="hooks-emotion-section" id="emotionSection">
+                        <div class="emotion-toggle-header" onclick="toggleEmotionSection()">
+                            <div class="toggle-left">
+                                <span class="toggle-label">🎭 Quelle vibe pour ton hook ?</span>
+                                <span class="selected-vibe" id="selectedVibeDisplay">✨ Inspiration</span>
+                            </div>
+                            <span class="toggle-arrow">▼</span>
+                        </div>
+                        <div class="emotion-chips-container">
+                            <div class="emotion-chips" id="emotionChips">
+                                <button class="emotion-chip active" data-emotion="inspiration" onclick="selectEmotion('inspiration')">
+                                    <span class="emotion-icon">✨</span>
+                                    <span class="emotion-name">Inspiration</span>
+                                </button>
+                                <button class="emotion-chip" data-emotion="admiration" onclick="selectEmotion('admiration')">
+                                    <span class="emotion-icon">🌟</span>
+                                    <span class="emotion-name">Admiration</span>
+                                </button>
+                                <button class="emotion-chip" data-emotion="vulnerabilite" onclick="selectEmotion('vulnerabilite')">
+                                    <span class="emotion-icon">💔</span>
+                                    <span class="emotion-name">Vulnérabilité</span>
+                                </button>
+                                <button class="emotion-chip" data-emotion="coup-de-gueule" onclick="selectEmotion('coup-de-gueule')">
+                                    <span class="emotion-icon">🔥</span>
+                                    <span class="emotion-name">Coup de gueule</span>
+                                </button>
+                                <button class="emotion-chip" data-emotion="humour" onclick="selectEmotion('humour')">
+                                    <span class="emotion-icon">😄</span>
+                                    <span class="emotion-name">Humour</span>
+                                </button>
+                                <button class="emotion-chip" data-emotion="curiosite" onclick="selectEmotion('curiosite')">
+                                    <span class="emotion-icon">🤔</span>
+                                    <span class="emotion-name">Curiosité</span>
+                                </button>
+                                <button class="emotion-chip" data-emotion="expert" onclick="selectEmotion('expert')">
+                                    <span class="emotion-icon">🎓</span>
+                                    <span class="emotion-name">Expert</span>
+                                </button>
+                                <button class="emotion-chip" data-emotion="teasing" onclick="selectEmotion('teasing')">
+                                    <span class="emotion-icon">😏</span>
+                                    <span class="emotion-name">Teasing</span>
+                                </button>
+                                <button class="emotion-chip" data-emotion="motivation" onclick="selectEmotion('motivation')">
+                                    <span class="emotion-icon">💪</span>
+                                    <span class="emotion-name">Motivation</span>
+                                </button>
+                                <button class="emotion-chip" data-emotion="confession" onclick="selectEmotion('confession')">
+                                    <span class="emotion-icon">🤫</span>
+                                    <span class="emotion-name">Confession</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -3335,6 +3590,17 @@
         </div>
     </div>
 
+    <!-- Modal Rapports -->
+    <div class="modal-overlay" id="reportsModal">
+        <div class="modal" style="max-width: 95vw; width: 1200px; max-height: 90vh; overflow: hidden;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 20px 20px 0 0;">
+                <h2 class="modal-title" style="color: white;">📊 Rapports & Analytics</h2>
+                <button class="modal-close" onclick="closeReportsModal()" style="color: white;">&times;</button>
+            </div>
+            <div id="reportsContent" style="max-height: calc(90vh - 80px); overflow-y: auto; padding: 20px;"></div>
+        </div>
+    </div>
+
     <!-- Modal Favoris -->
     <div class="modal-overlay" id="favoritesModal">
         <div class="modal" style="max-width: 800px; max-height: 90vh;">
@@ -3840,22 +4106,35 @@ Solution  | Présenter votre solution</pre>
         </div>
     </div>
 
-    <!-- Welcome Popup - Guide vers démo guidée -->
+    <!-- Welcome Popup - Démo guidée -->
     <div class="welcome-popup-overlay" id="welcomePopup">
         <div class="welcome-popup">
-            <div class="welcome-popup-emoji">🎉</div>
+            <button class="welcome-popup-close" onclick="closeWelcomePopup()" title="Fermer">✕</button>
+            <div class="welcome-popup-emoji">🚀</div>
             <div class="welcome-popup-title">Bienvenue sur SOS Storytelling !</div>
             <div class="welcome-popup-text">
-                Tu vas pouvoir créer du contenu impactant en quelques clics.<br><br>
-                Pour découvrir toutes les fonctionnalités :
+                Découvre comment créer du contenu en 2 minutes
             </div>
-            <div class="welcome-popup-highlight">
-                ✏️ Clique sur « Écrire un post »
+            <div class="welcome-popup-features">
+                <div class="welcome-popup-feature">
+                    <span class="welcome-popup-feature-icon">✍️</span>
+                    <span class="welcome-popup-feature-text">Génère des posts LinkedIn percutants</span>
+                </div>
+                <div class="welcome-popup-feature">
+                    <span class="welcome-popup-feature-icon">📧</span>
+                    <span class="welcome-popup-feature-text">Crée des newsletters engageantes</span>
+                </div>
+                <div class="welcome-popup-feature">
+                    <span class="welcome-popup-feature-icon">🎯</span>
+                    <span class="welcome-popup-feature-text">Personnalise ta voix unique</span>
+                </div>
             </div>
-            <div class="welcome-popup-text" style="font-size: 0.9em; margin-bottom: 15px;">
-                puis sur <strong>🎯 Démo guidée</strong> en bas à gauche
+            <button class="welcome-popup-btn" onclick="startGuidedDemo()">🎯 Lancer la démo guidée</button>
+            <button class="welcome-popup-skip" onclick="closeWelcomePopup()">Explorer par moi-même</button>
+            <div class="welcome-popup-checkbox">
+                <input type="checkbox" id="welcomeDontShow">
+                <label for="welcomeDontShow">Ne plus afficher ce message</label>
             </div>
-            <button class="welcome-popup-btn" onclick="closeWelcomePopup()">C'est parti ! 🚀</button>
         </div>
     </div>
 
@@ -3920,8 +4199,39 @@ Solution  | Présenter votre solution</pre>
             // Afficher le badge démo guidée (toujours visible sur le dashboard de création)
             document.getElementById('demoBadge').style.display = 'flex';
 
+            // Vérifier si le profil/style est configuré et afficher le reminder si nécessaire
+            checkAndShowProfileReminder();
+
             // Scroll vers le haut
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Vérifie si le profil et le style sont configurés
+        function checkAndShowProfileReminder() {
+            // Ne pas montrer si l'utilisateur l'a déjà fermé cette session
+            if (sessionStorage.getItem('sos_profile_reminder_hidden')) return;
+
+            // Vérifier si l'onboarding est complété
+            const onboardingData = JSON.parse(localStorage.getItem('tithot_onboarding') || '{}');
+            const voiceData = JSON.parse(localStorage.getItem('tithot_voice') || '{}');
+
+            const hasProfile = onboardingData.name && onboardingData.domain;
+            const hasVoice = voiceData.texts && voiceData.texts.length >= 2;
+
+            // Si les deux sont configurés, ne pas montrer
+            if (hasProfile && hasVoice) {
+                document.getElementById('profileReminder').style.display = 'none';
+                return;
+            }
+
+            // Afficher le reminder
+            document.getElementById('profileReminder').style.display = 'flex';
+        }
+
+        // Masquer le reminder pour cette session
+        function hideProfileReminder() {
+            document.getElementById('profileReminder').style.display = 'none';
+            sessionStorage.setItem('sos_profile_reminder_hidden', 'true');
         }
 
         function showStoriesModal() {
@@ -4270,7 +4580,6 @@ Solution  | Présenter votre solution</pre>
                     <div class="persona-card-meta">
                         ${p.pain_points?.length > 0 ? `<span class="persona-meta-tag">😓 ${p.pain_points.length} douleurs</span>` : ''}
                         ${p.desires?.length > 0 ? `<span class="persona-meta-tag">✨ ${p.desires.length} désirs</span>` : ''}
-                        ${p.primary_platform ? `<span class="persona-meta-tag">📱 ${p.primary_platform}</span>` : ''}
                     </div>
                     <div class="persona-card-actions">
                         <button type="button" class="persona-action-btn" onclick="openPersonaEditor('${p.id}')">✏️ Modifier</button>
@@ -4355,23 +4664,11 @@ Trouver des clients sans prospecter">${persona?.desires?.join('\n') || ''}</text
                                 <textarea id="persona-tone" placeholder="Ex: Inspirant mais pas pompeux. Éviter le jargon marketing. Parler de partager plutôt que vendre.">${persona?.tone_preferences || ''}</textarea>
                             </div>
 
-                            <div class="persona-form-row">
-                                <div class="persona-form-group">
-                                    <label>Plateforme principale</label>
-                                    <select id="persona-platform">
-                                        <option value="linkedin" ${persona?.primary_platform === 'linkedin' ? 'selected' : ''}>LinkedIn</option>
-                                        <option value="instagram" ${persona?.primary_platform === 'instagram' ? 'selected' : ''}>Instagram</option>
-                                        <option value="tiktok" ${persona?.primary_platform === 'tiktok' ? 'selected' : ''}>TikTok</option>
-                                        <option value="twitter" ${persona?.primary_platform === 'twitter' ? 'selected' : ''}>Twitter/X</option>
-                                        <option value="facebook" ${persona?.primary_platform === 'facebook' ? 'selected' : ''}>Facebook</option>
-                                    </select>
-                                </div>
-                                <div class="persona-form-group" style="display: flex; align-items: center; padding-top: 25px;">
-                                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin: 0;">
-                                        <input type="checkbox" id="persona-default" ${persona?.is_default ? 'checked' : ''}>
-                                        <span>Définir comme audience par défaut</span>
-                                    </label>
-                                </div>
+                            <div class="persona-form-group" style="display: flex; align-items: center; padding-top: 10px;">
+                                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin: 0;">
+                                    <input type="checkbox" id="persona-default" ${persona?.is_default ? 'checked' : ''}>
+                                    <span>Définir comme audience par défaut</span>
+                                </label>
                             </div>
                         </div>
                         <div class="persona-modal-footer">
@@ -4421,7 +4718,6 @@ Trouver des clients sans prospecter">${persona?.desires?.join('\n') || ''}</text
                 desires: document.getElementById('persona-desires').value.split('\n').map(l => l.trim()).filter(l => l),
                 vocabulary: document.getElementById('persona-vocabulary').value.split(',').map(v => v.trim()).filter(v => v),
                 tone_preferences: document.getElementById('persona-tone').value.trim(),
-                primary_platform: document.getElementById('persona-platform').value,
                 is_default: document.getElementById('persona-default').checked
             };
 
@@ -4993,9 +5289,8 @@ Description : ${audience.description}
         };
 
         // ==================== SUPABASE ANALYTICS ====================
-        const SUPABASE_URL = 'https://pyxidmnckpnrargygwnf.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eGlkbW5ja3BucmFyZ3lnd25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyMzc4NzIsImV4cCI6MjA3OTgxMzg3Mn0.atm-LVna_TQyPuACZgA4ngJzzgIfJQJIdnLd9lCpOns';
-        
+        // Utilise CONFIG depuis config.js
+
         const Analytics = {
             supabase: null,
             userId: null,
@@ -8481,7 +8776,191 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
         };
 
         // ==================== ÉTAT DE L'APPLICATION ====================
-        let currentState = { structure: 'aida', format: 'post', platform: 'linkedin', idea: '', generatedContent: '', ideasContent: '', currentPillar: null, pubPlatform: 'meta', pubObjective: 'conversion' };
+        let currentState = { structure: 'aida', format: 'post', platform: 'linkedin', tone: 'default', idea: '', generatedContent: '', ideasContent: '', currentPillar: null, pubPlatform: 'meta', pubObjective: 'conversion', strategyMode: false, strategyDay: null };
+
+        // ==================== DONNÉES 20 JOURS STRATÉGIQUES ====================
+        const STRATEGY_DAYS = {
+            1: {
+                title: "Dégommer une objection client",
+                objective: "Lever les freins à l'achat",
+                questions: [
+                    "Quelle objection entends-tu le plus souvent ? (\"C'est trop cher\", \"J'ai pas le temps\", \"Je peux le faire seul\"...)",
+                    "Pourquoi cette objection est-elle infondée ou mal posée ?",
+                    "Quel client a eu cette objection puis a changé d'avis ? Qu'est-ce qui l'a convaincu ?"
+                ]
+            },
+            2: {
+                title: "Opinion impopulaire / Controverse",
+                objective: "Te positionner, créer le débat",
+                questions: [
+                    "Quelle pratique courante dans ton secteur te fait lever les yeux au ciel ?",
+                    "Quelle \"vérité\" tout le monde répète mais qui est fausse selon ton expérience ?",
+                    "Qu'est-ce que tu fais différemment et qui choque parfois ?"
+                ]
+            },
+            3: {
+                title: "Ce que j'aurais aimé savoir avant",
+                objective: "Créer de l'identification",
+                questions: [
+                    "Quelle erreur as-tu faite au début par ignorance ?",
+                    "Quel conseil t'aurait fait gagner 6 mois ou éviter une galère ?",
+                    "Quelle croyance limitante avais-tu qui s'est révélée fausse ?"
+                ]
+            },
+            4: {
+                title: "5 conseils à mon moi du passé",
+                objective: "Inspirer, montrer ton parcours",
+                questions: [
+                    "À quelle période de ta vie/carrière tu t'adresserais ?",
+                    "Quels conseils auraient tout changé à l'époque ?",
+                    "As-tu une photo de cette époque ? (optionnel mais puissant)"
+                ]
+            },
+            5: {
+                title: "3 erreurs que fait ton client",
+                objective: "Éduquer, créer le \"c'est moi\"",
+                questions: [
+                    "Quelles erreurs vois-tu tout le temps chez tes prospects/clients ?",
+                    "Pourquoi font-ils ces erreurs ? (manque d'info, fausse croyance, facilité...)",
+                    "Quelles conséquences ont ces erreurs ?"
+                ]
+            },
+            6: {
+                title: "Les obstacles de mon parcours",
+                objective: "Humaniser, créer l'empathie",
+                questions: [
+                    "Quel moment difficile as-tu traversé dans ton parcours pro ?",
+                    "Comment l'as-tu surmonté ?",
+                    "Qu'est-ce que ça t'a appris ?"
+                ]
+            },
+            7: {
+                title: "Le secret des meilleurs",
+                objective: "Te positionner en expert",
+                questions: [
+                    "Qu'est-ce qui distingue tes meilleurs clients / les top performers de ton secteur ?",
+                    "Quel point commun as-tu observé chez ceux qui réussissent ?",
+                    "Qu'est-ce que les autres ne font pas ?"
+                ]
+            },
+            8: {
+                title: "Déconstruire une idée reçue",
+                objective: "Challenger, montrer ta vision",
+                questions: [
+                    "Quelle \"vérité\" de ton secteur est en fait un mythe ?",
+                    "Pourquoi les gens y croient ?",
+                    "Quelle est la réalité selon ton expérience ?"
+                ]
+            },
+            9: {
+                title: "Fausses croyances des clients",
+                objective: "Préparer la vente",
+                questions: [
+                    "Qu'est-ce que tes clients croient avant de travailler avec toi ?",
+                    "Quelles croyances les empêchent de passer à l'action ?",
+                    "Comment tu les fais changer d'avis ?"
+                ]
+            },
+            10: {
+                title: "Les pièges à éviter",
+                objective: "Protéger, guider",
+                questions: [
+                    "Dans quels pièges tombent souvent les débutants / tes clients ?",
+                    "Quels pièges as-tu toi-même évités ou dans lesquels tu es tombé ?",
+                    "Comment les reconnaître et les éviter ?"
+                ]
+            },
+            11: {
+                title: "Se positionner en autorité",
+                objective: "Affirmer ton expertise",
+                questions: [
+                    "Quelle est ta zone de génie ? Ce sur quoi on te consulte toujours ?",
+                    "Quel parcours/expérience légitime ton expertise ?",
+                    "Quelle vision défends-tu ?"
+                ]
+            },
+            12: {
+                title: "3 règles d'or de ton expertise",
+                objective: "Donner de la valeur",
+                questions: [
+                    "Quels sont les 3 principes fondamentaux de ton approche ?",
+                    "Pourquoi ces règles et pas d'autres ?",
+                    "Comment les appliques-tu concrètement ?"
+                ]
+            },
+            13: {
+                title: "La rencontre qui a changé ma vie",
+                objective: "Storytelling, émotion",
+                questions: [
+                    "Qui a eu un impact décisif sur ton parcours ?",
+                    "Comment cette rencontre s'est-elle produite ?",
+                    "Qu'est-ce que cette personne t'a apporté/appris ?"
+                ]
+            },
+            14: {
+                title: "Réponse à une question fréquente",
+                objective: "Montrer ton expertise",
+                questions: [
+                    "Quelle question te pose-t-on tout le temps ?",
+                    "Pourquoi les gens se posent cette question ?",
+                    "Quelle est ta réponse complète et honnête ?"
+                ]
+            },
+            15: {
+                title: "Étude de cas client",
+                objective: "Preuve sociale",
+                questions: [
+                    "Quel client a eu une transformation remarquable ?",
+                    "Quelle était sa situation avant ?",
+                    "Qu'avez-vous fait ensemble et quel résultat ?"
+                ]
+            },
+            16: {
+                title: "Transformation avant/après",
+                objective: "Visualiser le résultat",
+                questions: [
+                    "Quel \"avant/après\" illustre le mieux ton impact ?",
+                    "Quels éléments concrets ont changé ?",
+                    "En combien de temps ?"
+                ]
+            },
+            17: {
+                title: "Les paradigmes ont changé",
+                objective: "Créer l'urgence d'évoluer",
+                questions: [
+                    "Qu'est-ce qui a fondamentalement changé dans ton secteur ?",
+                    "Qu'est-ce qui marchait avant et ne marche plus ?",
+                    "Quelle est la nouvelle approche gagnante ?"
+                ]
+            },
+            18: {
+                title: "Portrait d'une personne inspirante",
+                objective: "Montrer tes valeurs",
+                questions: [
+                    "Qui t'inspire dans ton domaine ou ta vie ?",
+                    "Pourquoi cette personne ?",
+                    "Qu'est-ce que tu as appris d'elle ?"
+                ]
+            },
+            19: {
+                title: "Pratique répandue à bannir",
+                objective: "Se différencier",
+                questions: [
+                    "Quelle pratique courante te semble contre-productive ?",
+                    "Pourquoi les gens continuent de la faire ?",
+                    "Quelle alternative proposes-tu ?"
+                ]
+            },
+            20: {
+                title: "Raconter un échec + leçon",
+                objective: "Connexion par la vulnérabilité",
+                questions: [
+                    "Quel échec as-tu vécu qui t'a fait grandir ?",
+                    "Qu'est-ce qui s'est passé concrètement ?",
+                    "Qu'est-ce que tu ferais différemment ?"
+                ]
+            }
+        };
 
         const STRUCTURES = {
             'aida': { name: 'AIDA', prompt: 'Structure AIDA (Attention, Intérêt, Désir, Action)' },
@@ -8508,7 +8987,9 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
             'instagram': { name: 'Instagram', tone: 'visuel, émotionnel' },
             'tiktok': { name: 'TikTok', tone: 'dynamique, direct' },
             'twitter': { name: 'Twitter/X', tone: 'concis, percutant' },
-            'facebook': { name: 'Facebook', tone: 'conversationnel' }
+            'facebook': { name: 'Facebook', tone: 'conversationnel' },
+            'youtube': { name: 'YouTube', tone: 'dynamique et engageant', icon: '🎬' },
+            'substack': { name: 'Substack', tone: 'intime et conversationnel', icon: '📨' }
         };
 
         function selectPlatform(platform) {
@@ -9391,6 +9872,16 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
                     updatePlatformValue();
                 });
             });
+
+            // Gestion des tone chips
+            document.querySelectorAll('.tone-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    document.querySelectorAll('.tone-chip').forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    currentState.tone = chip.dataset.tone;
+                    updateToneValue();
+                });
+            });
         }
 
         function selectPlatform(platform) {
@@ -9456,6 +9947,82 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
             if (valueEl) {
                 valueEl.textContent = platformIcons[currentState.platform] || currentState.platform;
             }
+        }
+
+        // Mise à jour de l'affichage du toggle Ton
+        function updateToneValue() {
+            const toneLabels = {
+                'default': '🎯 Defaut (profil)',
+                'inspirant': '✨ Inspirant',
+                'educatif': '📚 Educatif',
+                'authentique': '💎 Authentique',
+                'humour': '😄 Humour',
+                'provocateur': '🔥 Provocateur',
+                'minimaliste': '✂️ Minimaliste',
+                'storytelling': '📖 Storytelling',
+                'emotionnel': '💜 Emotionnel'
+            };
+            const valueEl = document.getElementById('toneValue');
+            if (valueEl) {
+                valueEl.textContent = toneLabels[currentState.tone] || currentState.tone;
+            }
+        }
+
+        // ==================== MODE 20 JOURS STRATÉGIQUES ====================
+        // Toggle entre mode libre et stratégie
+        function toggleCreationMode(mode) {
+            const daySelector = document.getElementById('strategyDaySelector');
+            const ideaInput = document.getElementById('ideaInput');
+
+            if (mode === 'strategie') {
+                daySelector.style.display = 'block';
+                currentState.strategyMode = true;
+                loadStrategyDay();
+                // Modifier le placeholder
+                if (ideaInput) {
+                    ideaInput.placeholder = "Réponds aux questions ci-dessus dans ce champ, puis clique sur Générer...";
+                }
+            } else {
+                daySelector.style.display = 'none';
+                currentState.strategyMode = false;
+                currentState.strategyDay = null;
+                document.getElementById('extractionQuestions').innerHTML = '';
+                if (ideaInput) {
+                    ideaInput.placeholder = "Décris ton idée ou colle ici un texte que tu veux améliorer...";
+                }
+            }
+        }
+
+        // Charger les questions du jour sélectionné
+        function loadStrategyDay() {
+            const day = document.getElementById('strategyDay').value;
+            const data = STRATEGY_DAYS[day];
+            const container = document.getElementById('extractionQuestions');
+
+            if (!data) return;
+
+            container.innerHTML = `
+                <div class="day-objective">🎯 ${data.objective}</div>
+                <h4>📝 Questions pour toi :</h4>
+                <ul>
+                    ${data.questions.map(q => `<li>${q}</li>`).join('')}
+                </ul>
+            `;
+
+            // Stocker le jour actuel pour le prompt
+            currentState.strategyDay = parseInt(day);
+        }
+
+        // Initialiser les click handlers pour les tone chips
+        function initToneChips() {
+            document.querySelectorAll('.tone-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    document.querySelectorAll('.tone-chip').forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    currentState.tone = chip.dataset.tone;
+                    updateToneValue();
+                });
+            });
         }
 
         function updatePillarSuggestion() {
@@ -9577,6 +10144,28 @@ EXEMPLES DE RÉFÉRENCE :
             }
         };
 
+        // Toggle le sélecteur de vibe
+        function toggleEmotionSection() {
+            const section = document.getElementById('emotionSection');
+            if (section) {
+                section.classList.toggle('expanded');
+            }
+        }
+
+        // Mapping des émotions pour l'affichage
+        const emotionDisplayMap = {
+            'inspiration': '✨ Inspiration',
+            'admiration': '🌟 Admiration',
+            'vulnerabilite': '💔 Vulnérabilité',
+            'coup-de-gueule': '🔥 Coup de gueule',
+            'humour': '😄 Humour',
+            'curiosite': '🤔 Curiosité',
+            'expert': '🎓 Expert',
+            'teasing': '😏 Teasing',
+            'motivation': '💪 Motivation',
+            'confession': '🤫 Confession'
+        };
+
         // Sélectionner une émotion
         function selectEmotion(emotion) {
             hooksState.selectedEmotion = emotion;
@@ -9588,6 +10177,18 @@ EXEMPLES DE RÉFÉRENCE :
                     chip.classList.add('active');
                 }
             });
+
+            // Mettre à jour le badge affiché dans le toggle
+            const vibeDisplay = document.getElementById('selectedVibeDisplay');
+            if (vibeDisplay && emotionDisplayMap[emotion]) {
+                vibeDisplay.textContent = emotionDisplayMap[emotion];
+            }
+
+            // Fermer le toggle après sélection
+            const section = document.getElementById('emotionSection');
+            if (section) {
+                section.classList.remove('expanded');
+            }
 
             // Afficher/masquer le panneau des modes humour
             const humorPanel = document.getElementById('humorModesPanel');
@@ -9796,6 +10397,8 @@ ${audienceContext ? audienceContext : ''}
 ${currentState.platform === 'linkedin' ? 'LINKEDIN : Confessions business, chiffres précis, ton pro mais pas corporate' : ''}
 ${currentState.platform === 'instagram' ? 'INSTAGRAM : Plus court, plus émotionnel, storytelling personnel' : ''}
 ${currentState.platform === 'tiktok' ? 'TIKTOK : 3 premiers mots critiques, "Arrête de...", "POV:", provoc assumée' : ''}
+${currentState.platform === 'youtube' ? 'YOUTUBE : Hook 5 sec max qui intrigue, format script parlé, "Dans cette vidéo...", tension dès le début' : ''}
+${currentState.platform === 'substack' ? 'SUBSTACK : Ton lettre intime, "Salut toi", comme à un ami, réflexion personnelle, accroche qui donne envie de lire la suite' : ''}
 
 ## MISSION
 ${hooksState.selectedTrigger === 'auto'
@@ -11184,12 +11787,20 @@ ${clientProfile}`;
                     return obj[val] || val || 'Non défini';
                 };
 
+                // Déterminer le ton à utiliser (override ou profil)
+                const effectiveTone = (currentState.tone && currentState.tone !== 'default')
+                    ? currentState.tone
+                    : profile.style;
+                const toneSource = (currentState.tone && currentState.tone !== 'default')
+                    ? ' (⚡ override pour ce contenu)'
+                    : ' (profil par défaut)';
+
                 ctx = `👤 PROFIL DE L'AUTEUR :
 NOM : ${profile.nom}
 DOMAINE/NICHE : ${profile.domaine || 'Non précisé'}
 MESSAGE UNIQUE : ${profile.messageUnique || 'Non précisé'}
 PILIERS DE CONTENU : ${(profile.piliers || []).join(', ') || 'Non précisés'}
-STYLE DE COMMUNICATION : ${getStyleLabel(profile.style)}
+STYLE DE COMMUNICATION : ${getStyleLabel(effectiveTone)}${toneSource}
 OBJECTIF PRINCIPAL : ${getObjectifLabel(profile.objectif)}
 PUBLIC CIBLE : ${profile.audience || 'Non précisé'}
 PLATEFORMES : ${(profile.plateformes || []).join(', ') || 'Non précisées'}`;
@@ -11340,9 +11951,52 @@ RÈGLES DE RÉDACTION IMPORTANTES :
 
 4. **RYTHME** : Varie la longueur des phrases. Phrases courtes pour l'impact. Plus longues pour le développement.
 
-5. **HASHTAGS** : 5-10 hashtags pertinents à la fin, mélange de populaires et niches.${styleInstruction}
+5. **HASHTAGS** : 5-10 hashtags pertinents à la fin, mélange de populaires et niches.
+${currentState.platform === 'youtube' ? `
+6. **SPÉCIAL YOUTUBE** :
+   - Format SCRIPT PARLÉ (pas de texte à lire, mais à dire)
+   - HOOK 5 SECONDES : La première phrase doit captiver immédiatement
+   - Structure : Hook → Problème → Solution → Valeur → CTA
+   - Ton DYNAMIQUE, comme si tu parlais à un ami
+   - Inclus une DESCRIPTION SEO optimisée (150-200 mots avec mots-clés)
+   - Propose 3 IDÉES DE TITRES accrocheurs (curiosité, bénéfice, ou tension)
+   - Ajoute des TIMESTAMPS suggérés pour les sections principales` : ''}
+${currentState.platform === 'substack' ? `
+6. **SPÉCIAL SUBSTACK** :
+   - Format NEWSLETTER INTIME (800-1500 mots)
+   - Ton CONVERSATIONNEL comme une lettre à un ami proche
+   - Commence par une accroche personnelle (anecdote, réflexion, question)
+   - Structure avec SOUS-TITRES clairs pour faciliter la lecture
+   - Alterne entre réflexion personnelle et valeur actionnable
+   - Termine par un CTA "S'abonner" ou invitation à répondre
+   - Pas de hashtags, mais une signature personnelle à la fin` : ''}${styleInstruction}
 
 Crée le contenu COMPLET prêt à publier.`;
+            }
+
+            // 🎯 MODE 20 JOURS STRATÉGIQUES - Ajouter les instructions spécifiques
+            if (currentState.strategyMode && currentState.strategyDay && STRATEGY_DAYS[currentState.strategyDay]) {
+                const dayData = STRATEGY_DAYS[currentState.strategyDay];
+                prompt += `
+
+═══════════════════════════════════════════════════════════════
+🎯 MODE 20 JOURS STRATÉGIQUES — JOUR ${currentState.strategyDay}/20
+═══════════════════════════════════════════════════════════════
+
+📌 THÉMATIQUE DU JOUR : ${dayData.title}
+🎯 OBJECTIF : ${dayData.objective}
+
+📝 QUESTIONS D'EXTRACTION (l'utilisateur a répondu dans son texte) :
+${dayData.questions.map((q, i) => `${i+1}. ${q}`).join('\n')}
+
+INSTRUCTIONS SPÉCIALES POUR CE TYPE DE CONTENU :
+- Utilise les réponses de l'utilisateur aux questions ci-dessus comme matière première
+- Adapte la structure au type de contenu "${dayData.title}"
+- L'objectif "${dayData.objective}" doit transparaître dans le post
+- Crée un contenu authentique basé sur l'expérience réelle partagée
+- Garde le format (${fmt.name}) et la plateforme (${plat.name}) en tête
+
+`;
             }
 
             // Ajouter les instructions du framework si sélectionné
@@ -12044,18 +12698,40 @@ Pour chaque suggestion :
         function resetGuidedHelp() {
             localStorage.removeItem('tithot_tour_done');
             localStorage.removeItem('sos_welcome_shown');
+            localStorage.removeItem('sos_welcome_hidden');
             showWelcomePopup();
         }
 
         // ==================== WELCOME POPUP ====================
         // Affiche un popup de bienvenue après la première connexion
         function showWelcomePopup() {
+            // Ne pas afficher si l'utilisateur a coché "ne plus montrer"
+            if (localStorage.getItem('sos_welcome_hidden') === 'true') return;
             document.getElementById('welcomePopup').classList.add('show');
         }
 
         function closeWelcomePopup() {
+            // Vérifier si "ne plus montrer" est coché
+            const dontShowCheckbox = document.getElementById('welcomeDontShow');
+            if (dontShowCheckbox && dontShowCheckbox.checked) {
+                localStorage.setItem('sos_welcome_hidden', 'true');
+            }
             document.getElementById('welcomePopup').classList.remove('show');
             localStorage.setItem('sos_welcome_shown', 'true');
+        }
+
+        function startGuidedDemo() {
+            // Fermer le popup et lancer le tour
+            const dontShowCheckbox = document.getElementById('welcomeDontShow');
+            if (dontShowCheckbox && dontShowCheckbox.checked) {
+                localStorage.setItem('sos_welcome_hidden', 'true');
+            }
+            document.getElementById('welcomePopup').classList.remove('show');
+            localStorage.setItem('sos_welcome_shown', 'true');
+            // Petit délai pour que le popup se ferme avant de lancer le tour
+            setTimeout(() => {
+                startTour();
+            }, 300);
         }
 
         // Déconnexion
@@ -13125,8 +13801,8 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
             <div class="chatbot-header">
                 <div class="chatbot-avatar">🤖</div>
                 <div class="chatbot-info">
-                    <h3 data-i18n="chatbot.title">Assistant SOS</h3>
-                    <p data-i18n="chatbot.subtitle">Je réponds à vos questions !</p>
+                    <h3 data-i18n="chatbot.title">Tithot</h3>
+                    <p data-i18n="chatbot.subtitle">Assistant IA</p>
                 </div>
             </div>
             <div class="chatbot-messages" id="chatbotMessages">
@@ -13147,8 +13823,13 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
         const Chatbot = {
             isOpen: false,
             messageCount: 0,
-            maxMessages: 15, // Anti-abus : limite par session
+            maxMessages: 20, // Anti-abus : limite par session (augmenté pour IA)
             sessionKey: 'chatbot_session',
+            conversationHistory: [], // Historique pour contexte IA
+            apiUrl: (typeof CONFIG !== 'undefined' && CONFIG.API_URL)
+                ? CONFIG.API_URL + '/api/chat'
+                : 'https://sos-storytelling-api.sandra-devonssay.workers.dev/api/chat',
+            useAI: true, // Active l'assistant IA (fallback sur FAQ si erreur)
             
             // Base de connaissances FAQ (bilingue)
             faq: [
@@ -13158,9 +13839,9 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
                     answer_en: "The free trial lasts <strong>14 days</strong>, no credit card required! You get access to all features: unlimited generation, My Voice, AI Planning, exports... At the end, you choose whether to subscribe or not. 🚀"
                 },
                 {
-                    keywords: ['prix', 'tarif', 'coût', 'combien', 'abonnement', 'plan', 'price', 'cost', 'pricing'],
-                    answer_fr: "Nos plans : <strong>Solo</strong> à 39€/mois, <strong>Agence Starter</strong> (10 clients) à 99€/mois, <strong>Agence Scale</strong> (30 clients) à 199€/mois, et <strong>Enterprise</strong> sur devis. Tous incluent l'essai gratuit de 14 jours ! 💰",
-                    answer_en: "Our plans: <strong>Solo</strong> at €39/month, <strong>Agency Starter</strong> (10 clients) at €99/month, <strong>Agency Scale</strong> (30 clients) at €199/month, and <strong>Enterprise</strong> on quote. All include the 14-day free trial! 💰"
+                    keywords: ['prix', 'tarif', 'coût', 'combien', 'abonnement', 'plan', 'price', 'cost', 'pricing', 'early adopter', '67'],
+                    answer_fr: "🚀 <strong>Offre Early Adopter</strong> (100 premiers comptes, jusqu'au 20 février) : <strong>67€/mois pendant 6 mois</strong>, puis 97€/mois. Plans Agence : Starter (10 clients) à 99€/mois, Scale (30 clients) à 199€/mois. Essai gratuit 14 jours inclus ! 💰",
+                    answer_en: "🚀 <strong>Early Adopter Offer</strong> (first 100 accounts, until Feb 20): <strong>€67/month for 6 months</strong>, then €97/month. Agency plans: Starter (10 clients) €99/month, Scale (30 clients) €199/month. 14-day free trial included! 💰"
                 },
                 {
                     keywords: ['mon style', 'voix', 'style', 'ton', 'personnaliser', 'voice', 'my voice', 'customize'],
@@ -13226,21 +13907,107 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
                     keywords: ['bonjour', 'salut', 'hello', 'coucou', 'hey', 'hi'],
                     answer_fr: "Bonjour ! 👋 Je suis l'assistant SOS Storytelling. Je peux répondre à vos questions sur les fonctionnalités, les tarifs, Mon Style, le Planning IA... Que souhaitez-vous savoir ?",
                     answer_en: "Hello! 👋 I'm the SOS Storytelling assistant. I can answer your questions about features, pricing, My Voice, AI Planning... What would you like to know?"
+                },
+                // === QUESTIONS TECHNIQUES & PARCOURS ===
+                {
+                    keywords: ['créer', 'générer', 'comment', 'faire', 'create', 'generate', 'how to', 'utiliser', 'use'],
+                    answer_fr: "Pour créer du contenu : <strong>1)</strong> Cliquez sur l'onglet souhaité (Post, Carousel, Newsletter...) <strong>2)</strong> Remplissez le sujet ou le contexte <strong>3)</strong> Choisissez la plateforme et la structure <strong>4)</strong> Cliquez sur Générer ! L'IA fait le reste en ~10 secondes. ✍️",
+                    answer_en: "To create content: <strong>1)</strong> Click on the desired tab (Post, Carousel, Newsletter...) <strong>2)</strong> Fill in the subject or context <strong>3)</strong> Choose the platform and structure <strong>4)</strong> Click Generate! AI does the rest in ~10 seconds. ✍️"
+                },
+                {
+                    keywords: ['commencer', 'débuter', 'premier', 'start', 'begin', 'first', 'onboarding', 'démarrer'],
+                    answer_fr: "Pour bien démarrer : <strong>1)</strong> Complétez votre profil (domaine, audience, style) <strong>2)</strong> Ajoutez 3-5 textes dans \"Mon Style\" pour personnaliser l'IA <strong>3)</strong> Testez la génération de post ! Conseil : commencez par un post LinkedIn classique. 🚀",
+                    answer_en: "To get started: <strong>1)</strong> Complete your profile (domain, audience, style) <strong>2)</strong> Add 3-5 texts in \"My Voice\" to personalize the AI <strong>3)</strong> Try generating a post! Tip: start with a classic LinkedIn post. 🚀"
+                },
+                {
+                    keywords: ['profil', 'compte', 'paramètre', 'réglage', 'profile', 'account', 'settings', 'configuration'],
+                    answer_fr: "Accédez à votre profil via le bouton <strong>👤 Mon Profil</strong> en haut à droite. Vous pourrez modifier : votre domaine d'expertise, votre audience cible, vos piliers de contenu, et votre style de communication. Ces infos améliorent la pertinence des contenus ! ⚙️",
+                    answer_en: "Access your profile via the <strong>👤 My Profile</strong> button in the top right. You can edit: your expertise domain, target audience, content pillars, and communication style. This info improves content relevance! ⚙️"
+                },
+                {
+                    keywords: ['connexion', 'login', 'connecter', 'mot de passe', 'password', 'email', 'inscription', 'register', 'sign'],
+                    answer_fr: "Pour vous connecter, utilisez l'email et le mot de passe créés lors de l'inscription. <strong>Mot de passe oublié ?</strong> Cliquez sur \"Mot de passe oublié\" sur la page de connexion. Un lien de réinitialisation vous sera envoyé. 🔑",
+                    answer_en: "To log in, use the email and password created during registration. <strong>Forgot your password?</strong> Click \"Forgot password\" on the login page. A reset link will be sent to you. 🔑"
+                },
+                {
+                    keywords: ['carrousel', 'slide', 'diapo', 'carousel', 'slides'],
+                    answer_fr: "Pour créer un <strong>carrousel</strong> : allez dans l'onglet Carrousel, entrez votre sujet, et l'IA génère 5-10 slides optimisées ! Vous pouvez copier le texte de chaque slide ou exporter le tout. Parfait pour LinkedIn et Instagram. 🎠",
+                    answer_en: "To create a <strong>carousel</strong>: go to the Carousel tab, enter your topic, and AI generates 5-10 optimized slides! You can copy each slide's text or export everything. Perfect for LinkedIn and Instagram. 🎠"
+                },
+                {
+                    keywords: ['inbox', 'message', 'boîte', 'notification', 'reçu'],
+                    answer_fr: "L'<strong>Inbox Intelligente</strong> centralise vos messages et notifications ! Vous y trouvez les réponses de l'IA, vos contenus sauvegardés, et les alertes importantes. Cliquez sur l'icône 📥 dans le header pour y accéder.",
+                    answer_en: "The <strong>Smart Inbox</strong> centralizes your messages and notifications! You'll find AI responses, saved content, and important alerts. Click the 📥 icon in the header to access it."
+                },
+                {
+                    keywords: ['mission', 'autopilot', 'automatique', 'auto', 'pilote'],
+                    answer_fr: "Les <strong>Missions</strong> sont des campagnes automatisées ! Configurez un objectif (prospection, nurturing...), et l'IA génère et planifie les contenus automatiquement. Idéal pour rester actif sans effort quotidien. 🤖",
+                    answer_en: "<strong>Missions</strong> are automated campaigns! Set a goal (prospecting, nurturing...), and AI generates and schedules content automatically. Ideal for staying active without daily effort. 🤖"
+                },
+                {
+                    keywords: ['prospect', 'lead', 'crm', 'client potentiel'],
+                    answer_fr: "Le module <strong>Prospects</strong> vous permet de gérer vos leads ! Importez-les en CSV, suivez leur engagement, et créez des contenus personnalisés pour chaque prospect. Disponible sur les plans Agence. 📊",
+                    answer_en: "The <strong>Prospects</strong> module lets you manage your leads! Import them via CSV, track engagement, and create personalized content for each prospect. Available on Agency plans. 📊"
+                },
+                {
+                    keywords: ['navigateur', 'browser', 'chrome', 'firefox', 'safari', 'mobile', 'téléphone', 'smartphone', 'app'],
+                    answer_fr: "SOS Storytelling fonctionne sur tous les navigateurs modernes (Chrome, Firefox, Safari, Edge). L'application est <strong>responsive</strong> et s'adapte aux mobiles, mais nous recommandons un ordinateur pour une expérience optimale. 💻",
+                    answer_en: "SOS Storytelling works on all modern browsers (Chrome, Firefox, Safari, Edge). The app is <strong>responsive</strong> and adapts to mobile, but we recommend a computer for the best experience. 💻"
+                },
+                {
+                    keywords: ['erreur', 'bug', 'marche pas', 'fonctionne pas', 'error', 'not working', 'problème technique', 'bloqué'],
+                    answer_fr: "Si vous rencontrez une erreur : <strong>1)</strong> Rafraîchissez la page <strong>2)</strong> Videz le cache du navigateur <strong>3)</strong> Essayez un autre navigateur. Si le problème persiste, contactez <a href='mailto:contact@myinnerquest.fr'>contact@myinnerquest.fr</a> avec une capture d'écran. 🔧",
+                    answer_en: "If you encounter an error: <strong>1)</strong> Refresh the page <strong>2)</strong> Clear browser cache <strong>3)</strong> Try another browser. If the issue persists, contact <a href='mailto:contact@myinnerquest.fr'>contact@myinnerquest.fr</a> with a screenshot. 🔧"
+                },
+                {
+                    keywords: ['lent', 'long', 'temps', 'slow', 'loading', 'chargement', 'attendre'],
+                    answer_fr: "La génération prend généralement <strong>5-15 secondes</strong> selon la longueur du contenu. Si c'est plus long, vérifiez votre connexion internet. Les carrousels et newsletters peuvent prendre un peu plus de temps. ⏱️",
+                    answer_en: "Generation usually takes <strong>5-15 seconds</strong> depending on content length. If it's longer, check your internet connection. Carousels and newsletters may take a bit more time. ⏱️"
+                },
+                {
+                    keywords: ['améliorer', 'meilleur', 'qualité', 'improve', 'better', 'quality', 'optimiser'],
+                    answer_fr: "Pour de meilleurs résultats : <strong>1)</strong> Soyez précis dans votre sujet <strong>2)</strong> Enrichissez Mon Style avec vos textes <strong>3)</strong> Choisissez la bonne structure narrative <strong>4)</strong> Ajustez manuellement si besoin. La qualité s'améliore avec l'usage ! ✨",
+                    answer_en: "For better results: <strong>1)</strong> Be specific in your topic <strong>2)</strong> Enrich My Voice with your texts <strong>3)</strong> Choose the right narrative structure <strong>4)</strong> Manually adjust if needed. Quality improves with use! ✨"
+                },
+                {
+                    keywords: ['langue', 'français', 'anglais', 'language', 'french', 'english', 'traduire', 'translate'],
+                    answer_fr: "L'interface est disponible en <strong>français et anglais</strong>. Cliquez sur le bouton 🌐 pour changer de langue. Les contenus sont générés dans la langue de l'interface par défaut, mais vous pouvez demander une autre langue dans votre prompt. 🌍",
+                    answer_en: "The interface is available in <strong>French and English</strong>. Click the 🌐 button to change language. Content is generated in the interface language by default, but you can request another language in your prompt. 🌍"
+                },
+                {
+                    keywords: ['copier', 'copy', 'coller', 'paste', 'clipboard', 'sauvegarder', 'save'],
+                    answer_fr: "Pour copier un contenu : cliquez sur le bouton <strong>📋 Copier</strong> sous chaque génération. Le texte est automatiquement copié dans votre presse-papier, prêt à être collé dans votre outil de publication ! 📋",
+                    answer_en: "To copy content: click the <strong>📋 Copy</strong> button under each generation. The text is automatically copied to your clipboard, ready to paste into your publishing tool! 📋"
+                },
+                {
+                    keywords: ['hashtag', 'emoji', '#', 'tag'],
+                    answer_fr: "Les <strong>hashtags</strong> sont générés automatiquement et adaptés à chaque plateforme ! LinkedIn en reçoit 3-5, Instagram jusqu'à 30. Vous pouvez les modifier manuellement après génération. Les emojis sont aussi ajoutés selon le ton choisi. #️⃣",
+                    answer_en: "<strong>Hashtags</strong> are generated automatically and adapted to each platform! LinkedIn gets 3-5, Instagram up to 30. You can edit them manually after generation. Emojis are also added based on the chosen tone. #️⃣"
+                },
+                {
+                    keywords: ['historique', 'history', 'précédent', 'retrouver', 'ancien', 'previous', 'old'],
+                    answer_fr: "Votre <strong>historique</strong> de contenus générés est accessible via le Dashboard. Vous pouvez retrouver, copier ou regénérer vos anciens contenus à tout moment. L'historique est conservé pendant toute la durée de votre abonnement. 📚",
+                    answer_en: "Your generated content <strong>history</strong> is accessible via the Dashboard. You can find, copy or regenerate your old content at any time. History is kept for the duration of your subscription. 📚"
+                },
+                {
+                    keywords: ['merci', 'thanks', 'thank you', 'super', 'génial', 'great', 'awesome', 'parfait', 'perfect'],
+                    answer_fr: "Merci à vous ! 😊 N'hésitez pas si vous avez d'autres questions. Bonne création de contenu !",
+                    answer_en: "Thank you! 😊 Don't hesitate if you have more questions. Happy content creation!"
                 }
             ],
 
             // Questions suggérées (bilingues)
             quickReplies_fr: [
-                "Comment fonctionne l'essai gratuit ?",
-                "Qu'est-ce que Mon Style ?",
+                "Comment créer mon premier post ?",
+                "C'est quoi Mon Style ?",
                 "Quels sont les tarifs ?",
-                "Comment exporter mes contenus ?"
+                "J'ai un problème technique"
             ],
             quickReplies_en: [
-                "How does the free trial work?",
+                "How do I create my first post?",
                 "What is My Voice?",
                 "What are the prices?",
-                "How do I export my content?"
+                "I have a technical issue"
             ],
 
             getQuickReplies() {
@@ -13289,8 +14056,8 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
                 const messages = document.getElementById('chatbotMessages');
                 const lang = I18N?.getLanguage() || 'fr';
                 const welcomeMsg = lang === 'en'
-                    ? "Hello! 👋 I'm the SOS Storytelling assistant.<br><br>I can answer your questions about features, pricing, My Voice, AI Planning..."
-                    : "Bonjour ! 👋 Je suis l'assistant SOS Storytelling.<br><br>Je peux répondre à vos questions sur les fonctionnalités, les tarifs, Mon Style, le Planning IA...";
+                    ? "Hello! 👋 I'm <strong>Tithot</strong>, your AI assistant.<br><br>Ask me anything about SOS Storytelling: how to use features, pricing, troubleshooting... I'm here to help!"
+                    : "Salut ! 👋 Je suis <strong>Tithot</strong>, ton assistant IA.<br><br>Pose-moi n'importe quelle question sur SOS Storytelling : comment utiliser les fonctionnalités, les tarifs, résoudre un problème... Je suis là pour t'aider !";
                 const quickReplies = this.getQuickReplies();
                 messages.innerHTML = `
                     <div class="chat-message bot">
@@ -13311,41 +14078,81 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
                 this.sendMessage();
             },
             
-            sendMessage() {
+            async sendMessage() {
                 const input = document.getElementById('chatbotInput');
                 const message = input.value.trim();
-                
+
                 if (!message) return;
-                
+
                 // Vérifier limite anti-abus
                 if (this.messageCount >= this.maxMessages) {
                     this.showLimitWarning();
                     return;
                 }
-                
+
                 // Afficher le message utilisateur
                 this.addMessage(message, 'user');
+                this.conversationHistory.push({ role: 'user', content: message });
                 input.value = '';
-                
+
                 // Incrémenter et sauvegarder
                 this.messageCount++;
                 localStorage.setItem(this.sessionKey, JSON.stringify({
                     count: this.messageCount,
                     timestamp: Date.now()
                 }));
-                
+
                 // Afficher "typing"
                 this.showTyping();
-                
-                // Trouver la réponse
-                setTimeout(() => {
-                    this.hideTyping();
-                    const answer = this.findAnswer(message);
-                    this.addMessage(answer, 'bot');
-                }, 800 + Math.random() * 500);
+
+                // Appeler l'API IA ou fallback FAQ
+                let answer;
+                if (this.useAI) {
+                    answer = await this.callAIAssistant(message);
+                } else {
+                    answer = this.findAnswerInFAQ(message);
+                }
+
+                this.hideTyping();
+                this.addMessage(answer, 'bot');
+                this.conversationHistory.push({ role: 'assistant', content: answer });
             },
-            
-            findAnswer(question) {
+
+            async callAIAssistant(message) {
+                const lang = I18N?.getLanguage() || 'fr';
+
+                try {
+                    const response = await fetch(this.apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            message: message,
+                            conversationHistory: this.conversationHistory.slice(-10),
+                            language: lang
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('API error');
+                    }
+
+                    const data = await response.json();
+
+                    if (data.success && data.message) {
+                        return data.message;
+                    } else if (data.fallback) {
+                        return data.fallback;
+                    } else {
+                        throw new Error('Invalid response');
+                    }
+                } catch (error) {
+                    console.warn('AI Assistant fallback to FAQ:', error);
+                    // Fallback sur le FAQ local en cas d'erreur
+                    return this.findAnswerInFAQ(message);
+                }
+            },
+
+            findAnswerInFAQ(question) {
                 const q = question.toLowerCase();
                 const lang = I18N?.getLanguage() || 'fr';
 
@@ -13696,6 +14503,8 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
 
     <!-- Module Campagnes -->
     <script src="campaigns-module.js?v=1733400080"></script>
+    <script src="sender-emails-module.js?v=20260109"></script>
+    <script src="reports-module.js?v=20260109"></script>
     <script>
         let campaignsModuleInitialized = false;
 
@@ -13737,6 +14546,45 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
 
         function closeCampaignsModal() {
             document.getElementById('campaignsModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // ============ REPORTS MODAL ============
+        let reportsModuleInitialized = false;
+
+        function showReportsModal() {
+            const modal = document.getElementById('reportsModal');
+            if (!modal) return;
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            const container = document.getElementById('reportsContent');
+
+            if (typeof ReportsModule === 'undefined') {
+                if (container) {
+                    container.innerHTML = '<div style="padding: 40px; text-align: center;"><p>Chargement...</p></div>';
+                }
+                return;
+            }
+
+            if (!reportsModuleInitialized) {
+                ReportsModule.init().then(() => {
+                    if (container) {
+                        container.innerHTML = '';
+                        container.appendChild(ReportsModule.createReportsPage());
+                    }
+                }).catch(err => {
+                    console.error('Erreur init ReportsModule:', err);
+                });
+                reportsModuleInitialized = true;
+            } else {
+                ReportsModule.renderReportsContent();
+            }
+        }
+
+        function closeReportsModal() {
+            document.getElementById('reportsModal').classList.remove('active');
             document.body.style.overflow = '';
         }
 
@@ -14122,6 +14970,43 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
                 // Ouvrir automatiquement l'inbox pour traiter le callback
                 showInboxModal();
             }
+        });
+    </script>
+
+    <!-- Module Collaboration (Workspaces, Team, Comments, Notifications) -->
+    <script src="collaboration-module.js?v=20260107"></script>
+    <script>
+        // Afficher/Cacher les éléments de collaboration selon le plan utilisateur
+        function updateCollaborationUI() {
+            const userPlan = localStorage.getItem('user_plan') || 'solo';
+            const isAgencyPlan = ['agency_starter', 'agency_scale', 'enterprise'].includes(userPlan);
+
+            // Workspace Switcher
+            const workspaceSwitcher = document.getElementById('workspaceSwitcher');
+            if (workspaceSwitcher) {
+                workspaceSwitcher.style.display = isAgencyPlan ? 'block' : 'none';
+            }
+
+            // Notifications
+            const notificationBtn = document.getElementById('notificationBtn');
+            if (notificationBtn) {
+                notificationBtn.style.display = isAgencyPlan ? 'flex' : 'none';
+            }
+
+            // Team Management button
+            const teamBtn = document.getElementById('teamManagementBtn');
+            if (teamBtn) {
+                teamBtn.style.display = isAgencyPlan ? 'flex' : 'none';
+            }
+        }
+
+        // Écouter les changements de plan
+        window.addEventListener('userPlanUpdated', updateCollaborationUI);
+
+        // Initialiser au chargement
+        document.addEventListener('DOMContentLoaded', () => {
+            // Attendre un peu que l'auth soit chargée
+            setTimeout(updateCollaborationUI, 1000);
         });
     </script>
 

@@ -12,6 +12,33 @@ const ANTHROPIC_API_KEY = 'YOUR_ANTHROPIC_API_KEY';
 const PERPLEXITY_API_KEY = 'YOUR_PERPLEXITY_API_KEY';
 const BREVO_API_KEY = 'YOUR_BREVO_API_KEY';
 
+// ============ CORS CONFIGURATION ============
+const ALLOWED_ORIGINS = [
+    'https://sos-storytelling.netlify.app',
+    'https://sosstorytelling.fr',
+    'https://www.sosstorytelling.fr',
+    'http://localhost:3000',
+    'http://localhost:5173'
+];
+
+function getCorsHeaders(request) {
+    const origin = request.headers.get('Origin') || '';
+    let allowedOrigin = '';
+
+    if (ALLOWED_ORIGINS.includes(origin)) {
+        allowedOrigin = origin;
+    } else if (origin.startsWith('chrome-extension://')) {
+        allowedOrigin = origin;
+    }
+
+    return {
+        'Access-Control-Allow-Origin': allowedOrigin,
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Content-Type': 'application/json'
+    };
+}
+
 // ==================== MAIN HANDLER ====================
 export default {
     async fetch(request, env, ctx) {
@@ -24,12 +51,7 @@ export default {
             brevoKey: env.BREVO_API_KEY || BREVO_API_KEY
         };
 
-        const corsHeaders = {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-            'Content-Type': 'application/json'
-        };
+        const corsHeaders = getCorsHeaders(request);
 
         // Handle CORS preflight
         if (request.method === 'OPTIONS') {

@@ -6,7 +6,7 @@
     
     <!-- SEO Meta Tags -->
     <title>SOS Storytelling - Création de contenu IA pour réseaux sociaux | Agences & Freelances</title>
-    <meta name="description" content="Générez du contenu percutant pour LinkedIn, Instagram, TikTok en 30 secondes. Structures narratives éprouvées, calendrier éditorial IA, voix de marque unique. Essai gratuit 14 jours.">
+    <meta name="description" content="L'IA qui comprend votre business et crée du contenu qui vous ressemble. Générez du contenu avec du storytelling pour vos réseaux sociaux en quelques clics. Essai gratuit de 7 jours.">
     <meta name="keywords" content="création contenu IA, automatisation réseaux sociaux, calendrier éditorial, community manager, social media manager, génération contenu LinkedIn, outil agence social media, storytelling IA">
     <meta name="author" content="My Inner Quest">
     <meta name="robots" content="index, follow">
@@ -15,14 +15,14 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://myinnerquest.fr/sos-storytelling">
-    <meta property="og:title" content="SOS Storytelling - L'IA qui crée du contenu qui captive">
-    <meta property="og:description" content="Générez du contenu percutant pour vos réseaux sociaux en 30 secondes. Essai gratuit 14 jours.">
+    <meta property="og:title" content="SOS Storytelling - L'IA qui comprend votre business et crée du contenu qui vous ressemble">
+    <meta property="og:description" content="Générez du contenu avec du storytelling pour vos réseaux sociaux en quelques clics. Essai gratuit de 7 jours.">
     <meta property="og:image" content="https://myinnerquest.fr/images/sos-storytelling-og.png">
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="SOS Storytelling - L'IA qui crée du contenu qui captive">
-    <meta name="twitter:description" content="Générez du contenu percutant pour vos réseaux sociaux en 30 secondes.">
+    <meta name="twitter:title" content="SOS Storytelling - L'IA qui comprend votre business et crée du contenu qui vous ressemble">
+    <meta name="twitter:description" content="Générez du contenu avec du storytelling pour vos réseaux sociaux en quelques clics. Essai gratuit de 7 jours.">
     
     <!-- Schema.org JSON-LD -->
     <script type="application/ld+json">
@@ -235,6 +235,48 @@
         }
         .btn-cta:hover::before { left: 100%; }
         .btn-cta:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(102,126,234,0.4); }
+
+        .btn-login {
+            color: white;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: transparent;
+        }
+        .btn-login:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(245, 87, 108, 0.1);
+        }
+
+        /* Language Toggle */
+        .lang-toggle {
+            display: flex;
+            gap: 5px;
+            background: rgba(255,255,255,0.1);
+            padding: 4px;
+            border-radius: 20px;
+        }
+        .lang-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.6);
+            padding: 6px 12px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            font-size: 0.85em;
+            transition: all 0.3s;
+        }
+        .lang-btn:hover { color: #fff; }
+        .lang-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: #fff;
+        }
 
         /* Mobile Menu */
         .menu-toggle { display: none; background: none; border: none; cursor: pointer; padding: 10px; z-index: 101; }
@@ -483,104 +525,55 @@
             color: var(--accent-light);
         }
 
-        /* Video Placeholder */
-        .video-placeholder {
+        /* Video Container - Vimeo Embed */
+        .video-container {
             position: relative;
             width: 100%;
-            max-width: 700px;
-            aspect-ratio: 16/9;
+            max-width: 800px;
             margin: 0 auto 40px;
             border-radius: 20px;
             overflow: hidden;
             background: linear-gradient(135deg, rgba(102,126,234,0.15), rgba(245,87,108,0.1));
-            border: 1px solid rgba(255,255,255,0.1);
-            cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.1);
             transition: all 0.4s;
             animation: fadeInUp 1s ease-out 0.8s both;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
         }
-        .video-placeholder::before {
+        .video-container::before {
             content: '';
             position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.3) 100%);
-        }
-        .video-placeholder::after {
-            content: '';
-            position: absolute;
-            inset: -2px;
+            inset: -3px;
             background: linear-gradient(45deg, var(--primary), transparent, var(--accent), transparent);
             border-radius: 22px;
             z-index: -1;
-            animation: border-rotate 3s linear infinite;
-            opacity: 0;
-            transition: opacity 0.3s;
+            animation: border-rotate 4s linear infinite;
+            opacity: 0.5;
         }
-        .video-placeholder:hover::after { opacity: 1; }
         @keyframes border-rotate {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        .video-placeholder:hover {
-            transform: scale(1.02);
+        .video-container:hover {
+            transform: scale(1.01);
             border-color: var(--primary);
-            box-shadow: 0 0 60px rgba(102,126,234,0.3);
+            box-shadow: 0 30px 80px rgba(102,126,234,0.3);
         }
-        .video-placeholder-content {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
+        .video-container:hover::before {
+            opacity: 1;
         }
-        .play-button {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-            box-shadow: 0 0 40px rgba(102,126,234,0.4);
-            animation: pulse 2s ease-in-out infinite;
+        .video-wrapper {
             position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
         }
-        .play-button::before {
-            content: '';
+        .video-wrapper iframe {
             position: absolute;
-            inset: -10px;
-            border: 2px solid var(--primary);
-            border-radius: 50%;
-            animation: ripple 1.5s ease-out infinite;
-        }
-        .play-button::after {
-            content: '';
-            position: absolute;
-            inset: -20px;
-            border: 1px solid var(--primary);
-            border-radius: 50%;
-            animation: ripple 1.5s ease-out infinite 0.5s;
-        }
-        @keyframes ripple {
-            0% { transform: scale(1); opacity: 0.5; }
-            100% { transform: scale(1.5); opacity: 0; }
-        }
-        .play-button svg {
-            width: 30px;
-            height: 30px;
-            fill: #fff;
-            margin-left: 5px;
-        }
-        .video-placeholder:hover .play-button {
-            transform: scale(1.1);
-            box-shadow: 0 0 60px rgba(102,126,234,0.6);
-        }
-        .video-placeholder span {
-            font-size: 1.1em;
-            font-weight: 500;
-            color: rgba(255,255,255,0.8);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
         }
         
         @keyframes pulse {
@@ -1129,6 +1122,11 @@
             }
             .nav.active { transform: translateX(0); }
             .nav a { font-size: 1.2em; }
+            .nav .btn-login {
+                margin-top: 10px;
+                padding: 12px 30px;
+                font-size: 1em;
+            }
             .nav .btn-cta {
                 margin-top: 15px;
                 padding: 15px 35px;
@@ -1144,7 +1142,7 @@
             .hero { padding: 100px 15px 80px; overflow: visible; min-height: auto; }
             .hero h1 { font-size: clamp(1.8em, 7vw, 2.8em); }
             .hero p { font-size: 1.1em; padding: 0 10px; }
-            .video-placeholder { max-width: 100%; margin: 0 auto 30px; }
+            .video-container { max-width: 100%; margin: 0 auto 30px; }
 
             /* Fix boutons hero */
             .hero-cta { gap: 12px; padding: 0 15px; flex-direction: column; align-items: center; width: 100%; box-sizing: border-box; }
@@ -1265,10 +1263,11 @@
         </button>
         <nav class="nav" id="nav">
             <a href="#fonctionnalites">Fonctionnalités</a>
-            <a href="#usecases">Pour qui ?</a>
-            <!-- BETA: Masqué temporairement <a href="#tarifs">Tarifs</a> -->
+            <a href="#tarifs">Tarifs</a>
+            <a href="business.html" style="color: #f5576c;">Coachs & Agences</a>
             <a href="#faq">FAQ</a>
             <a href="mailto:contact@myinnerquest.fr">Contact</a>
+            <a href="login.html" class="btn-login">Se connecter</a>
             <a href="login.html" class="btn-cta">Essai gratuit</a>
         </nav>
     </header>
@@ -1292,35 +1291,35 @@
             <div class="hero-orb hero-orb-3"></div>
             
             <div class="hero-content">
-                <span class="badge">✨ Personal Branding & Storytelling</span>
+                <span class="badge" style="background: linear-gradient(135deg, #ef4444, #dc2626); animation: pulse 2s infinite;">⏰ Offre Early Adopter — Jusqu'au 20 février</span>
                 <h1 class="hero-title">
-                    <span class="word" style="animation-delay: 0.3s">L'IA</span>
-                    <span class="word" style="animation-delay: 0.4s">qui</span>
-                    <span class="word" style="animation-delay: 0.5s">connaît</span>
-                    <span class="word gradient" style="animation-delay: 0.6s">ton business</span>
-                    <span class="word" style="animation-delay: 0.8s">et</span>
-                    <span class="word" style="animation-delay: 0.9s">écrit</span>
-                    <span class="word gradient" style="animation-delay: 1.0s">comme toi.</span>
+                    <span class="word" style="animation-delay: 0.3s">Crée du contenu</span>
+                    <span class="word gradient" style="animation-delay: 0.5s">qui te ressemble.</span>
+                    <span class="word" style="animation-delay: 0.7s">Trouve des clients</span>
+                    <span class="word gradient" style="animation-delay: 0.9s">qui te correspondent.</span>
                 </h1>
-                <p class="hero-subtitle">SOS Storytelling analyse tes textes, ton activité et tes objectifs grâce à un onboarding intelligent, puis génère pour toi des contenus et newsletters alignés à ton style, ton offre et ton client idéal.</p>
-
+                <p class="hero-subtitle">L'outil IA tout-en-un qui apprend ton style d'écriture, génère ton contenu ET personnalise ta prospection — sans sonner comme tout le monde.</p>
 
                 <div class="hero-cta">
-                    <a href="login.html" class="btn-primary">Essayer gratuitement →</a>
-                    <a href="#videoPlaceholder" class="btn-secondary">▶ Voir une démo</a>
+                    <a href="https://myinnerquest.lemonsqueezy.com/buy/74412bb8-7df8-4d11-a7bb-c8434dc687a7" class="btn-primary" style="font-size: 1.1em;">Commencer à 77€/mois →</a>
+                    <a href="#audit-section" class="btn-secondary">🔍 Faire mon audit gratuit</a>
                 </div>
-                <p class="hero-note">✓ Sans carte bancaire • ✓ 7 jours gratuits • ✓ Annulation libre</p>
+                <p class="hero-note">✅ 15h/semaine récupérées • ✅ Style cloné en 3 textes • ✅ Données hébergées en Europe 🇫🇷</p>
 
             </div>
 
-            <!-- Video Placeholder -->
-            <div class="video-placeholder" id="videoPlaceholder">
-                <div class="video-placeholder-content">
-                    <div class="play-button">
-                        <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
-                    </div>
-                    <span>Voir SOS Storytelling en action</span>
+            <!-- Video Vimeo -->
+            <div class="video-container" id="videoPlaceholder">
+                <div class="video-wrapper">
+                    <iframe
+                        src="https://player.vimeo.com/video/1145776241?badge=0&autopause=0&player_id=0&app_id=58479&title=0&byline=0&portrait=0"
+                        frameborder="0"
+                        allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
+                        title="SOS Storytelling - Présentation"
+                        loading="lazy">
+                    </iframe>
                 </div>
+                <script src="https://player.vimeo.com/api/player.js"></script>
             </div>
             
             <div class="scroll-indicator" onclick="document.getElementById('fonctionnalites').scrollIntoView({behavior: 'smooth'})">
@@ -1329,47 +1328,92 @@
             </div>
         </section>
 
-        <!-- Features Section -->
+        <!-- Problem Section -->
+        <section class="problem-section" style="padding: 80px 40px; background: linear-gradient(180deg, var(--dark) 0%, rgba(245,87,108,0.05) 100%);">
+            <div style="max-width: 900px; margin: 0 auto; text-align: center;">
+                <h2 class="section-title" style="font-size: 2em; margin-bottom: 20px;">Tu passes 15h/semaine à créer du contenu.<br>Et LinkedIn t'affiche 7 impressions.</h2>
+                <p class="section-subtitle" style="margin-bottom: 50px;">On connaît. Voici ce que tu vis probablement :</p>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px;">
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 30px; text-align: left;">
+                        <div style="font-size: 2em; margin-bottom: 15px;">😴</div>
+                        <h3 style="color: #f5576c; font-size: 1.1em; margin-bottom: 10px;">"ChatGPT écrit du contenu fade"</h3>
+                        <p style="color: rgba(255,255,255,0.6); font-size: 0.95em;">Ça ne te ressemble pas, tes prospects le sentent. Tu passes plus de temps à réécrire qu'à créer.</p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 30px; text-align: left;">
+                        <div style="font-size: 2em; margin-bottom: 15px;">👻</div>
+                        <h3 style="color: #f5576c; font-size: 1.1em; margin-bottom: 10px;">"Mes DM restent sans réponse"</h3>
+                        <p style="color: rgba(255,255,255,0.6); font-size: 0.95em;">Messages copiés-collés = ignorés. Tes prospects voient que c'est du mass mailing déguisé.</p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 30px; text-align: left;">
+                        <div style="font-size: 2em; margin-bottom: 15px;">🤯</div>
+                        <h3 style="color: #f5576c; font-size: 1.1em; margin-bottom: 10px;">"Je n'ai pas le temps de tout faire"</h3>
+                        <p style="color: rgba(255,255,255,0.6); font-size: 0.95em;">Tu jongles entre 5 outils differents. Contenu, prospection, emails, planning... Ca ne finit jamais.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section - 4 Modes -->
         <section class="features" id="fonctionnalites">
-            <h2 class="section-title">Tout ce qu'il vous faut pour créer du contenu impactant</h2>
-            <p class="section-subtitle">Des fonctionnalités pensées pour les créateurs exigeants et les agences performantes</p>
-            
-            <div class="features-grid">
-                <article class="feature-card">
-                    <div class="feature-icon">📖</div>
-                    <h3>20+ Structures Narratives</h3>
-                    <p>AIDA, PAS, Storytelling, Hook-Story-Offer... Choisissez la structure qui captive votre audience. Chaque framework est optimisé pour convertir.</p>
-                </article>
-                
-                <article class="feature-card">
-                    <div class="feature-icon">🎤</div>
-                    <h3>Ma Voix - Votre ADN</h3>
-                    <p>L'IA apprend votre style d'écriture et mémorise vos préférences. Plus vous l'utilisez, plus elle vous ressemble. Fini le contenu générique.</p>
-                </article>
-                
-                <article class="feature-card">
-                    <div class="feature-icon">🗓️</div>
-                    <h3>Planning IA Automatisé</h3>
-                    <p>Générez un calendrier éditorial complet en un clic. L'IA équilibre vos piliers de contenu et optimise les horaires de publication.</p>
-                </article>
-                
-                <article class="feature-card">
-                    <div class="feature-icon">🔥</div>
-                    <h3>TRENDS en Temps Réel</h3>
-                    <p>Détectez les sujets tendances de votre secteur. Ne ratez plus jamais une opportunité de surfer sur l'actualité.</p>
-                </article>
-                
-                <article class="feature-card">
-                    <div class="feature-icon">📤</div>
-                    <h3>Export Multi-Outils</h3>
-                    <p>Exportez vers Metricool, Swello, Buffer ou CSV en un clic. Compatible avec tous vos outils de planification existants.</p>
-                </article>
-                
-                <article class="feature-card">
-                    <div class="feature-icon">👥</div>
-                    <h3>Mode Multi-Clients</h3>
-                    <p>Gérez jusqu'à 30 clients avec des profils de voix distincts. Dashboard analytics, exports bulk, rapports détaillés.</p>
-                </article>
+            <h2 class="section-title">4 modes. Un seul outil. Zéro prise de tête.</h2>
+            <p class="section-subtitle">Choisis ce que tu veux faire, l'IA s'occupe du reste</p>
+
+            <div style="max-width: 1100px; margin: 0 auto; display: grid; gap: 40px;">
+
+                <!-- Mode CREER -->
+                <div style="background: linear-gradient(135deg, rgba(102,126,234,0.15) 0%, rgba(118,75,162,0.1) 100%); border: 1px solid rgba(102,126,234,0.3); border-radius: 20px; padding: 40px; display: grid; grid-template-columns: auto 1fr; gap: 30px; align-items: start;">
+                    <div style="font-size: 3em;">✨</div>
+                    <div>
+                        <h3 style="font-size: 1.5em; margin-bottom: 8px; color: #667eea;">CRÉER — Attirer avec tes contenus</h3>
+                        <p style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">Posts réseaux sociaux, newsletters, emails de lancement... Tout avec TON style.</p>
+                        <ul style="list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px;">
+                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ Posts LinkedIn, Instagram, TikTok</li>
+                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ Newsletters prêtes à envoyer</li>
+                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ 20+ structures narratives (AIDA, PAS...)</li>
+                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ Emails de lancement & séquences</li>
+                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ Idées contextualisées à ton secteur</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Mode PROSPECTER -->
+                <div style="background: linear-gradient(135deg, rgba(240,147,251,0.15) 0%, rgba(245,87,108,0.1) 100%); border: 1px solid rgba(240,147,251,0.3); border-radius: 20px; padding: 40px; display: grid; grid-template-columns: auto 1fr; gap: 30px; align-items: start;">
+                    <div style="font-size: 3em;">🎯</div>
+                    <div>
+                        <h3 style="font-size: 1.5em; margin-bottom: 8px; color: #f093fb;">PROSPECTER — Trouver et contacter tes clients idéaux <span style="background: #10b981; color: white; font-size: 0.6em; padding: 4px 10px; border-radius: 10px; margin-left: 10px;">NOUVEAU</span></h3>
+                        <p style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">L'IA analyse les contenus publics de tes prospects et crée des messages personnalisés.</p>
+                        <ul style="list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px;">
+                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ Analyse les posts récents de tes prospects</li>
+                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ Messages DM contextualisés</li>
+                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ Import contacts (LinkedIn, CSV)</li>
+                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ Séquences de prospection automatisées</li>
+                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ Inbox Intelligente : tri auto des réponses</li>
+                        </ul>
+                        <div style="margin-top: 25px;">
+                            <a href="https://sosextensionprosp.netlify.app/prospects?from=sos" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #f093fb, #f5576c); color: white; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 600; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 10px 30px rgba(240,147,251,0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                                🎯 Essayer la prospection par DM
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mode MULTI-AGENTS -->
+                <div style="background: linear-gradient(135deg, rgba(30,41,59,0.8) 0%, rgba(51,65,85,0.6) 100%); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 40px; display: grid; grid-template-columns: auto 1fr; gap: 30px; align-items: start;">
+                    <div style="font-size: 3em;">🚀</div>
+                    <div>
+                        <h3 style="font-size: 1.5em; margin-bottom: 8px; color: white;">MULTI-AGENTS — L'IA gère pour toi <span style="background: #10b981; color: white; font-size: 0.6em; padding: 4px 10px; border-radius: 10px; margin-left: 10px;">NOUVEAU</span></h3>
+                        <p style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">Tu valides, l'IA exécute. Contenu + prospection + emails en pilote automatique.</p>
+                        <ul style="list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px;">
+                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ "Crée mon contenu du mois" → 1 clic</li>
+                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ Prospection automatisée</li>
+                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ Tu gardes le contrôle</li>
+                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ Sans faire le travail</li>
+                        </ul>
+                    </div>
+                </div>
+
             </div>
         </section>
 
@@ -1378,57 +1422,54 @@
             <div class="stats-grid">
                 <div class="stat-item">
                     <h3>20+</h3>
-                    <p>Structures narratives</p>
+                    <p data-i18n="stats.s1">Structures narratives</p>
                 </div>
                 <div class="stat-item">
                     <h3>30sec</h3>
-                    <p>Pour un contenu parfait</p>
+                    <p data-i18n="stats.s2">Pour un contenu parfait</p>
                 </div>
                 <div class="stat-item">
                     <h3>7</h3>
-                    <p>Plateformes supportées</p>
+                    <p data-i18n="stats.s3">Plateformes supportées</p>
                 </div>
                 <div class="stat-item">
                     <h3>∞</h3>
-                    <p>D'inspiration créative</p>
+                    <p data-i18n="stats.s4">D'inspiration créative</p>
                 </div>
             </div>
         </section>
 
         <!-- Use Cases Section -->
         <section class="use-cases" id="usecases">
-            <h2 class="section-title">Conçu pour ceux qui créent du contenu sérieusement</h2>
-            <p class="section-subtitle">Que vous soyez freelance ou agence, SOS Storytelling s'adapte à votre workflow</p>
-            
-            <div class="use-cases-grid">
-                <article class="use-case-card">
-                    <h3>👤 Freelance / Solopreneur</h3>
-                    <p>Créez du contenu consistant sans y passer des heures. Gardez votre voix authentique tout en multipliant votre présence en ligne.</p>
+            <h2 class="section-title">Pour qui ?</h2>
+            <p class="section-subtitle">SOS Storytelling s'adapte à votre métier et vos ambitions</p>
+
+            <div class="use-cases-grid" style="max-width: 1000px; margin: 0 auto; grid-template-columns: repeat(3, 1fr);">
+                <article class="use-case-card" style="text-align: center; padding: 40px 30px;">
+                    <div style="font-size: 3em; margin-bottom: 20px;">👤</div>
+                    <h3 style="font-size: 1.3em; margin-bottom: 15px;">Créateurs individuels</h3>
+                    <p style="color: rgba(255,255,255,0.7); line-height: 1.6;">Freelances, consultants, personal branding... Créez du contenu qui vous ressemble et trouvez des clients qualifiés, sans y passer vos journées.</p>
+                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <span style="background: rgba(139,92,246,0.2); color: #a78bfa; padding: 5px 12px; border-radius: 20px; font-size: 0.85em;">Plan SOLO</span>
+                    </div>
                 </article>
-                
-                <article class="use-case-card">
-                    <h3>📱 Community Manager</h3>
-                    <p>Générez des idées fraîches pour vos clients, respectez leurs guidelines de marque, et exportez directement vers vos outils de planification.</p>
+
+                <article class="use-case-card" style="text-align: center; padding: 40px 30px;">
+                    <div style="font-size: 3em; margin-bottom: 20px;">🎓</div>
+                    <h3 style="font-size: 1.3em; margin-bottom: 15px;">Coachs & Formateurs</h3>
+                    <p style="color: rgba(255,255,255,0.7); line-height: 1.6;">Équipez vos coachées avec un outil professionnel en white label. Votre marque, vos méthodes, leur succès.</p>
+                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <a href="business.html" style="background: rgba(245,87,108,0.2); color: #f5576c; padding: 5px 12px; border-radius: 20px; font-size: 0.85em; text-decoration: none;">Plan WHITE LABEL →</a>
+                    </div>
                 </article>
-                
-                <article class="use-case-card">
-                    <h3>🏢 Agence Social Media</h3>
-                    <p>Gérez plusieurs clients avec des voix distinctes, suivez la production de contenu avec le dashboard analytics, et scalez votre activité.</p>
-                </article>
-                
-                <article class="use-case-card">
-                    <h3>🎯 Consultant Marketing</h3>
-                    <p>Impressionnez vos clients avec des contenus structurés et percutants. Utilisez les frameworks éprouvés pour maximiser l'engagement.</p>
-                </article>
-                
-                <article class="use-case-card">
-                    <h3>🛍️ E-commerce</h3>
-                    <p>Créez du contenu produit qui convertit. Storytelling, témoignages, lancements... Tout est optimisé pour la vente.</p>
-                </article>
-                
-                <article class="use-case-card">
-                    <h3>👩‍💼 Personal Branding</h3>
-                    <p>Développez votre marque personnelle avec du contenu qui vous ressemble. LinkedIn, Instagram, TikTok... Soyez partout, authentiquement.</p>
+
+                <article class="use-case-card" style="text-align: center; padding: 40px 30px;">
+                    <div style="font-size: 3em; margin-bottom: 20px;">🏢</div>
+                    <h3 style="font-size: 1.3em; margin-bottom: 15px;">Agences & Équipes</h3>
+                    <p style="color: rgba(255,255,255,0.7); line-height: 1.6;">Gérez plusieurs clients avec des voix distinctes. Planning multi-clients, analytics, exports bulk... Scalez votre production de contenu.</p>
+                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <a href="business.html" style="background: rgba(245,87,108,0.2); color: #f5576c; padding: 5px 12px; border-radius: 20px; font-size: 0.85em; text-decoration: none;">Plan WHITE LABEL →</a>
+                    </div>
                 </article>
             </div>
         </section>
@@ -1457,133 +1498,205 @@
 
         <!-- Pricing Section -->
         <section id="tarifs">
-            <h2 class="section-title">Testez gratuitement pendant 7 jours</h2>
-            <p class="section-subtitle">Accès complet, sans carte bancaire. Vous décidez ensuite.</p>
+            <h2 class="section-title">Un prix simple, tout inclus</h2>
+            <p class="section-subtitle">Pas de fonctionnalités cachées. Tout est débloqué dès le premier jour.</p>
 
-            <!-- Trial Banner -->
-            <div class="trial-banner">
-                <h3>🚀 Essai gratuit 7 jours</h3>
-                <p>Accès complet à toutes les fonctionnalités. Découvrez "Ma Voix" et le Planning IA sans limite.</p>
-                <a href="login.html" class="btn-primary">Commencer l'essai gratuit</a>
-                <p style="margin-top: 20px; font-size: 0.9em; opacity: 0.8; position: relative;">✓ Sans carte bancaire • ✓ Annulation libre • ✓ Données exportables</p>
-            </div>
-            
-            <p style="text-align: center; color: rgba(255,255,255,0.6); margin-bottom: 40px;">Après l'essai, choisissez votre plan :</p>
-            
-            <div class="pricing-grid">
-                <article class="pricing-card">
-                    <h3>Solo</h3>
-                    <p class="pricing-subtitle">Pour les créateurs individuels</p>
-                    <div class="pricing-price">39€<span>/mois</span></div>
-                    <ul class="pricing-features">
-                        <li>Contenus illimités</li>
-                        <li>🎤 Ma Voix complète</li>
-                        <li>TRENDS illimité</li>
-                        <li>Planning IA</li>
-                        <li>Export CSV & outils</li>
-                        <li>Support prioritaire</li>
-                    </ul>
-                    <a href="https://myinnerquest.lemonsqueezy.com/buy/74412bb8-7df8-4d11-a7bb-c8434dc687a7" class="pricing-btn secondary">Choisir Solo</a>
-                </article>
+            <!-- Early Adopter Main Card -->
+            <div style="max-width: 600px; margin: 0 auto;">
+                <article style="background: linear-gradient(145deg, rgba(139,92,246,0.15), rgba(245,87,108,0.1)); border: 2px solid rgba(139,92,246,0.4); border-radius: 24px; padding: 50px 40px; text-align: center; position: relative; overflow: hidden;">
 
-                <article class="pricing-card">
-                    <h3>Agence Starter</h3>
-                    <p class="pricing-subtitle">Jusqu'à 10 clients</p>
-                    <div class="pricing-price">99€<span>/mois</span></div>
-                    <ul class="pricing-features">
-                        <li>Tout de Solo +</li>
-                        <li>🎤 Voix PAR CLIENT</li>
-                        <li>Import CSV clients</li>
-                        <li>Dashboard analytics</li>
-                        <li>Planning multi-clients</li>
-                        <li>Support dédié</li>
-                    </ul>
-                    <a href="https://myinnerquest.lemonsqueezy.com/buy/c743c114-dc29-48a3-b34b-0fd30d3db204" class="pricing-btn secondary">Choisir Starter</a>
-                </article>
+                    <!-- Badge Early Adopter -->
+                    <div style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #ef4444, #dc2626); color: white; padding: 8px 20px; border-radius: 30px; font-size: 0.85em; font-weight: 600; animation: pulse 2s infinite;">
+                        🚀 Offre Early Adopter — 100 premiers comptes / avant le 20 février
+                    </div>
 
-                <article class="pricing-card popular">
-                    <span class="pricing-badge">Populaire</span>
-                    <h3>Agence Scale</h3>
-                    <p class="pricing-subtitle">Jusqu'à 30 clients</p>
-                    <div class="pricing-price">199€<span>/mois</span></div>
-                    <ul class="pricing-features">
-                        <li>Tout de Starter +</li>
-                        <li>🎤 30 profils de voix</li>
-                        <li>Analytics avancées</li>
-                        <li>Exports bulk illimités</li>
-                        <li>Onboarding équipe</li>
-                        <li>Support prioritaire</li>
+                    <h3 style="font-size: 2em; margin-top: 30px; margin-bottom: 10px;">Plan SOLO</h3>
+                    <p style="color: rgba(255,255,255,0.6); margin-bottom: 30px;">Pour les créateurs individuels</p>
+
+                    <!-- Toggle Mensuel/Annuel -->
+                    <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 30px;">
+                        <button onclick="showMonthly()" id="btn-monthly" style="background: rgba(139,92,246,0.3); color: #fff; border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; font-weight: 600; transition: all 0.3s;">Mensuel</button>
+                        <button onclick="showAnnual()" id="btn-annual" style="background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; font-weight: 600; transition: all 0.3s;">Annuel <span style="background: #22c55e; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75em; margin-left: 5px;">-20%</span></button>
+                    </div>
+
+                    <!-- Prix Mensuel -->
+                    <div id="price-monthly" style="margin-bottom: 30px;">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                            <span style="font-size: 2em; color: rgba(255,255,255,0.4); text-decoration: line-through;">97€</span>
+                            <span style="font-size: 4em; font-weight: 800; background: linear-gradient(135deg, #8b5cf6, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">77€</span>
+                            <span style="color: rgba(255,255,255,0.6);">/mois</span>
+                        </div>
+                        <p style="color: #22c55e; font-size: 0.9em; margin-top: 10px;">🚀 <strong>Early Adopter</strong> : 77€/mois au lieu de 97€ jusqu'au 15 février</p>
+                    </div>
+
+                    <!-- Prix Annuel (caché par défaut) -->
+                    <div id="price-annual" style="margin-bottom: 30px; display: none;">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                            <span style="font-size: 2em; color: rgba(255,255,255,0.4); text-decoration: line-through;">924€</span>
+                            <span style="font-size: 4em; font-weight: 800; background: linear-gradient(135deg, #22c55e, #4ade80); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">770€</span>
+                            <span style="color: rgba(255,255,255,0.6);">/an</span>
+                        </div>
+                        <p style="color: #22c55e; font-size: 0.9em; margin-top: 10px;">🚀 Early Adopter : 770€/an (64€/mois) jusqu'au 15 février</p>
+                    </div>
+
+                    <!-- Features List -->
+                    <ul style="list-style: none; text-align: left; max-width: 350px; margin: 0 auto 30px;">
+                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 10px;">
+                            <span style="color: #22c55e;">✓</span> Contenus illimités (posts, carrousels, vidéos...)
+                        </li>
+                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 10px;">
+                            <span style="color: #22c55e;">✓</span> 🎤 Ma Voix — Clone ton style d'écriture
+                        </li>
+                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 10px;">
+                            <span style="color: #22c55e;">✓</span> 🔍 Prospection automatisée LinkedIn
+                        </li>
+                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 10px;">
+                            <span style="color: #22c55e;">✓</span> 📊 Audit GEO + Réseaux sociaux
+                        </li>
+                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 10px;">
+                            <span style="color: #22c55e;">✓</span> 📅 Planning IA personnalisé
+                        </li>
+                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 10px;">
+                            <span style="color: #22c55e;">✓</span> Export vers Metricool, Buffer, Swello...
+                        </li>
+                        <li style="padding: 10px 0; display: flex; align-items: center; gap: 10px;">
+                            <span style="color: #22c55e;">✓</span> Support prioritaire par email
+                        </li>
                     </ul>
-                    <a href="https://myinnerquest.lemonsqueezy.com/buy/0177ea61-1b2b-4897-8913-2f6b0ce8afa7" class="pricing-btn primary">Choisir Scale</a>
-                </article>
-                
-                <article class="pricing-card">
-                    <h3>Enterprise</h3>
-                    <p class="pricing-subtitle">30+ clients, sur devis</p>
-                    <div class="pricing-price" style="font-size: 1.8em;">À partir de<br>300€<span>/mois</span></div>
-                    <ul class="pricing-features">
-                        <li>Clients illimités</li>
-                        <li>Multi-utilisateurs</li>
-                        <li>API & SSO</li>
-                        <li>Voix sur-mesure</li>
-                        <li>Onboarding personnalisé</li>
-                        <li>Account manager dédié</li>
-                    </ul>
-                    <a href="mailto:contact@myinnerquest.fr" class="pricing-btn secondary">Nous contacter</a>
+
+                    <!-- CTA -->
+                    <a href="login.html" style="display: inline-block; background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white; padding: 18px 50px; border-radius: 30px; text-decoration: none; font-weight: 700; font-size: 1.1em; transition: all 0.3s; box-shadow: 0 10px 30px rgba(139,92,246,0.4);">
+                        Commencer l'essai gratuit 7 jours
+                    </a>
+                    <p style="margin-top: 15px; color: rgba(255,255,255,0.5); font-size: 0.85em;">✓ Sans carte bancaire • ✓ Annulation en 1 clic</p>
+
+                    <!-- Garantie -->
+                    <div style="margin-top: 30px; padding: 20px; background: rgba(34,197,94,0.1); border-radius: 15px; border: 1px solid rgba(34,197,94,0.3);">
+                        <p style="color: #22c55e; font-weight: 600; margin-bottom: 5px;">🛡️ Garantie satisfait ou remboursé 14 jours</p>
+                        <p style="color: rgba(255,255,255,0.6); font-size: 0.85em;">Si l'outil ne vous convient pas, on vous rembourse. Sans questions.</p>
+                    </div>
                 </article>
             </div>
-            
-            <div style="text-align: center; margin-top: 50px; padding: 30px; background: rgba(255,255,255,0.03); border-radius: 20px; max-width: 600px; margin-left: auto; margin-right: auto;">
-                <p style="color: rgba(255,255,255,0.7); font-size: 0.95em;">💡 <strong>Pendant votre essai, atteignez ces 2 moments clés :</strong></p>
-                <p style="color: rgba(255,255,255,0.5); font-size: 0.9em; margin-top: 10px;">1. Voir votre score de fidélité "Ma Voix" • 2. Générer votre premier Planning IA</p>
+
+            <!-- Comparaison outils -->
+            <div style="max-width: 700px; margin: 60px auto 0; text-align: center;">
+                <h3 style="font-size: 1.3em; margin-bottom: 30px; color: rgba(255,255,255,0.9);">Ce que vous payeriez ailleurs :</h3>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px;">
+                    <div style="background: rgba(255,255,255,0.05); padding: 20px 15px; border-radius: 15px;">
+                        <p style="font-weight: 600; margin-bottom: 5px;">Jasper</p>
+                        <p style="color: #ef4444; font-size: 1.2em;">59€/mois</p>
+                        <p style="font-size: 0.75em; color: rgba(255,255,255,0.4);">Contenu seul</p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 20px 15px; border-radius: 15px;">
+                        <p style="font-weight: 600; margin-bottom: 5px;">Taplio</p>
+                        <p style="color: #ef4444; font-size: 1.2em;">49€/mois</p>
+                        <p style="font-size: 0.75em; color: rgba(255,255,255,0.4);">LinkedIn seul</p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 20px 15px; border-radius: 15px;">
+                        <p style="font-weight: 600; margin-bottom: 5px;">Phantombuster</p>
+                        <p style="color: #ef4444; font-size: 1.2em;">59€/mois</p>
+                        <p style="font-size: 0.75em; color: rgba(255,255,255,0.4);">Scraping seul</p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 20px 15px; border-radius: 15px;">
+                        <p style="font-weight: 600; margin-bottom: 5px;">Total</p>
+                        <p style="color: #ef4444; font-size: 1.2em; text-decoration: line-through;">167€/mois</p>
+                        <p style="font-size: 0.75em; color: rgba(255,255,255,0.4);">3 outils séparés</p>
+                    </div>
+                </div>
+                <p style="color: rgba(255,255,255,0.6); font-size: 0.95em;">
+                    <strong style="color: #22c55e;">SOS Storytelling = 77€/mois</strong> pour tout en un seul endroit
+                </p>
             </div>
+
+            <!-- Lien vers B2B -->
+            <div style="text-align: center; margin-top: 50px; padding: 30px; background: rgba(245,87,108,0.1); border-radius: 20px; border: 1px solid rgba(245,87,108,0.2); max-width: 600px; margin-left: auto; margin-right: auto;">
+                <p style="color: rgba(255,255,255,0.8); font-size: 1em; margin-bottom: 15px;">
+                    🎓 <strong>Coach ou formateur ?</strong> Équipez vos clients avec notre solution white label
+                </p>
+                <a href="business.html" style="color: #f5576c; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+                    Découvrir l'offre WHITE LABEL →
+                </a>
+            </div>
+
+            <script>
+                function showMonthly() {
+                    document.getElementById('price-monthly').style.display = 'block';
+                    document.getElementById('price-annual').style.display = 'none';
+                    document.getElementById('btn-monthly').style.background = 'rgba(139,92,246,0.3)';
+                    document.getElementById('btn-monthly').style.color = '#fff';
+                    document.getElementById('btn-annual').style.background = 'rgba(255,255,255,0.1)';
+                    document.getElementById('btn-annual').style.color = 'rgba(255,255,255,0.6)';
+                }
+                function showAnnual() {
+                    document.getElementById('price-monthly').style.display = 'none';
+                    document.getElementById('price-annual').style.display = 'block';
+                    document.getElementById('btn-annual').style.background = 'rgba(34,197,94,0.3)';
+                    document.getElementById('btn-annual').style.color = '#fff';
+                    document.getElementById('btn-monthly').style.background = 'rgba(255,255,255,0.1)';
+                    document.getElementById('btn-monthly').style.color = 'rgba(255,255,255,0.6)';
+                }
+            </script>
         </section>
 
         <!-- FAQ Section -->
         <section class="faq" id="faq">
             <h2 class="section-title">Questions fréquentes</h2>
             <p class="section-subtitle">Tout ce que vous devez savoir avant de commencer</p>
-            
+
             <div class="faq-container">
-                <article class="faq-item">
-                    <div class="faq-question">Puis-je utiliser SOS Storytelling pour plusieurs clients ?</div>
-                    <div class="faq-answer">
-                        <p>Absolument ! Les plans Agence Starter (jusqu'à 10 clients) et Agence Scale (jusqu'à 30 clients) permettent de gérer plusieurs profils de voix distincts. Chaque client a son propre style, ses piliers de contenu, et vous pouvez basculer entre eux en un clic.</p>
-                    </div>
-                </article>
-                
                 <article class="faq-item">
                     <div class="faq-question">Qu'est-ce que la fonctionnalité "Ma Voix" ?</div>
                     <div class="faq-answer">
-                        <p>"Ma Voix" est notre technologie propriétaire qui analyse votre style d'écriture et mémorise vos préférences. Elle apprend votre ton, vos expressions favorites, vos emojis préférés, et génère du contenu qui vous ressemble vraiment.</p>
+                        <p>"Ma Voix" est notre technologie propriétaire qui analyse votre style d'écriture. Elle apprend votre ton, vos expressions, vos emojis préférés, et génère du contenu qui vous ressemble vraiment. Score de fidélité affiché à chaque génération.</p>
                     </div>
                 </article>
-                
+
                 <article class="faq-item">
-                    <div class="faq-question">Puis-je exporter mes contenus vers mes outils de planification ?</div>
+                    <div class="faq-question">Comment fonctionne la prospection LinkedIn ?</div>
                     <div class="faq-answer">
-                        <p>Oui ! SOS Storytelling permet d'exporter en un clic vers Metricool, Swello, Buffer ou en CSV générique compatible avec n'importe quel outil. Le format est optimisé pour chaque plateforme.</p>
+                        <p>Vous définissez vos critères (poste, secteur, localisation), et l'IA trouve les profils qui correspondent. Vous recevez une liste qualifiée avec suggestions de messages personnalisés. Tout se passe dans une Inbox Intelligente pour un suivi simple.</p>
                     </div>
                 </article>
-                
+
                 <article class="faq-item">
-                    <div class="faq-question">Quelles plateformes sociales sont supportées ?</div>
+                    <div class="faq-question">La prospection automatisée est-elle légale ?</div>
                     <div class="faq-answer">
-                        <p>LinkedIn, Instagram, TikTok, Facebook, Twitter/X, YouTube, et newsletters. Chaque contenu est automatiquement optimisé pour les spécificités de chaque plateforme.</p>
+                        <p>Oui, à 100%. Notre système respecte les conditions d'utilisation de LinkedIn et le RGPD. Nous utilisons uniquement des données publiques, les volumes restent raisonnables, et vous gardez le contrôle total sur les messages envoyés.</p>
                     </div>
                 </article>
-                
+
                 <article class="faq-item">
-                    <div class="faq-question">Mes données sont-elles sécurisées ?</div>
+                    <div class="faq-question">Qu'est-ce que l'Inbox Intelligente ?</div>
                     <div class="faq-answer">
-                        <p>Vos données sont stockées de manière sécurisée et ne sont jamais utilisées pour entraîner des modèles IA externes. Vous pouvez exporter ou supprimer vos données à tout moment (RGPD). Nous utilisons le chiffrement SSL et des serveurs européens.</p>
+                        <p>C'est votre centre de prospection. Tous vos prospects, leurs profils, l'historique des échanges, le scoring automatique. L'IA suggère les meilleures réponses et vous alerte quand un prospect est "chaud". Plus de prospects qui tombent dans l'oubli.</p>
                     </div>
                 </article>
-                
+
                 <article class="faq-item">
-                    <div class="faq-question">Puis-je annuler mon abonnement à tout moment ?</div>
+                    <div class="faq-question">C'est quoi l'audit GEO ?</div>
                     <div class="faq-answer">
-                        <p>Oui, sans aucune condition. Vous pouvez annuler votre abonnement en un clic depuis votre compte. L'accès reste actif jusqu'à la fin de la période payée. Vos données restent exportables pendant 30 jours après l'annulation.</p>
+                        <p>GEO = Generative Engine Optimization. L'audit analyse votre présence dans les réponses des IA (ChatGPT, Perplexity, Claude...). Vous découvrez si les IA parlent de vous, ce qu'elles disent, et comment améliorer votre visibilité dans ce nouveau canal.</p>
+                    </div>
+                </article>
+
+                <article class="faq-item">
+                    <div class="faq-question">Est-ce que mes données sont utilisées pour entraîner des IA ?</div>
+                    <div class="faq-answer">
+                        <p>Non, jamais. Vos contenus et profils de voix ne servent qu'à personnaliser VOTRE expérience. Stockage sécurisé sur serveurs européens, chiffrement SSL, conformité RGPD complète. Vous pouvez exporter ou supprimer vos données à tout moment.</p>
+                    </div>
+                </article>
+
+                <article class="faq-item">
+                    <div class="faq-question">Que se passe-t-il après l'offre Early Adopter ?</div>
+                    <div class="faq-answer">
+                        <p>Cette offre à <strong>77€/mois au lieu de 97€</strong> est réservée aux early adopters jusqu'au <strong>15 février</strong>. Après cette date, le tarif normal de 97€/mois s'appliquera aux nouveaux inscrits. Vous pouvez annuler à tout moment, sans engagement.</p>
+                    </div>
+                </article>
+
+                <article class="faq-item">
+                    <div class="faq-question">Puis-je annuler mon abonnement ?</div>
+                    <div class="faq-answer">
+                        <p>Oui, en un clic depuis votre compte. Pas de justification, pas de pénalité. L'accès reste actif jusqu'à la fin de la période payée. Et vous avez 14 jours de garantie satisfait ou remboursé.</p>
                     </div>
                 </article>
             </div>
@@ -1591,11 +1704,11 @@
 
         <!-- Newsletter Section -->
         <section class="newsletter" id="newsletter">
-            <h2>Recevez nos tips de storytelling</h2>
-            <p>Chaque semaine, une technique de création de contenu qui fait la différence. Pas de spam, promis.</p>
+            <h2 data-i18n="newsletter.title">Recevez nos tips de storytelling</h2>
+            <p data-i18n="newsletter.subtitle">Chaque semaine, une technique de création de contenu qui fait la différence. Pas de spam, promis.</p>
             <form class="newsletter-form" id="newsletterForm">
-                <input type="email" name="email" placeholder="votre@email.com" required>
-                <button type="submit">S'inscrire</button>
+                <input type="email" name="email" placeholder="votre@email.com" data-i18n-placeholder="newsletter.placeholder" required>
+                <button type="submit" data-i18n="newsletter.button">S'inscrire</button>
             </form>
         </section>
     </main>
@@ -1604,20 +1717,20 @@
         <div class="footer-content">
             <div class="footer-col">
                 <h4>SOS Storytelling</h4>
-                <p>L'IA qui transforme vos idées en contenus percutants. Créé avec ❤️ par My Inner Quest.</p>
+                <p>L'IA qui crée du contenu à ta voix et trouve tes clients. Créé avec ❤️ par My Inner Quest.</p>
             </div>
             <div class="footer-col">
                 <h4>Produit</h4>
                 <a href="#fonctionnalites">Fonctionnalités</a>
                 <a href="#tarifs">Tarifs</a>
                 <a href="#faq">FAQ</a>
-                <a href="login.html">Essai gratuit</a>
+                <a href="login.html">Essai gratuit 7 jours</a>
             </div>
             <div class="footer-col">
-                <h4>Ressources</h4>
-                <a href="#">Guide de démarrage</a>
-                <a href="#">Tutoriels vidéo</a>
-                <a href="#">Blog</a>
+                <h4>Offres</h4>
+                <a href="#tarifs">Plan SOLO</a>
+                <a href="business.html">Plan WHITE LABEL</a>
+                <a href="business.html">Pour les Coachs</a>
             </div>
             <div class="footer-col">
                 <h4>Contact</h4>
@@ -1633,7 +1746,7 @@
             </div>
             <p class="footer-copy">
                 © 2025 My Inner Quest - SOS Storytelling. Tous droits réservés.<br>
-                <a href="mentions-legales.html">Mentions légales</a> | <a href="cgv.html">CGV</a>
+                <a href="mentions-legales.html">Mentions légales</a> | <a href="cgv.html">CGV</a> | <a href="confidentialite.html">Confidentialité</a>
             </p>
             <p class="footer-legal">
                 My Inner Quest - 922 route de l'océan, 40260 Linxe<br>
@@ -1898,10 +2011,229 @@
         // ============ NEWSLETTER ============
         document.getElementById('newsletterForm')?.addEventListener('submit', function(e) {
             e.preventDefault();
-            alert('Merci pour votre inscription ! 🎉');
+            const lang = localStorage.getItem('sos_lang') || 'fr';
+            alert(lang === 'en' ? 'Thank you for subscribing! 🎉' : 'Merci pour votre inscription ! 🎉');
             this.reset();
         });
-        
+
+        // ============ i18n LANDING PAGE ============
+        const LandingI18N = {
+            currentLang: localStorage.getItem('sos_lang') || 'fr',
+
+            translations: {
+                fr: {
+                    nav: { features: "Fonctionnalités", for_who: "Pour qui ?", free_trial: "Essai gratuit" },
+                    hero: {
+                        badge: "✨ Personal Branding & Storytelling",
+                        title_1: "L'IA", title_2: "qui", title_3: "connaît", title_4: "ton business", title_5: "et", title_6: "écrit", title_7: "comme toi.",
+                        subtitle: "SOS Storytelling analyse tes textes, ton activité et tes objectifs grâce à un onboarding intelligent, puis génère pour toi des contenus et newsletters alignés à ton style, ton offre et ton client idéal.",
+                        cta_primary: "Essayer gratuitement →",
+                        cta_secondary: "▶ Voir une démo",
+                        note: "✓ Sans carte bancaire • ✓ 7 jours gratuits • ✓ Annulation libre"
+                    },
+                    features: {
+                        title: "Tout ce qu'il vous faut pour créer du contenu impactant",
+                        subtitle: "Des fonctionnalités pensées pour les créateurs exigeants et les agences performantes",
+                        f1_title: "20+ Structures Narratives",
+                        f1_desc: "AIDA, PAS, Storytelling, Hook-Story-Offer... Choisissez la structure qui captive votre audience. Chaque framework est optimisé pour convertir.",
+                        f2_title: "Ma Voix - Votre ADN",
+                        f2_desc: "L'IA apprend votre style d'écriture et mémorise vos préférences. Plus vous l'utilisez, plus elle vous ressemble. Fini le contenu générique.",
+                        f3_title: "Planning IA Automatisé",
+                        f3_desc: "Générez un calendrier éditorial complet en un clic. L'IA équilibre vos piliers de contenu et optimise les horaires de publication.",
+                        f4_title: "TRENDS en Temps Réel",
+                        f4_desc: "Détectez les sujets tendances de votre secteur. Ne ratez plus jamais une opportunité de surfer sur l'actualité.",
+                        f5_title: "Export Multi-Outils",
+                        f5_desc: "Exportez vers Metricool, Swello, Buffer ou CSV en un clic. Compatible avec tous vos outils de planification existants.",
+                        f6_title: "Mode Multi-Clients",
+                        f6_desc: "Gérez jusqu'à 30 clients avec des profils de voix distincts. Dashboard analytics, exports bulk, rapports détaillés."
+                    },
+                    stats: {
+                        s1: "Structures narratives", s2: "Pour un contenu parfait", s3: "Plateformes supportées", s4: "D'inspiration créative"
+                    },
+                    usecases: {
+                        title: "Conçu pour ceux qui créent du contenu sérieusement",
+                        subtitle: "Que vous soyez freelance ou agence, SOS Storytelling s'adapte à votre workflow",
+                        u1_title: "👤 Freelance / Solopreneur",
+                        u1_desc: "Créez du contenu consistant sans y passer des heures. Gardez votre voix authentique tout en multipliant votre présence en ligne.",
+                        u2_title: "📱 Community Manager",
+                        u2_desc: "Générez des idées fraîches pour vos clients, respectez leurs guidelines de marque, et exportez directement vers vos outils de planification.",
+                        u3_title: "🏢 Agence Social Media",
+                        u3_desc: "Gérez plusieurs clients avec des voix distinctes, suivez la production de contenu avec le dashboard analytics, et scalez votre activité.",
+                        u4_title: "🎯 Consultant Marketing",
+                        u4_desc: "Impressionnez vos clients avec des contenus structurés et percutants. Utilisez les frameworks éprouvés pour maximiser l'engagement.",
+                        u5_title: "🛍️ E-commerce",
+                        u5_desc: "Créez du contenu produit qui convertit. Storytelling, témoignages, lancements... Tout est optimisé pour la vente.",
+                        u6_title: "👩‍💼 Personal Branding",
+                        u6_desc: "Développez votre marque personnelle avec du contenu qui vous ressemble. LinkedIn, Instagram, TikTok... Soyez partout, authentiquement."
+                    },
+                    faq: {
+                        title: "Questions fréquentes",
+                        subtitle: "Tout ce que vous devez savoir avant de commencer",
+                        q1: "Puis-je utiliser SOS Storytelling pour plusieurs clients ?",
+                        a1: "Absolument ! Les plans Agence Starter (jusqu'à 10 clients) et Agence Scale (jusqu'à 30 clients) permettent de gérer plusieurs profils de voix distincts. Chaque client a son propre style, ses piliers de contenu, et vous pouvez basculer entre eux en un clic.",
+                        q2: "Qu'est-ce que la fonctionnalité \"Ma Voix\" ?",
+                        a2: "\"Ma Voix\" est notre technologie propriétaire qui analyse votre style d'écriture et mémorise vos préférences. Elle apprend votre ton, vos expressions favorites, vos emojis préférés, et génère du contenu qui vous ressemble vraiment.",
+                        q3: "Puis-je exporter mes contenus vers mes outils de planification ?",
+                        a3: "Oui ! SOS Storytelling permet d'exporter en un clic vers Metricool, Swello, Buffer ou en CSV générique compatible avec n'importe quel outil. Le format est optimisé pour chaque plateforme.",
+                        q4: "Quelles plateformes sociales sont supportées ?",
+                        a4: "LinkedIn, Instagram, TikTok, Facebook, Twitter/X, YouTube, et newsletters. Chaque contenu est automatiquement optimisé pour les spécificités de chaque plateforme.",
+                        q5: "Mes données sont-elles sécurisées ?",
+                        a5: "Vos données sont stockées de manière sécurisée et ne sont jamais utilisées pour entraîner des modèles IA externes. Vous pouvez exporter ou supprimer vos données à tout moment (RGPD). Nous utilisons le chiffrement SSL et des serveurs européens.",
+                        q6: "Puis-je annuler mon abonnement à tout moment ?",
+                        a6: "Oui, sans aucune condition. Vous pouvez annuler votre abonnement en un clic depuis votre compte. L'accès reste actif jusqu'à la fin de la période payée. Vos données restent exportables pendant 30 jours après l'annulation."
+                    },
+                    newsletter: {
+                        title: "Recevez nos tips de storytelling",
+                        subtitle: "Chaque semaine, une technique de création de contenu qui fait la différence. Pas de spam, promis.",
+                        placeholder: "votre@email.com",
+                        button: "S'inscrire"
+                    },
+                    footer: {
+                        tagline: "L'IA qui transforme vos idées en contenus percutants. Créé avec ❤️ par My Inner Quest.",
+                        product: "Produit", resources: "Ressources",
+                        features: "Fonctionnalités", pricing: "Tarifs", faq: "FAQ", free_trial: "Essai gratuit",
+                        guide: "Guide de démarrage", tutorials: "Tutoriels vidéo", blog: "Blog",
+                        all_links: "Tous nos liens",
+                        rights: "Tous droits réservés.",
+                        legal: "Mentions légales"
+                    }
+                },
+                en: {
+                    nav: { features: "Features", for_who: "For Who?", free_trial: "Free Trial" },
+                    hero: {
+                        badge: "✨ Personal Branding & Storytelling",
+                        title_1: "The AI", title_2: "that", title_3: "knows", title_4: "your business", title_5: "and", title_6: "writes", title_7: "like you.",
+                        subtitle: "SOS Storytelling analyzes your texts, your activity and your goals through intelligent onboarding, then generates content and newsletters aligned with your style, your offer and your ideal client.",
+                        cta_primary: "Try for free →",
+                        cta_secondary: "▶ Watch a demo",
+                        note: "✓ No credit card • ✓ 7 days free • ✓ Cancel anytime"
+                    },
+                    features: {
+                        title: "Everything you need to create impactful content",
+                        subtitle: "Features designed for demanding creators and high-performing agencies",
+                        f1_title: "20+ Narrative Structures",
+                        f1_desc: "AIDA, PAS, Storytelling, Hook-Story-Offer... Choose the structure that captivates your audience. Each framework is optimized to convert.",
+                        f2_title: "My Voice - Your DNA",
+                        f2_desc: "AI learns your writing style and remembers your preferences. The more you use it, the more it sounds like you. No more generic content.",
+                        f3_title: "Automated AI Planning",
+                        f3_desc: "Generate a complete editorial calendar in one click. AI balances your content pillars and optimizes posting times.",
+                        f4_title: "Real-Time TRENDS",
+                        f4_desc: "Detect trending topics in your industry. Never miss an opportunity to surf on current events.",
+                        f5_title: "Multi-Tool Export",
+                        f5_desc: "Export to Metricool, Swello, Buffer or CSV in one click. Compatible with all your existing scheduling tools.",
+                        f6_title: "Multi-Client Mode",
+                        f6_desc: "Manage up to 30 clients with distinct voice profiles. Analytics dashboard, bulk exports, detailed reports."
+                    },
+                    stats: {
+                        s1: "Narrative structures", s2: "For perfect content", s3: "Supported platforms", s4: "Of creative inspiration"
+                    },
+                    usecases: {
+                        title: "Built for those who create content seriously",
+                        subtitle: "Whether you're a freelancer or an agency, SOS Storytelling adapts to your workflow",
+                        u1_title: "👤 Freelance / Solopreneur",
+                        u1_desc: "Create consistent content without spending hours. Keep your authentic voice while multiplying your online presence.",
+                        u2_title: "📱 Community Manager",
+                        u2_desc: "Generate fresh ideas for your clients, respect their brand guidelines, and export directly to your scheduling tools.",
+                        u3_title: "🏢 Social Media Agency",
+                        u3_desc: "Manage multiple clients with distinct voices, track content production with the analytics dashboard, and scale your business.",
+                        u4_title: "🎯 Marketing Consultant",
+                        u4_desc: "Impress your clients with structured and impactful content. Use proven frameworks to maximize engagement.",
+                        u5_title: "🛍️ E-commerce",
+                        u5_desc: "Create product content that converts. Storytelling, testimonials, launches... Everything is optimized for sales.",
+                        u6_title: "👩‍💼 Personal Branding",
+                        u6_desc: "Develop your personal brand with content that looks like you. LinkedIn, Instagram, TikTok... Be everywhere, authentically."
+                    },
+                    faq: {
+                        title: "Frequently Asked Questions",
+                        subtitle: "Everything you need to know before getting started",
+                        q1: "Can I use SOS Storytelling for multiple clients?",
+                        a1: "Absolutely! Agency Starter (up to 10 clients) and Agency Scale (up to 30 clients) plans allow you to manage multiple distinct voice profiles. Each client has their own style, content pillars, and you can switch between them in one click.",
+                        q2: "What is the \"My Voice\" feature?",
+                        a2: "\"My Voice\" is our proprietary technology that analyzes your writing style and remembers your preferences. It learns your tone, favorite expressions, preferred emojis, and generates content that truly sounds like you.",
+                        q3: "Can I export my content to my scheduling tools?",
+                        a3: "Yes! SOS Storytelling allows one-click export to Metricool, Swello, Buffer or generic CSV compatible with any tool. The format is optimized for each platform.",
+                        q4: "Which social platforms are supported?",
+                        a4: "LinkedIn, Instagram, TikTok, Facebook, Twitter/X, YouTube, and newsletters. Each content is automatically optimized for the specifics of each platform.",
+                        q5: "Is my data secure?",
+                        a5: "Your data is stored securely and is never used to train external AI models. You can export or delete your data at any time (GDPR). We use SSL encryption and European servers.",
+                        q6: "Can I cancel my subscription at any time?",
+                        a6: "Yes, without any conditions. You can cancel your subscription in one click from your account. Access remains active until the end of the paid period. Your data remains exportable for 30 days after cancellation."
+                    },
+                    newsletter: {
+                        title: "Get our storytelling tips",
+                        subtitle: "Every week, a content creation technique that makes a difference. No spam, promise.",
+                        placeholder: "your@email.com",
+                        button: "Subscribe"
+                    },
+                    footer: {
+                        tagline: "The AI that transforms your ideas into impactful content. Made with ❤️ by My Inner Quest.",
+                        product: "Product", resources: "Resources",
+                        features: "Features", pricing: "Pricing", faq: "FAQ", free_trial: "Free Trial",
+                        guide: "Getting Started Guide", tutorials: "Video Tutorials", blog: "Blog",
+                        all_links: "All our links",
+                        rights: "All rights reserved.",
+                        legal: "Legal Notice"
+                    }
+                }
+            },
+
+            t(key) {
+                const keys = key.split('.');
+                let value = this.translations[this.currentLang];
+                for (const k of keys) {
+                    if (value && value[k] !== undefined) value = value[k];
+                    else return key;
+                }
+                return value;
+            },
+
+            setLang(lang) {
+                this.currentLang = lang;
+                localStorage.setItem('sos_lang', lang);
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.lang === lang);
+                });
+                this.updatePage();
+            },
+
+            updatePage() {
+                // Update data-i18n elements
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.dataset.i18n;
+                    const translation = this.t(key);
+                    if (translation !== key) el.textContent = translation;
+                });
+
+                // Update data-i18n-html elements (with HTML)
+                document.querySelectorAll('[data-i18n-html]').forEach(el => {
+                    const key = el.dataset.i18nHtml;
+                    const translation = this.t(key);
+                    if (translation !== key) el.innerHTML = translation;
+                });
+
+                // Update placeholders
+                document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                    const key = el.dataset.i18nPlaceholder;
+                    const translation = this.t(key);
+                    if (translation !== key) el.placeholder = translation;
+                });
+            },
+
+            init() {
+                // Set initial state from localStorage
+                const savedLang = localStorage.getItem('sos_lang') || 'fr';
+                this.currentLang = savedLang;
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.lang === savedLang);
+                    btn.addEventListener('click', () => this.setLang(btn.dataset.lang));
+                });
+                this.updatePage();
+            }
+        };
+
+        // Initialize i18n
+        LandingI18N.init();
+
         console.log('✨ SOS Storytelling Experience loaded');
     </script>
 </body>

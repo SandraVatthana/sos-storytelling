@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide d'installation - Newsletter Capture</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 40px;
+        }
+        .step {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        .step-number {
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 35px;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        .step h2 {
+            display: inline;
+            font-size: 1.2em;
+        }
+        .step-content {
+            margin-top: 15px;
+            padding-left: 50px;
+            color: #ccc;
+            line-height: 1.8;
+        }
+        code {
+            background: rgba(102, 126, 234, 0.2);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            color: #a0cfff;
+        }
+        .warning {
+            background: rgba(255, 193, 7, 0.15);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin: 20px 0;
+            color: #ffc107;
+        }
+        .warning-icon { margin-right: 10px; }
+        .success {
+            background: rgba(46, 213, 115, 0.15);
+            border: 1px solid rgba(46, 213, 115, 0.3);
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin: 20px 0;
+            color: #2ed573;
+        }
+        .info-box {
+            background: rgba(102, 126, 234, 0.15);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .info-box h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        ul {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+        .screenshot {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            text-align: center;
+            color: #888;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📩 Newsletter Capture</h1>
+        <p class="subtitle">Guide d'installation de l'extension Chrome</p>
+
+        <div class="warning">
+            <span class="warning-icon">⚠️</span>
+            <strong>Extension privée</strong> — Cette extension est protégée par un PIN. Toi seule peux l'utiliser.
+        </div>
+
+        <!-- ÉTAPE 1 -->
+        <div class="step">
+            <span class="step-number">1</span>
+            <h2>Générer les icônes</h2>
+            <div class="step-content">
+                <p>Ouvre le fichier <code>generate-icons.html</code> dans ton navigateur :</p>
+                <ul>
+                    <li>Clique sur les 3 boutons "Télécharger"</li>
+                    <li>Place les fichiers <code>icon16.png</code>, <code>icon48.png</code>, <code>icon128.png</code> dans le dossier <code>icons/</code></li>
+                </ul>
+                <a href="generate-icons.html" class="btn">Ouvrir le générateur d'icônes</a>
+            </div>
+        </div>
+
+        <!-- ÉTAPE 2 -->
+        <div class="step">
+            <span class="step-number">2</span>
+            <h2>Exécuter le SQL dans Supabase</h2>
+            <div class="step-content">
+                <p>Avant d'utiliser l'extension, assure-toi que la table <code>newsletter_raw</code> existe dans Supabase :</p>
+                <ul>
+                    <li>Va dans ton projet Supabase → SQL Editor</li>
+                    <li>Exécute le fichier <code>bonnes-pratiques-aggregator/supabase-schema.sql</code></li>
+                </ul>
+                <p style="margin-top: 15px;">Ce fichier crée les tables <code>newsletter_raw</code> et <code>bonnes_pratiques</code>.</p>
+            </div>
+        </div>
+
+        <!-- ÉTAPE 3 -->
+        <div class="step">
+            <span class="step-number">3</span>
+            <h2>Charger l'extension dans Chrome</h2>
+            <div class="step-content">
+                <ol>
+                    <li>Ouvre Chrome et va à <code>chrome://extensions/</code></li>
+                    <li>Active le <strong>"Mode développeur"</strong> (toggle en haut à droite)</li>
+                    <li>Clique sur <strong>"Charger l'extension non empaquetée"</strong></li>
+                    <li>Sélectionne le dossier <code>newsletter-capture-extension</code></li>
+                </ol>
+                <div class="screenshot">
+                    [L'extension devrait apparaître dans la liste avec l'icône 📩]
+                </div>
+            </div>
+        </div>
+
+        <!-- ÉTAPE 4 -->
+        <div class="step">
+            <span class="step-number">4</span>
+            <h2>Configuration initiale</h2>
+            <div class="step-content">
+                <p>Au premier lancement, tu devras configurer :</p>
+                <ul>
+                    <li><strong>PIN secret</strong> (4-6 chiffres) — Pour verrouiller l'accès</li>
+                    <li><strong>URL Supabase</strong> — Ex: <code>https://xxx.supabase.co</code></li>
+                    <li><strong>Clé Anon Supabase</strong> — Trouve-la dans Settings → API → anon key</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ÉTAPE 5 -->
+        <div class="step">
+            <span class="step-number">5</span>
+            <h2>Utilisation</h2>
+            <div class="step-content">
+                <p><strong>Pour capturer une newsletter :</strong></p>
+                <ol>
+                    <li>Ouvre la newsletter dans Gmail (ou sur Substack, Beehiiv...)</li>
+                    <li>Clique sur l'icône de l'extension 📩</li>
+                    <li>Entre ton PIN pour déverrouiller</li>
+                    <li>Clique sur <strong>"🔍 Extraire de la page"</strong> pour remplir auto</li>
+                    <li>Ajoute/corrige la source (Nina Ramen, Caroline Mignaux...)</li>
+                    <li>Ajoute des tags si besoin</li>
+                    <li>Clique sur <strong>"📥 Capturer"</strong></li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="success">
+            <strong>✅ C'est prêt !</strong> Les newsletters capturées seront stockées dans <code>newsletter_raw</code> avec le status <code>raw</code>, prêtes à être traitées par l'agrégateur IA.
+        </div>
+
+        <div class="info-box">
+            <h3>🔐 Sécurité</h3>
+            <ul>
+                <li>Le PIN est hashé (SHA-256) et stocké localement</li>
+                <li>Les credentials Supabase sont stockés dans Chrome storage (local uniquement)</li>
+                <li>L'extension ne communique qu'avec TON Supabase</li>
+                <li>Personne d'autre ne peut utiliser l'extension sans le PIN</li>
+            </ul>
+        </div>
+
+        <div class="info-box">
+            <h3>📧 Sources supportées</h3>
+            <ul>
+                <li><strong>Gmail</strong> — Extraction automatique du sujet, expéditeur, contenu</li>
+                <li><strong>Substack</strong> — Détection automatique des posts</li>
+                <li><strong>Beehiiv</strong> — Détection automatique</li>
+                <li><strong>Autres</strong> — Extraction générique du contenu principal</li>
+            </ul>
+        </div>
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,2111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title>SOS Storytelling - Création de contenu IA pour réseaux sociaux | Agences & Freelances</title>
+    <meta name="description" content="L'IA qui comprend votre business et crée du contenu qui vous ressemble. Générez du contenu avec du storytelling pour vos réseaux sociaux en quelques clics. Essai gratuit de 7 jours.">
+    <meta name="keywords" content="création contenu IA, automatisation réseaux sociaux, calendrier éditorial, community manager, social media manager, génération contenu LinkedIn, outil agence social media, storytelling IA">
+    <meta name="author" content="My Inner Quest">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://myinnerquest.fr/sos-storytelling">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://myinnerquest.fr/sos-storytelling">
+    <meta property="og:title" content="SOS Storytelling - L'IA qui comprend votre business et crée du contenu qui vous ressemble">
+    <meta property="og:description" content="Générez du contenu avec du storytelling pour vos réseaux sociaux en quelques clics. Essai gratuit de 7 jours.">
+    <meta property="og:image" content="https://myinnerquest.fr/images/sos-storytelling-og.png">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="SOS Storytelling - L'IA qui comprend votre business et crée du contenu qui vous ressemble">
+    <meta name="twitter:description" content="Générez du contenu avec du storytelling pour vos réseaux sociaux en quelques clics. Essai gratuit de 7 jours.">
+    
+    <!-- Schema.org JSON-LD -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "SOS Storytelling",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "description": "Outil de création de contenu IA pour réseaux sociaux avec structures narratives, calendrier éditorial et voix de marque personnalisée",
+        "offers": {
+            "@type": "AggregateOffer",
+            "lowPrice": "39",
+            "highPrice": "300",
+            "priceCurrency": "EUR",
+            "offerCount": "4"
+        },
+        "creator": {
+            "@type": "Organization",
+            "name": "My Inner Quest",
+            "url": "https://myinnerquest.fr"
+        }
+    }
+    </script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { overflow-x: hidden; }
+
+        :root {
+            --primary: #667eea;
+            --primary-light: #764ba2;
+            --accent: #f5576c;
+            --accent-light: #f093fb;
+            --dark: #0a0a0f;
+            --dark-lighter: #12121a;
+        }
+        
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background: var(--dark); 
+            color: #fff; 
+            overflow-x: hidden;
+        }
+        
+        /* ============ LOADING SCREEN ============ */
+        .loader {
+            position: fixed;
+            inset: 0;
+            background: var(--dark);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            transition: opacity 0.8s, visibility 0.8s;
+        }
+        .loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .loader-logo {
+            width: 80px;
+            height: 80px;
+            animation: pulse-loader 1.5s ease-in-out infinite;
+        }
+        .loader-text {
+            font-size: 1.2em;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        .loader-bar {
+            width: 200px;
+            height: 3px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .loader-bar::after {
+            content: '';
+            display: block;
+            width: 40%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            animation: loading 1.5s ease-in-out infinite;
+        }
+        @keyframes loading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(350%); }
+        }
+        @keyframes pulse-loader {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        
+        /* ============ CURSOR GLOW ============ */
+        .cursor-glow {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(102,126,234,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: opacity 0.3s;
+            mix-blend-mode: screen;
+        }
+        
+        /* ============ SHOOTING STARS ============ */
+        .shooting-star {
+            position: fixed;
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), transparent);
+            border-radius: 50%;
+            animation: shoot 1s ease-out forwards;
+            pointer-events: none;
+            z-index: 1;
+        }
+        @keyframes shoot {
+            0% { transform: translateX(0) translateY(0); opacity: 1; }
+            100% { transform: translateX(300px) translateY(150px); opacity: 0; }
+        }
+        
+        /* ============ PARTICLES CANVAS ============ */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        /* ============ HEADER ============ */
+        .header { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            z-index: 100; 
+            padding: 15px 40px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: rgba(10,10,15,0.8); 
+            backdrop-filter: blur(20px); 
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s;
+        }
+        .header.scrolled {
+            padding: 10px 40px;
+            background: rgba(10,10,15,0.95);
+        }
+        .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo-img { 
+            height: 45px; 
+            width: auto;
+            transition: transform 0.3s;
+        }
+        .logo:hover .logo-img { transform: scale(1.05) rotate(5deg); }
+        .logo-text { font-size: 1.3em; font-weight: 700; color: #fff; }
+        .nav { display: flex; gap: 30px; align-items: center; }
+        .nav a { 
+            color: rgba(255,255,255,0.7); 
+            text-decoration: none; 
+            font-weight: 500; 
+            transition: all 0.3s; 
+            position: relative;
+        }
+        .nav a::after { 
+            content: ''; 
+            position: absolute; 
+            bottom: -5px; 
+            left: 0; 
+            width: 0; 
+            height: 2px; 
+            background: var(--accent); 
+            transition: width 0.3s;
+        }
+        .nav a:hover { color: var(--accent); }
+        .nav a:hover::after { width: 100%; }
+        .btn-cta { 
+            background: linear-gradient(135deg, var(--primary), var(--primary-light)); 
+            color: white; 
+            padding: 12px 25px; 
+            border-radius: 30px; 
+            font-weight: 600; 
+            text-decoration: none; 
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-cta::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        .btn-cta:hover::before { left: 100%; }
+        .btn-cta:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(102,126,234,0.4); }
+
+        /* Language Toggle */
+        .lang-toggle {
+            display: flex;
+            gap: 5px;
+            background: rgba(255,255,255,0.1);
+            padding: 4px;
+            border-radius: 20px;
+        }
+        .lang-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.6);
+            padding: 6px 12px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            font-size: 0.85em;
+            transition: all 0.3s;
+        }
+        .lang-btn:hover { color: #fff; }
+        .lang-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: #fff;
+        }
+
+        /* Mobile Menu */
+        .menu-toggle { display: none; background: none; border: none; cursor: pointer; padding: 10px; z-index: 101; }
+        .menu-toggle span { display: block; width: 25px; height: 3px; background: #fff; margin: 5px 0; border-radius: 3px; transition: all 0.3s; }
+        
+        /* Sound Toggle */
+        .sound-toggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 99;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .sound-toggle:hover {
+            background: rgba(102,126,234,0.2);
+            border-color: var(--primary);
+            transform: scale(1.1);
+        }
+        .sound-toggle svg { width: 24px; height: 24px; fill: #fff; }
+        .sound-toggle.muted svg { opacity: 0.4; }
+        .sound-toggle .sound-waves {
+            position: absolute;
+            inset: -5px;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            opacity: 0;
+            animation: sound-wave 1.5s ease-out infinite;
+        }
+        .sound-toggle:not(.muted) .sound-waves { opacity: 1; }
+        @keyframes sound-wave {
+            0% { transform: scale(1); opacity: 0.5; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        
+        /* ============ HERO ============ */
+        .hero { 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            text-align: center; 
+            padding: 120px 20px 60px; 
+            position: relative; 
+            overflow: hidden;
+        }
+        
+        /* Floating keywords */
+        .floating-keywords {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .floating-word {
+            position: absolute;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: rgba(102,126,234,0.12);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: floatWord 20s linear infinite;
+            white-space: nowrap;
+        }
+        @keyframes floatWord {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            100% { transform: translateY(-100px) rotate(10deg); opacity: 0; }
+        }
+        
+        /* Gradient orbs */
+        .hero-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+            animation: float 8s ease-in-out infinite;
+            pointer-events: none;
+            will-change: transform;
+        }
+        .hero-orb-1 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(102,126,234,0.25) 0%, transparent 70%);
+            top: 10%; left: 5%;
+        }
+        .hero-orb-2 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(245,87,108,0.2) 0%, transparent 70%);
+            bottom: 20%; right: 10%;
+            animation-delay: -4s;
+        }
+        .hero-orb-3 {
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(240,147,251,0.15) 0%, transparent 70%);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -2s;
+        }
+        
+        @keyframes float { 
+            0%, 100% { transform: translateY(0) scale(1); } 
+            50% { transform: translateY(-30px) scale(1.05); } 
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+        }
+        
+        .badge { 
+            display: inline-block; 
+            padding: 10px 24px; 
+            background: rgba(255,255,255,0.05); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 30px; 
+            font-size: 0.9em; 
+            color: rgba(255,255,255,0.8); 
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+        
+        .hero h1 { 
+            font-size: clamp(2.5em, 6vw, 4.5em); 
+            font-weight: 800; 
+            line-height: 1.1; 
+            margin-bottom: 25px;
+        }
+        .hero h1 .word {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(50px) rotateX(-90deg);
+            animation: wordReveal 0.8s ease-out forwards;
+        }
+        .hero h1 .gradient { 
+            background: linear-gradient(135deg, var(--accent), var(--accent-light)); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            background-clip: text;
+            position: relative;
+        }
+        
+        @keyframes wordReveal {
+            to {
+                opacity: 1;
+                transform: translateY(0) rotateX(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .hero p {
+            font-size: 1.3em;
+            color: rgba(255,255,255,0.7);
+            max-width: 650px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+            animation: fadeInUp 1s ease-out 0.6s both;
+        }
+
+        .hero-subtitle {
+            font-size: 1.15em !important;
+            max-width: 700px !important;
+            margin: 0 auto 25px !important;
+            line-height: 1.7 !important;
+        }
+
+        /* Target audience tags */
+        .target-tags {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 35px;
+            animation: fadeInUp 1s ease-out 0.7s both;
+        }
+        .target-tag {
+            padding: 8px 18px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 25px;
+            font-size: 0.95em;
+            color: rgba(255,255,255,0.85);
+            font-weight: 500;
+            transition: all 0.3s;
+            cursor: default;
+        }
+        .target-tag:hover {
+            background: rgba(102,126,234,0.2);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            color: #fff;
+        }
+
+        /* Social proof */
+        .social-proof {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            animation: fadeInUp 1s ease-out 1.2s both;
+        }
+        .social-proof-avatars {
+            display: flex;
+        }
+        .social-proof-avatars .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            font-weight: 600;
+            color: white;
+            margin-left: -10px;
+        }
+        .social-proof-avatars .avatar:first-child {
+            margin-left: 0;
+        }
+        .social-proof-text {
+            font-size: 0.95em;
+            color: rgba(255,255,255,0.7);
+            margin: 0;
+        }
+        .social-proof-text strong {
+            color: var(--accent-light);
+        }
+
+        /* Video Container - Vimeo Embed */
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto 40px;
+            border-radius: 20px;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(102,126,234,0.15), rgba(245,87,108,0.1));
+            border: 2px solid rgba(255,255,255,0.1);
+            transition: all 0.4s;
+            animation: fadeInUp 1s ease-out 0.8s both;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+        .video-container::before {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            background: linear-gradient(45deg, var(--primary), transparent, var(--accent), transparent);
+            border-radius: 22px;
+            z-index: -1;
+            animation: border-rotate 4s linear infinite;
+            opacity: 0.5;
+        }
+        @keyframes border-rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .video-container:hover {
+            transform: scale(1.01);
+            border-color: var(--primary);
+            box-shadow: 0 30px 80px rgba(102,126,234,0.3);
+        }
+        .video-container:hover::before {
+            opacity: 1;
+        }
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+        }
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 40px rgba(102,126,234,0.4); }
+            50% { box-shadow: 0 0 60px rgba(102,126,234,0.6); }
+        }
+        
+        .hero-cta { 
+            display: flex; 
+            gap: 15px; 
+            flex-wrap: wrap; 
+            justify-content: center;
+            animation: fadeInUp 1s ease-out 1s both;
+        }
+        .btn-primary { 
+            background: linear-gradient(135deg, var(--primary), var(--primary-light)); 
+            color: white; 
+            padding: 18px 40px; 
+            border-radius: 35px; 
+            font-weight: 700; 
+            font-size: 1.1em; 
+            text-decoration: none; 
+            transition: all 0.3s; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+        .btn-primary:hover::before { left: 100%; }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(102,126,234,0.5); }
+        .btn-secondary { 
+            background: transparent; 
+            border: 2px solid rgba(255,255,255,0.2); 
+            color: white; 
+            padding: 16px 35px; 
+            border-radius: 35px; 
+            font-weight: 600; 
+            text-decoration: none; 
+            transition: all 0.3s;
+        }
+        .btn-secondary:hover { 
+            border-color: var(--primary); 
+            background: rgba(102,126,234,0.1);
+            color: var(--primary);
+        }
+        
+        .hero-note { 
+            margin-top: 25px; 
+            font-size: 0.9em; 
+            color: rgba(255,255,255,0.5);
+            animation: fadeInUp 1s ease-out 1.2s both;
+        }
+        
+        /* Scroll indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            opacity: 0.6;
+            animation: fadeInUp 1s ease-out 1.5s both;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        .scroll-indicator:hover { opacity: 1; }
+        .scroll-indicator span { font-size: 0.8em; text-transform: uppercase; letter-spacing: 2px; }
+        .scroll-indicator .mouse {
+            width: 24px;
+            height: 40px;
+            border: 2px solid rgba(255,255,255,0.5);
+            border-radius: 12px;
+            position: relative;
+        }
+        .scroll-indicator .mouse::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 2px;
+            animation: scrollDown 1.5s ease-in-out infinite;
+        }
+        @keyframes scrollDown {
+            0%, 100% { opacity: 1; top: 8px; }
+            50% { opacity: 0.3; top: 20px; }
+        }
+        
+        /* ============ FEATURES ============ */
+        .features { 
+            padding: 120px 40px; 
+            background: linear-gradient(180deg, var(--dark) 0%, var(--dark-lighter) 100%);
+            position: relative;
+            z-index: 1;
+        }
+        .section-title { 
+            text-align: center; 
+            font-size: 2.5em; 
+            font-weight: 700; 
+            margin-bottom: 15px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s;
+        }
+        .section-title.visible { opacity: 1; transform: translateY(0); }
+        .section-subtitle { 
+            text-align: center; 
+            color: rgba(255,255,255,0.6); 
+            font-size: 1.1em; 
+            margin-bottom: 60px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s 0.2s;
+        }
+        .section-subtitle.visible { opacity: 1; transform: translateY(0); }
+        
+        .features-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 30px; 
+            max-width: 1200px; 
+            margin: 0 auto;
+        }
+        .feature-card { 
+            background: rgba(255,255,255,0.03); 
+            border: 1px solid rgba(255,255,255,0.08); 
+            border-radius: 24px; 
+            padding: 40px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(50px);
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+        .feature-card.visible { opacity: 1; transform: translateY(0); }
+        .feature-card::before { 
+            content: ''; 
+            position: absolute; 
+            top: 0; left: 0; right: 0; 
+            height: 4px; 
+            background: linear-gradient(90deg, var(--primary), var(--accent)); 
+            opacity: 0; 
+            transition: opacity 0.3s;
+        }
+        .feature-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(102,126,234,0.15) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .feature-card:hover { border-color: rgba(102,126,234,0.3); }
+        .feature-card:hover::before { opacity: 1; }
+        .feature-card:hover::after { opacity: 1; }
+        
+        .feature-icon { 
+            width: 70px; 
+            height: 70px; 
+            background: linear-gradient(135deg, var(--primary), var(--primary-light)); 
+            border-radius: 18px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1.8em; 
+            margin-bottom: 25px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 10px 30px rgba(102,126,234,0.3);
+        }
+        .feature-card h3 { font-size: 1.4em; font-weight: 600; margin-bottom: 15px; }
+        .feature-card p { color: rgba(255,255,255,0.6); line-height: 1.7; }
+        
+        /* ============ STATS ============ */
+        .stats { 
+            padding: 100px 40px; 
+            background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(245,87,108,0.1));
+            position: relative;
+            z-index: 1;
+        }
+        .stats-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 40px; 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            text-align: center;
+        }
+        .stat-item {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s;
+        }
+        .stat-item.visible { opacity: 1; transform: translateY(0); }
+        .stat-item h3 { 
+            font-size: 3.5em; 
+            font-weight: 800; 
+            background: linear-gradient(135deg, var(--accent), var(--accent-light)); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            background-clip: text;
+        }
+        .stat-item p { color: rgba(255,255,255,0.7); font-size: 1.1em; margin-top: 5px; }
+        
+        /* ============ USE CASES ============ */
+        .use-cases { 
+            padding: 120px 40px; 
+            background: var(--dark);
+            position: relative;
+            z-index: 1;
+        }
+        .use-cases-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 25px; 
+            max-width: 1200px; 
+            margin: 0 auto;
+        }
+        .use-case-card { 
+            background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(245,87,108,0.05)); 
+            border: 1px solid rgba(255,255,255,0.08); 
+            border-radius: 20px; 
+            padding: 35px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s;
+        }
+        .use-case-card.visible { opacity: 1; transform: translateY(0); }
+        .use-case-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(102,126,234,0.3);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .use-case-card h3 { font-size: 1.2em; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .use-case-card p { color: rgba(255,255,255,0.6); font-size: 0.95em; line-height: 1.7; }
+        
+        /* ============ MARQUEE ============ */
+        .marquee-section {
+            padding: 40px 0;
+            background: rgba(102,126,234,0.05);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+        .marquee {
+            display: flex;
+            animation: marquee 30s linear infinite;
+        }
+        .marquee-content {
+            display: flex;
+            gap: 60px;
+            padding: 0 30px;
+            white-space: nowrap;
+        }
+        .marquee-item {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: rgba(255,255,255,0.15);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .marquee-item span { color: var(--accent); }
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        
+        /* ============ PRICING ============ */
+        /* BETA: Section masquée temporairement */
+        #tarifs {
+            display: none !important;
+            padding: 120px 40px;
+            background: var(--dark);
+            position: relative;
+            z-index: 1;
+        }
+        .pricing-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); 
+            gap: 25px; 
+            max-width: 1200px; 
+            margin: 0 auto;
+        }
+        .pricing-card { 
+            background: rgba(255,255,255,0.03); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 25px; 
+            padding: 40px; 
+            text-align: center; 
+            transition: all 0.4s;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        .pricing-card.visible { opacity: 1; transform: translateY(0); }
+        .pricing-card.popular { 
+            border-color: var(--primary); 
+            background: rgba(102,126,234,0.1); 
+            transform: scale(1.03);
+        }
+        .pricing-card.popular.visible { transform: scale(1.03); }
+        .pricing-card:hover { transform: translateY(-8px); }
+        .pricing-card.popular:hover { transform: scale(1.03) translateY(-8px); }
+        .pricing-badge { 
+            display: inline-block; 
+            background: linear-gradient(135deg, var(--primary), var(--primary-light)); 
+            color: white; 
+            padding: 6px 18px; 
+            border-radius: 20px; 
+            font-size: 0.8em; 
+            font-weight: 600; 
+            margin-bottom: 15px;
+        }
+        .pricing-card h3 { font-size: 1.5em; margin-bottom: 8px; }
+        .pricing-subtitle { color: rgba(255,255,255,0.5); font-size: 0.9em; margin-bottom: 15px; }
+        .pricing-price { font-size: 3em; font-weight: 800; margin: 20px 0; }
+        .pricing-price span { font-size: 0.35em; color: rgba(255,255,255,0.6); }
+        .pricing-features { list-style: none; margin: 30px 0; text-align: left; }
+        .pricing-features li { 
+            padding: 10px 0; 
+            color: rgba(255,255,255,0.7); 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            font-size: 0.95em;
+        }
+        .pricing-features li::before { content: '✓'; color: var(--primary); font-weight: bold; }
+        .pricing-btn { 
+            display: block; 
+            width: 100%; 
+            padding: 16px; 
+            border-radius: 30px; 
+            font-weight: 600; 
+            text-decoration: none; 
+            text-align: center; 
+            transition: all 0.3s; 
+            font-size: 1em;
+        }
+        .pricing-btn.primary { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; }
+        .pricing-btn.secondary { background: transparent; border: 2px solid rgba(255,255,255,0.2); color: white; }
+        .pricing-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(102,126,234,0.3); }
+        
+        .trial-banner {
+            max-width: 800px;
+            margin: 0 auto 60px;
+            padding: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s;
+        }
+        .trial-banner.visible { opacity: 1; transform: translateY(0); }
+        .trial-banner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .trial-banner h3 { font-size: 2em; margin-bottom: 15px; position: relative; }
+        .trial-banner p { opacity: 0.9; margin-bottom: 30px; font-size: 1.1em; position: relative; }
+        .trial-banner .btn-primary { 
+            background: white; 
+            color: var(--primary); 
+            display: inline-flex;
+            position: relative;
+        }
+        .trial-banner .btn-primary:hover { box-shadow: 0 15px 40px rgba(0,0,0,0.3); }
+        
+        /* ============ FAQ ============ */
+        .faq { 
+            padding: 120px 40px; 
+            background: linear-gradient(180deg, var(--dark) 0%, var(--dark-lighter) 100%);
+            position: relative;
+            z-index: 1;
+        }
+        .faq-container { max-width: 800px; margin: 0 auto; }
+        .faq-item { 
+            background: rgba(255,255,255,0.03); 
+            border: 1px solid rgba(255,255,255,0.08); 
+            border-radius: 16px; 
+            margin-bottom: 15px; 
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s;
+        }
+        .faq-item.visible { opacity: 1; transform: translateY(0); }
+        .faq-question { 
+            padding: 25px 30px; 
+            cursor: pointer; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            font-weight: 600; 
+            font-size: 1.1em; 
+            transition: all 0.3s;
+        }
+        .faq-question:hover { background: rgba(255,255,255,0.03); }
+        .faq-question::after { content: '+'; font-size: 1.5em; color: var(--primary); transition: transform 0.3s; }
+        .faq-item.open .faq-question::after { transform: rotate(45deg); }
+        .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out, padding 0.3s; }
+        .faq-item.open .faq-answer { max-height: 500px; padding: 0 30px 25px; }
+        .faq-answer p { color: rgba(255,255,255,0.7); line-height: 1.7; }
+        
+        /* ============ NEWSLETTER ============ */
+        .newsletter { 
+            padding: 100px 40px; 
+            background: linear-gradient(135deg, var(--primary), var(--primary-light)); 
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .newsletter::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .newsletter h2 { font-size: 2em; margin-bottom: 15px; position: relative; }
+        .newsletter p { opacity: 0.9; margin-bottom: 30px; max-width: 500px; margin-left: auto; margin-right: auto; position: relative; }
+        .newsletter-form { display: flex; gap: 15px; max-width: 500px; margin: 0 auto; flex-wrap: wrap; justify-content: center; position: relative; }
+        .newsletter-form input { 
+            flex: 1; 
+            min-width: 250px; 
+            padding: 16px 25px; 
+            border: none; 
+            border-radius: 30px; 
+            font-family: inherit; 
+            font-size: 1em;
+            background: rgba(255,255,255,0.9);
+            transition: all 0.3s;
+        }
+        .newsletter-form input:focus {
+            outline: none;
+            background: #fff;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.2);
+            transform: scale(1.02);
+        }
+        .newsletter-form button { 
+            background: var(--dark); 
+            color: white; 
+            border: none; 
+            padding: 16px 35px; 
+            border-radius: 30px; 
+            font-family: inherit; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.3s;
+        }
+        .newsletter-form button:hover { 
+            transform: translateY(-2px) scale(1.05); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        /* ============ FOOTER ============ */
+        .footer { 
+            padding: 60px 40px 30px; 
+            background: #06060a; 
+            border-top: 1px solid rgba(255,255,255,0.05);
+            position: relative;
+            z-index: 1;
+        }
+        .footer-content { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 40px; 
+            margin-bottom: 40px;
+        }
+        .footer-col h4 { font-size: 1.1em; margin-bottom: 20px; color: #fff; }
+        .footer-col a { display: block; color: rgba(255,255,255,0.6); text-decoration: none; margin-bottom: 12px; transition: all 0.3s; }
+        .footer-col a:hover { color: var(--accent); transform: translateX(5px); }
+        .footer-col p { color: rgba(255,255,255,0.6); line-height: 1.6; }
+        .footer-bottom { text-align: center; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.05); }
+        .footer-social { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        .footer-social a { 
+            width: 48px; 
+            height: 48px; 
+            background: rgba(255,255,255,0.05); 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: rgba(255,255,255,0.7); 
+            text-decoration: none; 
+            transition: all 0.3s; 
+            font-size: 1.2em;
+        }
+        .footer-social a:hover { 
+            background: linear-gradient(135deg, var(--primary), var(--primary-light)); 
+            color: white; 
+            transform: translateY(-3px) rotate(5deg);
+        }
+        .footer-copy { color: rgba(255,255,255,0.4); font-size: 0.9em; }
+        .footer-copy a { color: rgba(255,255,255,0.5); text-decoration: none; }
+        .footer-copy a:hover { color: var(--accent); }
+        .footer-legal { margin-top: 15px; font-size: 0.8em; color: rgba(255,255,255,0.3); }
+        
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 768px) {
+            .header { padding: 15px 20px; }
+            .nav {
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(10,10,15,0.98);
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                padding: 80px 30px 50px;
+                gap: 20px;
+                transform: translateX(100%);
+                transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                overflow-y: auto;
+                z-index: 100;
+            }
+            .nav.active { transform: translateX(0); }
+            .nav a { font-size: 1.2em; }
+            .nav .btn-cta {
+                margin-top: 15px;
+                padding: 15px 35px;
+                font-size: 1.1em;
+                width: auto;
+                display: inline-block;
+            }
+            .menu-toggle { display: block; }
+            .menu-toggle.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+            .menu-toggle.active span:nth-child(2) { opacity: 0; }
+            .menu-toggle.active span:nth-child(3) { transform: rotate(-45deg) translate(7px, -6px); }
+
+            .hero { padding: 100px 15px 80px; overflow: visible; min-height: auto; }
+            .hero h1 { font-size: clamp(1.8em, 7vw, 2.8em); }
+            .hero p { font-size: 1.1em; padding: 0 10px; }
+            .video-container { max-width: 100%; margin: 0 auto 30px; }
+
+            /* Fix boutons hero */
+            .hero-cta { gap: 12px; padding: 0 15px; flex-direction: column; align-items: center; width: 100%; box-sizing: border-box; }
+            .btn-primary { padding: 16px 30px; font-size: 1em; width: 100%; max-width: 300px; justify-content: center; box-sizing: border-box; }
+            .btn-secondary { padding: 12px 20px; width: 100%; text-align: center; }
+
+            /* Target tags mobile */
+            .target-tags { gap: 8px; margin-bottom: 25px; }
+            .target-tag { padding: 6px 12px; font-size: 0.85em; }
+
+            /* Social proof mobile */
+            .social-proof { flex-direction: column; gap: 10px; margin-top: 25px; }
+            .social-proof-avatars .avatar { width: 32px; height: 32px; font-size: 0.75em; }
+            .social-proof-text { font-size: 0.9em; text-align: center; }
+
+            .hero-subtitle { font-size: 1em !important; padding: 0 10px; }
+
+            /* Fix grilles */
+            .features-grid { grid-template-columns: 1fr; gap: 20px; }
+            .use-cases-grid { grid-template-columns: 1fr; gap: 15px; }
+            .pricing-grid { grid-template-columns: 1fr; gap: 20px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+
+            .features, #tarifs, .faq, .use-cases { padding: 60px 15px; }
+            .section-title { font-size: 1.8em; padding: 0 10px; }
+            .section-subtitle { font-size: 1em; padding: 0 10px; }
+
+            .feature-card { padding: 25px 20px; }
+            .feature-card h3 { font-size: 1.2em; }
+            .feature-icon { width: 55px; height: 55px; font-size: 1.5em; }
+
+            .use-case-card { padding: 25px 20px; }
+            .use-case-card h3 { font-size: 1.1em; }
+
+            .pricing-card { padding: 30px 20px; }
+            .pricing-card.popular { transform: scale(1); }
+            .pricing-card.popular.visible { transform: scale(1); }
+            .pricing-card.popular:hover { transform: translateY(-8px); }
+            .pricing-price { font-size: 2.5em; }
+            .pricing-btn { padding: 14px; font-size: 0.95em; }
+
+            .stat-item h3 { font-size: 2.5em; }
+            .stat-item p { font-size: 0.95em; }
+
+            .faq-question { padding: 20px; font-size: 1em; }
+            .faq-item.open .faq-answer { padding: 0 20px 20px; }
+
+            .newsletter { padding: 60px 15px; }
+            .newsletter h2 { font-size: 1.6em; }
+            .newsletter p { font-size: 0.95em; padding: 0 10px; }
+            .newsletter-form { flex-direction: column; padding: 0 10px; }
+            .newsletter-form input { min-width: 100%; padding: 14px 20px; }
+            .newsletter-form button { padding: 14px 25px; width: 100%; }
+
+            .trial-banner { padding: 25px 15px; margin: 0 10px 40px; }
+            .trial-banner h3 { font-size: 1.5em; }
+            .trial-banner p { font-size: 0.95em; }
+            .trial-banner .btn-primary { padding: 14px 25px; font-size: 1em; }
+
+            .footer { padding: 40px 15px 20px; }
+            .footer-content { gap: 25px; }
+            .footer-col h4 { font-size: 1em; margin-bottom: 12px; }
+            .footer-col a, .footer-col p { font-size: 0.9em; }
+            .footer-social a { width: 42px; height: 42px; }
+
+            .sound-toggle { bottom: 15px; right: 15px; width: 42px; height: 42px; }
+            .cursor-glow { display: none; }
+            .floating-keywords { display: none; }
+            .marquee-item { font-size: 0.9em; gap: 40px; }
+            .marquee-content { gap: 40px; }
+
+            .badge { font-size: 0.8em; padding: 8px 16px; }
+            .scroll-indicator { bottom: 25px; }
+        }
+
+        /* Extra small screens */
+        @media (max-width: 400px) {
+            .hero h1 { font-size: 1.6em; }
+            .hero p { font-size: 1em; }
+            .btn-primary, .btn-secondary { font-size: 0.95em; padding: 12px 20px; }
+            .section-title { font-size: 1.5em; }
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 15px; }
+            .stat-item h3 { font-size: 2em; }
+            .pricing-price { font-size: 2em; }
+            .footer-content { grid-template-columns: 1fr; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loader" id="loader">
+        <img src="logo-sos-storytelling.png" alt="Loading" class="loader-logo">
+        <div class="loader-text">SOS Storytelling</div>
+        <div class="loader-bar"></div>
+    </div>
+    
+    <!-- Cursor Glow -->
+    <div class="cursor-glow" id="cursorGlow"></div>
+    
+    <!-- Particles Canvas -->
+    <canvas id="particles-canvas"></canvas>
+    
+    <!-- Sound Toggle -->
+    <button class="sound-toggle muted" id="soundToggle" title="Activer le son">
+        <div class="sound-waves"></div>
+        <svg viewBox="0 0 24 24" id="soundIcon">
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+        </svg>
+    </button>
+    
+    <header class="header">
+        <a href="#" class="logo">
+            <img src="logo-sos-storytelling.png" alt="SOS Storytelling" class="logo-img">
+            <span class="logo-text">SOS Storytelling</span>
+        </a>
+        <button class="menu-toggle" id="menuToggle">
+            <span></span><span></span><span></span>
+        </button>
+        <nav class="nav" id="nav">
+            <a href="#fonctionnalites" data-i18n="nav.features">Fonctionnalités</a>
+            <a href="#usecases" data-i18n="nav.for_who">Pour qui ?</a>
+            <!-- BETA: Masqué temporairement <a href="#tarifs">Tarifs</a> -->
+            <a href="#faq">FAQ</a>
+            <a href="mailto:contact@myinnerquest.fr">Contact</a>
+            <div class="lang-toggle">
+                <button class="lang-btn active" data-lang="fr">FR</button>
+                <button class="lang-btn" data-lang="en">EN</button>
+            </div>
+            <a href="login.html" class="btn-cta" data-i18n="nav.free_trial">Essai gratuit</a>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <!-- Floating keywords -->
+            <div class="floating-keywords">
+                <span class="floating-word" style="left: 5%; animation-delay: 0s;">AIDA</span>
+                <span class="floating-word" style="left: 15%; animation-delay: 4s;">LinkedIn</span>
+                <span class="floating-word" style="left: 30%; animation-delay: 8s;">Storytelling</span>
+                <span class="floating-word" style="left: 50%; animation-delay: 2s;">Instagram</span>
+                <span class="floating-word" style="left: 65%; animation-delay: 6s;">TikTok</span>
+                <span class="floating-word" style="left: 80%; animation-delay: 10s;">Contenu</span>
+                <span class="floating-word" style="left: 92%; animation-delay: 3s;">IA</span>
+            </div>
+            
+            <div class="hero-orb hero-orb-1"></div>
+            <div class="hero-orb hero-orb-2"></div>
+            <div class="hero-orb hero-orb-3"></div>
+            
+            <div class="hero-content">
+                <span class="badge" data-i18n="hero.badge">✨ Personal Branding & Storytelling</span>
+                <h1 class="hero-title">
+                    <span class="word" style="animation-delay: 0.3s" data-i18n="hero.title_1">L'IA</span>
+                    <span class="word" style="animation-delay: 0.4s" data-i18n="hero.title_2">qui</span>
+                    <span class="word" style="animation-delay: 0.5s" data-i18n="hero.title_3">connaît</span>
+                    <span class="word gradient" style="animation-delay: 0.6s" data-i18n="hero.title_4">ton business</span>
+                    <span class="word" style="animation-delay: 0.8s" data-i18n="hero.title_5">et</span>
+                    <span class="word" style="animation-delay: 0.9s" data-i18n="hero.title_6">écrit</span>
+                    <span class="word gradient" style="animation-delay: 1.0s" data-i18n="hero.title_7">comme toi.</span>
+                </h1>
+                <p class="hero-subtitle" data-i18n="hero.subtitle">SOS Storytelling analyse tes textes, ton activité et tes objectifs grâce à un onboarding intelligent, puis génère pour toi des contenus et newsletters alignés à ton style, ton offre et ton client idéal.</p>
+
+                <div class="hero-cta">
+                    <a href="login.html" class="btn-primary" data-i18n="hero.cta_primary">Essayer gratuitement →</a>
+                    <a href="#videoPlaceholder" class="btn-secondary" data-i18n="hero.cta_secondary">▶ Voir une démo</a>
+                </div>
+                <p class="hero-note" data-i18n="hero.note">✓ Sans carte bancaire • ✓ 7 jours gratuits • ✓ Annulation libre</p>
+
+            </div>
+
+            <!-- Video Vimeo -->
+            <div class="video-container" id="videoPlaceholder">
+                <div class="video-wrapper">
+                    <iframe
+                        src="https://player.vimeo.com/video/1145776241?badge=0&autopause=0&player_id=0&app_id=58479&title=0&byline=0&portrait=0"
+                        frameborder="0"
+                        allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
+                        title="SOS Storytelling - Présentation"
+                        loading="lazy">
+                    </iframe>
+                </div>
+                <script src="https://player.vimeo.com/api/player.js"></script>
+            </div>
+            
+            <div class="scroll-indicator" onclick="document.getElementById('fonctionnalites').scrollIntoView({behavior: 'smooth'})">
+                <div class="mouse"></div>
+                <span>Scroll</span>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features" id="fonctionnalites">
+            <h2 class="section-title" data-i18n="features.title">Tout ce qu'il vous faut pour créer du contenu impactant</h2>
+            <p class="section-subtitle" data-i18n="features.subtitle">Des fonctionnalités pensées pour les créateurs exigeants et les agences performantes</p>
+
+            <div class="features-grid">
+                <article class="feature-card">
+                    <div class="feature-icon">📖</div>
+                    <h3 data-i18n="features.f1_title">20+ Structures Narratives</h3>
+                    <p data-i18n="features.f1_desc">AIDA, PAS, Storytelling, Hook-Story-Offer... Choisissez la structure qui captive votre audience. Chaque framework est optimisé pour convertir.</p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon">🎤</div>
+                    <h3 data-i18n="features.f2_title">Ma Voix - Votre ADN</h3>
+                    <p data-i18n="features.f2_desc">L'IA apprend votre style d'écriture et mémorise vos préférences. Plus vous l'utilisez, plus elle vous ressemble. Fini le contenu générique.</p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon">🗓️</div>
+                    <h3 data-i18n="features.f3_title">Planning IA Automatisé</h3>
+                    <p data-i18n="features.f3_desc">Générez un calendrier éditorial complet en un clic. L'IA équilibre vos piliers de contenu et optimise les horaires de publication.</p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon">🔥</div>
+                    <h3 data-i18n="features.f4_title">TRENDS en Temps Réel</h3>
+                    <p data-i18n="features.f4_desc">Détectez les sujets tendances de votre secteur. Ne ratez plus jamais une opportunité de surfer sur l'actualité.</p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon">📤</div>
+                    <h3 data-i18n="features.f5_title">Export Multi-Outils</h3>
+                    <p data-i18n="features.f5_desc">Exportez vers Metricool, Swello, Buffer ou CSV en un clic. Compatible avec tous vos outils de planification existants.</p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <h3 data-i18n="features.f6_title">Mode Multi-Clients</h3>
+                    <p data-i18n="features.f6_desc">Gérez jusqu'à 30 clients avec des profils de voix distincts. Dashboard analytics, exports bulk, rapports détaillés.</p>
+                </article>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="stats">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>20+</h3>
+                    <p data-i18n="stats.s1">Structures narratives</p>
+                </div>
+                <div class="stat-item">
+                    <h3>30sec</h3>
+                    <p data-i18n="stats.s2">Pour un contenu parfait</p>
+                </div>
+                <div class="stat-item">
+                    <h3>7</h3>
+                    <p data-i18n="stats.s3">Plateformes supportées</p>
+                </div>
+                <div class="stat-item">
+                    <h3>∞</h3>
+                    <p data-i18n="stats.s4">D'inspiration créative</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Use Cases Section -->
+        <section class="use-cases" id="usecases">
+            <h2 class="section-title" data-i18n="usecases.title">Conçu pour ceux qui créent du contenu sérieusement</h2>
+            <p class="section-subtitle" data-i18n="usecases.subtitle">Que vous soyez freelance ou agence, SOS Storytelling s'adapte à votre workflow</p>
+
+            <div class="use-cases-grid">
+                <article class="use-case-card">
+                    <h3 data-i18n="usecases.u1_title">👤 Freelance / Solopreneur</h3>
+                    <p data-i18n="usecases.u1_desc">Créez du contenu consistant sans y passer des heures. Gardez votre voix authentique tout en multipliant votre présence en ligne.</p>
+                </article>
+
+                <article class="use-case-card">
+                    <h3 data-i18n="usecases.u2_title">📱 Community Manager</h3>
+                    <p data-i18n="usecases.u2_desc">Générez des idées fraîches pour vos clients, respectez leurs guidelines de marque, et exportez directement vers vos outils de planification.</p>
+                </article>
+
+                <article class="use-case-card">
+                    <h3 data-i18n="usecases.u3_title">🏢 Agence Social Media</h3>
+                    <p data-i18n="usecases.u3_desc">Gérez plusieurs clients avec des voix distinctes, suivez la production de contenu avec le dashboard analytics, et scalez votre activité.</p>
+                </article>
+
+                <article class="use-case-card">
+                    <h3 data-i18n="usecases.u4_title">🎯 Consultant Marketing</h3>
+                    <p data-i18n="usecases.u4_desc">Impressionnez vos clients avec des contenus structurés et percutants. Utilisez les frameworks éprouvés pour maximiser l'engagement.</p>
+                </article>
+
+                <article class="use-case-card">
+                    <h3 data-i18n="usecases.u5_title">🛍️ E-commerce</h3>
+                    <p data-i18n="usecases.u5_desc">Créez du contenu produit qui convertit. Storytelling, témoignages, lancements... Tout est optimisé pour la vente.</p>
+                </article>
+
+                <article class="use-case-card">
+                    <h3 data-i18n="usecases.u6_title">👩‍💼 Personal Branding</h3>
+                    <p data-i18n="usecases.u6_desc">Développez votre marque personnelle avec du contenu qui vous ressemble. LinkedIn, Instagram, TikTok... Soyez partout, authentiquement.</p>
+                </article>
+            </div>
+        </section>
+
+        <!-- Marquee -->
+        <div class="marquee-section">
+            <div class="marquee">
+                <div class="marquee-content">
+                    <span class="marquee-item">LinkedIn <span>✦</span></span>
+                    <span class="marquee-item">Instagram <span>✦</span></span>
+                    <span class="marquee-item">TikTok <span>✦</span></span>
+                    <span class="marquee-item">Facebook <span>✦</span></span>
+                    <span class="marquee-item">Twitter/X <span>✦</span></span>
+                    <span class="marquee-item">YouTube <span>✦</span></span>
+                </div>
+                <div class="marquee-content">
+                    <span class="marquee-item">LinkedIn <span>✦</span></span>
+                    <span class="marquee-item">Instagram <span>✦</span></span>
+                    <span class="marquee-item">TikTok <span>✦</span></span>
+                    <span class="marquee-item">Facebook <span>✦</span></span>
+                    <span class="marquee-item">Twitter/X <span>✦</span></span>
+                    <span class="marquee-item">YouTube <span>✦</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pricing Section -->
+        <section id="tarifs">
+            <h2 class="section-title">Testez gratuitement pendant 7 jours</h2>
+            <p class="section-subtitle">Accès complet, sans carte bancaire. Vous décidez ensuite.</p>
+
+            <!-- Trial Banner -->
+            <div class="trial-banner">
+                <h3>🚀 Essai gratuit 7 jours</h3>
+                <p>Accès complet à toutes les fonctionnalités. Découvrez "Ma Voix" et le Planning IA sans limite.</p>
+                <a href="login.html" class="btn-primary">Commencer l'essai gratuit</a>
+                <p style="margin-top: 20px; font-size: 0.9em; opacity: 0.8; position: relative;">✓ Sans carte bancaire • ✓ Annulation libre • ✓ Données exportables</p>
+            </div>
+            
+            <p style="text-align: center; color: rgba(255,255,255,0.6); margin-bottom: 40px;">Après l'essai, choisissez votre plan :</p>
+            
+            <div class="pricing-grid">
+                <article class="pricing-card">
+                    <h3>Solo</h3>
+                    <p class="pricing-subtitle">Pour les créateurs individuels</p>
+                    <div class="pricing-price">39€<span>/mois</span></div>
+                    <ul class="pricing-features">
+                        <li>Contenus illimités</li>
+                        <li>🎤 Ma Voix complète</li>
+                        <li>TRENDS illimité</li>
+                        <li>Planning IA</li>
+                        <li>Export CSV & outils</li>
+                        <li>Support prioritaire</li>
+                    </ul>
+                    <a href="https://myinnerquest.lemonsqueezy.com/buy/74412bb8-7df8-4d11-a7bb-c8434dc687a7" class="pricing-btn secondary">Choisir Solo</a>
+                </article>
+
+                <article class="pricing-card">
+                    <h3>Agence Starter</h3>
+                    <p class="pricing-subtitle">Jusqu'à 10 clients</p>
+                    <div class="pricing-price">99€<span>/mois</span></div>
+                    <ul class="pricing-features">
+                        <li>Tout de Solo +</li>
+                        <li>🎤 Voix PAR CLIENT</li>
+                        <li>Import CSV clients</li>
+                        <li>Dashboard analytics</li>
+                        <li>Planning multi-clients</li>
+                        <li>Support dédié</li>
+                    </ul>
+                    <a href="https://myinnerquest.lemonsqueezy.com/buy/c743c114-dc29-48a3-b34b-0fd30d3db204" class="pricing-btn secondary">Choisir Starter</a>
+                </article>
+
+                <article class="pricing-card popular">
+                    <span class="pricing-badge">Populaire</span>
+                    <h3>Agence Scale</h3>
+                    <p class="pricing-subtitle">Jusqu'à 30 clients</p>
+                    <div class="pricing-price">199€<span>/mois</span></div>
+                    <ul class="pricing-features">
+                        <li>Tout de Starter +</li>
+                        <li>🎤 30 profils de voix</li>
+                        <li>Analytics avancées</li>
+                        <li>Exports bulk illimités</li>
+                        <li>Onboarding équipe</li>
+                        <li>Support prioritaire</li>
+                    </ul>
+                    <a href="https://myinnerquest.lemonsqueezy.com/buy/0177ea61-1b2b-4897-8913-2f6b0ce8afa7" class="pricing-btn primary">Choisir Scale</a>
+                </article>
+                
+                <article class="pricing-card">
+                    <h3>Enterprise</h3>
+                    <p class="pricing-subtitle">30+ clients, sur devis</p>
+                    <div class="pricing-price" style="font-size: 1.8em;">À partir de<br>300€<span>/mois</span></div>
+                    <ul class="pricing-features">
+                        <li>Clients illimités</li>
+                        <li>Multi-utilisateurs</li>
+                        <li>API & SSO</li>
+                        <li>Voix sur-mesure</li>
+                        <li>Onboarding personnalisé</li>
+                        <li>Account manager dédié</li>
+                    </ul>
+                    <a href="mailto:contact@myinnerquest.fr" class="pricing-btn secondary">Nous contacter</a>
+                </article>
+            </div>
+            
+            <div style="text-align: center; margin-top: 50px; padding: 30px; background: rgba(255,255,255,0.03); border-radius: 20px; max-width: 600px; margin-left: auto; margin-right: auto;">
+                <p style="color: rgba(255,255,255,0.7); font-size: 0.95em;">💡 <strong>Pendant votre essai, atteignez ces 2 moments clés :</strong></p>
+                <p style="color: rgba(255,255,255,0.5); font-size: 0.9em; margin-top: 10px;">1. Voir votre score de fidélité "Ma Voix" • 2. Générer votre premier Planning IA</p>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="faq" id="faq">
+            <h2 class="section-title" data-i18n="faq.title">Questions fréquentes</h2>
+            <p class="section-subtitle" data-i18n="faq.subtitle">Tout ce que vous devez savoir avant de commencer</p>
+
+            <div class="faq-container">
+                <article class="faq-item">
+                    <div class="faq-question" data-i18n="faq.q1">Puis-je utiliser SOS Storytelling pour plusieurs clients ?</div>
+                    <div class="faq-answer">
+                        <p data-i18n="faq.a1">Absolument ! Les plans Agence Starter (jusqu'à 10 clients) et Agence Scale (jusqu'à 30 clients) permettent de gérer plusieurs profils de voix distincts. Chaque client a son propre style, ses piliers de contenu, et vous pouvez basculer entre eux en un clic.</p>
+                    </div>
+                </article>
+
+                <article class="faq-item">
+                    <div class="faq-question" data-i18n="faq.q2">Qu'est-ce que la fonctionnalité "Ma Voix" ?</div>
+                    <div class="faq-answer">
+                        <p data-i18n="faq.a2">"Ma Voix" est notre technologie propriétaire qui analyse votre style d'écriture et mémorise vos préférences. Elle apprend votre ton, vos expressions favorites, vos emojis préférés, et génère du contenu qui vous ressemble vraiment.</p>
+                    </div>
+                </article>
+
+                <article class="faq-item">
+                    <div class="faq-question" data-i18n="faq.q3">Puis-je exporter mes contenus vers mes outils de planification ?</div>
+                    <div class="faq-answer">
+                        <p data-i18n="faq.a3">Oui ! SOS Storytelling permet d'exporter en un clic vers Metricool, Swello, Buffer ou en CSV générique compatible avec n'importe quel outil. Le format est optimisé pour chaque plateforme.</p>
+                    </div>
+                </article>
+
+                <article class="faq-item">
+                    <div class="faq-question" data-i18n="faq.q4">Quelles plateformes sociales sont supportées ?</div>
+                    <div class="faq-answer">
+                        <p data-i18n="faq.a4">LinkedIn, Instagram, TikTok, Facebook, Twitter/X, YouTube, et newsletters. Chaque contenu est automatiquement optimisé pour les spécificités de chaque plateforme.</p>
+                    </div>
+                </article>
+
+                <article class="faq-item">
+                    <div class="faq-question" data-i18n="faq.q5">Mes données sont-elles sécurisées ?</div>
+                    <div class="faq-answer">
+                        <p data-i18n="faq.a5">Vos données sont stockées de manière sécurisée et ne sont jamais utilisées pour entraîner des modèles IA externes. Vous pouvez exporter ou supprimer vos données à tout moment (RGPD). Nous utilisons le chiffrement SSL et des serveurs européens.</p>
+                    </div>
+                </article>
+
+                <article class="faq-item">
+                    <div class="faq-question" data-i18n="faq.q6">Puis-je annuler mon abonnement à tout moment ?</div>
+                    <div class="faq-answer">
+                        <p data-i18n="faq.a6">Oui, sans aucune condition. Vous pouvez annuler votre abonnement en un clic depuis votre compte. L'accès reste actif jusqu'à la fin de la période payée. Vos données restent exportables pendant 30 jours après l'annulation.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Newsletter Section -->
+        <section class="newsletter" id="newsletter">
+            <h2 data-i18n="newsletter.title">Recevez nos tips de storytelling</h2>
+            <p data-i18n="newsletter.subtitle">Chaque semaine, une technique de création de contenu qui fait la différence. Pas de spam, promis.</p>
+            <form class="newsletter-form" id="newsletterForm">
+                <input type="email" name="email" placeholder="votre@email.com" data-i18n-placeholder="newsletter.placeholder" required>
+                <button type="submit" data-i18n="newsletter.button">S'inscrire</button>
+            </form>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-col">
+                <h4>SOS Storytelling</h4>
+                <p data-i18n="footer.tagline">L'IA qui transforme vos idées en contenus percutants. Créé avec ❤️ par My Inner Quest.</p>
+            </div>
+            <div class="footer-col">
+                <h4 data-i18n="footer.product">Produit</h4>
+                <a href="#fonctionnalites" data-i18n="footer.features">Fonctionnalités</a>
+                <a href="#tarifs" data-i18n="footer.pricing">Tarifs</a>
+                <a href="#faq" data-i18n="footer.faq">FAQ</a>
+                <a href="login.html" data-i18n="footer.free_trial">Essai gratuit</a>
+            </div>
+            <div class="footer-col">
+                <h4 data-i18n="footer.resources">Ressources</h4>
+                <a href="#" data-i18n="footer.guide">Guide de démarrage</a>
+                <a href="#" data-i18n="footer.tutorials">Tutoriels vidéo</a>
+                <a href="#" data-i18n="footer.blog">Blog</a>
+            </div>
+            <div class="footer-col">
+                <h4>Contact</h4>
+                <a href="mailto:contact@myinnerquest.fr">contact@myinnerquest.fr</a>
+                <a href="https://linktr.ee/myinnerquest" target="_blank" data-i18n="footer.all_links">Tous nos liens</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="footer-social">
+                <a href="https://linktr.ee/myinnerquest" target="_blank" title="Linktree">🔗</a>
+                <a href="https://www.linkedin.com/company/myinnerquest/" target="_blank" title="LinkedIn">in</a>
+                <a href="https://www.instagram.com/myinnerquest.fr/" target="_blank" title="Instagram">📸</a>
+            </div>
+            <p class="footer-copy">
+                © 2025 My Inner Quest - SOS Storytelling. <span data-i18n="footer.rights">Tous droits réservés.</span><br>
+                <a href="mentions-legales.html" data-i18n="footer.legal">Mentions légales</a> | <a href="cgv.html">CGV</a>
+            </p>
+            <p class="footer-legal">
+                My Inner Quest - 922 route de l'océan, 40260 Linxe<br>
+                SIRET : 988 456 349 00014
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // ============ LOADING SCREEN ============
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('hidden');
+            }, 1500);
+        });
+        
+        // ============ CURSOR GLOW ============
+        const cursorGlow = document.getElementById('cursorGlow');
+        let cursorX = 0, cursorY = 0;
+        let glowX = 0, glowY = 0;
+        
+        document.addEventListener('mousemove', (e) => {
+            cursorX = e.clientX;
+            cursorY = e.clientY;
+        });
+        
+        function animateCursor() {
+            glowX += (cursorX - glowX) * 0.1;
+            glowY += (cursorY - glowY) * 0.1;
+            cursorGlow.style.left = glowX + 'px';
+            cursorGlow.style.top = glowY + 'px';
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+        
+        // ============ PARTICLES SYSTEM ============
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let mouse = { x: null, y: null, radius: 150 };
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        window.addEventListener('mousemove', (e) => { mouse.x = e.x; mouse.y = e.y; });
+        window.addEventListener('mouseout', () => { mouse.x = null; mouse.y = null; });
+        
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.baseX = this.x;
+                this.baseY = this.y;
+                this.density = (Math.random() * 30) + 1;
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.speedY = (Math.random() - 0.5) * 0.5;
+                this.opacity = Math.random() * 0.5 + 0.2;
+                this.color = Math.random() > 0.6 ? '#667eea' : Math.random() > 0.5 ? '#f5576c' : '#ffffff';
+                this.twinkleSpeed = Math.random() * 0.02 + 0.01;
+                this.twinklePhase = Math.random() * Math.PI * 2;
+            }
+            
+            draw() {
+                const twinkle = Math.sin(Date.now() * this.twinkleSpeed + this.twinklePhase) * 0.3 + 0.7;
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = this.opacity * twinkle;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.closePath();
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+            
+            update() {
+                if (mouse.x !== null && mouse.y !== null) {
+                    let dx = mouse.x - this.x;
+                    let dy = mouse.y - this.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < mouse.radius) {
+                        let force = (mouse.radius - distance) / mouse.radius;
+                        this.x -= (dx / distance) * force * this.density;
+                        this.y -= (dy / distance) * force * this.density;
+                    } else {
+                        this.x += (this.baseX - this.x) / 10;
+                        this.y += (this.baseY - this.y) / 10;
+                    }
+                } else {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    if (this.x < 0 || this.x > canvas.width) this.x = this.baseX = Math.random() * canvas.width;
+                    if (this.y < 0 || this.y > canvas.height) this.y = this.baseY = Math.random() * canvas.height;
+                }
+                this.draw();
+            }
+        }
+        
+        function initParticles() {
+            particles = [];
+            let num = Math.min((canvas.width * canvas.height) / 9000, 150);
+            for (let i = 0; i < num; i++) particles.push(new Particle());
+        }
+        initParticles();
+        window.addEventListener('resize', initParticles);
+        
+        function connectParticles() {
+            for (let a = 0; a < particles.length; a++) {
+                for (let b = a; b < particles.length; b++) {
+                    let dist = (particles[a].x - particles[b].x) ** 2 + (particles[a].y - particles[b].y) ** 2;
+                    if (dist < 15000) {
+                        ctx.strokeStyle = `rgba(102, 126, 234, ${(1 - dist / 15000) * 0.15})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[a].x, particles[a].y);
+                        ctx.lineTo(particles[b].x, particles[b].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+        
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => p.update());
+            connectParticles();
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+        
+        // ============ SHOOTING STARS ============
+        function createShootingStar() {
+            const star = document.createElement('div');
+            star.className = 'shooting-star';
+            star.style.left = Math.random() * 70 + '%';
+            star.style.top = Math.random() * 50 + '%';
+            star.style.transform = `rotate(${Math.random() * 20 + 30}deg)`;
+            document.body.appendChild(star);
+            setTimeout(() => star.remove(), 1000);
+        }
+        setInterval(() => { if (Math.random() > 0.7) createShootingStar(); }, 3000);
+        
+        // ============ SCROLL ANIMATIONS ============
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, i) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => entry.target.classList.add('visible'), i * 100);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+        
+        document.querySelectorAll('.section-title, .section-subtitle, .feature-card, .use-case-card, .stat-item, .pricing-card, .faq-item, .trial-banner').forEach(el => observer.observe(el));
+        
+        // ============ HEADER SCROLL ============
+        window.addEventListener('scroll', () => {
+            document.querySelector('.header').classList.toggle('scrolled', window.scrollY > 50);
+        });
+        
+        // ============ MOBILE MENU ============
+        const menuToggle = document.getElementById('menuToggle');
+        const nav = document.getElementById('nav');
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            nav.classList.toggle('active');
+        });
+        document.querySelectorAll('.nav a').forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                nav.classList.remove('active');
+            });
+        });
+        
+        // ============ SMOOTH SCROLL ============
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+        
+        // ============ 3D TILT ON CARDS ============
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const rotateX = (y - rect.height / 2) / 20;
+                const rotateY = (rect.width / 2 - x) / 20;
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(0)`;
+                card.style.setProperty('--mouse-x', `${(x / rect.width) * 100}%`);
+                card.style.setProperty('--mouse-y', `${(y / rect.height) * 100}%`);
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
+            });
+        });
+        
+        // ============ FAQ ACCORDION ============
+        document.querySelectorAll('.faq-question').forEach(q => {
+            q.addEventListener('click', () => {
+                const item = q.parentElement;
+                const wasOpen = item.classList.contains('open');
+                document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+                if (!wasOpen) item.classList.add('open');
+            });
+        });
+        
+        // ============ VIDEO PLACEHOLDER ============
+        document.getElementById('videoPlaceholder')?.addEventListener('click', () => {
+            alert('🎬 Vidéo de démonstration bientôt disponible !');
+        });
+        
+        // ============ AUDIO SYSTEM ============
+        const soundToggle = document.getElementById('soundToggle');
+        const soundIcon = document.getElementById('soundIcon');
+        let isMuted = true, audioContext = null, ambientGain = null;
+        
+        function createAmbientSound() {
+            if (audioContext) return;
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            ambientGain = audioContext.createGain();
+            ambientGain.gain.value = 0.12;
+            ambientGain.connect(audioContext.destination);
+            
+            [80, 120, 160].forEach((freq, i) => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                gain.gain.value = 0.08 / (i + 1);
+                const lfo = audioContext.createOscillator();
+                const lfoGain = audioContext.createGain();
+                lfo.frequency.value = 0.08 + i * 0.03;
+                lfoGain.gain.value = 4;
+                lfo.connect(lfoGain);
+                lfoGain.connect(osc.frequency);
+                lfo.start();
+                osc.connect(gain);
+                gain.connect(ambientGain);
+                osc.start();
+            });
+        }
+        
+        soundToggle.addEventListener('click', () => {
+            isMuted = !isMuted;
+            soundToggle.classList.toggle('muted');
+            if (!isMuted) {
+                createAmbientSound();
+                if (audioContext.state === 'suspended') audioContext.resume();
+                ambientGain.gain.value = 0.12;
+                soundIcon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>';
+            } else {
+                if (ambientGain) ambientGain.gain.value = 0;
+                soundIcon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
+            }
+        });
+        
+        // ============ NEWSLETTER ============
+        document.getElementById('newsletterForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const lang = localStorage.getItem('sos_lang') || 'fr';
+            alert(lang === 'en' ? 'Thank you for subscribing! 🎉' : 'Merci pour votre inscription ! 🎉');
+            this.reset();
+        });
+
+        // ============ i18n LANDING PAGE ============
+        const LandingI18N = {
+            currentLang: localStorage.getItem('sos_lang') || 'fr',
+
+            translations: {
+                fr: {
+                    nav: { features: "Fonctionnalités", for_who: "Pour qui ?", free_trial: "Essai gratuit" },
+                    hero: {
+                        badge: "✨ Personal Branding & Storytelling",
+                        title_1: "L'IA", title_2: "qui", title_3: "connaît", title_4: "ton business", title_5: "et", title_6: "écrit", title_7: "comme toi.",
+                        subtitle: "SOS Storytelling analyse tes textes, ton activité et tes objectifs grâce à un onboarding intelligent, puis génère pour toi des contenus et newsletters alignés à ton style, ton offre et ton client idéal.",
+                        cta_primary: "Essayer gratuitement →",
+                        cta_secondary: "▶ Voir une démo",
+                        note: "✓ Sans carte bancaire • ✓ 7 jours gratuits • ✓ Annulation libre"
+                    },
+                    features: {
+                        title: "Tout ce qu'il vous faut pour créer du contenu impactant",
+                        subtitle: "Des fonctionnalités pensées pour les créateurs exigeants et les agences performantes",
+                        f1_title: "20+ Structures Narratives",
+                        f1_desc: "AIDA, PAS, Storytelling, Hook-Story-Offer... Choisissez la structure qui captive votre audience. Chaque framework est optimisé pour convertir.",
+                        f2_title: "Ma Voix - Votre ADN",
+                        f2_desc: "L'IA apprend votre style d'écriture et mémorise vos préférences. Plus vous l'utilisez, plus elle vous ressemble. Fini le contenu générique.",
+                        f3_title: "Planning IA Automatisé",
+                        f3_desc: "Générez un calendrier éditorial complet en un clic. L'IA équilibre vos piliers de contenu et optimise les horaires de publication.",
+                        f4_title: "TRENDS en Temps Réel",
+                        f4_desc: "Détectez les sujets tendances de votre secteur. Ne ratez plus jamais une opportunité de surfer sur l'actualité.",
+                        f5_title: "Export Multi-Outils",
+                        f5_desc: "Exportez vers Metricool, Swello, Buffer ou CSV en un clic. Compatible avec tous vos outils de planification existants.",
+                        f6_title: "Mode Multi-Clients",
+                        f6_desc: "Gérez jusqu'à 30 clients avec des profils de voix distincts. Dashboard analytics, exports bulk, rapports détaillés."
+                    },
+                    stats: {
+                        s1: "Structures narratives", s2: "Pour un contenu parfait", s3: "Plateformes supportées", s4: "D'inspiration créative"
+                    },
+                    usecases: {
+                        title: "Conçu pour ceux qui créent du contenu sérieusement",
+                        subtitle: "Que vous soyez freelance ou agence, SOS Storytelling s'adapte à votre workflow",
+                        u1_title: "👤 Freelance / Solopreneur",
+                        u1_desc: "Créez du contenu consistant sans y passer des heures. Gardez votre voix authentique tout en multipliant votre présence en ligne.",
+                        u2_title: "📱 Community Manager",
+                        u2_desc: "Générez des idées fraîches pour vos clients, respectez leurs guidelines de marque, et exportez directement vers vos outils de planification.",
+                        u3_title: "🏢 Agence Social Media",
+                        u3_desc: "Gérez plusieurs clients avec des voix distinctes, suivez la production de contenu avec le dashboard analytics, et scalez votre activité.",
+                        u4_title: "🎯 Consultant Marketing",
+                        u4_desc: "Impressionnez vos clients avec des contenus structurés et percutants. Utilisez les frameworks éprouvés pour maximiser l'engagement.",
+                        u5_title: "🛍️ E-commerce",
+                        u5_desc: "Créez du contenu produit qui convertit. Storytelling, témoignages, lancements... Tout est optimisé pour la vente.",
+                        u6_title: "👩‍💼 Personal Branding",
+                        u6_desc: "Développez votre marque personnelle avec du contenu qui vous ressemble. LinkedIn, Instagram, TikTok... Soyez partout, authentiquement."
+                    },
+                    faq: {
+                        title: "Questions fréquentes",
+                        subtitle: "Tout ce que vous devez savoir avant de commencer",
+                        q1: "Puis-je utiliser SOS Storytelling pour plusieurs clients ?",
+                        a1: "Absolument ! Les plans Agence Starter (jusqu'à 10 clients) et Agence Scale (jusqu'à 30 clients) permettent de gérer plusieurs profils de voix distincts. Chaque client a son propre style, ses piliers de contenu, et vous pouvez basculer entre eux en un clic.",
+                        q2: "Qu'est-ce que la fonctionnalité \"Ma Voix\" ?",
+                        a2: "\"Ma Voix\" est notre technologie propriétaire qui analyse votre style d'écriture et mémorise vos préférences. Elle apprend votre ton, vos expressions favorites, vos emojis préférés, et génère du contenu qui vous ressemble vraiment.",
+                        q3: "Puis-je exporter mes contenus vers mes outils de planification ?",
+                        a3: "Oui ! SOS Storytelling permet d'exporter en un clic vers Metricool, Swello, Buffer ou en CSV générique compatible avec n'importe quel outil. Le format est optimisé pour chaque plateforme.",
+                        q4: "Quelles plateformes sociales sont supportées ?",
+                        a4: "LinkedIn, Instagram, TikTok, Facebook, Twitter/X, YouTube, et newsletters. Chaque contenu est automatiquement optimisé pour les spécificités de chaque plateforme.",
+                        q5: "Mes données sont-elles sécurisées ?",
+                        a5: "Vos données sont stockées de manière sécurisée et ne sont jamais utilisées pour entraîner des modèles IA externes. Vous pouvez exporter ou supprimer vos données à tout moment (RGPD). Nous utilisons le chiffrement SSL et des serveurs européens.",
+                        q6: "Puis-je annuler mon abonnement à tout moment ?",
+                        a6: "Oui, sans aucune condition. Vous pouvez annuler votre abonnement en un clic depuis votre compte. L'accès reste actif jusqu'à la fin de la période payée. Vos données restent exportables pendant 30 jours après l'annulation."
+                    },
+                    newsletter: {
+                        title: "Recevez nos tips de storytelling",
+                        subtitle: "Chaque semaine, une technique de création de contenu qui fait la différence. Pas de spam, promis.",
+                        placeholder: "votre@email.com",
+                        button: "S'inscrire"
+                    },
+                    footer: {
+                        tagline: "L'IA qui transforme vos idées en contenus percutants. Créé avec ❤️ par My Inner Quest.",
+                        product: "Produit", resources: "Ressources",
+                        features: "Fonctionnalités", pricing: "Tarifs", faq: "FAQ", free_trial: "Essai gratuit",
+                        guide: "Guide de démarrage", tutorials: "Tutoriels vidéo", blog: "Blog",
+                        all_links: "Tous nos liens",
+                        rights: "Tous droits réservés.",
+                        legal: "Mentions légales"
+                    }
+                },
+                en: {
+                    nav: { features: "Features", for_who: "For Who?", free_trial: "Free Trial" },
+                    hero: {
+                        badge: "✨ Personal Branding & Storytelling",
+                        title_1: "The AI", title_2: "that", title_3: "knows", title_4: "your business", title_5: "and", title_6: "writes", title_7: "like you.",
+                        subtitle: "SOS Storytelling analyzes your texts, your activity and your goals through intelligent onboarding, then generates content and newsletters aligned with your style, your offer and your ideal client.",
+                        cta_primary: "Try for free →",
+                        cta_secondary: "▶ Watch a demo",
+                        note: "✓ No credit card • ✓ 7 days free • ✓ Cancel anytime"
+                    },
+                    features: {
+                        title: "Everything you need to create impactful content",
+                        subtitle: "Features designed for demanding creators and high-performing agencies",
+                        f1_title: "20+ Narrative Structures",
+                        f1_desc: "AIDA, PAS, Storytelling, Hook-Story-Offer... Choose the structure that captivates your audience. Each framework is optimized to convert.",
+                        f2_title: "My Voice - Your DNA",
+                        f2_desc: "AI learns your writing style and remembers your preferences. The more you use it, the more it sounds like you. No more generic content.",
+                        f3_title: "Automated AI Planning",
+                        f3_desc: "Generate a complete editorial calendar in one click. AI balances your content pillars and optimizes posting times.",
+                        f4_title: "Real-Time TRENDS",
+                        f4_desc: "Detect trending topics in your industry. Never miss an opportunity to surf on current events.",
+                        f5_title: "Multi-Tool Export",
+                        f5_desc: "Export to Metricool, Swello, Buffer or CSV in one click. Compatible with all your existing scheduling tools.",
+                        f6_title: "Multi-Client Mode",
+                        f6_desc: "Manage up to 30 clients with distinct voice profiles. Analytics dashboard, bulk exports, detailed reports."
+                    },
+                    stats: {
+                        s1: "Narrative structures", s2: "For perfect content", s3: "Supported platforms", s4: "Of creative inspiration"
+                    },
+                    usecases: {
+                        title: "Built for those who create content seriously",
+                        subtitle: "Whether you're a freelancer or an agency, SOS Storytelling adapts to your workflow",
+                        u1_title: "👤 Freelance / Solopreneur",
+                        u1_desc: "Create consistent content without spending hours. Keep your authentic voice while multiplying your online presence.",
+                        u2_title: "📱 Community Manager",
+                        u2_desc: "Generate fresh ideas for your clients, respect their brand guidelines, and export directly to your scheduling tools.",
+                        u3_title: "🏢 Social Media Agency",
+                        u3_desc: "Manage multiple clients with distinct voices, track content production with the analytics dashboard, and scale your business.",
+                        u4_title: "🎯 Marketing Consultant",
+                        u4_desc: "Impress your clients with structured and impactful content. Use proven frameworks to maximize engagement.",
+                        u5_title: "🛍️ E-commerce",
+                        u5_desc: "Create product content that converts. Storytelling, testimonials, launches... Everything is optimized for sales.",
+                        u6_title: "👩‍💼 Personal Branding",
+                        u6_desc: "Develop your personal brand with content that looks like you. LinkedIn, Instagram, TikTok... Be everywhere, authentically."
+                    },
+                    faq: {
+                        title: "Frequently Asked Questions",
+                        subtitle: "Everything you need to know before getting started",
+                        q1: "Can I use SOS Storytelling for multiple clients?",
+                        a1: "Absolutely! Agency Starter (up to 10 clients) and Agency Scale (up to 30 clients) plans allow you to manage multiple distinct voice profiles. Each client has their own style, content pillars, and you can switch between them in one click.",
+                        q2: "What is the \"My Voice\" feature?",
+                        a2: "\"My Voice\" is our proprietary technology that analyzes your writing style and remembers your preferences. It learns your tone, favorite expressions, preferred emojis, and generates content that truly sounds like you.",
+                        q3: "Can I export my content to my scheduling tools?",
+                        a3: "Yes! SOS Storytelling allows one-click export to Metricool, Swello, Buffer or generic CSV compatible with any tool. The format is optimized for each platform.",
+                        q4: "Which social platforms are supported?",
+                        a4: "LinkedIn, Instagram, TikTok, Facebook, Twitter/X, YouTube, and newsletters. Each content is automatically optimized for the specifics of each platform.",
+                        q5: "Is my data secure?",
+                        a5: "Your data is stored securely and is never used to train external AI models. You can export or delete your data at any time (GDPR). We use SSL encryption and European servers.",
+                        q6: "Can I cancel my subscription at any time?",
+                        a6: "Yes, without any conditions. You can cancel your subscription in one click from your account. Access remains active until the end of the paid period. Your data remains exportable for 30 days after cancellation."
+                    },
+                    newsletter: {
+                        title: "Get our storytelling tips",
+                        subtitle: "Every week, a content creation technique that makes a difference. No spam, promise.",
+                        placeholder: "your@email.com",
+                        button: "Subscribe"
+                    },
+                    footer: {
+                        tagline: "The AI that transforms your ideas into impactful content. Made with ❤️ by My Inner Quest.",
+                        product: "Product", resources: "Resources",
+                        features: "Features", pricing: "Pricing", faq: "FAQ", free_trial: "Free Trial",
+                        guide: "Getting Started Guide", tutorials: "Video Tutorials", blog: "Blog",
+                        all_links: "All our links",
+                        rights: "All rights reserved.",
+                        legal: "Legal Notice"
+                    }
+                }
+            },
+
+            t(key) {
+                const keys = key.split('.');
+                let value = this.translations[this.currentLang];
+                for (const k of keys) {
+                    if (value && value[k] !== undefined) value = value[k];
+                    else return key;
+                }
+                return value;
+            },
+
+            setLang(lang) {
+                this.currentLang = lang;
+                localStorage.setItem('sos_lang', lang);
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.lang === lang);
+                });
+                this.updatePage();
+            },
+
+            updatePage() {
+                // Update data-i18n elements
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.dataset.i18n;
+                    const translation = this.t(key);
+                    if (translation !== key) el.textContent = translation;
+                });
+
+                // Update data-i18n-html elements (with HTML)
+                document.querySelectorAll('[data-i18n-html]').forEach(el => {
+                    const key = el.dataset.i18nHtml;
+                    const translation = this.t(key);
+                    if (translation !== key) el.innerHTML = translation;
+                });
+
+                // Update placeholders
+                document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                    const key = el.dataset.i18nPlaceholder;
+                    const translation = this.t(key);
+                    if (translation !== key) el.placeholder = translation;
+                });
+            },
+
+            init() {
+                // Set initial state from localStorage
+                const savedLang = localStorage.getItem('sos_lang') || 'fr';
+                this.currentLang = savedLang;
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.lang === savedLang);
+                    btn.addEventListener('click', () => this.setLang(btn.dataset.lang));
+                });
+                this.updatePage();
+            }
+        };
+
+        // Initialize i18n
+        LandingI18N.init();
+
+        console.log('✨ SOS Storytelling Experience loaded');
+    </script>
+</body>
+</html>

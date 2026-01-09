@@ -1,0 +1,92 @@
+# =====================================================
+# .gitignore - SOS Storytelling
+# =====================================================
+
+# ============ SECRETS & ENVIRONMENT ============
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.test
+*.env
+secrets/
+secrets.*
+credentials.json
+service-account.json
+*.pem
+*.key
+
+# ============ NETLIFY ============
+.netlify/
+
+# ============ CLOUDFLARE / WRANGLER ============
+.wrangler/
+.dev.vars
+wrangler.dev.toml
+
+# ============ NODE.JS ============
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ============ BUILD & DIST ============
+dist/
+build/
+out/
+.next/
+.nuxt/
+.output/
+
+# ============ IDE & EDITORS ============
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# ============ OS FILES ============
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ============ LOGS ============
+logs/
+*.log
+npm-debug.log
+debug.log
+
+# ============ CACHE ============
+.cache/
+.parcel-cache/
+.turbo/
+*.tsbuildinfo
+
+# ============ TEST COVERAGE ============
+coverage/
+.nyc_output/
+
+# ============ TEMPORARY FILES ============
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# ============ API KEYS (au cas ou) ============
+*api-key*
+*apikey*
+*secret*
+!*.example
+!.env.example

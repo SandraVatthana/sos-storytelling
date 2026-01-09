@@ -12,7 +12,7 @@ const INBOX_CONFIG = {
 
   // OAuth Gmail
   gmail: {
-    clientId: '502958179848-kl6o23i7mq8fs3ana4q4usrgvb4nujsg.apps.googleusercontent.com',
+    clientId: '801460571379-cotm0n14spd573tjlvnhj5t7rfj6u6nf.apps.googleusercontent.com',
     redirectUri: window.location.origin + '/oauth-callback.html',
     scope: 'https://www.googleapis.com/auth/gmail.readonly',
     authUrl: 'https://accounts.google.com/o/oauth2/v2/auth'
@@ -39,19 +39,21 @@ const InboxModule = {
     // Créer le HTML du module
     this.createInboxHTML();
 
-    // Vérifier la connexion email
-    await this.checkEmailConnection();
-
-    // Charger les réponses si connecté
-    if (this.isConnected) {
-      await this.loadResponses();
-    }
-
     // Setup des événements
     this.setupEventListeners();
 
-    // Vérifier si on revient d'un OAuth callback
-    this.checkOAuthCallback();
+    // IMPORTANT: Vérifier d'abord si on revient d'un OAuth callback
+    const hasOAuthCallback = await this.checkOAuthCallback();
+
+    // Si pas de callback OAuth, vérifier la connexion existante
+    if (!hasOAuthCallback) {
+      await this.checkEmailConnection();
+
+      // Charger les réponses si connecté
+      if (this.isConnected) {
+        await this.loadResponses();
+      }
+    }
 
     console.log('✅ Inbox Module initialized');
   },
@@ -196,9 +198,10 @@ const InboxModule = {
 
       const data = await response.json();
 
-      if (data.connection) {
+      // Vérifier connected OU connection (compatibilité avec les deux formats)
+      if (data.connected || data.connection) {
         this.isConnected = true;
-        this.connectedEmail = data.connection.email;
+        this.connectedEmail = data.email || data.connection?.email;
         this.showConnectedState();
       }
     } catch (e) {
@@ -264,16 +267,19 @@ const InboxModule = {
     }
   },
 
-  checkOAuthCallback() {
+  async checkOAuthCallback() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     const state = urlParams.get('state');
 
     if (code && state === 'gmail_oauth') {
-      this.handleGmailCallback(code);
-      // Nettoyer l'URL
+      // Traiter le callback OAuth de manière synchrone
+      await this.handleGmailCallback(code);
+      // Nettoyer l'URL après traitement
       window.history.replaceState({}, document.title, window.location.pathname);
+      return true; // Indique qu'un callback a été traité
     }
+    return false;
   },
 
   async handleGmailCallback(code) {
@@ -283,13 +289,16 @@ const InboxModule = {
       const token = await this.getAuthToken();
       const userId = await this.getCurrentUserId();
 
+      // Passer le redirectUri pour que l'échange de tokens fonctionne
+      const redirectUri = INBOX_CONFIG.gmail.redirectUri;
+
       const response = await fetch(`${INBOX_CONFIG.apiUrl}/api/oauth/gmail/callback`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ code, userId })
+        body: JSON.stringify({ code, userId, redirectUri })
       });
 
       const result = await response.json();
@@ -301,11 +310,11 @@ const InboxModule = {
         await this.loadResponses();
         showNotification(`✅ ${result.email} connecté avec succès !`, 'success');
       } else {
-        throw new Error(result.error);
+        throw new Error(result.error || 'Erreur inconnue');
       }
     } catch (e) {
       console.error('Gmail OAuth error:', e);
-      showNotification('Erreur de connexion Gmail', 'error');
+      showNotification('Erreur de connexion Gmail: ' + e.message, 'error');
     }
   },
 

@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - SOS Storytelling</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            color: white;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: rgba(255, 255, 255, 0.03);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 30px 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-logo {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-subtitle {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85em;
+            margin-bottom: 40px;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: rgba(240, 147, 251, 0.1);
+            color: #f093fb;
+        }
+
+        .sidebar-nav a.active {
+            background: rgba(240, 147, 251, 0.2);
+        }
+
+        /* Main content */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+            font-weight: 700;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.95em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+        }
+
+        .stat-card.highlight {
+            border-color: rgba(240, 147, 251, 0.3);
+            background: rgba(240, 147, 251, 0.05);
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: 800;
+            color: white;
+        }
+
+        .stat-value.revenue {
+            color: #10b981;
+        }
+
+        .stat-change {
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+
+        .stat-change.positive { color: #10b981; }
+        .stat-change.negative { color: #ef4444; }
+
+        /* Tables */
+        .section {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-box input {
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+            width: 250px;
+        }
+
+        .search-box input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .search-box select {
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 15px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        th {
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 500;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            font-size: 0.95em;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .badge-active { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .badge-trial { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .badge-cancelled { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .badge-expired { background: rgba(156, 163, 175, 0.2); color: #9ca3af; }
+        .badge-paused { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+
+        .action-btn {
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: rgba(240, 147, 251, 0.2);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: #1a1a2e;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-title {
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: white;
+            font-family: inherit;
+            font-size: 1em;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #f093fb;
+        }
+
+        .user-detail {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .user-detail-label {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85em;
+            margin-bottom: 5px;
+        }
+
+        .user-detail-value {
+            font-weight: 500;
+        }
+
+        /* Events timeline */
+        .events-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .event-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .event-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            flex-shrink: 0;
+        }
+
+        .event-icon.subscription { background: rgba(16, 185, 129, 0.2); }
+        .event-icon.payment { background: rgba(59, 130, 246, 0.2); }
+        .event-icon.cancelled { background: rgba(239, 68, 68, 0.2); }
+        .event-icon.admin { background: rgba(251, 191, 36, 0.2); }
+
+        .event-content {
+            flex: 1;
+        }
+
+        .event-title {
+            font-weight: 500;
+            margin-bottom: 3px;
+        }
+
+        .event-meta {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85em;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #f093fb;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: rgba(240, 147, 251, 0.2);
+        }
+
+        .pagination button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .pagination button.active {
+            background: #f093fb;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 70px;
+                padding: 20px 10px;
+            }
+
+            .sidebar-logo span,
+            .sidebar-subtitle,
+            .sidebar-nav a span {
+                display: none;
+            }
+
+            .sidebar-nav a {
+                justify-content: center;
+                padding: 12px;
+            }
+
+            .main-content {
+                margin-left: 70px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            table {
+                font-size: 0.85em;
+            }
+
+            th, td {
+                padding: 10px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-logo">
+                <span>SOS Admin</span>
+            </div>
+            <p class="sidebar-subtitle">Dashboard Admin</p>
+
+            <ul class="sidebar-nav">
+                <li><a href="#" class="active" data-section="dashboard"><span>Dashboard</span></a></li>
+                <li><a href="#" data-section="users"><span>Utilisateurs</span></a></li>
+                <li><a href="#" data-section="events"><span>Evenements</span></a></li>
+                <li><a href="#" data-section="revenue"><span>Revenus</span></a></li>
+                <li><a href="app.html"><span>Retour App</span></a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Section -->
+            <section id="section-dashboard">
+                <div class="header">
+                    <h1>Dashboard</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" onclick="refreshData()">Actualiser</button>
+                    </div>
+                </div>
+
+                <div class="stats-grid" id="statsGrid">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Chargement...
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Activite recente</h2>
+                    </div>
+                    <div class="events-list" id="recentEvents">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Chargement...
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Users Section -->
+            <section id="section-users" style="display: none;">
+                <div class="header">
+                    <h1>Utilisateurs</h1>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Liste des utilisateurs</h2>
+                        <div class="search-box">
+                            <input type="text" id="userSearch" placeholder="Rechercher..." onkeyup="debounceSearch()">
+                            <select id="statusFilter" onchange="loadUsers()">
+                                <option value="">Tous les statuts</option>
+                                <option value="active">Actif</option>
+                                <option value="on_trial">En essai</option>
+                                <option value="cancelled">Annule</option>
+                                <option value="expired">Expire</option>
+                                <option value="none">Aucun</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Nom</th>
+                                <th>Plan</th>
+                                <th>Statut</th>
+                                <th>Inscription</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTable">
+                            <tr>
+                                <td colspan="6" class="loading">Chargement...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="pagination" id="usersPagination"></div>
+                </div>
+            </section>
+
+            <!-- Events Section -->
+            <section id="section-events" style="display: none;">
+                <div class="header">
+                    <h1>Evenements</h1>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Historique des evenements</h2>
+                        <div class="search-box">
+                            <select id="eventTypeFilter" onchange="loadEvents()">
+                                <option value="">Tous les types</option>
+                                <option value="subscription_created">Souscription creee</option>
+                                <option value="subscription_updated">Souscription maj</option>
+                                <option value="subscription_cancelled">Annulation</option>
+                                <option value="payment_success">Paiement reussi</option>
+                                <option value="payment_failed">Paiement echoue</option>
+                                <option value="admin_update">Action admin</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="events-list" id="allEvents">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Chargement...
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Revenue Section -->
+            <section id="section-revenue" style="display: none;">
+                <div class="header">
+                    <h1>Revenus</h1>
+                </div>
+
+                <div class="stats-grid" id="revenueStats">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Chargement...
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Repartition par plan</h2>
+                    </div>
+                    <div id="revenueBreakdown"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- User Detail Modal -->
+    <div class="modal-overlay" id="userModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Detail utilisateur</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="userModalContent">
+                <!-- Content loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const SUPABASE_URL = 'https://pyxidmnckpnrargygwnf.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eGlkbW5ja3BucmFyZ3lnd25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyMzc4NzIsImV4cCI6MjA3OTgxMzg3Mn0.atm-LVna_TQyPuACZgA4ngJzzgIfJQJIdnLd9lCpOns';
+        const API_URL = 'https://sos-storytelling-api.sandra-devonssay.workers.dev';
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let accessToken = null;
+        let currentPage = 1;
+        let searchTimeout = null;
+
+        // Check auth and admin access
+        async function checkAdminAccess() {
+            const { data: { session } } = await supabase.auth.getSession();
+
+            if (!session) {
+                window.location.href = 'login.html';
+                return false;
+            }
+
+            accessToken = session.access_token;
+
+            // Test admin access
+            const response = await fetch(`${API_URL}/api/admin/stats`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+
+            if (response.status === 403 || response.status === 401) {
+                alert('Acces refuse. Vous devez etre administrateur.');
+                window.location.href = 'app.html';
+                return false;
+            }
+
+            return true;
+        }
+
+        // Initialize
+        async function init() {
+            const hasAccess = await checkAdminAccess();
+            if (hasAccess) {
+                loadDashboard();
+                setupNavigation();
+            }
+        }
+
+        // Navigation
+        function setupNavigation() {
+            document.querySelectorAll('.sidebar-nav a[data-section]').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const section = e.currentTarget.dataset.section;
+                    showSection(section);
+
+                    // Update active state
+                    document.querySelectorAll('.sidebar-nav a').forEach(l => l.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
+                });
+            });
+        }
+
+        function showSection(section) {
+            document.querySelectorAll('section[id^="section-"]').forEach(s => s.style.display = 'none');
+            document.getElementById(`section-${section}`).style.display = 'block';
+
+            // Load section data
+            switch (section) {
+                case 'dashboard':
+                    loadDashboard();
+                    break;
+                case 'users':
+                    loadUsers();
+                    break;
+                case 'events':
+                    loadEvents();
+                    break;
+                case 'revenue':
+                    loadRevenue();
+                    break;
+            }
+        }
+
+        // Dashboard
+        async function loadDashboard() {
+            try {
+                const response = await fetch(`${API_URL}/api/admin/stats`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    renderStats(data.stats);
+                    renderRecentEvents(data.stats.recent_events);
+                }
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        function renderStats(stats) {
+            document.getElementById('statsGrid').innerHTML = `
+                <div class="stat-card highlight">
+                    <div class="stat-label">Total utilisateurs</div>
+                    <div class="stat-value">${stats.total_users}</div>
+                    <div class="stat-change positive">+${stats.new_users_this_week} cette semaine</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Trials actifs</div>
+                    <div class="stat-value">${stats.trials_active}</div>
+                    <div class="stat-change">${stats.trials_expiring_soon} expirent bientot</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Abonnes actifs</div>
+                    <div class="stat-value">${stats.users_by_status.active || 0}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Nouveaux aujourd'hui</div>
+                    <div class="stat-value">${stats.new_users_today}</div>
+                </div>
+            `;
+        }
+
+        function renderRecentEvents(events) {
+            if (!events || events.length === 0) {
+                document.getElementById('recentEvents').innerHTML = '<p style="color: rgba(255,255,255,0.5);">Aucun evenement recent</p>';
+                return;
+            }
+
+            const html = events.map(event => {
+                const icon = getEventIcon(event.event_type);
+                const title = getEventTitle(event.event_type);
+                const date = new Date(event.created_at).toLocaleString('fr-FR');
+
+                return `
+                    <div class="event-item">
+                        <div class="event-icon ${icon.class}">${icon.emoji}</div>
+                        <div class="event-content">
+                            <div class="event-title">${title}</div>
+                            <div class="event-meta">${date}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('recentEvents').innerHTML = html;
+        }
+
+        function getEventIcon(type) {
+            const icons = {
+                'subscription_created': { emoji: '✨', class: 'subscription' },
+                'subscription_updated': { emoji: '🔄', class: 'subscription' },
+                'subscription_cancelled': { emoji: '❌', class: 'cancelled' },
+                'subscription_expired': { emoji: '⏰', class: 'cancelled' },
+                'payment_success': { emoji: '💰', class: 'payment' },
+                'payment_failed': { emoji: '💳', class: 'cancelled' },
+                'admin_update': { emoji: '👤', class: 'admin' }
+            };
+            return icons[type] || { emoji: '📌', class: 'subscription' };
+        }
+
+        function getEventTitle(type) {
+            const titles = {
+                'subscription_created': 'Nouvelle souscription',
+                'subscription_updated': 'Souscription mise a jour',
+                'subscription_cancelled': 'Souscription annulee',
+                'subscription_expired': 'Souscription expiree',
+                'payment_success': 'Paiement reussi',
+                'payment_failed': 'Paiement echoue',
+                'admin_update': 'Modification admin'
+            };
+            return titles[type] || type;
+        }
+
+        // Users
+        async function loadUsers() {
+            const search = document.getElementById('userSearch')?.value || '';
+            const status = document.getElementById('statusFilter')?.value || '';
+
+            try {
+                let url = `${API_URL}/api/admin/users?page=${currentPage}&limit=20`;
+                if (search) url += `&search=${encodeURIComponent(search)}`;
+                if (status) url += `&status=${status}`;
+
+                const response = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    renderUsersTable(data.users);
+                    renderPagination(data.pagination);
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        function renderUsersTable(users) {
+            if (!users || users.length === 0) {
+                document.getElementById('usersTable').innerHTML = '<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,0.5);">Aucun utilisateur trouve</td></tr>';
+                return;
+            }
+
+            const html = users.map(user => {
+                const statusBadge = getStatusBadge(user.subscription_status);
+                const date = new Date(user.created_at).toLocaleDateString('fr-FR');
+
+                return `
+                    <tr>
+                        <td>${user.email}</td>
+                        <td>${user.name || '-'}</td>
+                        <td>${user.plan || 'free'}</td>
+                        <td><span class="badge ${statusBadge.class}">${statusBadge.label}</span></td>
+                        <td>${date}</td>
+                        <td>
+                            <button class="action-btn" onclick="viewUser('${user.email}')">Voir</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('usersTable').innerHTML = html;
+        }
+
+        function getStatusBadge(status) {
+            const badges = {
+                'active': { label: 'Actif', class: 'badge-active' },
+                'on_trial': { label: 'Essai', class: 'badge-trial' },
+                'cancelled': { label: 'Annule', class: 'badge-cancelled' },
+                'expired': { label: 'Expire', class: 'badge-expired' },
+                'paused': { label: 'Pause', class: 'badge-paused' },
+                'none': { label: 'Aucun', class: 'badge-expired' }
+            };
+            return badges[status] || { label: status || 'Inconnu', class: 'badge-expired' };
+        }
+
+        function renderPagination(pagination) {
+            const { page, total_pages } = pagination;
+            let html = '';
+
+            html += `<button onclick="goToPage(${page - 1})" ${page <= 1 ? 'disabled' : ''}>Precedent</button>`;
+            html += `<span style="padding: 8px 15px; color: rgba(255,255,255,0.7);">Page ${page} sur ${total_pages}</span>`;
+            html += `<button onclick="goToPage(${page + 1})" ${page >= total_pages ? 'disabled' : ''}>Suivant</button>`;
+
+            document.getElementById('usersPagination').innerHTML = html;
+        }
+
+        function goToPage(page) {
+            if (page < 1) return;
+            currentPage = page;
+            loadUsers();
+        }
+
+        function debounceSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                currentPage = 1;
+                loadUsers();
+            }, 300);
+        }
+
+        // User Detail Modal
+        async function viewUser(email) {
+            try {
+                const response = await fetch(`${API_URL}/api/admin/users/${encodeURIComponent(email)}`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    renderUserModal(data.user, data.events);
+                    document.getElementById('userModal').classList.add('active');
+                }
+            } catch (error) {
+                console.error('Error loading user:', error);
+            }
+        }
+
+        function renderUserModal(user, events) {
+            const trialEnd = user.trial_ends_at ? new Date(user.trial_ends_at).toLocaleDateString('fr-FR') : '-';
+            const renewsAt = user.subscription_renews_at ? new Date(user.subscription_renews_at).toLocaleDateString('fr-FR') : '-';
+
+            let html = `
+                <div class="user-detail">
+                    <div class="user-detail-label">Email</div>
+                    <div class="user-detail-value">${user.email}</div>
+                </div>
+                <div class="user-detail">
+                    <div class="user-detail-label">Nom</div>
+                    <div class="user-detail-value">${user.name || '-'}</div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="user-detail">
+                        <div class="user-detail-label">Plan</div>
+                        <div class="user-detail-value">${user.plan || 'free'}</div>
+                    </div>
+                    <div class="user-detail">
+                        <div class="user-detail-label">Statut</div>
+                        <div class="user-detail-value"><span class="badge ${getStatusBadge(user.subscription_status).class}">${getStatusBadge(user.subscription_status).label}</span></div>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="user-detail">
+                        <div class="user-detail-label">Fin trial</div>
+                        <div class="user-detail-value">${trialEnd}</div>
+                    </div>
+                    <div class="user-detail">
+                        <div class="user-detail-label">Prochain renouvellement</div>
+                        <div class="user-detail-value">${renewsAt}</div>
+                    </div>
+                </div>
+                <div class="user-detail">
+                    <div class="user-detail-label">Trial deja utilise</div>
+                    <div class="user-detail-value">${user.trial_used ? 'Oui' : 'Non'}</div>
+                </div>
+
+                <h4 style="margin: 25px 0 15px; color: rgba(255,255,255,0.8);">Modifier</h4>
+                <div class="form-group">
+                    <label>Plan</label>
+                    <select id="editPlan">
+                        <option value="free" ${user.plan === 'free' ? 'selected' : ''}>Free</option>
+                        <option value="trial" ${user.plan === 'trial' ? 'selected' : ''}>Trial</option>
+                        <option value="solo" ${user.plan === 'solo' ? 'selected' : ''}>Solo</option>
+                        <option value="agency_starter" ${user.plan === 'agency_starter' ? 'selected' : ''}>Agence Starter</option>
+                        <option value="agency_scale" ${user.plan === 'agency_scale' ? 'selected' : ''}>Agence Scale</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Statut</label>
+                    <select id="editStatus">
+                        <option value="none" ${user.subscription_status === 'none' ? 'selected' : ''}>Aucun</option>
+                        <option value="on_trial" ${user.subscription_status === 'on_trial' ? 'selected' : ''}>En essai</option>
+                        <option value="active" ${user.subscription_status === 'active' ? 'selected' : ''}>Actif</option>
+                        <option value="cancelled" ${user.subscription_status === 'cancelled' ? 'selected' : ''}>Annule</option>
+                        <option value="expired" ${user.subscription_status === 'expired' ? 'selected' : ''}>Expire</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="updateUser('${user.email}')" style="width: 100%;">Enregistrer</button>
+
+                ${events && events.length > 0 ? `
+                    <h4 style="margin: 25px 0 15px; color: rgba(255,255,255,0.8);">Historique</h4>
+                    <div style="max-height: 200px; overflow-y: auto;">
+                        ${events.map(e => `
+                            <div class="event-item" style="padding: 10px 0;">
+                                <div class="event-icon ${getEventIcon(e.event_type).class}" style="width: 30px; height: 30px; font-size: 0.9em;">${getEventIcon(e.event_type).emoji}</div>
+                                <div class="event-content">
+                                    <div class="event-title" style="font-size: 0.9em;">${getEventTitle(e.event_type)}</div>
+                                    <div class="event-meta">${new Date(e.created_at).toLocaleString('fr-FR')}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+            `;
+
+            document.getElementById('userModalContent').innerHTML = html;
+        }
+
+        async function updateUser(email) {
+            const plan = document.getElementById('editPlan').value;
+            const status = document.getElementById('editStatus').value;
+
+            try {
+                const response = await fetch(`${API_URL}/api/admin/users/${encodeURIComponent(email)}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        plan,
+                        subscription_status: status
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Utilisateur mis a jour');
+                    closeModal();
+                    loadUsers();
+                } else {
+                    alert('Erreur: ' + (data.error || 'Echec de la mise a jour'));
+                }
+            } catch (error) {
+                console.error('Error updating user:', error);
+                alert('Erreur lors de la mise a jour');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('userModal').classList.remove('active');
+        }
+
+        // Events
+        async function loadEvents() {
+            const type = document.getElementById('eventTypeFilter')?.value || '';
+
+            try {
+                let url = `${API_URL}/api/admin/events?limit=100`;
+                if (type) url += `&type=${type}`;
+
+                const response = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    renderAllEvents(data.events);
+                }
+            } catch (error) {
+                console.error('Error loading events:', error);
+            }
+        }
+
+        function renderAllEvents(events) {
+            if (!events || events.length === 0) {
+                document.getElementById('allEvents').innerHTML = '<p style="color: rgba(255,255,255,0.5);">Aucun evenement</p>';
+                return;
+            }
+
+            const html = events.map(event => {
+                const icon = getEventIcon(event.event_type);
+                const title = getEventTitle(event.event_type);
+                const date = new Date(event.created_at).toLocaleString('fr-FR');
+
+                return `
+                    <div class="event-item">
+                        <div class="event-icon ${icon.class}">${icon.emoji}</div>
+                        <div class="event-content">
+                            <div class="event-title">${title}</div>
+                            <div class="event-meta">${event.email || '-'} - ${date}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('allEvents').innerHTML = html;
+        }
+
+        // Revenue
+        async function loadRevenue() {
+            try {
+                const response = await fetch(`${API_URL}/api/admin/revenue`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    renderRevenueStats(data.revenue);
+                }
+            } catch (error) {
+                console.error('Error loading revenue:', error);
+            }
+        }
+
+        function renderRevenueStats(revenue) {
+            document.getElementById('revenueStats').innerHTML = `
+                <div class="stat-card highlight">
+                    <div class="stat-label">MRR (Revenu Mensuel)</div>
+                    <div class="stat-value revenue">${revenue.mrr.toLocaleString()}€</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">ARR (Revenu Annuel)</div>
+                    <div class="stat-value revenue">${revenue.arr.toLocaleString()}€</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Abonnements actifs</div>
+                    <div class="stat-value">${revenue.active_subscriptions}</div>
+                </div>
+            `;
+
+            // Breakdown
+            const breakdown = revenue.breakdown;
+            const plans = {
+                solo: { name: 'Solo', price: 39 },
+                agency_starter: { name: 'Agence Starter', price: 99 },
+                agency_scale: { name: 'Agence Scale', price: 199 },
+                enterprise: { name: 'Enterprise', price: 499 }
+            };
+
+            let breakdownHtml = '<table><thead><tr><th>Plan</th><th>Abonnes</th><th>MRR</th></tr></thead><tbody>';
+
+            for (const [key, info] of Object.entries(plans)) {
+                const count = breakdown[key] || 0;
+                const mrr = count * info.price;
+                breakdownHtml += `
+                    <tr>
+                        <td>${info.name}</td>
+                        <td>${count}</td>
+                        <td style="color: #10b981;">${mrr}€</td>
+                    </tr>
+                `;
+            }
+
+            breakdownHtml += '</tbody></table>';
+            document.getElementById('revenueBreakdown').innerHTML = breakdownHtml;
+        }
+
+        // Refresh
+        function refreshData() {
+            const activeSection = document.querySelector('.sidebar-nav a.active')?.dataset.section || 'dashboard';
+            showSection(activeSection);
+        }
+
+        // Init
+        init();
+    </script>
+</body>
+</html>

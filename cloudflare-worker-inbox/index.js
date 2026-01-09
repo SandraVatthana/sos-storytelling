@@ -154,7 +154,10 @@ async function supabaseUpdate(env, table, id, data) {
 // =====================================================
 
 async function handleGmailCallback(request, env) {
-  const { code, userId } = await request.json();
+  const { code, userId, redirectUri } = await request.json();
+
+  // Le redirect_uri doit correspondre exactement à celui utilisé lors de l'autorisation
+  const finalRedirectUri = redirectUri || 'https://sosstorytelling.fr/oauth-callback.html';
 
   // Échanger le code contre des tokens
   const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
@@ -164,7 +167,7 @@ async function handleGmailCallback(request, env) {
       code,
       client_id: env.GMAIL_CLIENT_ID,
       client_secret: env.GMAIL_CLIENT_SECRET,
-      redirect_uri: 'https://sosstorytelling.fr/oauth-callback.html',
+      redirect_uri: finalRedirectUri,
       grant_type: 'authorization_code'
     })
   });

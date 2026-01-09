@@ -166,9 +166,11 @@
         .message {
             margin-top: 20px;
             padding: 15px;
+            padding-right: 40px;
             border-radius: 10px;
             font-size: 0.95em;
             display: none;
+            position: relative;
         }
 
         .message.success {
@@ -184,6 +186,26 @@
             border: 1px solid rgba(239, 68, 68, 0.3);
             color: #ef4444;
         }
+
+        .message-close {
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 1.2em;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+
+        .message-close:hover {
+            opacity: 1;
+        }
+
+        .message.success .message-close { color: #10b981; }
+        .message.error .message-close { color: #ef4444; }
 
         .footer-links {
             margin-top: 40px;
@@ -292,6 +314,106 @@
         .rgpd-error.show {
             display: block;
         }
+
+        /* Auth Mode Toggle */
+        .auth-mode-toggle {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 25px;
+        }
+
+        .auth-mode-btn {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            font-family: inherit;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .auth-mode-btn.active {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+        }
+
+        .auth-mode-btn:hover:not(.active) {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Password field */
+        .password-group {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            font-size: 1.2em;
+            padding: 5px;
+        }
+
+        .password-toggle:hover {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .password-hint {
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 5px;
+            text-align: left;
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-top: 10px;
+        }
+
+        .forgot-password a {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85em;
+            text-decoration: none;
+        }
+
+        .forgot-password a:hover {
+            color: #f093fb;
+        }
+
+        .magic-link-option {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .magic-link-option button {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.6);
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .magic-link-option button:hover {
+            border-color: #f093fb;
+            color: #f093fb;
+        }
     </style>
 </head>
 <body>
@@ -332,15 +454,43 @@
 
         <div class="divider">ou par email</div>
 
-        <form class="email-form" onsubmit="signInWithEmail(event)">
+        <!-- Toggle Connexion / Inscription -->
+        <div class="auth-mode-toggle">
+            <button type="button" class="auth-mode-btn active" id="loginModeBtn" onclick="setAuthMode('login')">
+                Connexion
+            </button>
+            <button type="button" class="auth-mode-btn" id="signupModeBtn" onclick="setAuthMode('signup')">
+                Inscription
+            </button>
+        </div>
+
+        <form class="email-form" onsubmit="handleEmailAuth(event)">
             <div class="input-group">
                 <label for="email">Adresse email</label>
                 <input type="email" id="email" placeholder="ton@email.com" required>
             </div>
+
+            <div class="input-group password-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" placeholder="••••••••" required minlength="6">
+                <button type="button" class="password-toggle" onclick="togglePasswordVisibility()">👁</button>
+            </div>
+            <p class="password-hint" id="passwordHint" style="display: none;">Minimum 6 caractères</p>
+
+            <div class="forgot-password" id="forgotPasswordLink">
+                <a href="#" onclick="sendPasswordReset(event)">Mot de passe oublié ?</a>
+            </div>
+
             <button type="submit" class="btn-magic" id="submitBtn">
-                Recevoir un lien de connexion
+                Se connecter
             </button>
         </form>
+
+        <div class="magic-link-option">
+            <button type="button" onclick="sendMagicLink()">
+                📧 Recevoir un lien de connexion par email
+            </button>
+        </div>
 
         <div class="message" id="message"></div>
 
@@ -353,19 +503,17 @@
         </div>
     </div>
 
+    <script src="config.js"></script>
     <script>
-        // Configuration Supabase
-        const SUPABASE_URL = 'https://pyxidmnckpnrargygwnf.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eGlkbW5ja3BucmFyZ3lnd25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyMzc4NzIsImV4cCI6MjA3OTgxMzg3Mn0.atm-LVna_TQyPuACZgA4ngJzzgIfJQJIdnLd9lCpOns';
-
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Configuration depuis config.js
+        initSupabase(); // Initialise supabaseClient global depuis config.js
 
         // URL de redirection après connexion
         const REDIRECT_URL = window.location.origin + '/app.html';
 
         // Vérifier si déjà connecté
         async function checkSession() {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
                 // Déjà connecté, rediriger vers l'app
                 window.location.href = 'app.html';
@@ -421,7 +569,7 @@
             // Sauvegarder les préférences pour après le redirect OAuth
             saveRGPDPreferences();
 
-            const { data, error } = await supabase.auth.signInWithOAuth({
+            const { data, error } = await supabaseClient.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
                     redirectTo: REDIRECT_URL
@@ -433,8 +581,48 @@
             }
         }
 
-        // Connexion Magic Link
-        async function signInWithEmail(e) {
+        // ============ EMAIL + PASSWORD AUTH ============
+
+        let authMode = 'login'; // 'login' ou 'signup'
+
+        function setAuthMode(mode) {
+            authMode = mode;
+            const loginBtn = document.getElementById('loginModeBtn');
+            const signupBtn = document.getElementById('signupModeBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            const passwordHint = document.getElementById('passwordHint');
+            const forgotLink = document.getElementById('forgotPasswordLink');
+
+            if (mode === 'login') {
+                loginBtn.classList.add('active');
+                signupBtn.classList.remove('active');
+                submitBtn.textContent = 'Se connecter';
+                passwordHint.style.display = 'none';
+                forgotLink.style.display = 'block';
+            } else {
+                signupBtn.classList.add('active');
+                loginBtn.classList.remove('active');
+                submitBtn.textContent = 'Créer mon compte';
+                passwordHint.style.display = 'block';
+                forgotLink.style.display = 'none';
+            }
+        }
+
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const toggleBtn = document.querySelector('.password-toggle');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.textContent = '👁';
+            }
+        }
+
+        // Gérer la soumission du formulaire email/password
+        async function handleEmailAuth(e) {
             e.preventDefault();
 
             // Vérifier le consentement RGPD
@@ -446,20 +634,117 @@
             saveRGPDPreferences();
 
             const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
             const submitBtn = document.getElementById('submitBtn');
+
+            if (password.length < 6) {
+                showMessage('Le mot de passe doit contenir au moins 6 caractères', 'error');
+                return;
+            }
 
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="loading"></span>';
 
-            const { data, error } = await supabase.auth.signInWithOtp({
+            try {
+                if (authMode === 'signup') {
+                    // Inscription
+                    const { data, error } = await supabaseClient.auth.signUp({
+                        email: email,
+                        password: password,
+                        options: {
+                            emailRedirectTo: REDIRECT_URL
+                        }
+                    });
+
+                    if (error) {
+                        if (error.message.includes('already registered')) {
+                            showMessage('Cet email est déjà utilisé. Essaie de te connecter.', 'error');
+                            setAuthMode('login');
+                        } else {
+                            showMessage('Erreur: ' + error.message, 'error');
+                        }
+                    } else if (data.user) {
+                        // Supabase peut demander une confirmation email ou connecter directement
+                        if (data.session) {
+                            // Connecté directement (email confirmation désactivée)
+                            await createOrUpdateUserWithTrial(data.session);
+                            window.location.href = 'app.html';
+                        } else {
+                            // Email de confirmation envoyé
+                            showMessage('Compte créé ! Vérifie ta boîte mail pour confirmer ton email.', 'success');
+                        }
+                    }
+                } else {
+                    // Connexion
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
+
+                    if (error) {
+                        if (error.message.includes('Invalid login')) {
+                            showMessage('Email ou mot de passe incorrect', 'error');
+                        } else if (error.message.includes('Email not confirmed')) {
+                            showMessage('Confirme ton email avant de te connecter. Vérifie ta boîte mail.', 'error');
+                        } else {
+                            showMessage('Erreur: ' + error.message, 'error');
+                        }
+                    } else if (data.session) {
+                        await createOrUpdateUserWithTrial(data.session);
+                        window.location.href = 'app.html';
+                    }
+                }
+            } catch (err) {
+                showMessage('Erreur de connexion: ' + err.message, 'error');
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = authMode === 'login' ? 'Se connecter' : 'Créer mon compte';
+        }
+
+        // Réinitialisation mot de passe
+        async function sendPasswordReset(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            if (!email) {
+                showMessage('Entre ton email pour recevoir un lien de réinitialisation', 'error');
+                return;
+            }
+
+            const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + '/reset-password.html'
+            });
+
+            if (error) {
+                showMessage('Erreur: ' + error.message, 'error');
+            } else {
+                showMessage('Un email de réinitialisation a été envoyé à ' + email, 'success');
+            }
+        }
+
+        // Connexion Magic Link (alternative)
+        async function sendMagicLink() {
+            // Vérifier le consentement RGPD
+            if (!checkRGPDConsent()) {
+                return;
+            }
+
+            // Sauvegarder les préférences
+            saveRGPDPreferences();
+
+            const email = document.getElementById('email').value;
+            if (!email) {
+                showMessage('Entre ton email pour recevoir un lien de connexion', 'error');
+                return;
+            }
+
+            const { data, error } = await supabaseClient.auth.signInWithOtp({
                 email: email,
                 options: {
                     emailRedirectTo: REDIRECT_URL
                 }
             });
-
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = 'Recevoir un lien de connexion';
 
             if (error) {
                 showMessage('Erreur: ' + error.message, 'error');
@@ -471,8 +756,15 @@
         // Afficher un message
         function showMessage(text, type) {
             const msg = document.getElementById('message');
-            msg.textContent = text;
+            msg.innerHTML = text + '<button class="message-close" onclick="hideMessage()">✕</button>';
             msg.className = 'message ' + type;
+        }
+
+        // Masquer le message
+        function hideMessage() {
+            const msg = document.getElementById('message');
+            msg.className = 'message';
+            msg.innerHTML = '';
         }
 
         // Créer ou mettre à jour l'utilisateur avec trial de 7 jours
@@ -496,7 +788,7 @@
             }
 
             // Vérifier si l'utilisateur existe déjà
-            const { data: existingUser } = await supabase
+            const { data: existingUser } = await supabaseClient
                 .from('users')
                 .select('id, subscription_status, trial_ends_at, trial_used')
                 .eq('email', email)
@@ -518,7 +810,7 @@
             const trialEndsAt = new Date();
             trialEndsAt.setDate(trialEndsAt.getDate() + 7);
 
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('users')
                 .insert({
                     email: email,
@@ -563,7 +855,7 @@
         }
 
         // Écouter les changements d'auth (pour le callback OAuth)
-        supabase.auth.onAuthStateChange(async (event, session) => {
+        supabaseClient.auth.onAuthStateChange(async (event, session) => {
             if (event === 'SIGNED_IN' && session) {
                 // Créer le trial pour les nouveaux utilisateurs
                 await createOrUpdateUserWithTrial(session);

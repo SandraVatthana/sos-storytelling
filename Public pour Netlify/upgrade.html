@@ -249,10 +249,12 @@
         </div>
 
         <div class="pricing-grid">
-            <article class="pricing-card">
+            <article class="pricing-card popular">
+                <span class="popular-badge">🚀 Early Adopter</span>
                 <h3>Solo</h3>
                 <p class="pricing-subtitle">Pour les créateurs individuels</p>
-                <div class="price">39€<span>/mois</span></div>
+                <div class="price">67€<span>/mois</span></div>
+                <p style="font-size: 0.8em; color: rgba(255,255,255,0.6); margin-top: -10px;">puis 97€/mois après 6 mois</p>
                 <ul class="features">
                     <li>Contenus illimités</li>
                     <li>Ma Voix complète</li>
@@ -260,7 +262,7 @@
                     <li>Planning IA</li>
                     <li>Export CSV & outils</li>
                 </ul>
-                <a href="https://myinnerquest.lemonsqueezy.com/buy/74412bb8-7df8-4d11-a7bb-c8434dc687a7" class="btn-upgrade secondary">Choisir Solo</a>
+                <a href="https://myinnerquest.lemonsqueezy.com/buy/74412bb8-7df8-4d11-a7bb-c8434dc687a7" class="btn-upgrade">Choisir Solo</a>
             </article>
 
             <article class="pricing-card popular">
@@ -304,11 +306,10 @@
         </div>
     </div>
 
+    <script src="config.js"></script>
     <script>
-        const SUPABASE_URL = 'https://pyxidmnckpnrargygwnf.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eGlkbW5ja3BucmFyZ3lnd25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyMzc4NzIsImV4cCI6MjA3OTgxMzg3Mn0.atm-LVna_TQyPuACZgA4ngJzzgIfJQJIdnLd9lCpOns';
-
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Configuration depuis config.js
+        const supabase = initSupabase();
 
         // Charger les stats de l'utilisateur
         async function loadUserStats() {

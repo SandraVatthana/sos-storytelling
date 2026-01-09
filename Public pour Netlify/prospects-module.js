@@ -9,6 +9,10 @@ const ProspectsModule = {
     selectedProspects: new Set(),
     currentFilter: 'all',
     searchQuery: '',
+    verificationInProgress: false,
+
+    // API URL
+    API_URL: 'https://sos-storytelling-api.sandra-devonssay.workers.dev',
 
     // Mapping des colonnes CSV
     COLUMN_MAPPINGS: {
@@ -408,6 +412,289 @@ const ProspectsModule = {
     },
 
     /**
+     * Obtient les stats de verification
+     */
+    getVerificationStats() {
+        const stats = {
+            total: this.prospects.length,
+            unverified: 0,
+            valid: 0,
+            risky: 0,
+            invalid: 0,
+            disposable: 0,
+            catch_all: 0
+        };
+
+        this.prospects.forEach(p => {
+            const status = p.verification_status || 'unverified';
+            if (stats[status] !== undefined) {
+                stats[status]++;
+            }
+        });
+
+        stats.verified_rate = stats.total > 0 ?
+            Math.round(((stats.total - stats.unverified) / stats.total) * 100) : 0;
+        stats.quality_score = stats.total > 0 ?
+            Math.round((stats.valid / stats.total) * 100) : 0;
+
+        return stats;
+    },
+
+    /**
+     * Verifie un seul email
+     */
+    async verifyEmail(email) {
+        try {
+            const { data: { session } } = await window.supabaseApp.auth.getSession();
+            if (!session) throw new Error('Non authentifie');
+
+            const response = await fetch(`${this.API_URL}/api/email-verify`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session.access_token}`
+                },
+                body: JSON.stringify({ email })
+            });
+
+            return await response.json();
+        } catch (error) {
+            console.error('Erreur verification email:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Verifie les prospects selectionnes
+     */
+    async verifySelectedProspects() {
+        if (this.selectedProspects.size === 0) {
+            alert('Selectionnez des prospects a verifier');
+            return;
+        }
+
+        if (this.verificationInProgress) {
+            alert('Verification deja en cours');
+            return;
+        }
+
+        this.verificationInProgress = true;
+        const prospectsToVerify = this.prospects.filter(p => this.selectedProspects.has(p.id));
+        const total = prospectsToVerify.length;
+        let verified = 0;
+
+        // Afficher modal de progression
+        this.showVerificationProgress(0, total);
+
+        try {
+            const { data: { session } } = await window.supabaseApp.auth.getSession();
+            if (!session) throw new Error('Non authentifie');
+
+            for (const prospect of prospectsToVerify) {
+                try {
+                    const result = await this.verifyEmail(prospect.email);
+
+                    // Mettre a jour le prospect dans Supabase
+                    await window.supabaseApp
+                        .from('prospects')
+                        .update({
+                            verification_status: result.status,
+                            verification_result: result,
+                            verified_at: new Date().toISOString(),
+                            is_disposable: result.is_disposable || false,
+                            is_catch_all: result.is_catch_all || false
+                        })
+                        .eq('id', prospect.id);
+
+                    verified++;
+                    this.updateVerificationProgress(verified, total);
+
+                    // Pause pour eviter rate limiting
+                    await new Promise(r => setTimeout(r, 200));
+                } catch (e) {
+                    console.error(`Erreur verification ${prospect.email}:`, e);
+                }
+            }
+
+            // Recharger les prospects
+            await this.loadProspects();
+            this.showVerificationComplete(verified, total);
+
+        } catch (error) {
+            console.error('Erreur verification:', error);
+            this.showVerificationError(error.message);
+        } finally {
+            this.verificationInProgress = false;
+        }
+    },
+
+    /**
+     * Verifie tous les prospects non verifies
+     */
+    async verifyAllUnverified() {
+        const unverified = this.prospects.filter(p => !p.verification_status || p.verification_status === 'unverified');
+
+        if (unverified.length === 0) {
+            alert('Tous les prospects sont deja verifies');
+            return;
+        }
+
+        if (!confirm(`Verifier ${unverified.length} email(s) ? Cela peut prendre quelques minutes.`)) {
+            return;
+        }
+
+        // Selectionner tous les non verifies
+        this.selectedProspects = new Set(unverified.map(p => p.id));
+        await this.verifySelectedProspects();
+    },
+
+    /**
+     * Affiche la modal de progression de verification
+     */
+    showVerificationProgress(current, total) {
+        let modal = document.getElementById('verificationModal');
+
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.id = 'verificationModal';
+            document.body.appendChild(modal);
+        }
+
+        const percent = total > 0 ? Math.round((current / total) * 100) : 0;
+
+        modal.innerHTML = `
+            <div class="modal verification-modal">
+                <div class="modal-header">
+                    <h3>🔍 Verification en cours</h3>
+                </div>
+                <div class="modal-body" style="text-align: center; padding: 30px;">
+                    <div class="verification-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${percent}%"></div>
+                        </div>
+                        <p class="progress-text">${current} / ${total} emails verifies (${percent}%)</p>
+                    </div>
+                    <p style="color: #666; font-size: 0.9em; margin-top: 15px;">
+                        Ne fermez pas cette fenetre...
+                    </p>
+                </div>
+            </div>
+        `;
+    },
+
+    /**
+     * Met a jour la progression
+     */
+    updateVerificationProgress(current, total) {
+        const modal = document.getElementById('verificationModal');
+        if (!modal) return;
+
+        const percent = Math.round((current / total) * 100);
+        const progressFill = modal.querySelector('.progress-fill');
+        const progressText = modal.querySelector('.progress-text');
+
+        if (progressFill) progressFill.style.width = `${percent}%`;
+        if (progressText) progressText.textContent = `${current} / ${total} emails verifies (${percent}%)`;
+    },
+
+    /**
+     * Affiche la completion de verification
+     */
+    showVerificationComplete(verified, total) {
+        const modal = document.getElementById('verificationModal');
+        if (!modal) return;
+
+        const stats = this.getVerificationStats();
+
+        modal.innerHTML = `
+            <div class="modal verification-modal">
+                <div class="modal-header">
+                    <h3>✅ Verification terminee</h3>
+                    <button class="modal-close" onclick="document.getElementById('verificationModal').remove()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="verification-summary">
+                        <div class="summary-icon">🎉</div>
+                        <p><strong>${verified}</strong> email(s) verifie(s) sur ${total}</p>
+
+                        <div class="verification-results">
+                            <div class="result-item valid">
+                                <span class="result-icon">✅</span>
+                                <span class="result-label">Valides</span>
+                                <span class="result-count">${stats.valid}</span>
+                            </div>
+                            <div class="result-item risky">
+                                <span class="result-icon">⚠️</span>
+                                <span class="result-label">Risques</span>
+                                <span class="result-count">${stats.risky + stats.catch_all}</span>
+                            </div>
+                            <div class="result-item invalid">
+                                <span class="result-icon">❌</span>
+                                <span class="result-label">Invalides</span>
+                                <span class="result-count">${stats.invalid + stats.disposable}</span>
+                            </div>
+                        </div>
+
+                        ${stats.invalid + stats.disposable > 0 ? `
+                            <div class="verification-warning">
+                                ⚠️ ${stats.invalid + stats.disposable} email(s) invalide(s) detecte(s).
+                                Nous recommandons de les supprimer avant d'envoyer une campagne.
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="modal-actions">
+                        <button class="btn btn-primary" onclick="document.getElementById('verificationModal').remove(); ProspectsModule.renderProspectsList();">
+                            Fermer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+
+    /**
+     * Affiche une erreur de verification
+     */
+    showVerificationError(message) {
+        const modal = document.getElementById('verificationModal');
+        if (!modal) return;
+
+        modal.innerHTML = `
+            <div class="modal verification-modal">
+                <div class="modal-header">
+                    <h3>❌ Erreur</h3>
+                    <button class="modal-close" onclick="document.getElementById('verificationModal').remove()">&times;</button>
+                </div>
+                <div class="modal-body" style="text-align: center;">
+                    <div class="error-icon" style="font-size: 3em; margin-bottom: 15px;">⚠️</div>
+                    <p>${message}</p>
+                    <button class="btn btn-secondary" onclick="document.getElementById('verificationModal').remove()" style="margin-top: 20px;">
+                        Fermer
+                    </button>
+                </div>
+            </div>
+        `;
+    },
+
+    /**
+     * Retourne le badge de verification pour un prospect
+     */
+    getVerificationBadge(prospect) {
+        const status = prospect.verification_status || 'unverified';
+        const badges = {
+            unverified: { icon: '❓', label: 'Non verifie', class: 'unverified' },
+            valid: { icon: '✅', label: 'Valide', class: 'valid' },
+            risky: { icon: '⚠️', label: 'Risque', class: 'risky' },
+            invalid: { icon: '❌', label: 'Invalide', class: 'invalid' },
+            disposable: { icon: '🗑️', label: 'Jetable', class: 'disposable' },
+            catch_all: { icon: '📥', label: 'Catch-all', class: 'catch-all' }
+        };
+        return badges[status] || badges.unverified;
+    },
+
+    /**
      * Genere un template CSV basique
      */
     generateCSVTemplate() {
@@ -499,11 +786,11 @@ const ProspectsModule = {
                     <button class="btn btn-secondary" onclick="ProspectsModule.openImportModal()">
                         <span class="btn-icon">📥</span> ${t('actions.import')} CSV
                     </button>
-                    <button class="btn btn-linkedin" onclick="ProspectsModule.showExtensionModal()" title="Importer depuis LinkedIn Sales Navigator">
-                        <span class="btn-icon">🔗</span> Sales Navigator
-                    </button>
                     <button class="btn btn-secondary" onclick="ProspectsModule.openAddModal()">
                         <span class="btn-icon">➕</span> ${t('actions.create')}
+                    </button>
+                    <button class="btn btn-verify" onclick="ProspectsModule.verifyAllUnverified()" title="Verifier les emails non verifies">
+                        <span class="btn-icon">🔍</span> Verifier emails
                     </button>
                     <button class="btn btn-secondary" onclick="ProspectsModule.exportToCSV()">
                         <span class="btn-icon">📤</span> ${t('actions.export')}
@@ -618,7 +905,9 @@ const ProspectsModule = {
             bounced: t('prospects.status.bounced'),
             unsubscribed: t('prospects.status.unsubscribed')
         };
-        listContainer.innerHTML = filtered.map(p => `
+        listContainer.innerHTML = filtered.map(p => {
+            const verifyBadge = this.getVerificationBadge(p);
+            return `
             <div class="prospect-card ${this.selectedProspects.has(p.id) ? 'selected' : ''}" data-id="${p.id}">
                 <div class="prospect-checkbox">
                     <input type="checkbox" ${this.selectedProspects.has(p.id) ? 'checked' : ''}
@@ -628,6 +917,9 @@ const ProspectsModule = {
                     <div class="prospect-name">
                         <strong>${p.first_name} ${p.last_name || ''}</strong>
                         <span class="status-badge status-${p.status}">${statusBadges[p.status] || p.status}</span>
+                        <span class="verify-badge verify-${verifyBadge.class}" title="${verifyBadge.label}">
+                            ${verifyBadge.icon}
+                        </span>
                     </div>
                     <div class="prospect-details">
                         <span class="detail-email">${p.email}</span>
@@ -641,7 +933,7 @@ const ProspectsModule = {
                     <button class="btn-icon-small" onclick="ProspectsModule.confirmDelete('${p.id}')" title="Supprimer">🗑️</button>
                 </div>
             </div>
-        `).join('');
+        `}).join('');
 
         this.updateSelectedCount();
     },
@@ -1996,6 +2288,148 @@ prospectsStyles.textContent = `
     .search-box input {
         width: 100%;
     }
+}
+
+/* ==========================================
+   EMAIL VERIFICATION STYLES
+   ========================================== */
+
+/* Verify Button */
+.btn-verify {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    border: none;
+}
+
+.btn-verify:hover {
+    background: linear-gradient(135deg, #45a049, #3d8b40);
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+}
+
+/* Verification Badges */
+.verify-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 0.75em;
+    cursor: help;
+}
+
+.verify-badge.verify-unverified {
+    background: #f5f5f5;
+}
+
+.verify-badge.verify-valid {
+    background: #e8f5e9;
+}
+
+.verify-badge.verify-risky,
+.verify-badge.verify-catch-all {
+    background: #fff3e0;
+}
+
+.verify-badge.verify-invalid,
+.verify-badge.verify-disposable {
+    background: #ffebee;
+}
+
+/* Verification Modal */
+.verification-modal {
+    max-width: 450px;
+    width: 90%;
+}
+
+.verification-progress {
+    margin: 20px 0;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 20px;
+    background: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #4CAF50, #8BC34A);
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    margin-top: 10px;
+    font-weight: 600;
+    color: #333;
+}
+
+/* Verification Summary */
+.verification-summary {
+    text-align: center;
+}
+
+.verification-summary .summary-icon {
+    font-size: 3em;
+    margin-bottom: 10px;
+}
+
+.verification-results {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.result-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px 20px;
+    border-radius: 12px;
+    min-width: 80px;
+}
+
+.result-item.valid {
+    background: #e8f5e9;
+}
+
+.result-item.risky {
+    background: #fff3e0;
+}
+
+.result-item.invalid {
+    background: #ffebee;
+}
+
+.result-icon {
+    font-size: 1.5em;
+    margin-bottom: 5px;
+}
+
+.result-label {
+    font-size: 0.8em;
+    color: #666;
+}
+
+.result-count {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: #333;
+}
+
+.verification-warning {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 15px;
+    font-size: 0.9em;
+    color: #856404;
 }
 `;
 document.head.appendChild(prospectsStyles);

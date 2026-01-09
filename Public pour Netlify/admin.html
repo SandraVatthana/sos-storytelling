@@ -670,13 +670,11 @@
         </div>
     </div>
 
+    <script src="config.js"></script>
     <script>
-        // Configuration
-        const SUPABASE_URL = 'https://pyxidmnckpnrargygwnf.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eGlkbW5ja3BucmFyZ3lnd25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyMzc4NzIsImV4cCI6MjA3OTgxMzg3Mn0.atm-LVna_TQyPuACZgA4ngJzzgIfJQJIdnLd9lCpOns';
-        const API_URL = 'https://sos-storytelling-api.sandra-devonssay.workers.dev';
-
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Configuration depuis config.js
+        const supabase = initSupabase();
+        const API_URL = CONFIG.API_URL;
 
         let accessToken = null;
         let currentPage = 1;

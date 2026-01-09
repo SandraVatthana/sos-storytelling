@@ -280,14 +280,14 @@
         const SUPABASE_URL = 'https://pyxidmnckpnrargygwnf.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eGlkbW5ja3BucmFyZ3lnd25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyMzc4NzIsImV4cCI6MjA3OTgxMzg3Mn0.atm-LVna_TQyPuACZgA4ngJzzgIfJQJIdnLd9lCpOns';
 
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // URL de redirection après connexion
         const REDIRECT_URL = window.location.origin + '/app.html';
 
         // Vérifier si déjà connecté
         async function checkSession() {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
                 // Déjà connecté, rediriger vers l'app
                 window.location.href = 'app.html';
@@ -297,7 +297,7 @@
 
         // Connexion Google
         async function signInWithGoogle() {
-            const { data, error } = await supabase.auth.signInWithOAuth({
+            const { data, error } = await supabaseClient.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
                     redirectTo: REDIRECT_URL
@@ -319,7 +319,7 @@
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="loading"></span>';
 
-            const { data, error } = await supabase.auth.signInWithOtp({
+            const { data, error } = await supabaseClient.auth.signInWithOtp({
                 email: email,
                 options: {
                     emailRedirectTo: REDIRECT_URL
@@ -344,7 +344,7 @@
         }
 
         // Écouter les changements d'auth (pour le callback OAuth)
-        supabase.auth.onAuthStateChange((event, session) => {
+        supabaseClient.auth.onAuthStateChange((event, session) => {
             if (event === 'SIGNED_IN' && session) {
                 window.location.href = 'app.html';
             }
