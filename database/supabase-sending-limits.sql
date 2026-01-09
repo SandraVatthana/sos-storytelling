@@ -147,9 +147,7 @@ BEGIN
     IF v_spam_rate > 0.1 AND NOT EXISTS(
         SELECT 1 FROM abuse_alerts WHERE user_id = p_user_id AND alert_type = 'high_spam_rate' AND created_at > NOW() - INTERVAL '1 day'
     ) THEN
-        INSERT INTO abuse_alerts (user_id, alert_type, severity,
-                CASE WHEN v_spam_rate > 0.5 THEN 'critical' ELSE 'warning' END,
-                message, metric_value, threshold_value)
+        INSERT INTO abuse_alerts (user_id, alert_type, severity, message, metric_value, threshold_value)
         VALUES (p_user_id, 'high_spam_rate',
                 CASE WHEN v_spam_rate > 0.5 THEN 'critical' ELSE 'warning' END,
                 'Votre taux de plaintes spam est trop élevé (' || ROUND(v_spam_rate, 3) || '%). Risque de suspension.',
