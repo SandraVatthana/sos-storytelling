@@ -3,17 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion - SOS Storytelling</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Connexion - SOS Storytelling B2B</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6366F1">
+
+    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Organization Loader (white label) -->
+    <script src="organization-loader.js"></script>
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #6366F1;
+            --secondary: #8B5CF6;
+            --accent: #A855F7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 50%, var(--accent) 100%);
             min-height: 100vh;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -21,75 +37,95 @@
         }
 
         .login-container {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 50px 40px;
-            max-width: 420px;
             width: 100%;
-            text-align: center;
+            max-width: 400px;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         }
 
         .logo {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-
-        h1 {
-            color: white;
-            font-size: 1.8em;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .subtitle {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 1em;
-            margin-bottom: 40px;
-        }
-
-        .auth-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+            text-align: center;
             margin-bottom: 30px;
         }
 
-        .btn-google {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            padding: 16px 24px;
-            background: white;
-            color: #333;
+        .logo-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            color: #1e293b;
+        }
+
+        .logo p {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
             border: none;
             border-radius: 12px;
-            font-family: inherit;
-            font-size: 1em;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
         }
 
-        .btn-google:hover {
+        .submit-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
         }
 
-        .btn-google svg {
-            width: 20px;
-            height: 20px;
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .divider {
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin: 30px 0;
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 0.9em;
+            margin: 25px 0;
+            color: #9ca3af;
+            font-size: 0.85rem;
         }
 
         .divider::before,
@@ -97,57 +133,22 @@
             content: '';
             flex: 1;
             height: 1px;
-            background: rgba(255, 255, 255, 0.1);
+            background: #e5e7eb;
         }
 
-        .email-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        .divider span {
+            padding: 0 15px;
         }
 
-        .input-group {
-            text-align: left;
-        }
-
-        .input-group label {
-            display: block;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9em;
-            margin-bottom: 8px;
-        }
-
-        .input-group input {
+        .magic-link-btn {
             width: 100%;
-            padding: 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 14px;
+            background: #f8fafc;
+            color: #374151;
+            border: 2px solid #e5e7eb;
             border-radius: 12px;
-            color: white;
-            font-family: inherit;
-            font-size: 1em;
-            transition: all 0.3s;
-        }
-
-        .input-group input:focus {
-            outline: none;
-            border-color: #f093fb;
-            box-shadow: 0 0 0 3px rgba(240, 147, 251, 0.1);
-        }
-
-        .input-group input::placeholder {
-            color: rgba(255, 255, 255, 0.3);
-        }
-
-        .btn-magic {
-            padding: 16px 24px;
-            background: linear-gradient(135deg, #f093fb, #f5576c);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-family: inherit;
-            font-size: 1em;
-            font-weight: 600;
+            font-size: 0.95rem;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.3s;
         }
@@ -263,56 +264,130 @@
 
         .rgpd-checkbox {
             display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            margin-bottom: 15px;
-            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
-        .rgpd-checkbox input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            min-width: 20px;
-            margin-top: 2px;
-            accent-color: #f093fb;
-            cursor: pointer;
+        .magic-link-btn:hover {
+            border-color: var(--primary);
+            background: #f0f0ff;
         }
 
-        .rgpd-checkbox label {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.85em;
-            line-height: 1.5;
-            cursor: pointer;
-        }
-
-        .rgpd-checkbox label a {
-            color: #f093fb;
-            text-decoration: underline;
-        }
-
-        .rgpd-checkbox label a:hover {
-            color: #f5576c;
-        }
-
-        .rgpd-checkbox.required label::after {
-            content: ' *';
-            color: #f5576c;
-        }
-
-        .rgpd-checkbox.optional label {
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        .rgpd-error {
-            color: #ef4444;
-            font-size: 0.85em;
-            margin-top: -10px;
-            margin-bottom: 15px;
+        .error-message {
+            background: #FEE2E2;
+            color: #DC2626;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
             display: none;
         }
 
-        .rgpd-error.show {
-            display: block;
+        .success-message {
+            background: #D1FAE5;
+            color: #059669;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 25px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            padding: 4px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #64748b;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 0.85rem;
+            color: #9ca3af;
+        }
+
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Demo users */
+        .demo-section {
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px dashed #e5e7eb;
+        }
+
+        .demo-section h3 {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .demo-users {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .demo-user {
+            padding: 12px 8px;
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .demo-user:hover {
+            border-color: var(--primary);
+            background: #f0f0ff;
+        }
+
+        .demo-user .demo-icon {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .demo-user .demo-role {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        /* Logo white label */
+        .logo-img {
+            max-width: 120px;
+            max-height: 60px;
+            margin-bottom: 10px;
         }
 
         /* Auth Mode Toggle */
@@ -418,41 +493,29 @@
 </head>
 <body>
     <div class="login-container">
-        <div class="logo">🚀</div>
-        <h1>SOS Storytelling</h1>
-        <p class="subtitle">Connecte-toi ou crée ton compte pour 7 jours d'essai gratuit</p>
-
-        <!-- Section RGPD - Checkboxes -->
-        <div class="rgpd-section">
-            <div class="rgpd-checkbox required">
-                <input type="checkbox" id="acceptTerms">
-                <label for="acceptTerms">
-                    J'accepte les <a href="cgv.html" target="_blank">Conditions Générales</a> et la <a href="mentions-legales.html" target="_blank">Politique de confidentialité</a>
-                </label>
+        <div class="login-card">
+            <div class="logo">
+                <img id="orgLogo" class="logo-img org-logo" src="logo-sos-storytelling.png" alt="SOS Storytelling" style="height: 60px; margin-bottom: 15px;">
+                <h1 id="appName" class="app-name">SOS Storytelling</h1>
+                <p id="appSubtitle">Plateforme B2B pour bootcamps</p>
             </div>
-            <div class="rgpd-error" id="termsError">⚠️ Veuillez accepter les conditions pour continuer</div>
 
-            <div class="rgpd-checkbox optional">
-                <input type="checkbox" id="acceptNewsletter">
-                <label for="acceptNewsletter">
-                    J'accepte de recevoir des conseils et nouveautés par email (optionnel)
-                </label>
+            <!-- Tabs -->
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('login')">Connexion</div>
+                <div class="tab" onclick="switchTab('register')">Inscription</div>
             </div>
-        </div>
 
-        <div class="auth-buttons">
-            <button class="btn-google" onclick="signInWithGoogle()">
-                <svg viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-                Continuer avec Google
-            </button>
-        </div>
+            <!-- Messages -->
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
 
-        <div class="divider">ou par email</div>
+            <!-- Login Form -->
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="ton@email.com" required>
+                </div>
 
         <!-- Toggle Connexion / Inscription -->
         <div class="auth-mode-toggle">
@@ -508,8 +571,12 @@
         // Configuration depuis config.js
         initSupabase(); // Initialise supabaseClient global depuis config.js
 
-        // URL de redirection après connexion
-        const REDIRECT_URL = window.location.origin + '/app.html';
+        // ============================================
+        // TAB SWITCHING
+        // ============================================
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
 
         // Vérifier si déjà connecté
         async function checkSession() {
@@ -519,50 +586,117 @@
                 window.location.href = 'app.html';
             }
         }
-        checkSession();
 
-        // Vérifier les consentements RGPD
-        function checkRGPDConsent() {
-            const acceptTerms = document.getElementById('acceptTerms').checked;
-            const termsError = document.getElementById('termsError');
+        // ============================================
+        // REGISTER
+        // ============================================
+        async function handleRegister(e) {
+            e.preventDefault();
+            hideMessages();
 
-            if (!acceptTerms) {
-                termsError.classList.add('show');
-                return false;
-            }
+            const firstName = document.getElementById('registerFirstName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const inviteCode = document.getElementById('inviteCode').value;
+            const btn = document.getElementById('registerBtn');
 
-            termsError.classList.remove('show');
-            return true;
-        }
+            btn.disabled = true;
+            btn.textContent = 'Création...';
 
-        // Sauvegarder les préférences RGPD (pour les récupérer après OAuth redirect)
-        function saveRGPDPreferences() {
-            const acceptTerms = document.getElementById('acceptTerms').checked;
-            const acceptNewsletter = document.getElementById('acceptNewsletter').checked;
-
-            localStorage.setItem('rgpd_consent', JSON.stringify({
-                terms_accepted: acceptTerms,
-                newsletter_opt_in: acceptNewsletter,
-                accepted_at: new Date().toISOString()
-            }));
-        }
-
-        // Masquer l'erreur quand on coche la case
-        document.addEventListener('DOMContentLoaded', () => {
-            const acceptTerms = document.getElementById('acceptTerms');
-            if (acceptTerms) {
-                acceptTerms.addEventListener('change', () => {
-                    if (acceptTerms.checked) {
-                        document.getElementById('termsError').classList.remove('show');
+            try {
+                // Create auth user
+                const { data, error } = await db.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        data: {
+                            first_name: firstName
+                        }
                     }
                 });
-            }
-        });
 
-        // Connexion Google
-        async function signInWithGoogle() {
-            // Vérifier le consentement RGPD
-            if (!checkRGPDConsent()) {
+                if (error) throw error;
+
+                // Use current org from white label, or parse invite code
+                let orgId = window.CURRENT_ORG_ID || 'sos_default';
+                let cohortId = null;
+
+                // If we have a white label org, use it
+                if (window.CURRENT_ORG_ID) {
+                    // Find active cohort for this org
+                    const { data: cohortData } = await db
+                        .from('cohorts')
+                        .select('id')
+                        .eq('organization_id', orgId)
+                        .eq('is_active', true)
+                        .order('created_at', { ascending: false })
+                        .limit(1)
+                        .single();
+
+                    if (cohortData) {
+                        cohortId = cohortData.id;
+                    }
+                } else if (inviteCode) {
+                    // Try to find organization from invite code
+                    const { data: orgData } = await db
+                        .from('organizations')
+                        .select('id')
+                        .ilike('slug', inviteCode.split('-').slice(0, 2).join('-'))
+                        .single();
+
+                    if (orgData) {
+                        orgId = orgData.id;
+
+                        // Find active cohort
+                        const { data: cohortData } = await db
+                            .from('cohorts')
+                            .select('id')
+                            .eq('organization_id', orgId)
+                            .eq('is_active', true)
+                            .order('created_at', { ascending: false })
+                            .limit(1)
+                            .single();
+
+                        if (cohortData) {
+                            cohortId = cohortData.id;
+                        }
+                    }
+                }
+
+                // Create org_user
+                await db.from('org_users').insert({
+                    user_id: data.user.id,
+                    organization_id: orgId,
+                    cohort_id: cohortId,
+                    role: 'client',
+                    first_name: firstName,
+                    email: email
+                });
+
+                // Check for referral code in URL
+                const refCode = new URLSearchParams(window.location.search).get('ref');
+                if (refCode) {
+                    await handleReferral(data.user.id, refCode);
+                }
+
+                showSuccess('Compte cree ! Verifie ton email pour confirmer.');
+
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Créer mon compte';
+            }
+        }
+
+        // ============================================
+        // MAGIC LINK
+        // ============================================
+        async function sendMagicLink() {
+            const email = document.getElementById('loginEmail').value;
+
+            if (!email) {
+                showError('Entre ton email d\'abord');
                 return;
             }
 
@@ -777,15 +911,12 @@
             // Récupérer les préférences RGPD sauvegardées
             let rgpdConsent = { terms_accepted: false, newsletter_opt_in: false, accepted_at: null };
             try {
-                const saved = localStorage.getItem('rgpd_consent');
-                if (saved) {
-                    rgpdConsent = JSON.parse(saved);
-                    // Nettoyer après utilisation
-                    localStorage.removeItem('rgpd_consent');
-                }
-            } catch (e) {
-                console.warn('Erreur lecture consentement RGPD:', e);
-            }
+                const { error } = await db.auth.signInWithOtp({
+                    email,
+                    options: {
+                        emailRedirectTo: window.location.origin + '/app-b2b.html'
+                    }
+                });
 
             // Vérifier si l'utilisateur existe déjà
             const { data: existingUser } = await supabaseClient
@@ -794,15 +925,15 @@
                 .eq('email', email)
                 .single();
 
-            if (existingUser) {
-                // Utilisateur existe déjà
-                console.log('Utilisateur existant:', existingUser);
-
-                // ANTI-ABUS : Si trial déjà utilisé et pas d'abonnement actif → bloquer
-                if (existingUser.trial_used && existingUser.subscription_status !== 'active') {
-                    console.log('⚠️ Trial déjà utilisé pour cet email');
-                    // On laisse passer, il sera redirigé vers upgrade.html par app.html
-                }
+            if (!orgUser) {
+                // No org_user yet, create one as client
+                await db.from('org_users').insert({
+                    user_id: userId,
+                    organization_id: 'sos_default',
+                    role: 'client'
+                });
+                // New clients go to content creation app
+                window.location.href = 'app.html';
                 return;
             }
 
@@ -828,28 +959,119 @@
             if (error) {
                 console.error('Erreur création utilisateur:', error);
             } else {
-                console.log('✅ Nouvel utilisateur créé avec trial de 7 jours');
-                console.log('📋 RGPD - CGU acceptées:', rgpdConsent.accepted_at);
-                console.log('📧 RGPD - Newsletter opt-in:', rgpdConsent.newsletter_opt_in);
+                window.location.href = 'app.html';
+            }
+        }
 
-                // RGPD : Ajouter à Brevo UNIQUEMENT si l'utilisateur a accepté la newsletter
-                if (rgpdConsent.newsletter_opt_in) {
-                    try {
-                        await fetch('https://sos-storytelling-api.sandra-devonssay.workers.dev/api/brevo/contact', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                email: email,
-                                name: name,
-                                source: 'trial' // Sera mappé en 'free' dans Brevo
-                            })
-                        });
-                        console.log('✅ Contact ajouté à Brevo (newsletter opt-in)');
-                    } catch (brevoError) {
-                        console.log('⚠️ Erreur Brevo (non bloquante):', brevoError);
-                    }
+        // ============================================
+        // HELPERS
+        // ============================================
+        function showError(message) {
+            const el = document.getElementById('errorMessage');
+            el.textContent = message;
+            el.style.display = 'block';
+        }
+
+        function showSuccess(message) {
+            const el = document.getElementById('successMessage');
+            el.textContent = message;
+            el.style.display = 'block';
+        }
+
+        function hideMessages() {
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        // ============================================
+        // REFERRAL HANDLING
+        // ============================================
+        async function handleReferral(userId, refCode) {
+            if (!refCode) return;
+
+            try {
+                // Find affiliate by referral code
+                const { data: affiliate, error: affError } = await db
+                    .from('affiliates')
+                    .select('id')
+                    .eq('referral_code', refCode.toUpperCase())
+                    .eq('status', 'active')
+                    .single();
+
+                if (affError || !affiliate) {
+                    console.log('Referral code not found:', refCode);
+                    return;
+                }
+
+                // Create pending referral
+                const { error: pendingError } = await db
+                    .from('pending_referrals')
+                    .insert({
+                        user_id: userId,
+                        affiliate_id: affiliate.id,
+                        referral_code: refCode.toUpperCase(),
+                        source: 'link',
+                        landing_page: window.location.href
+                    });
+
+                if (pendingError) {
+                    console.error('Error creating pending referral:', pendingError);
                 } else {
-                    console.log('📧 Newsletter non souhaitée - Contact non ajouté à Brevo');
+                    console.log('Pending referral created for:', refCode);
+                }
+            } catch (err) {
+                console.error('Referral handling error:', err);
+            }
+        }
+
+        // ============================================
+        // CHECK EXISTING SESSION
+        // ============================================
+        async function checkSession() {
+            const { data: { user } } = await db.auth.getUser();
+            if (user) {
+                await redirectBasedOnRole(user.id);
+            }
+        }
+
+        // Check on load
+        checkSession();
+
+        // ============================================
+        // WHITE LABEL INITIALIZATION
+        // ============================================
+        async function initWhiteLabel() {
+            // Wait for Supabase to be ready
+            if (typeof window.OrganizationLoader !== 'undefined') {
+                const org = await window.OrganizationLoader.init();
+
+                if (org) {
+                    // Update app name
+                    document.getElementById('appName').textContent = org.app_name || org.name;
+
+                    // Update subtitle if welcome_message exists
+                    if (org.welcome_message) {
+                        document.getElementById('appSubtitle').textContent = org.welcome_message;
+                    } else {
+                        document.getElementById('appSubtitle').textContent = 'Bienvenue sur ' + (org.app_name || org.name);
+                    }
+
+                    // Show logo if available
+                    if (org.logo_url) {
+                        const logoImg = document.getElementById('orgLogo');
+                        logoImg.src = org.logo_url;
+                        logoImg.alt = org.app_name || org.name;
+                        logoImg.style.display = 'block';
+                        document.getElementById('logoIcon').style.display = 'none';
+                    }
+
+                    // Update page title
+                    document.title = `Connexion - ${org.app_name || org.name}`;
+
+                    // Store org ID for registration
+                    window.CURRENT_ORG_ID = org.id;
+
+                    console.log('[Login] White label applique:', org.app_name);
                 }
             }
         }

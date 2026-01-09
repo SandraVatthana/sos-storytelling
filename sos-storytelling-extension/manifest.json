@@ -1,0 +1,58 @@
+{
+  "manifest_version": 3,
+  "name": "SOS Storytelling - LinkedIn Leads Exporter",
+  "version": "1.0.0",
+  "description": "Exportez vos leads LinkedIn Sales Navigator directement vers SOS Storytelling",
+  "author": "SOS Storytelling",
+
+  "permissions": [
+    "storage",
+    "activeTab",
+    "tabs",
+    "alarms"
+  ],
+
+  "host_permissions": [
+    "https://www.linkedin.com/*",
+    "https://sos-storytelling-api.sandra-devonssay.workers.dev/*",
+    "https://cuwkbxleeapxeyzdzqdr.supabase.co/*"
+  ],
+
+  "background": {
+    "service_worker": "background/background.js"
+  },
+
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.linkedin.com/sales/*"
+      ],
+      "js": ["content/content.js"],
+      "css": ["styles/injected.css"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "assets/icon-16.png",
+      "48": "assets/icon-48.png",
+      "128": "assets/icon-128.png"
+    },
+    "default_title": "SOS Storytelling"
+  },
+
+  "icons": {
+    "16": "assets/icon-16.png",
+    "48": "assets/icon-48.png",
+    "128": "assets/icon-128.png"
+  },
+
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/*", "styles/*"],
+      "matches": ["https://www.linkedin.com/*"]
+    }
+  ]
+}

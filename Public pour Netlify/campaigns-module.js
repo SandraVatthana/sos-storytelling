@@ -658,6 +658,139 @@ Bonne journée !`,
         }
     },
 
+    async handleWizardImport(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const importZone = document.getElementById('wizardImportZone');
+        if (importZone) {
+            importZone.innerHTML = '<div style="text-align: center; padding: 20px;"><div class="loading-spinner"></div><p>Import en cours...</p></div>';
+        }
+
+        try {
+            const text = await file.text();
+            const lines = text.split(/\r?\n/).filter(line => line.trim());
+
+            if (lines.length < 2) {
+                throw new Error('Le fichier CSV semble vide');
+            }
+
+            // Parse CSV - détecter le séparateur
+            const firstLine = lines[0];
+            const separator = firstLine.includes(';') ? ';' : ',';
+
+            const headers = firstLine.split(separator).map(h => h.trim().toLowerCase().replace(/"/g, '').normalize('NFD').replace(/[\u0300-\u036f]/g, ''));
+            console.log('=== IMPORT CSV DEBUG ===');
+            console.log('Séparateur:', separator);
+            console.log('Headers détectés:', headers);
+            console.log('Nombre de lignes:', lines.length);
+
+            const prospects = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(separator).map(v => v.trim().replace(/"/g, ''));
+                if (values.length < 2 || !values.some(v => v)) continue;
+
+                const prospect = {};
+                headers.forEach((header, idx) => {
+                    const value = values[idx] || '';
+                    // Matching plus flexible
+                    if (header.includes('mail') || header === 'e-mail' || header === 'courriel') {
+                        prospect.email = value;
+                    } else if (header.includes('prenom') || header.includes('first') || header === 'firstname' || header === 'given') {
+                        prospect.first_name = value;
+                    } else if ((header.includes('nom') && !header.includes('prenom')) || header.includes('last') || header === 'lastname' || header === 'family' || header === 'surname') {
+                        prospect.last_name = value;
+                    } else if (header.includes('entreprise') || header.includes('company') || header.includes('societe') || header.includes('organisation')) {
+                        prospect.company = value;
+                    } else if (header.includes('poste') || header.includes('title') || header.includes('fonction') || header.includes('job') || header.includes('role')) {
+                        prospect.job_title = value;
+                    } else if (header.includes('linkedin')) {
+                        prospect.linkedin_url = value;
+                    }
+                });
+
+                // Si pas de mapping trouvé, essayer position par défaut (email en premier ou second)
+                if (!prospect.email && values[0] && values[0].includes('@')) {
+                    prospect.email = values[0];
+                    prospect.first_name = prospect.first_name || values[1] || 'Contact';
+                } else if (!prospect.email && values[1] && values[1].includes('@')) {
+                    prospect.email = values[1];
+                    prospect.first_name = prospect.first_name || values[0] || 'Contact';
+                }
+
+                if (prospect.email && prospect.email.includes('@')) {
+                    prospect.first_name = prospect.first_name || 'Contact';
+                    prospect.status = 'new';
+                    prospects.push(prospect);
+                    if (prospects.length === 1) {
+                        console.log('Premier prospect:', prospect);
+                    }
+                } else if (i === 1) {
+                    console.log('Première ligne non valide:', { values, prospect });
+                }
+            }
+
+            console.log('Prospects parsés:', prospects.length);
+
+            if (prospects.length === 0) {
+                throw new Error('Aucun prospect valide trouvé. Colonnes détectées: ' + headers.join(', ') + '. Assurez-vous d\'avoir une colonne email.');
+            }
+
+            // Sauvegarder les prospects
+            if (typeof ProspectsModule !== 'undefined') {
+                // Essayer d'abord de sauvegarder dans Supabase
+                try {
+                    if (window.supabase?.auth && typeof ProspectsModule.importProspects === 'function') {
+                        const { data: { user } } = await window.supabase.auth.getUser();
+                        if (user) {
+                            console.log('Import Supabase:', prospects.length, 'prospects');
+                            await ProspectsModule.importProspects(prospects, 'csv_wizard');
+                            // Les prospects sont maintenant dans ProspectsModule.prospects via loadProspects()
+                        } else {
+                            throw new Error('Non connecté');
+                        }
+                    } else {
+                        throw new Error('Supabase non disponible');
+                    }
+                } catch (e) {
+                    // Fallback mode local
+                    console.log('Import local (fallback):', prospects.length, 'prospects -', e.message);
+                    const prospectsWithIds = prospects.map((p, i) => ({
+                        ...p,
+                        id: 'local_' + Date.now() + '_' + i,
+                        source: 'csv_wizard',
+                        status: 'new'
+                    }));
+                    ProspectsModule.prospects = [...(ProspectsModule.prospects || []), ...prospectsWithIds];
+                }
+            }
+
+            // Rafraîchir le wizard
+            if (importZone) {
+                importZone.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #4caf50;">
+                        <div style="font-size: 2em;">✅</div>
+                        <p><strong>${prospects.length} prospects importés !</strong></p>
+                        <button class="btn btn-primary" onclick="CampaignsModule.updateWizard()">Continuer</button>
+                    </div>
+                `;
+            }
+
+        } catch (error) {
+            console.error('Import error:', error);
+            if (importZone) {
+                importZone.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #f44336;">
+                        <div style="font-size: 2em;">❌</div>
+                        <p><strong>Erreur:</strong> ${error.message}</p>
+                        <button class="btn btn-secondary" onclick="CampaignsModule.updateWizard()">Réessayer</button>
+                    </div>
+                `;
+            }
+        }
+    },
+
     // ==========================================
     // STEP 1: INFOS CAMPAGNE
     // ==========================================
@@ -1720,6 +1853,26 @@ ${isFirst ? 'Votre premier message de contact...' : 'Votre message de relance...
                 btn.disabled = false;
             }
         }
+
+        // Essayer de générer avec l'IA
+        if (window.callAI && voiceProfile?.voiceProfile) {
+            try {
+                const emails = await this.generateWithRealAI(config, style, tone, voiceProfile);
+                if (emails && emails.length > 0) {
+                    this.sequenceEmails = emails;
+                    console.log('Séquence générée par IA:', this.sequenceEmails);
+                    this.updateWizard();
+                    return;
+                }
+            } catch (error) {
+                console.error('Erreur génération IA, fallback templates:', error);
+            }
+        }
+
+        // Fallback sur les templates si pas d'IA ou erreur
+        this.sequenceEmails = this.buildEmailSequence(config, style, tone, voiceProfile);
+        console.log('Séquence générée (templates):', { style, tone, useMyVoice });
+        this.updateWizard();
     },
 
     /**

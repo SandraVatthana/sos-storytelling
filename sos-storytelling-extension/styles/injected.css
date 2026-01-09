@@ -1,0 +1,474 @@
+/* SOS Storytelling - Styles injectes dans Sales Navigator */
+
+/* ============================================
+   FLOATING BUTTON
+   ============================================ */
+.sos-floating-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+  color: white;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(245, 87, 108, 0.4);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.sos-floating-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(245, 87, 108, 0.5);
+}
+
+.sos-floating-btn:active {
+  transform: translateY(0);
+}
+
+.sos-btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sos-btn-icon svg {
+  stroke: white;
+}
+
+.sos-btn-text {
+  white-space: nowrap;
+}
+
+.sos-btn-count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.sos-btn-count.has-leads {
+  background: white;
+  color: #f5576c;
+}
+
+/* ============================================
+   SELECTION PANEL
+   ============================================ */
+.sos-panel {
+  position: fixed;
+  bottom: 90px;
+  right: 24px;
+  z-index: 9998;
+  width: 340px;
+  max-height: 500px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow: hidden;
+  animation: slideUp 0.3s ease;
+}
+
+.sos-panel.hidden {
+  display: none;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sos-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+  color: white;
+}
+
+.sos-panel-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.sos-panel-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.sos-panel-close:hover {
+  opacity: 1;
+}
+
+.sos-panel-content {
+  padding: 20px;
+}
+
+/* Auth Required State */
+.sos-panel-auth-required {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.sos-panel-auth-required p {
+  margin: 0 0 16px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.sos-panel-auth-required.hidden {
+  display: none;
+}
+
+.sos-btn-open-popup {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sos-btn-open-popup:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 87, 108, 0.3);
+}
+
+/* Main Panel Content */
+.sos-panel-main.hidden {
+  display: none;
+}
+
+.sos-leads-info {
+  padding: 16px;
+  background: #fef3c7;
+  border-radius: 10px;
+  text-align: center;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: #92400e;
+}
+
+.sos-leads-count {
+  font-size: 24px;
+  font-weight: 700;
+  color: #d97706;
+}
+
+/* Action Buttons */
+.sos-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.sos-btn {
+  flex: 1;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.sos-btn:hover {
+  background: #e5e7eb;
+}
+
+.sos-btn-primary {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+  color: white;
+  font-size: 14px;
+}
+
+.sos-btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 87, 108, 0.3);
+}
+
+.sos-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Leads List */
+.sos-leads-list {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.sos-empty {
+  padding: 20px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 13px;
+  margin: 0;
+}
+
+.sos-lead-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.sos-lead-item:last-child {
+  border-bottom: none;
+}
+
+.sos-lead-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.sos-lead-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a2e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sos-lead-title {
+  font-size: 11px;
+  color: #6b7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sos-lead-remove {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.sos-lead-remove:hover {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+.sos-more {
+  padding: 8px 12px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 12px;
+  background: #f9fafb;
+  margin: 0;
+}
+
+/* ============================================
+   CHECKBOX STYLES
+   ============================================ */
+.sos-checkbox {
+  position: absolute;
+  left: -30px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 100;
+}
+
+.sos-checkbox-input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.sos-checkbox-mark {
+  display: block;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border: 2px solid #d1d5db;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sos-checkbox-mark:hover {
+  border-color: #f5576c;
+}
+
+.sos-checkbox-input:checked + .sos-checkbox-mark {
+  background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+  border-color: transparent;
+}
+
+.sos-checkbox-input:checked + .sos-checkbox-mark::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* ============================================
+   NOTIFICATIONS
+   ============================================ */
+.sos-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10000;
+  padding: 14px 20px;
+  border-radius: 10px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  transform: translateX(120%);
+  transition: transform 0.3s ease;
+}
+
+.sos-notification.show {
+  transform: translateX(0);
+}
+
+.sos-notification-success {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.sos-notification-error {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+.sos-notification-warning {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.sos-notification-info {
+  background: #e0e7ff;
+  color: #4f46e5;
+}
+
+/* ============================================
+   DARK MODE SUPPORT (LinkedIn peut utiliser dark mode)
+   ============================================ */
+@media (prefers-color-scheme: dark) {
+  .sos-panel {
+    background: #1f2937;
+  }
+
+  .sos-panel-content {
+    background: #1f2937;
+  }
+
+  .sos-leads-info {
+    background: #374151;
+    color: #fcd34d;
+  }
+
+  .sos-btn {
+    background: #374151;
+    color: #e5e7eb;
+  }
+
+  .sos-btn:hover {
+    background: #4b5563;
+  }
+
+  .sos-leads-list {
+    border-color: #374151;
+  }
+
+  .sos-lead-item {
+    border-color: #374151;
+  }
+
+  .sos-lead-name {
+    color: #f3f4f6;
+  }
+
+  .sos-lead-title {
+    color: #9ca3af;
+  }
+
+  .sos-more {
+    background: #374151;
+    color: #9ca3af;
+  }
+}
+
+/* ============================================
+   RESPONSIVE - S'adapter aux differentes tailles
+   ============================================ */
+@media (max-width: 768px) {
+  .sos-floating-btn {
+    bottom: 16px;
+    right: 16px;
+    padding: 10px 16px;
+  }
+
+  .sos-btn-text {
+    display: none;
+  }
+
+  .sos-panel {
+    width: calc(100vw - 32px);
+    right: 16px;
+    bottom: 80px;
+  }
+}

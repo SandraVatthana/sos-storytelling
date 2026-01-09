@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOS Storytelling</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <img src="../assets/icon-48.png" alt="Logo" class="logo">
+      <h1>SOS Storytelling</h1>
+    </header>
+
+    <!-- Login View -->
+    <div id="login-view" class="view">
+      <p class="subtitle">Connectez-vous pour exporter vos leads</p>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="votre@email.com" required>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Mot de passe</label>
+          <input type="password" id="password" placeholder="Votre mot de passe" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="login-btn">
+          <span class="btn-text">Se connecter</span>
+          <span class="btn-loader hidden"></span>
+        </button>
+      </form>
+
+      <div class="divider">
+        <span>ou</span>
+      </div>
+
+      <button class="btn btn-secondary" id="open-app-btn">
+        Ouvrir SOS Storytelling
+      </button>
+
+      <p id="login-error" class="error hidden"></p>
+    </div>
+
+    <!-- Connected View -->
+    <div id="connected-view" class="view hidden">
+      <div class="user-info">
+        <div class="user-avatar" id="user-avatar">U</div>
+        <div class="user-details">
+          <span class="user-email" id="user-email">email@example.com</span>
+          <span class="status-badge connected">Connecte</span>
+        </div>
+      </div>
+
+      <div class="section">
+        <label for="campaign-select">Campagne cible</label>
+        <select id="campaign-select">
+          <option value="">-- Selectionner une campagne --</option>
+        </select>
+        <button class="btn btn-small" id="refresh-campaigns-btn" title="Rafraichir">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="section">
+        <label>Leads selectionnes</label>
+        <div class="leads-count">
+          <span id="leads-count">0</span> lead(s) pret(s) a exporter
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-export" id="export-btn" disabled>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+        </svg>
+        <span class="btn-text">Exporter vers SOS Storytelling</span>
+        <span class="btn-loader hidden"></span>
+      </button>
+
+      <p id="export-status" class="status hidden"></p>
+
+      <div class="actions-footer">
+        <button class="btn btn-link" id="open-dashboard-btn">
+          Ouvrir le dashboard
+        </button>
+        <button class="btn btn-link btn-danger" id="logout-btn">
+          Deconnexion
+        </button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>v1.0.0 - <a href="https://sos-storytelling.com" target="_blank">sos-storytelling.com</a></p>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+# SOS Storytelling - robots.txt
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://sosstorytelling.fr/sitemap.xml
+
+# Disallow admin/app pages from indexing
+Disallow: /app-b2b.html
+Disallow: /login.html
+Disallow: /transition.html

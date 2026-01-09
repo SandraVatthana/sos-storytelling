@@ -12,6 +12,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.8.5/dist/dotlottie-wc.js" type="module"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="organization-loader.js"></script>
     <link rel="stylesheet" href="agent-styles.css?v=20241205d">
     <link rel="stylesheet" href="missions-styles.css?v=20241230">
     <link rel="stylesheet" href="inbox-styles.css?v=20260102b">
@@ -146,6 +148,303 @@
         .quick-action-card.primary { background: linear-gradient(135deg, #667eea, #764ba2); }
         .quick-action-card.primary .quick-action-title { color: white; }
         .quick-action-card.primary:hover { border-color: white; }
+
+        /* ==================== 3 MODES DESIGN ==================== */
+        .modes-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        /* Section titles pour séparer les modes */
+        .section-title {
+            font-size: 0.85rem;
+            color: #888;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+            margin-top: 1.5rem;
+            padding-left: 0.5rem;
+        }
+        .section-title:first-of-type {
+            margin-top: 0;
+        }
+        .section-subtitle {
+            font-size: 0.75rem;
+            color: #aaa;
+            font-weight: 400;
+            margin-left: 0.5rem;
+        }
+
+        .mode-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 18px 24px;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+            pointer-events: none;
+        }
+
+        /* Hover : carte s'agrandit légèrement */
+        .mode-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        }
+
+        /* État "expanded" pour mobile */
+        .mode-card.expanded {
+            transform: scale(1.02);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        }
+
+        .mode-creer {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .mode-prospecter {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .mode-autopilot {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+        }
+
+        .mode-emoji {
+            font-size: 2em;
+            flex-shrink: 0;
+        }
+
+        .mode-main {
+            flex: 1;
+        }
+
+        .mode-title {
+            font-size: 1.3em;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        /* Détails cachés par défaut */
+        .mode-details {
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* Détails visibles au hover */
+        .mode-card:hover .mode-details,
+        .mode-card.expanded .mode-details {
+            opacity: 1;
+            max-height: 60px;
+            margin-top: 6px;
+        }
+
+        .mode-subtitle {
+            font-size: 0.85em;
+            opacity: 0.95;
+        }
+
+        .mode-description {
+            font-size: 0.75em;
+            opacity: 0.75;
+            margin-top: 2px;
+        }
+
+        .mode-arrow {
+            position: absolute;
+            right: 20px;
+            opacity: 0.6;
+            transition: all 0.3s;
+        }
+
+        .mode-card:hover .mode-arrow,
+        .mode-card.expanded .mode-arrow {
+            opacity: 1;
+            transform: translateX(4px);
+        }
+
+        /* Audit link */
+        .audit-link-container {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .audit-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #64748b;
+            text-decoration: none;
+            font-size: 0.95em;
+            padding: 12px 20px;
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+
+        .audit-link:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .audit-link span {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        /* Sous-menus */
+        .mode-submenu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: white;
+            z-index: 2000;
+            padding: 20px;
+            animation: slideInRight 0.3s ease;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .submenu-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 24px;
+        }
+
+        .submenu-header h2 {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .submenu-back {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: #f1f5f9;
+            border: none;
+            border-radius: 10px;
+            color: #64748b;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .submenu-back:hover {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .submenu-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .submenu-option {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px 24px;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .submenu-option:hover {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f8f5ff 0%, #fff 100%);
+            transform: translateX(8px);
+        }
+
+        .submenu-option-icon {
+            font-size: 2em;
+            flex-shrink: 0;
+        }
+
+        .submenu-option-content {
+            flex: 1;
+        }
+
+        .submenu-option-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .submenu-option-desc {
+            font-size: 0.85em;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .submenu-option-time {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .submenu-option-arrow {
+            font-size: 1.2em;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        @media (max-width: 600px) {
+            .modes-grid {
+                gap: 16px;
+            }
+            .mode-card {
+                padding: 20px;
+            }
+            .mode-emoji {
+                font-size: 2em;
+            }
+            .mode-title {
+                font-size: 1.2em;
+            }
+            .mode-subtitle, .mode-description {
+                font-size: 0.85em;
+            }
+            .submenu-option {
+                padding: 16px 20px;
+            }
+        }
+
+        /* ==================== FIN 3 MODES ==================== */
 
         /* Menu hamburger mobile */
         .mobile-menu-toggle { display: none; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 10px 15px; border-radius: 10px; font-size: 1.2em; cursor: pointer; }
@@ -468,6 +767,103 @@
         @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.2); } }
 
         /* Settings Hint Popup */
+        .settings-hint-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 999;
+            display: none;
+        }
+        .settings-hint-overlay.show { display: block; }
+
+        /* Audit Hint Popup */
+        .audit-hint-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 998;
+            display: none;
+        }
+        .audit-hint-overlay.show { display: block; }
+        .audit-hint {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            padding: 20px 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(240, 147, 251, 0.4);
+            z-index: 999;
+            display: none;
+            max-width: 360px;
+            text-align: center;
+            animation: auditHintFadeIn 0.5s ease;
+        }
+        .audit-hint.show { display: block; }
+        .audit-hint-close {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+            opacity: 0.8;
+        }
+        .audit-hint-close:hover { opacity: 1; }
+        .audit-hint-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .audit-hint-text {
+            font-size: 0.9em;
+            line-height: 1.5;
+            opacity: 0.95;
+            margin-bottom: 15px;
+        }
+        .audit-hint-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: white;
+            color: #f5576c;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 10px;
+        }
+        .audit-hint-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .audit-hint-dismiss {
+            display: block;
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.8em;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+        .audit-hint-dismiss:hover { color: white; }
+        @keyframes auditHintFadeIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+        @media (max-width: 768px) {
+            .audit-hint { bottom: 80px; max-width: calc(100% - 40px); left: 20px; right: 20px; transform: none; }
+        }
         .settings-hint {
             position: fixed;
             top: 70px;
@@ -1594,8 +1990,10 @@
         .visual-title { font-weight: 700; color: #333; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
         .copy-prompt-btn { padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 6px; font-size: 0.85em; cursor: pointer; font-family: inherit; }
 
-        .toast { position: fixed; bottom: 55px; right: 30px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 15px 25px; border-radius: 10px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); z-index: 1000; }
+        .toast { position: fixed; bottom: 55px; right: 30px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 15px 25px; border-radius: 10px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); z-index: 999999; }
         .toast.show { transform: translateX(0); }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         .idea-btn { padding: 10px 20px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 20px; font-weight: 600; cursor: pointer; transition: all 0.3s; font-family: inherit; margin: 5px; }
         .idea-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); }
@@ -2602,6 +3000,25 @@
         </div>
     </header>
 
+    <!-- Audit Hint Overlay (bloque les clics) -->
+    <div class="audit-hint-overlay" id="auditHintOverlay"></div>
+
+    <!-- Audit Hint Popup -->
+    <div class="audit-hint" id="auditHint">
+        <button class="audit-hint-close" onclick="closeAuditHint(false)">&times;</button>
+        <div class="audit-hint-title">💡 Nouvelle ici ?</div>
+        <div class="audit-hint-text">
+            Fais ton <strong>audit gratuit</strong> pour recevoir des conseils personnalisés sur ton compte !
+        </div>
+        <button class="audit-hint-btn" onclick="closeAuditHint(false); AuditModule.openAuditModal();">
+            🔍 Faire mon audit gratuit
+        </button>
+        <button class="audit-hint-dismiss" onclick="closeAuditHint(true)">Ne plus montrer</button>
+    </div>
+
+    <!-- Settings Hint Overlay (bloque les clics) -->
+    <div class="settings-hint-overlay" id="settingsHintOverlay"></div>
+
     <!-- Settings Hint Popup -->
     <div class="settings-hint" id="settingsHint">
         <span class="settings-hint-arrow">⬆️</span>
@@ -2617,45 +3034,52 @@
 
     <div class="main-container">
         <!-- Quick Actions Page -->
+        <!-- Dashboard 3 MODES -->
         <div class="quick-actions-page" id="quickActionsPage">
             <h1 class="quick-actions-title" data-i18n="home.title">Que veux-tu faire ?</h1>
-            <p class="quick-actions-subtitle" data-i18n="home.subtitle">Clique et c'est parti !</p>
+            <p class="quick-actions-subtitle" data-i18n="home.subtitle">Choisis ton mode</p>
 
-            <div class="quick-actions-grid">
-                <div class="quick-action-card primary" onclick="showQuickPost()">
-                    <div class="quick-action-icon">
-                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                            <defs>
-                                <linearGradient id="iconGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" style="stop-color:#fff;stop-opacity:1" />
-                                    <stop offset="100%" style="stop-color:#e0e0ff;stop-opacity:1" />
-                                </linearGradient>
-                            </defs>
-                            <path d="M8 40L12 28L32 8L40 16L20 36L8 40Z" stroke="url(#iconGrad1)" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M28 12L36 20" stroke="url(#iconGrad1)" stroke-width="2.5" stroke-linecap="round"/>
-                            <path d="M12 28L20 36" stroke="url(#iconGrad1)" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- 3 Modes principaux -->
+            <div class="modes-grid">
+
+                <!-- Section 1 : Je fais moi-même -->
+                <p class="section-title">
+                    🎯 Je fais moi-même
+                    <span class="section-subtitle">— Tu contrôles, l'IA t'assiste</span>
+                </p>
+
+                <!-- MODE CRÉER -->
+                <div class="mode-card mode-creer" onclick="handleModeClick(this, 'creer')">
+                    <div class="mode-emoji">✨</div>
+                    <div class="mode-main">
+                        <div class="mode-title">CRÉER</div>
+                        <div class="mode-details">
+                            <div class="mode-subtitle">Attirer avec mes contenus</div>
+                            <div class="mode-description">Post, email, newsletter en 3 min</div>
+                        </div>
+                    </div>
+                    <div class="mode-arrow">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 18l6-6-6-6"/>
                         </svg>
                     </div>
-                    <div class="quick-action-title" data-i18n="quick_actions.write_post">Écrire un post</div>
-                    <div class="quick-action-time"><span class="time-icon">⚡</span> 2 min</div>
                 </div>
 
-                <div class="quick-action-card" onclick="showEmailChoiceModal()">
-                    <div class="quick-action-icon">
-                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                            <defs>
-                                <linearGradient id="iconGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
-                                    <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
-                                </linearGradient>
-                            </defs>
-                            <rect x="6" y="10" width="36" height="28" rx="3" stroke="url(#iconGrad2)" stroke-width="2.5" fill="none"/>
-                            <path d="M6 16L24 28L42 16" stroke="url(#iconGrad2)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            <line x1="6" y1="14" x2="42" y2="14" stroke="url(#iconGrad2)" stroke-width="2.5"/>
+                <!-- MODE PROSPECTER -->
+                <div class="mode-card mode-prospecter" onclick="handleModeClick(this, 'prospecter')">
+                    <div class="mode-emoji">🎯</div>
+                    <div class="mode-main">
+                        <div class="mode-title">PROSPECTER</div>
+                        <div class="mode-details">
+                            <div class="mode-subtitle">Aller parler à de nouvelles clientes</div>
+                            <div class="mode-description">Instagram, TikTok • Messages prêts à envoyer</div>
+                        </div>
+                    </div>
+                    <div class="mode-arrow">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 18l6-6-6-6"/>
                         </svg>
                     </div>
-                    <div class="quick-action-title" data-i18n="quick_actions.create_campaign">Campagnes emails</div>
-                    <div class="quick-action-time"><span class="time-icon">⚡</span> 5 min</div>
                 </div>
 
                 <div class="quick-action-card" onclick="MissionsModule.openMissionsModal()" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
@@ -4188,6 +4612,57 @@ Solution  | Présenter votre solution</pre>
                 closeDropdowns();
             }
         });
+
+        // ==================== 3 MODES - SOUS-MENUS ====================
+
+        // Gestion du tap mobile (premier tap = expand, deuxième = navigate)
+        function handleModeClick(card, mode) {
+            const isMobile = window.innerWidth <= 768 || 'ontouchstart' in window;
+
+            if (isMobile && !card.classList.contains('expanded')) {
+                // Premier tap sur mobile : expand la carte
+                document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('expanded'));
+                card.classList.add('expanded');
+                return;
+            }
+
+            // Desktop ou deuxième tap mobile : naviguer
+            if (mode === 'multiagents' || mode === 'autopilot') {
+                MissionsModule.openMissionsModal();
+            } else {
+                toggleModeSubmenu(mode);
+            }
+        }
+
+        // Fermer les cartes expanded si on clique ailleurs
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.mode-card')) {
+                document.querySelectorAll('.mode-card.expanded').forEach(c => c.classList.remove('expanded'));
+            }
+        });
+
+        function toggleModeSubmenu(mode) {
+            // Cacher la grille des modes
+            document.querySelector('.modes-grid').style.display = 'none';
+            document.querySelector('.audit-link-container').style.display = 'none';
+
+            // Afficher le sous-menu correspondant
+            const submenu = document.getElementById('submenu-' + mode);
+            if (submenu) {
+                submenu.style.display = 'block';
+            }
+        }
+
+        function closeSubmenu() {
+            // Cacher tous les sous-menus
+            document.querySelectorAll('.mode-submenu').forEach(menu => {
+                menu.style.display = 'none';
+            });
+
+            // Réafficher la grille des modes
+            document.querySelector('.modes-grid').style.display = 'flex';
+            document.querySelector('.audit-link-container').style.display = 'block';
+        }
 
         // ==================== QUICK ACTIONS ====================
         function showQuickPost() {
@@ -9651,7 +10126,45 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
         }
 
         // ==================== INITIALISATION ====================
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Initialiser le white label si disponible
+            if (typeof window.OrganizationLoader !== 'undefined') {
+                const org = await window.OrganizationLoader.init();
+                if (org) {
+                    console.log('[App] White label actif:', org.app_name);
+                    // Mettre à jour le titre de la page
+                    if (org.app_name) {
+                        document.title = org.app_name;
+                        const headerTitle = document.querySelector('.header-title');
+                        if (headerTitle) headerTitle.textContent = org.app_name;
+                    }
+                    // Mettre à jour le logo
+                    if (org.logo_url) {
+                        const headerLogo = document.querySelector('.header-logo');
+                        if (headerLogo) headerLogo.innerHTML = `<img src="${org.logo_url}" alt="${org.app_name}" style="height: 40px;">`;
+                    }
+                }
+            }
+
+            // Vérifier si l'utilisateur est admin/coach pour afficher le bouton Dashboard
+            try {
+                const { data: { user } } = await window.supabase.auth.getUser();
+                if (user) {
+                    const { data: orgUser } = await window.supabase
+                        .from('org_users')
+                        .select('role')
+                        .eq('user_id', user.id)
+                        .single();
+
+                    if (orgUser && (orgUser.role === 'admin' || orgUser.role === 'coach')) {
+                        const dashboardBtn = document.getElementById('dashboardBtn');
+                        if (dashboardBtn) dashboardBtn.style.display = 'inline-flex';
+                    }
+                }
+            } catch (e) {
+                console.log('[App] Pas de vérification de rôle:', e.message);
+            }
+
             initSelectors();
             updateProfileButton();
             updatePillarSuggestion();
@@ -14625,6 +15138,16 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
                 }
             }
 
+            // Initialiser le module Audit
+            if (typeof AuditModule !== 'undefined') {
+                AuditModule.init();
+            }
+
+            // Initialiser le module Prospecter
+            if (typeof ProspecterModule !== 'undefined') {
+                ProspecterModule.init();
+            }
+
             // Afficher le hint paramètres
             showSettingsHintIfNeeded();
 
@@ -14634,25 +15157,61 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
 
         // Fonction pour afficher le hint paramètres
         function showSettingsHintIfNeeded() {
-            // Ne pas afficher si "ne plus montrer" a été cliqué
-            if (localStorage.getItem('settings_hint_dismissed')) return;
+            // Si settings hint déjà fermé définitivement, passer à l'audit hint
+            if (localStorage.getItem('settings_hint_dismissed')) {
+                setTimeout(() => showAuditHintIfNeeded(), 500);
+                return;
+            }
 
-            // Afficher après un court délai
-            setTimeout(() => {
-                const hint = document.getElementById('settingsHint');
-                if (hint) {
-                    hint.classList.add('show');
-                }
-            }, 3000);
+            // Afficher immédiatement
+            const hint = document.getElementById('settingsHint');
+            const overlay = document.getElementById('settingsHintOverlay');
+            if (hint) {
+                hint.classList.add('show');
+                if (overlay) overlay.classList.add('show');
+            }
         }
 
         // Fermer le hint paramètres
         function closeSettingsHint(permanent = false) {
             const hint = document.getElementById('settingsHint');
+            const overlay = document.getElementById('settingsHintOverlay');
             if (hint) {
                 hint.classList.remove('show');
+                if (overlay) overlay.classList.remove('show');
                 if (permanent) {
                     localStorage.setItem('settings_hint_dismissed', 'true');
+                }
+            }
+            // Après fermeture du hint settings, afficher le hint audit
+            setTimeout(() => showAuditHintIfNeeded(), 1000);
+        }
+
+        // Fonction pour afficher le hint audit
+        function showAuditHintIfNeeded() {
+            // Ne pas afficher si "ne plus montrer" a été cliqué
+            if (localStorage.getItem('audit_hint_dismissed')) return;
+            // Ne pas afficher si le hint settings est visible
+            const settingsHint = document.getElementById('settingsHint');
+            if (settingsHint && settingsHint.classList.contains('show')) return;
+
+            const hint = document.getElementById('auditHint');
+            const overlay = document.getElementById('auditHintOverlay');
+            if (hint) {
+                hint.classList.add('show');
+                if (overlay) overlay.classList.add('show');
+            }
+        }
+
+        // Fermer le hint audit
+        function closeAuditHint(permanent = false) {
+            const hint = document.getElementById('auditHint');
+            const overlay = document.getElementById('auditHintOverlay');
+            if (hint) {
+                hint.classList.remove('show');
+                if (overlay) overlay.classList.remove('show');
+                if (permanent) {
+                    localStorage.setItem('audit_hint_dismissed', 'true');
                 }
             }
         }
