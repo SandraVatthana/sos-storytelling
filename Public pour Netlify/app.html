@@ -3002,6 +3002,68 @@
         </div>
     </header>
 
+    <!-- Bannière Alerte Abus (affichée si problème détecté) -->
+    <div id="abuseAlertBanner" class="abuse-alert-banner" style="display: none;">
+        <div class="abuse-alert-content">
+            <span class="abuse-alert-icon">⚠️</span>
+            <span class="abuse-alert-message" id="abuseAlertMessage"></span>
+            <button class="abuse-alert-action" id="abuseAlertAction" onclick="showAbuseDetails()">Voir détails</button>
+            <button class="abuse-alert-close" onclick="dismissAbuseAlert()">&times;</button>
+        </div>
+    </div>
+
+    <style>
+        .abuse-alert-banner {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+            color: white;
+            padding: 12px 20px;
+            position: sticky;
+            top: 70px;
+            z-index: 99;
+            animation: slideDown 0.3s ease;
+        }
+        .abuse-alert-banner.warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+        .abuse-alert-banner.critical {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .abuse-alert-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .abuse-alert-icon { font-size: 1.3em; }
+        .abuse-alert-message { flex: 1; font-weight: 500; }
+        .abuse-alert-action {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.5);
+            color: white;
+            padding: 6px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .abuse-alert-action:hover { background: rgba(255,255,255,0.3); }
+        .abuse-alert-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            opacity: 0.7;
+            padding: 0 5px;
+        }
+        .abuse-alert-close:hover { opacity: 1; }
+    </style>
+
     <!-- Audit Hint Overlay (bloque les clics) -->
     <div class="audit-hint-overlay" id="auditHintOverlay"></div>
 
@@ -3990,6 +4052,70 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Charte Prospection Éthique -->
+    <div class="modal-overlay" id="ethicsModal">
+        <div class="modal" style="max-width: 700px; width: 95vw; max-height: 90vh; overflow: hidden;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 20px 20px 0 0;">
+                <h2 class="modal-title" style="color: white;">📜 Charte de Prospection Éthique</h2>
+            </div>
+            <div style="max-height: calc(90vh - 180px); overflow-y: auto; padding: 25px;">
+                <div style="background: linear-gradient(135deg, #fff5f5, #ffe5e5); border-left: 4px solid #f5576c; padding: 15px; border-radius: 0 10px 10px 0; margin-bottom: 20px;">
+                    <strong>⚠️ Important :</strong> L'utilisation de cet outil engage votre responsabilité. Le non-respect de ces règles peut entraîner des sanctions légales et la suspension de votre compte.
+                </div>
+
+                <h3 style="color: #667eea; margin: 20px 0 10px;">🇪🇺 Conformité RGPD</h3>
+                <ul style="line-height: 1.8; color: #555;">
+                    <li><strong>Base légale :</strong> Vous devez avoir un <strong>intérêt légitime</strong> documenté (contexte B2B uniquement)</li>
+                    <li><strong>Origine des données :</strong> Vous êtes responsable de la légalité de vos sources de prospects</li>
+                    <li><strong>Droit d'opposition :</strong> Chaque email contient automatiquement un lien de désinscription</li>
+                    <li><strong>Conservation :</strong> Supprimez les prospects inactifs après 3 ans maximum</li>
+                </ul>
+
+                <h3 style="color: #667eea; margin: 20px 0 10px;">🔗 Concernant LinkedIn</h3>
+                <ul style="line-height: 1.8; color: #555;">
+                    <li><strong>Scraping interdit :</strong> L'extraction automatisée de données LinkedIn viole leurs CGU</li>
+                    <li><strong>Risques :</strong> Suspension de compte LinkedIn, poursuites légales possibles</li>
+                    <li><strong>Alternative :</strong> Utilisez Sales Navigator avec export manuel ou des sources légitimes (salons, opt-in)</li>
+                </ul>
+
+                <h3 style="color: #667eea; margin: 20px 0 10px;">📧 Bonnes Pratiques Cold Email</h3>
+                <ul style="line-height: 1.8; color: #555;">
+                    <li><strong>Volume raisonnable :</strong> Max 50 emails/jour pour commencer, augmentez progressivement</li>
+                    <li><strong>Personnalisation réelle :</strong> Pas de spam générique - mentionnez le contexte</li>
+                    <li><strong>Séquences limitées :</strong> Maximum 3-4 relances espacées de 3-5 jours</li>
+                    <li><strong>Signature claire :</strong> Identité, entreprise, moyen de contact</li>
+                    <li><strong>Horaires respectueux :</strong> Envoi en heures ouvrées uniquement</li>
+                </ul>
+
+                <h3 style="color: #667eea; margin: 20px 0 10px;">🚫 Ce qui est interdit</h3>
+                <ul style="line-height: 1.8; color: #c0392b;">
+                    <li>Prospecter des particuliers (B2C) sans consentement explicite</li>
+                    <li>Utiliser des listes achetées de source douteuse</li>
+                    <li>Ignorer les demandes de désinscription</li>
+                    <li>Envoyer plus de 200 emails/jour/adresse</li>
+                    <li>Usurper une identité ou masquer l'expéditeur</li>
+                </ul>
+
+                <div style="background: #f8f9ff; border-radius: 12px; padding: 20px; margin-top: 25px;">
+                    <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer;">
+                        <input type="checkbox" id="ethicsAcceptCheckbox" style="width: 20px; height: 20px; margin-top: 3px; accent-color: #667eea;">
+                        <span style="color: #333; line-height: 1.5;">
+                            Je confirme avoir lu et compris cette charte. Je m'engage à utiliser les outils de prospection de manière éthique et conforme au RGPD. Je comprends que je suis seul(e) responsable de l'origine et de l'utilisation de mes données prospects.
+                        </span>
+                    </label>
+                </div>
+            </div>
+            <div style="padding: 20px; border-top: 1px solid #eee; display: flex; gap: 15px; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="closeEthicsModal(false)" style="padding: 12px 25px;">
+                    Annuler
+                </button>
+                <button class="btn btn-primary" id="ethicsAcceptBtn" onclick="acceptEthicsCharter()" disabled style="padding: 12px 30px; background: linear-gradient(135deg, #667eea, #764ba2); opacity: 0.5;">
+                    ✅ J'accepte et je continue
+                </button>
             </div>
         </div>
     </div>
@@ -14791,12 +14917,202 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
         });
     </script>
 
+    <!-- Module Charte Éthique Prospection -->
+    <script>
+        // Gestion de la charte éthique prospection
+        let ethicsPendingAction = null;
+
+        function hasAcceptedEthicsCharter() {
+            return localStorage.getItem('sos_ethics_accepted') === 'true';
+        }
+
+        function showEthicsModal(pendingAction) {
+            ethicsPendingAction = pendingAction;
+            document.getElementById('ethicsModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Reset checkbox
+            const checkbox = document.getElementById('ethicsAcceptCheckbox');
+            const btn = document.getElementById('ethicsAcceptBtn');
+            if (checkbox) checkbox.checked = false;
+            if (btn) {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+            }
+        }
+
+        function closeEthicsModal(accepted) {
+            document.getElementById('ethicsModal').classList.remove('active');
+            document.body.style.overflow = '';
+
+            if (!accepted) {
+                ethicsPendingAction = null;
+            }
+        }
+
+        function acceptEthicsCharter() {
+            // Sauvegarder l'acceptation
+            localStorage.setItem('sos_ethics_accepted', 'true');
+            localStorage.setItem('sos_ethics_accepted_at', new Date().toISOString());
+
+            // Sauvegarder en BDD si connecté
+            if (window.supabaseApp) {
+                supabaseApp.auth.getUser().then(({ data: { user } }) => {
+                    if (user) {
+                        supabaseApp.from('users').update({
+                            ethics_accepted: true,
+                            ethics_accepted_at: new Date().toISOString()
+                        }).eq('id', user.id);
+                    }
+                });
+            }
+
+            closeEthicsModal(true);
+
+            // Exécuter l'action en attente
+            if (ethicsPendingAction === 'prospects') {
+                showProspectsModalDirect();
+            } else if (ethicsPendingAction === 'campaigns') {
+                showCampaignsModalDirect();
+            } else if (ethicsPendingAction === 'import') {
+                // L'import continuera via le module prospects
+            }
+            ethicsPendingAction = null;
+
+            showNotification('✅ Charte acceptée. Merci de prospecter de manière éthique !', 'success');
+        }
+
+        // Activer/désactiver le bouton selon la checkbox
+        document.addEventListener('DOMContentLoaded', () => {
+            const checkbox = document.getElementById('ethicsAcceptCheckbox');
+            const btn = document.getElementById('ethicsAcceptBtn');
+            if (checkbox && btn) {
+                checkbox.addEventListener('change', () => {
+                    btn.disabled = !checkbox.checked;
+                    btn.style.opacity = checkbox.checked ? '1' : '0.5';
+                });
+            }
+
+            // Fermer modal au clic sur overlay
+            document.getElementById('ethicsModal')?.addEventListener('click', (e) => {
+                if (e.target.classList.contains('modal-overlay')) {
+                    closeEthicsModal(false);
+                }
+            });
+        });
+    </script>
+
+    <!-- Module Alertes Abus -->
+    <script>
+        // Vérifier les alertes abus au chargement
+        async function checkAbuseAlerts() {
+            if (!window.supabaseApp) return;
+
+            try {
+                const { data: { user } } = await supabaseApp.auth.getUser();
+                if (!user) return;
+
+                // Récupérer les alertes non résolues
+                const { data: alerts } = await supabaseApp
+                    .from('abuse_alerts')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .is('resolved_at', null)
+                    .order('created_at', { ascending: false })
+                    .limit(1);
+
+                if (alerts && alerts.length > 0) {
+                    showAbuseAlertBanner(alerts[0]);
+                }
+            } catch (e) {
+                console.log('Erreur vérification alertes:', e);
+            }
+        }
+
+        function showAbuseAlertBanner(alert) {
+            const banner = document.getElementById('abuseAlertBanner');
+            const message = document.getElementById('abuseAlertMessage');
+            if (!banner || !message) return;
+
+            message.textContent = alert.message;
+            banner.className = 'abuse-alert-banner ' + (alert.severity || 'warning');
+            banner.style.display = 'block';
+            banner.dataset.alertId = alert.id;
+
+            // Si suspendu, bloquer l'accès aux fonctionnalités
+            if (alert.severity === 'suspended') {
+                window.accountSuspended = true;
+            }
+        }
+
+        function dismissAbuseAlert() {
+            const banner = document.getElementById('abuseAlertBanner');
+            if (banner) {
+                banner.style.display = 'none';
+
+                // Marquer comme acquitté si warning
+                const alertId = banner.dataset.alertId;
+                if (alertId && window.supabaseApp) {
+                    supabaseApp.from('abuse_alerts')
+                        .update({ acknowledged: true, acknowledged_at: new Date().toISOString() })
+                        .eq('id', alertId);
+                }
+            }
+        }
+
+        function showAbuseDetails() {
+            // Afficher un modal avec les détails et recommandations
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay active';
+            modal.innerHTML = `
+                <div class="modal" style="max-width: 600px;">
+                    <div class="modal-header" style="background: linear-gradient(135deg, #e74c3c, #c0392b); color: white;">
+                        <h2>⚠️ Alerte Délivrabilité</h2>
+                        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()" style="color: white;">&times;</button>
+                    </div>
+                    <div style="padding: 25px;">
+                        <h3 style="color: #e74c3c; margin-bottom: 15px;">Pourquoi cette alerte ?</h3>
+                        <p style="margin-bottom: 20px; color: #555; line-height: 1.6;">
+                            Votre compte présente des indicateurs de délivrabilité préoccupants qui peuvent impacter votre réputation d'expéditeur.
+                        </p>
+
+                        <h3 style="color: #333; margin-bottom: 15px;">📋 Actions recommandées</h3>
+                        <ul style="color: #555; line-height: 2; padding-left: 20px;">
+                            <li>✅ Vérifiez la qualité de votre liste de prospects</li>
+                            <li>✅ Supprimez les emails invalides ou inactifs</li>
+                            <li>✅ Réduisez votre volume d'envoi quotidien</li>
+                            <li>✅ Améliorez la personnalisation de vos emails</li>
+                            <li>✅ Vérifiez votre configuration DNS (SPF/DKIM/DMARC)</li>
+                        </ul>
+
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-top: 20px;">
+                            <p style="color: #666; font-size: 0.9em; margin: 0;">
+                                💡 <strong>Besoin d'aide ?</strong> Contactez le support à support@sosstorytelling.fr
+                            </p>
+                        </div>
+
+                        <button class="btn btn-primary" onclick="this.closest('.modal-overlay').remove()" style="width: 100%; margin-top: 20px; padding: 15px;">
+                            J'ai compris
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        // Vérifier les alertes au chargement
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(checkAbuseAlerts, 2000);
+        });
+    </script>
+
     <!-- Module Prospects -->
     <script src="prospects-module.js?v=20251225d"></script>
     <script>
         let prospectsModuleInitialized = false;
 
-        function showProspectsModal() {
+        // Version directe sans vérification éthique (appelée après acceptation)
+        function showProspectsModalDirect() {
             document.getElementById('prospectsModal').classList.add('active');
             document.body.style.overflow = 'hidden';
 
@@ -14812,12 +15128,20 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
                     });
                     prospectsModuleInitialized = true;
                 } else {
-                    // Recharger les données si deja initialise
                     ProspectsModule.loadProspects().then(() => {
                         ProspectsModule.renderProspectsList();
                     });
                 }
             }
+        }
+
+        // Version avec vérification éthique
+        function showProspectsModal() {
+            if (!hasAcceptedEthicsCharter()) {
+                showEthicsModal('prospects');
+                return;
+            }
+            showProspectsModalDirect();
         }
 
         function closeProspectsModal() {
@@ -15023,7 +15347,8 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
     <script>
         let campaignsModuleInitialized = false;
 
-        function showCampaignsModal() {
+        // Version directe sans vérification éthique (appelée après acceptation)
+        function showCampaignsModalDirect() {
             const modal = document.getElementById('campaignsModal');
             if (!modal) {
                 console.error('Modal campaignsModal non trouvé');
@@ -15057,6 +15382,15 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
                 });
                 campaignsModuleInitialized = true;
             }
+        }
+
+        // Version avec vérification éthique
+        function showCampaignsModal() {
+            if (!hasAcceptedEthicsCharter()) {
+                showEthicsModal('campaigns');
+                return;
+            }
+            showCampaignsModalDirect();
         }
 
         function closeCampaignsModal() {

@@ -1322,16 +1322,55 @@ const ProspectsModule = {
                     ` : ''}
                 </div>
 
+                <!-- Case RGPD obligatoire -->
+                <div class="rgpd-consent-box" style="background: linear-gradient(135deg, #fff5f5, #ffe8e8); border: 2px solid #f5576c; border-radius: 12px; padding: 20px; margin: 20px 0;">
+                    <h4 style="color: #c0392b; margin: 0 0 15px; display: flex; align-items: center; gap: 8px;">
+                        ⚠️ Déclaration RGPD obligatoire
+                    </h4>
+
+                    <label style="display: flex; gap: 12px; cursor: pointer; margin-bottom: 15px;">
+                        <input type="checkbox" id="rgpdSourceCheckbox" style="width: 20px; height: 20px; accent-color: #667eea; flex-shrink: 0; margin-top: 3px;">
+                        <span style="color: #333; line-height: 1.5;">
+                            <strong>Origine des données :</strong> Je certifie que ces prospects proviennent de sources légitimes (opt-in, salons professionnels, échanges de cartes de visite, annuaires publics B2B) et non de scraping automatisé ou d'achat de listes non consenties.
+                        </span>
+                    </label>
+
+                    <label style="display: flex; gap: 12px; cursor: pointer;">
+                        <input type="checkbox" id="rgpdB2BCheckbox" style="width: 20px; height: 20px; accent-color: #667eea; flex-shrink: 0; margin-top: 3px;">
+                        <span style="color: #333; line-height: 1.5;">
+                            <strong>Contexte B2B :</strong> Je confirme que ces contacts sont des professionnels contactés dans le cadre de leur activité professionnelle (intérêt légitime B2B).
+                        </span>
+                    </label>
+                </div>
+
                 <div class="modal-actions">
                     <button class="btn btn-secondary" onclick="ProspectsModule.renderImportStep2()">
                         ← ${t('actions.back')}
                     </button>
-                    <button class="btn btn-primary" onclick="ProspectsModule.executeImport()">
+                    <button class="btn btn-primary" id="importConfirmBtn" onclick="ProspectsModule.executeImport()" disabled style="opacity: 0.5;">
                         ${t('actions.import')} ${validProspects.length} prospects
                     </button>
                 </div>
             </div>
         `;
+
+        // Activer le bouton quand les 2 cases sont cochées
+        setTimeout(() => {
+            const sourceBox = document.getElementById('rgpdSourceCheckbox');
+            const b2bBox = document.getElementById('rgpdB2BCheckbox');
+            const btn = document.getElementById('importConfirmBtn');
+
+            const updateBtn = () => {
+                const allChecked = sourceBox?.checked && b2bBox?.checked;
+                if (btn) {
+                    btn.disabled = !allChecked;
+                    btn.style.opacity = allChecked ? '1' : '0.5';
+                }
+            };
+
+            sourceBox?.addEventListener('change', updateBtn);
+            b2bBox?.addEventListener('change', updateBtn);
+        }, 100);
     },
 
     /**
