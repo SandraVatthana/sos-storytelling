@@ -831,8 +831,8 @@ Bonne journée !`,
                 <div class="form-group">
                     <label>Langue des emails</label>
                     <select id="campaignLanguage">
-                        <option value="fr" ${(c.language || 'fr') === 'fr' ? 'selected' : ''}>Francais</option>
-                        <option value="en" ${c.language === 'en' ? 'selected' : ''}>English</option>
+                        <option value="fr" ${(c.language || window.I18N?.getLanguage() || 'fr') === 'fr' ? 'selected' : ''}>Francais</option>
+                        <option value="en" ${(c.language || window.I18N?.getLanguage() || 'fr') === 'en' ? 'selected' : ''}>English</option>
                     </select>
                 </div>
 
@@ -1832,7 +1832,7 @@ ${isFirst ? 'Votre premier message de contact...' : 'Votre message de relance...
                 body: JSON.stringify({
                     email: emailBody,
                     variations: 3,
-                    language: 'fr'
+                    language: window.I18N?.getLanguage() || 'fr'
                 })
             });
 
