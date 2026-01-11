@@ -13,10 +13,10 @@ const AuditModule = (function() {
     // ============================================================
 
     const PLATFORMS = {
-        linkedin: { name: 'LinkedIn', emoji: '💼', weight: 1.5 },
-        instagram: { name: 'Instagram', emoji: '📸', weight: 1.0 },
-        tiktok: { name: 'TikTok', emoji: '🎵', weight: 0.8 },
-        twitter: { name: 'X/Twitter', emoji: '🐦', weight: 1.0 }
+        linkedin: { name: 'LinkedIn', emoji: '💼', weight: 1.5, hint: 'Fais une capture d\'écran montrant ta photo, bannière et bio' },
+        instagram: { name: 'Instagram', emoji: '📸', weight: 1.0, hint: 'Fais une capture d\'écran montrant ta photo, bio et grille de posts' },
+        tiktok: { name: 'TikTok', emoji: '🎵', weight: 0.8, hint: 'Fais une capture d\'écran montrant ta photo, bio et miniatures vidéos' },
+        twitter: { name: 'X/Twitter', emoji: '🐦', weight: 1.0, hint: 'Fais une capture d\'écran montrant ta photo, bannière et bio' }
     };
 
     const EXPERTISE_KEYWORDS = [
@@ -831,7 +831,7 @@ const AuditModule = (function() {
 
             <div class="audit-section">
                 <h3>2️⃣ Capture de ton profil ${platformInfo.emoji}</h3>
-                <p class="audit-hint">Fais une capture d'écran montrant ta photo, bannière et bio</p>
+                <p class="audit-hint">${platformInfo.hint}</p>
                 <div class="screenshot-upload-zone" onclick="document.getElementById('profileScreenshot').click()">
                     ${profileScreenshots.profile ? `
                         <img src="${profileScreenshots.profile.data}" alt="Capture profil" class="screenshot-preview">
@@ -937,6 +937,16 @@ const AuditModule = (function() {
                                 <span class="score-badge" style="background: ${getScoreColor(analysis.banner.score)}">${analysis.banner.score}/100</span>
                             </div>
                             <p>${analysis.banner.feedback || ''}</p>
+                        </div>
+                    ` : ''}
+
+                    ${analysis.grid ? `
+                        <div class="audit-visual-section">
+                            <h4>📱 Grille & Highlights</h4>
+                            <div class="visual-score">
+                                <span class="score-badge" style="background: ${getScoreColor(analysis.grid.score)}">${analysis.grid.score}/100</span>
+                            </div>
+                            <p>${analysis.grid.feedback || ''}</p>
                         </div>
                     ` : ''}
 

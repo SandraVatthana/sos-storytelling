@@ -2515,11 +2515,51 @@ async function handleVisualAudit(request, env, corsHeaders) {
       ? `\nLe domaine d'expertise déclaré : ${keywords.join(', ')}`
       : '';
 
+    // Critères spécifiques selon la plateforme
+    const hasBanner = platform === 'linkedin' || platform === 'twitter';
+    const platformSpecificCriteria = {
+      linkedin: {
+        element2: `2. **Bannière/couverture** (sur 100) :
+   - Message clair et lisible
+   - Cohérence avec l'activité professionnelle
+   - Qualité graphique (pas pixelisé, bien cadré)
+   - Appel à l'action ou promesse visible`,
+        colorContext: 'bannière, posts, et identité'
+      },
+      twitter: {
+        element2: `2. **Bannière/header** (sur 100) :
+   - Message clair et lisible
+   - Cohérence avec l'activité
+   - Qualité graphique (pas pixelisé, bien cadré)
+   - Impact visuel`,
+        colorContext: 'bannière, posts, et identité'
+      },
+      instagram: {
+        element2: `2. **Grille & Highlights** (sur 100) :
+   - Cohérence visuelle de la grille (feed)
+   - Couvertures des stories à la une claires
+   - Organisation thématique des highlights
+   - Premier impact visuel de la grille`,
+        colorContext: 'grille de posts et identité'
+      },
+      tiktok: {
+        element2: `2. **Grille & Couvertures vidéos** (sur 100) :
+   - Cohérence des miniatures vidéo
+   - Qualité des couvertures personnalisées
+   - Impact visuel du profil
+   - Organisation du contenu épinglé`,
+        colorContext: 'miniatures et identité visuelle'
+      }
+    };
+
+    const criteria = platformSpecificCriteria[platform] || platformSpecificCriteria.linkedin;
+    const element2Key = hasBanner ? 'banner' : 'grid';
+
     const analysisPrompt = `Tu es un expert en personal branding, design visuel et storytelling sur les réseaux sociaux.
 
 Analyse cette capture d'écran d'un profil ${platformNames[platform] || platform}.${keywordsContext}
 
-${postImages.length > 0 ? `J'ai également fourni ${postImages.length} captures de posts récents.` : ''}
+${postImages.length > 0 ? `J'ai également fourni ${postImages.length} captures de posts/contenus récents.` : ''}
 
 Évalue les éléments suivants et donne une note sur 100 pour chaque critère :
 
@@ -2529,11 +2569,7 @@ ${postImages.length > 0 ? `J'ai également fourni ${postImages.length} captures 
    - Visage visible et expression engageante
    - Fond approprié (pas distrayant)
 
-2. **Bannière/couverture** (sur 100) :
-   - Message clair et lisible
-   - Cohérence avec l'activité professionnelle
-   - Qualité graphique (pas pixelisé, bien cadré)
-   - Appel à l'action ou promesse visible
+${criteria.element2}
 
 3. **Bio/titre** (sur 100) :
    - Clarté de la promesse de valeur
@@ -2543,7 +2579,7 @@ ${postImages.length > 0 ? `J'ai également fourni ${postImages.length} captures 
 
 4. **Palette de couleurs** (sur 100) :
    - Harmonie des couleurs (2-3 couleurs max recommandé)
-   - Cohérence entre bannière, posts, et identité
+   - Cohérence entre ${criteria.colorContext}
    - Contraste suffisant pour la lisibilité
    - Couleurs qui évoquent les bonnes émotions pour le secteur
 
@@ -2579,7 +2615,7 @@ Réponds UNIQUEMENT avec un JSON valide (sans markdown) dans ce format exact :
   },
   "analysis": {
     "photo": { "score": <0-100>, "feedback": "<commentaire détaillé et constructif>" },
-    "banner": { "score": <0-100>, "feedback": "<commentaire détaillé et constructif>" },
+    "${element2Key}": { "score": <0-100>, "feedback": "<commentaire détaillé et constructif>" },
     "bio": { "score": <0-100>, "feedback": "<commentaire détaillé et constructif>" },
     "colors": { "score": <0-100>, "feedback": "<analyse de la palette de couleurs>" },
     "typography": { "score": <0-100>, "feedback": "<analyse typo et design>" },
