@@ -224,6 +224,1052 @@
             color: white;
         }
 
+        .mode-emails {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .mode-audit {
+            background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+            color: white;
+        }
+
+        /* ==================== AUDIT MODAL STYLES ==================== */
+        .audit-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            padding: 20px;
+        }
+        .audit-modal-overlay.active {
+            opacity: 1;
+        }
+        .audit-modal {
+            background: white;
+            border-radius: 20px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+        }
+        .audit-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+            flex-shrink: 0;
+        }
+        .audit-modal-header h2 {
+            margin: 0;
+            font-size: 1.3em;
+            color: #333;
+        }
+        .audit-close-btn {
+            background: none;
+            border: none;
+            font-size: 1.8em;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.2s;
+        }
+        .audit-close-btn:hover {
+            color: #333;
+        }
+        .audit-tabs {
+            display: flex;
+            border-bottom: 1px solid #eee;
+            background: #f8f9fa;
+            position: sticky;
+            top: 65px;
+            z-index: 9;
+            flex-shrink: 0;
+        }
+        .audit-tab {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: transparent;
+            font-size: 0.95em;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+        }
+        .audit-tab:hover {
+            background: #f0f0f0;
+        }
+        .audit-tab.active {
+            color: #f59e0b;
+            border-bottom-color: #f59e0b;
+            background: white;
+        }
+        .audit-content {
+            padding: 25px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        .audit-section {
+            margin-bottom: 25px;
+        }
+        .audit-section h3 {
+            margin: 0 0 15px;
+            font-size: 1.05em;
+            color: #333;
+        }
+        .audit-platforms {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .audit-platform-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95em;
+        }
+        .audit-platform-btn:hover {
+            border-color: #f59e0b;
+        }
+        .audit-platform-btn.active {
+            border-color: #f59e0b;
+            background: linear-gradient(135deg, #fff8eb, #fff5e0);
+        }
+        .audit-platform-btn .platform-emoji {
+            font-size: 1.3em;
+        }
+        .audit-platform-btn .check {
+            margin-left: auto;
+            color: #f59e0b;
+            font-weight: bold;
+        }
+        .audit-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.95em;
+            transition: border-color 0.2s;
+        }
+        .audit-input:focus {
+            outline: none;
+            border-color: #f59e0b;
+        }
+        .audit-textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.95em;
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        .audit-textarea:focus {
+            outline: none;
+            border-color: #f59e0b;
+        }
+        .audit-hint {
+            font-size: 0.85em;
+            color: #888;
+            margin-top: 5px;
+        }
+        .audit-platform-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #f59e0b;
+        }
+        .audit-form-group {
+            margin-bottom: 15px;
+        }
+        .audit-form-group:last-child {
+            margin-bottom: 0;
+        }
+        .audit-form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #444;
+            font-size: 0.9em;
+        }
+        .audit-run-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.05em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .audit-run-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245,158,11,0.3);
+        }
+        .audit-results {
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .audit-score-global {
+            text-align: center;
+            padding: 25px;
+            background: linear-gradient(135deg, #f8f9fa, #f0f4f8);
+            border-radius: 16px;
+            margin-bottom: 25px;
+        }
+        .score-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 4px solid var(--score-color, #3b82f6);
+        }
+        .score-circle .score-value {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--score-color, #333);
+        }
+        .score-circle .score-max {
+            font-size: 0.9em;
+            color: #888;
+        }
+        .audit-platform-result {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        .platform-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        .platform-score {
+            font-size: 1.1em;
+            font-weight: 700;
+        }
+        .audit-issues {
+            margin-bottom: 15px;
+        }
+        .audit-issue {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+        .audit-issue.high {
+            border-left: 3px solid #ef4444;
+        }
+        .audit-issue.medium {
+            border-left: 3px solid #f59e0b;
+        }
+        .audit-recommendations ul {
+            margin: 10px 0 0;
+            padding-left: 20px;
+        }
+        .audit-recommendations li {
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            color: #555;
+        }
+        .audit-reset-btn {
+            width: 100%;
+            padding: 12px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.95em;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.2s;
+        }
+        .audit-reset-btn:hover {
+            border-color: #f59e0b;
+            background: #fff8eb;
+        }
+        .audit-info-box {
+            background: linear-gradient(135deg, #fff8eb, #fff5e0);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #f59e0b;
+        }
+        .audit-info-box h4 {
+            margin: 0 0 10px;
+            color: #333;
+        }
+        .audit-info-box p {
+            margin: 0 0 10px;
+            color: #555;
+            font-size: 0.95em;
+        }
+        .audit-info-box ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .audit-info-box li {
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .audit-posts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .audit-add-btn {
+            padding: 8px 15px;
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            cursor: pointer;
+        }
+        .audit-post-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .post-item-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .post-number {
+            background: #f59e0b;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        .audit-select {
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.9em;
+            background: white;
+        }
+        .audit-remove-btn {
+            margin-left: auto;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1em;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+        .audit-remove-btn:hover {
+            opacity: 1;
+        }
+        .char-count {
+            font-size: 0.8em;
+            color: #888;
+            text-align: right;
+            display: block;
+            margin-top: 5px;
+        }
+        .audit-scores-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .score-item {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .score-item .score-emoji {
+            font-size: 1.5em;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .score-item .score-label {
+            font-size: 0.85em;
+            color: #666;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .score-item .score-value {
+            font-size: 1.2em;
+            font-weight: 700;
+        }
+        .audit-recommendations-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .recommendation-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #f59e0b;
+        }
+        .recommendation-item.high {
+            border-left-color: #ef4444;
+        }
+        .recommendation-item .rec-category {
+            font-size: 0.8em;
+            font-weight: 600;
+            color: #f59e0b;
+            text-transform: uppercase;
+        }
+        .recommendation-item.high .rec-category {
+            color: #ef4444;
+        }
+        .recommendation-item p {
+            margin: 5px 0 0;
+            font-size: 0.95em;
+            color: #444;
+        }
+        .post-detail {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .post-detail-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .post-detail-header .post-score {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85em;
+        }
+        .post-detail-content p {
+            margin: 5px 0;
+            font-size: 0.9em;
+            color: #555;
+        }
+        /* Grille 7 critères */
+        .audit-scores-7 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        .audit-scores-7 .score-item {
+            padding: 12px 8px;
+        }
+        .audit-scores-7 .score-item .score-label {
+            font-size: 0.75em;
+        }
+        .audit-scores-7 .score-item .score-value {
+            font-size: 1em;
+        }
+        /* Mini scores dans détail post */
+        .post-detail-scores {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .mini-score {
+            font-size: 0.85em;
+            font-weight: 600;
+            padding: 3px 8px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        /* Upload image */
+        .post-item-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+        }
+        .image-upload-zone {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .image-upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            background: #f0f0f0;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .image-upload-btn:hover {
+            border-color: #f59e0b;
+            background: #fff8eb;
+        }
+        .image-remove-btn {
+            background: #fee2e2;
+            color: #ef4444;
+            border: none;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .image-remove-btn:hover {
+            background: #fecaca;
+        }
+        .image-preview {
+            margin-top: 10px;
+            position: relative;
+        }
+        .image-preview img {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+        .image-analysis-note {
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: linear-gradient(135deg, #f0f4ff, #e8ecff);
+            border-radius: 8px;
+            font-size: 0.85em;
+            color: #667eea;
+            text-align: center;
+        }
+        /* Screenshot upload zones */
+        .screenshot-upload-zone {
+            border: 3px dashed #d0d0d0;
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #fafafa;
+            position: relative;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .screenshot-upload-zone:hover {
+            border-color: #f59e0b;
+            background: #fffbeb;
+        }
+        .screenshot-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            color: #888;
+        }
+        .screenshot-icon {
+            font-size: 3em;
+            opacity: 0.6;
+        }
+        .screenshot-hint {
+            font-size: 0.85em;
+            color: #aaa;
+        }
+        .screenshot-preview {
+            max-width: 100%;
+            max-height: 250px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .screenshot-remove {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 1.1em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+        .screenshot-remove:hover {
+            transform: scale(1.1);
+        }
+        .screenshots-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        .screenshot-item {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid #e0e0e0;
+        }
+        .screenshot-item img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+        .screenshot-item .screenshot-remove {
+            top: 5px;
+            right: 5px;
+            width: 24px;
+            height: 24px;
+            font-size: 0.9em;
+        }
+        .screenshot-upload-small {
+            border: 2px dashed #d0d0d0;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 120px;
+            cursor: pointer;
+            color: #888;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+        .screenshot-upload-small:hover {
+            border-color: #f59e0b;
+            background: #fffbeb;
+            color: #f59e0b;
+        }
+        .optional-tag {
+            font-size: 0.75em;
+            font-weight: 400;
+            color: #999;
+            margin-left: 8px;
+        }
+        /* Visual audit results */
+        .audit-visual-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        .audit-visual-section h4 {
+            margin: 0 0 10px;
+            font-size: 1em;
+            color: #333;
+        }
+        .visual-score {
+            margin-bottom: 10px;
+        }
+        .score-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        .visual-suggestions {
+            margin: 10px 0 0;
+            padding-left: 20px;
+        }
+        .visual-suggestions li {
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            color: #555;
+        }
+        .impression-section {
+            background: linear-gradient(135deg, #f0f4ff, #e8ecff);
+            border-left: 4px solid #667eea;
+        }
+        .impression-text {
+            font-size: 1em;
+            line-height: 1.6;
+            color: #444;
+            margin: 0;
+        }
+
+        /* Color palette display */
+        .color-palette-display {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        .detected-colors {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .color-chip {
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 15px;
+            font-size: 0.85em;
+        }
+        .palette-harmony {
+            font-size: 0.9em;
+            margin: 8px 0;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        .palette-harmony.good { background: #d4edda; color: #155724; }
+        .palette-harmony.bad { background: #f8d7da; color: #721c24; }
+        .palette-harmony.neutral { background: #fff3cd; color: #856404; }
+        .palette-suggestion {
+            font-size: 0.9em;
+            color: #666;
+            margin: 8px 0 0;
+            font-style: italic;
+        }
+
+        /* Quick wins section */
+        .quick-wins-section {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border-left: 4px solid #28a745;
+        }
+        .quick-wins-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .quick-win-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+        }
+        .qw-icon {
+            color: #28a745;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .quick-win-item p {
+            margin: 0;
+            font-size: 0.95em;
+            color: #333;
+        }
+
+        /* Video audit styles */
+        .video-upload-zone {
+            border: 2px dashed #667eea;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(102, 126, 234, 0.05);
+        }
+        .video-upload-zone:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: #5a67d8;
+        }
+        .video-upload-zone.has-video {
+            border-style: solid;
+            background: rgba(16, 185, 129, 0.1);
+            border-color: #10b981;
+        }
+        .video-preview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        .video-info {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .viral-potential {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        .viral-potential.high { background: #d4edda; color: #155724; }
+        .viral-potential.medium { background: #fff3cd; color: #856404; }
+        .viral-potential.low { background: #f8d7da; color: #721c24; }
+
+        .rec-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: #f59e0b;
+            color: white;
+            border-radius: 50%;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        .audit-fallback {
+            text-align: center;
+            padding: 20px;
+        }
+        .audit-fallback h4 {
+            color: #f59e0b;
+            margin-bottom: 15px;
+        }
+        .audit-fallback ul {
+            text-align: left;
+            max-width: 400px;
+            margin: 20px auto;
+        }
+        .audit-fallback li {
+            margin-bottom: 10px;
+            font-size: 0.95em;
+            color: #555;
+        }
+        .audit-run-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        @media (max-width: 500px) {
+            .audit-platforms {
+                grid-template-columns: 1fr;
+            }
+            .audit-scores-grid {
+                grid-template-columns: 1fr;
+            }
+            .audit-scores-7 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .post-item-footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .screenshots-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .screenshot-upload-zone {
+                padding: 20px;
+                min-height: 120px;
+            }
+        }
+
+        /* Emails Choice Modal */
+        .emails-choice-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 0.2s ease;
+        }
+        .emails-choice-modal {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+        }
+        .emails-choice-option {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 18px;
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+        .emails-choice-option:hover {
+            border-color: #11998e;
+            background: linear-gradient(135deg, #f0fff4, #e6fffa);
+            transform: translateY(-2px);
+        }
+        .emails-choice-icon {
+            font-size: 1.8em;
+        }
+        .emails-choice-title {
+            font-weight: 700;
+            font-size: 1em;
+            color: #333;
+            margin-bottom: 3px;
+        }
+        .emails-choice-desc {
+            font-size: 0.85em;
+            color: #666;
+        }
+        .emails-choice-close {
+            margin-top: 15px;
+            padding: 10px 25px;
+            background: #e0e0e0;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .emails-choice-close:hover {
+            background: #d0d0d0;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Missions Modal Buttons */
+        .btn-launch-mission {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white !important;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+        .btn-launch-mission:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(240, 147, 251, 0.4);
+        }
+
+        /* Agent Embed in Missions Modal */
+        .agent-embed {
+            padding: 20px;
+            text-align: center;
+        }
+        .agent-embed-desc {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .btn-agent-open {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-agent-open:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+        .agent-quick-stats {
+            margin-top: 25px;
+        }
+        .quick-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+        .quick-stat {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+        .quick-stat-icon {
+            display: block;
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+        .quick-stat-value {
+            display: block;
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #333;
+        }
+        .quick-stat-label {
+            display: block;
+            font-size: 0.8em;
+            color: #888;
+            margin-top: 3px;
+        }
+        @media (max-width: 500px) {
+            .quick-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
         .mode-autopilot {
             background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
             color: white;
@@ -962,6 +2008,291 @@
         .badge-unlock-text strong { font-size: 0.9em; }
         .badge-unlock-text span { font-size: 1.1em; font-weight: 700; }
 
+        /* Goals Dashboard */
+        .goals-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .goals-header h3 { margin: 0; color: #333; }
+        .goals-progress-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 20px;
+            padding: 25px;
+            color: white;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+        .goals-progress-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+        }
+        .goals-progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        .goals-objective-text {
+            font-size: 1.1em;
+            font-weight: 600;
+            max-width: 70%;
+        }
+        .goals-deadline {
+            font-size: 0.85em;
+            opacity: 0.9;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+        }
+        .goals-progress-visual {
+            position: relative;
+            z-index: 1;
+        }
+        .goals-progress-bar {
+            height: 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        .goals-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #38ef7d, #11998e);
+            border-radius: 10px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .goals-progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: progressShine 2s infinite;
+        }
+        @keyframes progressShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .goals-progress-numbers {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9em;
+        }
+        .goals-current { font-weight: 700; font-size: 1.5em; }
+        .goals-target { opacity: 0.8; }
+        .goals-no-objective {
+            text-align: center;
+            padding: 40px 20px;
+            color: #888;
+        }
+        .goals-no-objective-icon { font-size: 3em; margin-bottom: 15px; }
+        .goals-no-objective p { margin-bottom: 20px; }
+        .goals-form {
+            background: #f8f9ff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        .goals-form-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        @media (max-width: 600px) {
+            .goals-form-row { grid-template-columns: 1fr; }
+        }
+        .goals-form-group label {
+            display: block;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 6px;
+        }
+        .goals-form-group input,
+        .goals-form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.95em;
+            transition: all 0.2s;
+        }
+        .goals-form-group input:focus,
+        .goals-form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+        }
+        .goals-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        @media (max-width: 700px) {
+            .goals-actions-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        .goals-action-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px 15px;
+            text-align: center;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.05);
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .goals-action-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .goals-action-icon { font-size: 2em; margin-bottom: 10px; }
+        .goals-action-value { font-size: 1.8em; font-weight: 800; color: #333; }
+        .goals-action-label { font-size: 0.8em; color: #888; margin-top: 5px; }
+        .goals-action-card.highlight {
+            background: linear-gradient(135deg, #fff5f5, #ffebee);
+            border-color: #ff6b6b;
+        }
+        .goals-action-card.highlight .goals-action-value { color: #ff6b6b; }
+        .goals-motivation {
+            background: linear-gradient(135deg, #fff8e1, #fff3c4);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border-left: 4px solid #f5a623;
+            margin-bottom: 25px;
+        }
+        .goals-motivation-icon { font-size: 2em; margin-bottom: 10px; }
+        .goals-motivation-text { font-size: 1.1em; color: #555; font-style: italic; }
+        .goals-history {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px dashed #e0e0e0;
+        }
+        .goals-history h4 { margin: 0 0 15px; color: #333; }
+        .goals-history-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .goals-history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+        .goals-history-date { color: #888; font-size: 0.85em; }
+        .goals-history-value { font-weight: 600; color: #667eea; }
+        .goals-btn-update {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .goals-btn-update:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(17, 153, 142, 0.3);
+        }
+        .goals-btn-set {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+        .goals-btn-set:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        .goals-btn-delete {
+            background: none;
+            border: 2px solid #ff6b6b;
+            color: #ff6b6b;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .goals-btn-delete:hover {
+            background: #ff6b6b;
+            color: white;
+        }
+        .goals-update-section {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            margin-top: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+            border-radius: 12px;
+        }
+        .goals-update-section .goals-form-group { flex: 1; margin-bottom: 0; }
+        .goals-platform-selector {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .goals-platform-chip {
+            padding: 8px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: white;
+        }
+        .goals-platform-chip:hover { border-color: #667eea; }
+        .goals-platform-chip.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-color: transparent;
+            color: white;
+        }
+        .goals-completed {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .goals-completed-icon { font-size: 3em; margin-bottom: 10px; }
+        .goals-completed h3 { color: #155724; margin-bottom: 10px; }
+        .goals-completed p { color: #155724; opacity: 0.8; }
+
         .btn-trends { background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; box-shadow: 0 0 10px rgba(255,107,107,0.5); }
         .btn-trends:hover { box-shadow: 0 0 20px rgba(255,107,107,0.7); }
 
@@ -1081,6 +2412,156 @@
 
         .idea-input { width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 12px; font-family: inherit; font-size: 1em; resize: vertical; min-height: 100px; transition: all 0.3s; }
         .idea-input:focus { outline: none; border-color: #f093fb; box-shadow: 0 0 0 4px rgba(240,147,251,0.15); }
+
+        /* Anecdote Section */
+        .anecdote-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px dashed #e0e0e0;
+        }
+        .optional-badge {
+            font-size: 0.75em;
+            font-weight: 400;
+            color: #888;
+            background: #f0f0f0;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 8px;
+        }
+        .anecdote-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 1em;
+            resize: vertical;
+            min-height: 100px;
+            transition: all 0.3s;
+            background: #fffbf5;
+        }
+        .anecdote-input:focus {
+            outline: none;
+            border-color: #f5a623;
+            box-shadow: 0 0 0 4px rgba(245, 166, 35, 0.15);
+            background: white;
+        }
+        .anecdote-input::placeholder {
+            color: #aaa;
+            font-style: italic;
+        }
+        .anecdote-hint {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-top: 10px;
+            padding: 10px 12px;
+            background: linear-gradient(135deg, #fff8e8, #fff5e0);
+            border-radius: 8px;
+            border-left: 3px solid #f5a623;
+        }
+        .hint-icon {
+            font-size: 1.1em;
+        }
+        .anecdote-hint span:last-child {
+            font-size: 0.85em;
+            color: #666;
+            line-height: 1.4;
+        }
+        /* Animation quand anecdote remplie */
+        .anecdote-input:not(:placeholder-shown) {
+            border-color: #f5a623;
+            background: linear-gradient(135deg, #fffdf8, #fff9f0);
+        }
+        .anecdote-section.has-content .anecdote-hint {
+            background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+            border-left-color: #4caf50;
+        }
+        /* Ghostwriter Badge */
+        .ghostwriter-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #f5a623, #f7931e);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-top: 10px;
+            animation: ghostwriter-pulse 2s infinite;
+        }
+        @keyframes ghostwriter-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        /* ==================== CREATION MODE CARDS ==================== */
+        .creation-mode-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .creation-mode-card {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .creation-mode-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.15);
+        }
+        .creation-mode-card.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-color: transparent;
+            color: white;
+        }
+        .creation-mode-card.active[data-mode="strategie"] {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+        }
+        .creation-mode-card.active[data-mode="trends"] {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        }
+        .mode-card-icon {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+        .mode-card-title {
+            font-weight: 700;
+            font-size: 0.95em;
+            margin-bottom: 3px;
+        }
+        .mode-card-desc {
+            font-size: 0.75em;
+            opacity: 0.8;
+        }
+        .creation-mode-card:not(.active) .mode-card-desc {
+            color: #666;
+        }
+        /* Anecdote inline dans le mode 20 jours */
+        .anecdote-inline {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #38ef7d;
+        }
+        .anecdote-inline-label {
+            display: block;
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        @media (max-width: 500px) {
+            .creation-mode-cards {
+                grid-template-columns: 1fr;
+            }
+        }
 
         .quick-actions { display: flex; gap: 10px; margin-bottom: 15px; }
         .quick-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-family: inherit; font-size: 0.9em; font-weight: 600; cursor: pointer; transition: all 0.3s; }
@@ -1796,6 +3277,15 @@
             background: linear-gradient(135deg, #7c3aed, #6d28d9);
         }
 
+        .action-btn.audit {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: none;
+            color: white;
+        }
+        .action-btn.audit:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+        }
+
         .adjust-panel {
             background: white;
             border: 2px solid #e0e0e0;
@@ -2477,6 +3967,101 @@
             .onboarding-notif { left: 15px; right: 15px; bottom: 15px; text-align: center; }
         }
 
+        /* ==================== OBJECTIVE CARDS (Vendre vs Expertise) ==================== */
+        .objective-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+        @media (max-width: 600px) {
+            .objective-cards { grid-template-columns: 1fr; }
+        }
+        .objective-card {
+            background: white;
+            border: 3px solid #e0e0e0;
+            border-radius: 16px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .objective-card:hover {
+            border-color: #667eea;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.15);
+        }
+        .objective-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f8f9ff, #f0f4ff);
+        }
+        .objective-card.selected.vendre {
+            border-color: #f5576c;
+            background: linear-gradient(135deg, #fff5f7, #fff0f3);
+        }
+        .objective-card.selected.expertise {
+            border-color: #11998e;
+            background: linear-gradient(135deg, #f0fff4, #e6fffa);
+        }
+        .objective-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        .objective-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .objective-desc {
+            color: #666;
+            font-size: 0.95em;
+            margin-bottom: 15px;
+        }
+        .objective-examples {
+            text-align: left;
+            padding-left: 20px;
+            margin: 0;
+        }
+        .objective-examples li {
+            color: #888;
+            font-size: 0.85em;
+            margin-bottom: 5px;
+        }
+
+        /* Framework badge for Strategy Days */
+        .framework-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        /* Structure block for Strategy Days */
+        .structure-block {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #11998e;
+        }
+        .structure-block h5 {
+            margin: 0 0 10px 0;
+            color: #11998e;
+        }
+        .structure-block pre {
+            margin: 0;
+            white-space: pre-wrap;
+            font-family: inherit;
+            font-size: 0.85em;
+            color: #555;
+            line-height: 1.6;
+        }
+
         /* ==================== MES AUDIENCES (PERSONAS) ==================== */
         .personas-section { margin-top: 20px; }
         .personas-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
@@ -2921,8 +4506,6 @@
                         <div class="dropdown-section-title">🎯 <span data-i18n="menu.outreach_section">Cold Outreach (prospection)</span></div>
                         <a class="dropdown-item" onclick="closeDropdowns(); showProspectsModal()">👥 <span data-i18n="menu.my_prospects">Mes prospects</span></a>
                         <a class="dropdown-item" onclick="closeDropdowns(); showCampaignsModal()">📧 <span data-i18n="menu.create_campaign">Créer une campagne</span></a>
-                        <a class="dropdown-item" onclick="closeDropdowns(); AgentAutopilot.openAutopilotModal()">🤖 Agent Autopilot</a>
-                        <a class="dropdown-item" onclick="closeDropdowns(); MissionsModule.openMissionsModal()" style="background: linear-gradient(135deg, #f093fb, #f5576c); color: white; border-radius: 8px; margin-top: 4px;">🚀 <span data-i18n="menu.missions">Missions Multi-Agents</span></a>
                         <a class="dropdown-item menu-highlight" onclick="closeDropdowns(); showInboxModal()" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; border-radius: 8px; margin-top: 4px; position: relative;">
                             📬 Inbox Intelligente
                             <span class="menu-badge" id="menuInboxBadge" style="display: none;">0</span>
@@ -2933,18 +4516,12 @@
                 </div>
             </div>
 
-            <!-- Bouton Prospection par DM -->
-            <a href="https://sosextensionprosp.netlify.app/prospects?from=sos" target="_blank" class="btn btn-prospector" title="Prospection Instagram/TikTok par DM">
-                🎯 Prospecter
-            </a>
-
             <!-- Dropdown Dashboard -->
             <div class="header-dropdown">
                 <button class="btn btn-stats dropdown-toggle" onclick="toggleDropdown('dashboardDropdown')">
                     📊 <span data-i18n="menu.dashboard">Dashboard</span> <span class="dropdown-arrow">▼</span>
                 </button>
                 <div class="dropdown-menu" id="dashboardDropdown">
-                    <a class="dropdown-item" onclick="closeDropdowns(); showStatsModal()">🏆 <span data-i18n="menu.my_stats">Mes stats</span></a>
                     <a class="dropdown-item" onclick="closeDropdowns(); showPlanningModal()">🗓️ <span data-i18n="menu.planning">Planning IA</span></a>
                     <a class="dropdown-item" onclick="closeDropdowns(); openMesPostsPopup()">📌 <span data-i18n="menu.my_posts">Mes posts</span></a>
                     <a class="dropdown-item" onclick="closeDropdowns(); showFavorites()">❤️ <span data-i18n="menu.favorites">Favoris</span></a>
@@ -2961,6 +4538,7 @@
                     <a class="dropdown-item" onclick="closeDropdowns(); Onboarding.forceShow()">👤 <span data-i18n="menu.my_profile">Mon profil</span></a>
                     <a class="dropdown-item" onclick="closeDropdowns(); showVoiceModal()">🎤 <span data-i18n="menu.my_voice">Mon Style</span></a>
                     <a class="dropdown-item" id="teamManagementBtn" onclick="closeDropdowns(); CollaborationModule.showTeamModal()" style="display: none; background: linear-gradient(135deg, #11998e, #38ef7d); color: white; margin-top: 8px; border-radius: 8px;">👥 <span data-i18n="menu.team">Mon équipe</span></a>
+                    <a class="dropdown-item" href="account.html">💎 <span data-i18n="menu.subscription">Mon abonnement</span></a>
                     <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 8px 0;"></div>
                     <a class="dropdown-item" onclick="closeDropdowns(); handleLogout()" style="color: #ff6b6b;">🚪 <span data-i18n="menu.logout">Déconnexion</span></a>
                 </div>
@@ -3064,22 +4642,6 @@
         .abuse-alert-close:hover { opacity: 1; }
     </style>
 
-    <!-- Audit Hint Overlay (bloque les clics) -->
-    <div class="audit-hint-overlay" id="auditHintOverlay"></div>
-
-    <!-- Audit Hint Popup -->
-    <div class="audit-hint" id="auditHint">
-        <button class="audit-hint-close" onclick="closeAuditHint(false)">&times;</button>
-        <div class="audit-hint-title">💡 Nouvelle ici ?</div>
-        <div class="audit-hint-text">
-            Fais ton <strong>audit gratuit</strong> pour recevoir des conseils personnalisés sur ton compte !
-        </div>
-        <button class="audit-hint-btn" onclick="closeAuditHint(false); AuditModule.openAuditModal();">
-            🔍 Faire mon audit gratuit
-        </button>
-        <button class="audit-hint-dismiss" onclick="closeAuditHint(true)">Ne plus montrer</button>
-    </div>
-
     <!-- Settings Hint Overlay (bloque les clics) -->
     <div class="settings-hint-overlay" id="settingsHintOverlay"></div>
 
@@ -3103,23 +4665,16 @@
             <h1 class="quick-actions-title" data-i18n="home.title">Que veux-tu faire ?</h1>
             <p class="quick-actions-subtitle" data-i18n="home.subtitle">Choisis ton mode</p>
 
-            <!-- 3 Modes principaux -->
+            <!-- 4 Modes principaux -->
             <div class="modes-grid">
 
-                <!-- Section 1 : Je fais moi-même -->
-                <p class="section-title">
-                    🎯 Je fais moi-même
-                    <span class="section-subtitle">— Tu contrôles, l'IA t'assiste</span>
-                </p>
-
-                <!-- MODE CRÉER -->
+                <!-- MODE 1 : CRÉER DU CONTENU -->
                 <div class="mode-card mode-creer" onclick="handleModeClick(this, 'creer')">
                     <div class="mode-emoji">✨</div>
                     <div class="mode-main">
-                        <div class="mode-title">CRÉER</div>
+                        <div class="mode-title">Créer du contenu</div>
                         <div class="mode-details">
-                            <div class="mode-subtitle">Attirer avec mes contenus</div>
-                            <div class="mode-description">Post, email, newsletter en 3 min</div>
+                            <div class="mode-subtitle">Posts & carrousels pour tes réseaux sociaux</div>
                         </div>
                     </div>
                     <div class="mode-arrow">
@@ -3129,14 +4684,13 @@
                     </div>
                 </div>
 
-                <!-- MODE PROSPECTER -->
-                <div class="mode-card mode-prospecter" onclick="handleModeClick(this, 'prospecter')">
-                    <div class="mode-emoji">🎯</div>
+                <!-- MODE 2 : EMAILS & NEWSLETTERS -->
+                <div class="mode-card mode-emails" onclick="handleModeClick(this, 'emails')">
+                    <div class="mode-emoji">📧</div>
                     <div class="mode-main">
-                        <div class="mode-title">PROSPECTER</div>
+                        <div class="mode-title">Emails & Newsletters</div>
                         <div class="mode-details">
-                            <div class="mode-subtitle">Aller parler à de nouvelles clientes</div>
-                            <div class="mode-description">Instagram, TikTok • Messages prêts à envoyer</div>
+                            <div class="mode-subtitle">Newsletters + campagnes de prospection mail</div>
                         </div>
                     </div>
                     <div class="mode-arrow">
@@ -3146,42 +4700,21 @@
                     </div>
                 </div>
 
-                <div class="quick-action-card" onclick="MissionsModule.openMissionsModal()" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
-                    <div class="quick-action-icon">
-                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                            <defs>
-                                <linearGradient id="iconGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" style="stop-color:#fff;stop-opacity:1" />
-                                    <stop offset="100%" style="stop-color:#ffe0f0;stop-opacity:1" />
-                                </linearGradient>
-                            </defs>
-                            <circle cx="24" cy="24" r="18" stroke="url(#iconGrad3)" stroke-width="2.5" fill="none"/>
-                            <path d="M24 14V24L32 28" stroke="url(#iconGrad3)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M16 8L14 4M32 8L34 4M8 16L4 14M40 16L44 14" stroke="url(#iconGrad3)" stroke-width="2" stroke-linecap="round"/>
+                <!-- MODE 3 : AUDIT RS -->
+                <div class="mode-card mode-audit" onclick="AuditModule.openAuditModal()">
+                    <div class="mode-emoji">📊</div>
+                    <div class="mode-main">
+                        <div class="mode-title">Audit RS</div>
+                        <div class="mode-details">
+                            <div class="mode-subtitle">Analyse tes profils et posts pour optimiser ta visibilité</div>
+                        </div>
+                    </div>
+                    <div class="mode-arrow">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 18l6-6-6-6"/>
                         </svg>
                     </div>
-                    <div class="quick-action-title" style="color: white;">Missions Autopilot</div>
-                    <div class="quick-action-time" style="background: rgba(255,255,255,0.3);"><span class="time-icon">🚀</span> Auto</div>
                 </div>
-
-                <!-- Prospecter - Prospection par DM -->
-                <a href="https://sosextensionprosp.netlify.app/prospects?from=sos" target="_blank" class="quick-action-card" style="background: linear-gradient(135deg, #f15a24, #ff8a50); text-decoration: none;">
-                    <div class="quick-action-icon">
-                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                            <defs>
-                                <linearGradient id="iconGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" style="stop-color:#fff;stop-opacity:1" />
-                                    <stop offset="100%" style="stop-color:#ffe0d0;stop-opacity:1" />
-                                </linearGradient>
-                            </defs>
-                            <circle cx="20" cy="20" r="12" stroke="url(#iconGrad4)" stroke-width="2.5" fill="none"/>
-                            <path d="M30 30L40 40" stroke="url(#iconGrad4)" stroke-width="3" stroke-linecap="round"/>
-                            <path d="M20 14V20H26" stroke="url(#iconGrad4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
-                    <div class="quick-action-title" style="color: white;">Prospecter</div>
-                    <div class="quick-action-time" style="background: rgba(255,255,255,0.3);"><span class="time-icon">🎯</span> Insta/TikTok</div>
-                </a>
 
             </div>
         </div>
@@ -3421,23 +4954,28 @@
                     </div>
                 </div>
 
-                <!-- MODE CRÉATION -->
+                <!-- MODE CRÉATION - 3 MODES -->
                 <div class="config-section" id="creationModeSection">
                     <label class="config-label">🚀 Mode création</label>
-                    <div class="creation-mode-toggle">
-                        <label class="mode-option">
-                            <input type="radio" name="creationMode" value="libre" checked onchange="toggleCreationMode('libre')">
-                            <span class="mode-label">✍️ Libre</span>
-                            <span class="mode-desc">Mon idée, mon style</span>
-                        </label>
-                        <label class="mode-option">
-                            <input type="radio" name="creationMode" value="strategie" onchange="toggleCreationMode('strategie')">
-                            <span class="mode-label">🎯 20 Jours Stratégiques</span>
-                            <span class="mode-desc">Contenus qui vendent</span>
-                        </label>
+                    <div class="creation-mode-cards">
+                        <div class="creation-mode-card active" data-mode="libre" onclick="selectCreationMode('libre')">
+                            <div class="mode-card-icon">✍️</div>
+                            <div class="mode-card-title">Libre</div>
+                            <div class="mode-card-desc">Mon idée, mon style</div>
+                        </div>
+                        <div class="creation-mode-card" data-mode="strategie" onclick="selectCreationMode('strategie')">
+                            <div class="mode-card-icon">🎯</div>
+                            <div class="mode-card-title">20 Jours</div>
+                            <div class="mode-card-desc">Stratégie + storytelling</div>
+                        </div>
+                        <div class="creation-mode-card" data-mode="trends" onclick="selectCreationMode('trends')">
+                            <div class="mode-card-icon">🔥</div>
+                            <div class="mode-card-title">Trends</div>
+                            <div class="mode-card-desc">Sujets tendance</div>
+                        </div>
                     </div>
 
-                    <!-- Sélecteur de jour (caché par défaut) -->
+                    <!-- Panel 20 Jours (caché par défaut) -->
                     <div id="strategyDaySelector" class="strategy-day-selector" style="display: none;">
                         <select id="strategyDay" class="strategy-day-dropdown" onchange="loadStrategyDay()">
                             <option value="1">Jour 1 — Dégommer une objection client</option>
@@ -3464,6 +5002,23 @@
 
                         <!-- Questions d'extraction -->
                         <div id="extractionQuestions" class="extraction-questions"></div>
+
+                        <!-- Anecdote intégrée au mode 20 jours -->
+                        <div class="anecdote-inline">
+                            <label class="anecdote-inline-label">
+                                📖 Une anecdote à raconter ? <span class="optional-badge">optionnel</span>
+                            </label>
+                            <textarea
+                                id="anecdoteInput"
+                                class="anecdote-input"
+                                placeholder="Une histoire vraie, une situation vécue, un échange marquant..."
+                                rows="3"
+                            ></textarea>
+                            <div class="anecdote-hint">
+                                <span class="hint-icon">💡</span>
+                                <span>L'IA transformera ton anecdote en storytelling percutant</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -3472,12 +5027,9 @@
                     <textarea class="idea-input" id="ideaInput" data-i18n-placeholder="config.idea_placeholder" placeholder="Décris ton idée ou colle ici un texte que tu veux améliorer..."></textarea>
                 </div>
 
-                <!-- Bouton Trends - AU DESSUS de Générer -->
-                <div style="text-align: center; margin-bottom: 15px; padding: 15px; background: linear-gradient(135deg, rgba(255,107,107,0.35), rgba(238,90,36,0.3)); border-radius: 12px; border: 1px dashed rgba(255,107,107,0.5);">
-                    <p style="color: white; font-size: 0.9em; margin-bottom: 10px; font-weight: 600; text-shadow: 0 1px 3px rgba(0,0,0,0.3);">💡 <span data-i18n="config.trends_hint">Ou laisse l'IA sélectionner les dernières tendances dans ta niche</span></p>
-                    <button class="btn-trends" onclick="showTrends()" style="padding: 12px 25px; border: none; border-radius: 10px; font-family: inherit; font-weight: 700; font-size: 1em; cursor: pointer; animation: halo-pulse 2s infinite;">
-                        🔥 <span data-i18n="config.trends_btn">TRENDS</span>
-                    </button>
+                <!-- Badge Mode Ghostwriter (visible quand anecdote remplie) -->
+                <div id="ghostwriterBadge" class="ghostwriter-badge" style="display: none;">
+                    <span>📖</span> Mode Storytelling actif
                 </div>
 
                 <p style="text-align: center; color: #333; font-size: 0.9em; margin-bottom: 8px; font-weight: 500;"><span data-i18n="config.then_press">Puis appuie sur</span> 👇</p>
@@ -3627,6 +5179,7 @@
                     <button class="action-btn" onclick="copyContent()">📋 <span data-i18n="actions.copy">Copier</span></button>
                     <button class="action-btn" onclick="regenerateContent()">🔄 <span data-i18n="actions.regenerate">Régénérer</span></button>
                     <button class="action-btn adjust" onclick="toggleAdjustPanel()">✏️ <span>Ajuster</span></button>
+                    <button class="action-btn audit" onclick="auditGeneratedContent()">🔍 <span>Auditer</span></button>
                 </div>
 
                 <!-- Panneau d'ajustement -->
@@ -3864,7 +5417,7 @@
                                 <h3 style="margin: 0 0 8px 0; font-size: 1.2em; color: #333;">Prospection par email</h3>
                                 <p style="margin: 0; color: #666; font-size: 0.95em; line-height: 1.5;">
                                     Cold outreach pour acquérir de nouveaux clients.<br>
-                                    <span style="color: #888; font-size: 0.9em;">→ Import Pharow, Sales Navigator + Agent Autopilot</span>
+                                    <span style="color: #888; font-size: 0.9em;">→ Import Pharow, Sales Navigator</span>
                                 </p>
                             </div>
                         </div>
@@ -4185,6 +5738,59 @@
                 <button class="modal-close" onclick="document.getElementById('statsModal').classList.remove('show')">&times;</button>
             </div>
             <div id="statsContent"></div>
+        </div>
+    </div>
+
+    <!-- Modal Goals Dashboard -->
+    <div class="modal-overlay" id="goalsModal">
+        <div class="modal" style="max-width: 750px; max-height: 90vh;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #11998e, #38ef7d);">
+                <h2 class="modal-title">🎯 Mes Objectifs</h2>
+                <button class="modal-close" onclick="document.getElementById('goalsModal').classList.remove('show')">&times;</button>
+            </div>
+            <div id="goalsContent" style="padding: 25px; overflow-y: auto; max-height: calc(90vh - 80px);"></div>
+        </div>
+    </div>
+
+    <!-- Modal Paywall Freemium -->
+    <div class="modal-overlay" id="paywallModal" style="display: none;">
+        <div class="modal" style="max-width: 500px; text-align: center;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #f5576c, #f093fb); flex-direction: column; padding: 30px;">
+                <h2 class="paywall-title" style="color: white; margin: 0; font-size: 1.4em;">🎉 Tu as utilisé tes posts gratuits !</h2>
+                <p class="paywall-subtitle" style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 0.95em;">Passe à la version complète pour continuer</p>
+            </div>
+            <div style="padding: 30px;">
+                <div class="paywall-usage" style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+                    <!-- Rempli dynamiquement -->
+                </div>
+
+                <div style="background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(168,85,247,0.1)); border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+                    <p style="font-weight: 600; margin: 0 0 10px 0;">✨ Avec l'abonnement Solo :</p>
+                    <ul style="text-align: left; margin: 0; padding-left: 20px; color: #666;">
+                        <li>Posts illimités</li>
+                        <li>Audits illimités</li>
+                        <li>Planning IA</li>
+                        <li>Ma Voix personnalisée</li>
+                        <li>TRENDS en temps réel</li>
+                    </ul>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <a href="account.html"
+                       class="btn-primary"
+                       style="display: block; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 16px 30px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 1.1em;">
+                        🚀 Voir les offres
+                    </a>
+                    <button onclick="FreemiumSystem.closePaywall()"
+                            style="background: none; border: none; color: #999; cursor: pointer; padding: 10px; font-size: 0.9em;">
+                        Non merci, plus tard
+                    </button>
+                </div>
+
+                <p style="margin-top: 20px; font-size: 0.8em; color: #999;">
+                    🔒 Paiement sécurisé • Sans engagement • Annulation à tout moment
+                </p>
+            </div>
         </div>
     </div>
 
@@ -4741,7 +6347,7 @@ Solution  | Présenter votre solution</pre>
             }
         });
 
-        // ==================== 3 MODES - SOUS-MENUS ====================
+        // ==================== 4 MODES PRINCIPAUX ====================
 
         // Gestion du tap mobile (premier tap = expand, deuxième = navigate)
         function handleModeClick(card, mode) {
@@ -4755,11 +6361,48 @@ Solution  | Présenter votre solution</pre>
             }
 
             // Desktop ou deuxième tap mobile : naviguer
-            if (mode === 'multiagents' || mode === 'autopilot') {
-                MissionsModule.openMissionsModal();
-            } else {
-                toggleModeSubmenu(mode);
+            if (mode === 'creer') {
+                // Mode CRÉER : aller directement à la création de posts
+                showQuickPost();
+            } else if (mode === 'emails') {
+                // Mode EMAILS : afficher le choix newsletter/prospection mail
+                showEmailsChoiceModal();
             }
+        }
+
+        // Modal de choix pour Emails & Newsletters
+        function showEmailsChoiceModal() {
+            const modalHTML = `
+                <div class="emails-choice-overlay" onclick="closeEmailsChoiceModal(event)">
+                    <div class="emails-choice-modal" onclick="event.stopPropagation()">
+                        <h3 style="margin-bottom: 20px; font-size: 1.3em;">📧 Que veux-tu faire ?</h3>
+
+                        <div class="emails-choice-option" onclick="closeEmailsChoiceModal(); showNewsletterModal();">
+                            <div class="emails-choice-icon">✉️</div>
+                            <div class="emails-choice-content">
+                                <div class="emails-choice-title">Créer une newsletter</div>
+                                <div class="emails-choice-desc">Pour tes abonnés existants</div>
+                            </div>
+                        </div>
+
+                        <div class="emails-choice-option" onclick="closeEmailsChoiceModal(); showCampaignsModal();">
+                            <div class="emails-choice-icon">🎯</div>
+                            <div class="emails-choice-content">
+                                <div class="emails-choice-title">Lancer une campagne de prospection</div>
+                                <div class="emails-choice-desc">Scraping LinkedIn/Sales Nav, import fichier, emails vérifiés</div>
+                            </div>
+                        </div>
+
+                        <button class="emails-choice-close" onclick="closeEmailsChoiceModal()">Fermer</button>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
+
+        function closeEmailsChoiceModal(event) {
+            const overlay = document.querySelector('.emails-choice-overlay');
+            if (overlay) overlay.remove();
         }
 
         // Fermer les cartes expanded si on clique ailleurs
@@ -4771,8 +6414,8 @@ Solution  | Présenter votre solution</pre>
 
         function toggleModeSubmenu(mode) {
             // Cacher la grille des modes
-            document.querySelector('.modes-grid').style.display = 'none';
-            document.querySelector('.audit-link-container').style.display = 'none';
+            const modesGrid = document.querySelector('.modes-grid');
+            if (modesGrid) modesGrid.style.display = 'none';
 
             // Afficher le sous-menu correspondant
             const submenu = document.getElementById('submenu-' + mode);
@@ -4788,8 +6431,8 @@ Solution  | Présenter votre solution</pre>
             });
 
             // Réafficher la grille des modes
-            document.querySelector('.modes-grid').style.display = 'flex';
-            document.querySelector('.audit-link-container').style.display = 'block';
+            const modesGrid = document.querySelector('.modes-grid');
+            if (modesGrid) modesGrid.style.display = 'flex';
         }
 
         // ==================== QUICK ACTIONS ====================
@@ -5008,6 +6651,32 @@ Solution  | Présenter votre solution</pre>
                             <button class="onboarding-close" onclick="closeOnboarding()">×</button>
                         </div>
                         <form id="onboardingForm" class="onboarding-form">
+                            <!-- Choix de l'objectif principal - PREMIER -->
+                            <div class="onboarding-section objective-section">
+                                <h3>🎯 Quel est ton objectif principal ?</h3>
+                                <div class="objective-cards">
+                                    <div class="objective-card ${existingProfile?.strategyObjective === 'vendre' || !existingProfile?.strategyObjective ? 'selected vendre' : ''}" data-objective="vendre" onclick="selectObjective('vendre')">
+                                        <div class="objective-icon">💰</div>
+                                        <div class="objective-title">Vendre mes services</div>
+                                        <div class="objective-desc">Trouver des clients, convertir, générer des leads</div>
+                                        <ul class="objective-examples">
+                                            <li>Posts qui déclenchent des DM</li>
+                                            <li>Lever les objections</li>
+                                            <li>Témoignages & études de cas</li>
+                                        </ul>
+                                    </div>
+                                    <div class="objective-card ${existingProfile?.strategyObjective === 'expertise' ? 'selected expertise' : ''}" data-objective="expertise" onclick="selectObjective('expertise')">
+                                        <div class="objective-icon">🧠</div>
+                                        <div class="objective-title">Montrer mon expertise</div>
+                                        <div class="objective-desc">Devenir une référence, être cité par les IA</div>
+                                        <ul class="objective-examples">
+                                            <li>Thought leadership</li>
+                                            <li>Frameworks & méthodologies</li>
+                                            <li>Contenu cité par Perplexity/ChatGPT</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="onboarding-section">
                                 <h3>👤 Ton identité</h3>
                                 <div class="form-group">
@@ -5133,8 +6802,13 @@ Solution  | Présenter votre solution</pre>
             `;
             document.body.insertAdjacentHTML('beforeend', modalHTML);
             document.getElementById('onboardingForm').addEventListener('submit', handleOnboardingSubmit);
+
+            // Initialiser userStrategyObjective avec la valeur du profil
+            userStrategyObjective = existingProfile?.strategyObjective || 'vendre';
+
             setTimeout(() => {
-                document.getElementById('onboardingOverlay').classList.add('active');
+                const overlay = document.getElementById('onboardingOverlay');
+                if (overlay) overlay.classList.add('active');
                 // Charger les personas
                 renderPersonasList();
             }, 10);
@@ -5217,7 +6891,7 @@ Solution  | Présenter votre solution</pre>
                                     <div class="emoji-picker-inline" id="emojiPicker">
                                         ${PERSONA_EMOJIS.map(e => `
                                             <div class="emoji-option ${(persona?.emoji || '🎯') === e ? 'selected' : ''}"
-                                                 onclick="selectPersonaEmoji('${e}')">${e}</div>
+                                                 onclick="selectPersonaEmoji('${e}', event)">${e}</div>
                                         `).join('')}
                                     </div>
                                     <input type="hidden" id="persona-emoji" value="${persona?.emoji || '🎯'}">
@@ -5283,14 +6957,18 @@ Trouver des clients sans prospecter">${persona?.desires?.join('\n') || ''}</text
             `;
 
             document.body.insertAdjacentHTML('beforeend', modalHTML);
-            setTimeout(() => document.getElementById('personaModalOverlay').classList.add('active'), 10);
+            setTimeout(() => {
+                const overlay = document.getElementById('personaModalOverlay');
+                if (overlay) overlay.classList.add('active');
+            }, 10);
         }
 
         // Sélectionner un emoji
-        function selectPersonaEmoji(emoji) {
-            document.getElementById('persona-emoji').value = emoji;
+        function selectPersonaEmoji(emoji, e) {
+            const input = document.getElementById('persona-emoji');
+            if (input) input.value = emoji;
             document.querySelectorAll('.emoji-option').forEach(el => el.classList.remove('selected'));
-            event.target.classList.add('selected');
+            if (e && e.target) e.target.classList.add('selected');
         }
 
         // Fermer l'éditeur
@@ -5824,6 +7502,34 @@ Description : ${audience.description}
         // Callback après sauvegarde du profil
         let onboardingCallback = null;
 
+        // Stocker l'objectif choisi (Vendre vs Expertise)
+        let userStrategyObjective = 'vendre'; // défaut
+
+        function selectObjective(objective) {
+            userStrategyObjective = objective;
+
+            // UI feedback
+            document.querySelectorAll('.objective-card').forEach(card => {
+                card.classList.remove('selected', 'vendre', 'expertise');
+            });
+            const selectedCard = document.querySelector(`.objective-card[data-objective="${objective}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('selected', objective);
+            }
+        }
+
+        // Mettre à jour les options du sélecteur de jours selon l'objectif
+        function updateStrategyDaysForObjective(objective) {
+            const daySelect = document.getElementById('strategyDay');
+            if (!daySelect) return;
+
+            const days = objective === 'expertise' ? STRATEGY_DAYS_EXPERTISE : STRATEGY_DAYS_VENDRE;
+
+            daySelect.innerHTML = Object.entries(days).map(([num, data]) =>
+                `<option value="${num}">Jour ${num} — ${data.title}</option>`
+            ).join('');
+        }
+
         function handleOnboardingSubmit(e) {
             e.preventDefault();
             const nom = document.getElementById('onb-nom').value.trim();
@@ -5841,12 +7547,16 @@ Description : ${audience.description}
                 trancheAge: Array.from(document.querySelectorAll('input[name="trancheAge"]:checked')).map(cb => cb.value),
                 niveau: document.querySelector('input[name="niveau"]:checked')?.value || '',
                 style: document.querySelector('input[name="style"]:checked')?.value || '',
-                objectif: document.querySelector('input[name="objectif"]:checked')?.value || ''
+                objectif: document.querySelector('input[name="objectif"]:checked')?.value || '',
+                strategyObjective: userStrategyObjective // Vendre ou Expertise
             };
 
             UserProfile.save(profile);
             closeOnboarding();
             showOnboardingNotification(`✨ Profil sauvegardé, ${nom} !`);
+
+            // Adapter les 20 jours selon l'objectif choisi
+            updateStrategyDaysForObjective(userStrategyObjective);
 
             // MISE À JOUR AUTOMATIQUE DE LA CONFIG
             if (typeof refreshConfigFromProfile === 'function') {
@@ -6550,6 +8260,18 @@ ${persona.vocabulary.join(', ')}
                         </div>
                     </div>
                     
+                    <div style="margin-top: 25px; padding-top: 20px; border-top: 2px dashed #e0e0e0;">
+                        <h3 style="margin: 0 0 15px; color: #333; text-align: center;">🎯 Mes Objectifs</h3>
+                        <p style="color: #666; font-size: 0.9em; text-align: center; margin-bottom: 15px;">
+                            Fixe-toi un objectif et suis ta progression en temps réel.
+                        </p>
+                        <div style="text-align: center;">
+                            <button onclick="document.getElementById('statsModal').classList.remove('show'); GoalsSystem.showDashboard();" style="background: linear-gradient(135deg, #11998e, #38ef7d); color: white; border: none; padding: 12px 25px; border-radius: 10px; cursor: pointer; font-family: inherit; font-weight: 600; transition: all 0.2s;">
+                                🎯 Voir mes objectifs
+                            </button>
+                        </div>
+                    </div>
+
                     <div style="margin-top: 20px; text-align: center; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
                         <button onclick="document.getElementById('statsModal').classList.remove('show'); restartTour();" style="background: none; border: 2px dashed #667eea; color: #667eea; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-family: inherit; font-weight: 600; transition: all 0.3s;">
                             🎯 Refaire le tour guidé
@@ -6561,6 +8283,389 @@ ${persona.vocabulary.join(', ')}
                 `;
                 document.getElementById('statsModal').classList.add('show');
             }
+        };
+
+        // ==================== SYSTÈME OBJECTIFS (GAMIFICATION) ====================
+        const GoalsSystem = {
+            KEY: 'tithot_goals',
+
+            getDefault() {
+                return {
+                    currentGoal: null, // { platform, metric, target, startValue, deadline, createdAt }
+                    history: [], // [{ date, value, metric }]
+                    completedGoals: []
+                };
+            },
+
+            get() {
+                try {
+                    const data = localStorage.getItem(this.KEY);
+                    return data ? { ...this.getDefault(), ...JSON.parse(data) } : this.getDefault();
+                } catch (e) {
+                    return this.getDefault();
+                }
+            },
+
+            save(data) {
+                localStorage.setItem(this.KEY, JSON.stringify(data));
+            },
+
+            // Définir un nouvel objectif
+            setGoal(platform, metric, target, deadline) {
+                const data = this.get();
+                const progression = ProgressionSystem.get();
+
+                // Valeur de départ selon la métrique
+                let startValue = 0;
+                if (metric === 'followers') {
+                    startValue = 0; // L'utilisateur devra entrer sa valeur actuelle
+                } else if (metric === 'posts') {
+                    startValue = progression.byPlatform[platform] || 0;
+                } else if (metric === 'audits') {
+                    startValue = parseInt(localStorage.getItem('tithot_audits_count') || '0');
+                }
+
+                data.currentGoal = {
+                    platform,
+                    metric,
+                    target: parseInt(target),
+                    startValue,
+                    currentValue: startValue,
+                    deadline,
+                    createdAt: new Date().toISOString()
+                };
+
+                this.save(data);
+                this.showDashboard();
+            },
+
+            // Mettre à jour la valeur actuelle (pour les followers, saisie manuelle)
+            updateCurrentValue(value) {
+                const data = this.get();
+                if (!data.currentGoal) return;
+
+                data.currentGoal.currentValue = parseInt(value);
+                data.history.push({
+                    date: new Date().toISOString(),
+                    value: parseInt(value),
+                    metric: data.currentGoal.metric
+                });
+
+                // Vérifier si objectif atteint
+                if (data.currentGoal.currentValue >= data.currentGoal.target) {
+                    data.completedGoals.push({
+                        ...data.currentGoal,
+                        completedAt: new Date().toISOString()
+                    });
+                    showToast('🎉 Félicitations ! Objectif atteint !');
+                }
+
+                this.save(data);
+                this.showDashboard();
+            },
+
+            // Supprimer l'objectif en cours
+            deleteGoal() {
+                const data = this.get();
+                data.currentGoal = null;
+                this.save(data);
+                this.showDashboard();
+            },
+
+            // Obtenir les statistiques d'actions
+            getActionStats() {
+                const progression = ProgressionSystem.get();
+                const goalsData = this.get();
+                const goal = goalsData.currentGoal;
+
+                // Si pas d'objectif, retourner les stats globales
+                if (!goal) {
+                    return {
+                        postsCreated: progression.totalContents,
+                        auditsRun: parseInt(localStorage.getItem('tithot_audits_count') || '0'),
+                        daysActive: progression.streak,
+                        profileAudits: parseInt(localStorage.getItem('tithot_profile_audits') || '0')
+                    };
+                }
+
+                // Stats depuis le début de l'objectif
+                const startDate = new Date(goal.createdAt);
+
+                return {
+                    postsCreated: progression.totalContents - (goal.startPostsCount || 0),
+                    auditsRun: parseInt(localStorage.getItem('tithot_audits_count') || '0') - (goal.startAuditsCount || 0),
+                    daysActive: Math.ceil((Date.now() - startDate.getTime()) / (1000 * 60 * 60 * 24)),
+                    profileAudits: parseInt(localStorage.getItem('tithot_profile_audits') || '0')
+                };
+            },
+
+            // Obtenir un message de motivation
+            getMotivation(progress) {
+                const messages = [
+                    { min: 0, max: 10, icon: '🚀', text: 'Tu viens de commencer, chaque petit pas compte !' },
+                    { min: 10, max: 25, icon: '💪', text: 'Beau début ! Continue sur cette lancée.' },
+                    { min: 25, max: 50, icon: '🔥', text: 'Tu es sur la bonne voie, ne lâche rien !' },
+                    { min: 50, max: 75, icon: '⭐', text: 'Plus de la moitié ! Tu y es presque.' },
+                    { min: 75, max: 90, icon: '🌟', text: 'La ligne d\'arrivée est en vue !' },
+                    { min: 90, max: 100, icon: '🎯', text: 'Dernière ligne droite, tu vas y arriver !' },
+                    { min: 100, max: Infinity, icon: '🏆', text: 'Objectif atteint ! Tu es incroyable !' }
+                ];
+
+                const msg = messages.find(m => progress >= m.min && progress < m.max);
+                return msg || messages[0];
+            },
+
+            // Calculer les jours restants
+            getDaysRemaining(deadline) {
+                const now = new Date();
+                const end = new Date(deadline);
+                const diff = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
+                return Math.max(0, diff);
+            },
+
+            // Afficher le dashboard
+            showDashboard() {
+                const data = this.get();
+                const goal = data.currentGoal;
+                const stats = this.getActionStats();
+
+                const platformLabels = {
+                    linkedin: { name: 'LinkedIn', icon: '💼' },
+                    instagram: { name: 'Instagram', icon: '📸' },
+                    tiktok: { name: 'TikTok', icon: '🎵' },
+                    twitter: { name: 'X (Twitter)', icon: '🐦' },
+                    youtube: { name: 'YouTube', icon: '📺' }
+                };
+
+                const metricLabels = {
+                    followers: 'abonnés',
+                    posts: 'posts créés',
+                    audits: 'audits réalisés'
+                };
+
+                let html = '';
+
+                if (!goal) {
+                    // Pas d'objectif défini - Afficher le formulaire
+                    html = `
+                        <div class="goals-no-objective">
+                            <div class="goals-no-objective-icon">🎯</div>
+                            <h3>Définis ton premier objectif</h3>
+                            <p>Fixe-toi un objectif pour rester motivé et suivre ta progression</p>
+                        </div>
+
+                        <div class="goals-form">
+                            <h4 style="margin: 0 0 15px; color: #333;">Nouvel objectif</h4>
+
+                            <div class="goals-form-group" style="margin-bottom: 15px;">
+                                <label>Plateforme</label>
+                                <div class="goals-platform-selector">
+                                    <div class="goals-platform-chip active" data-platform="linkedin" onclick="GoalsSystem.selectPlatform('linkedin')">💼 LinkedIn</div>
+                                    <div class="goals-platform-chip" data-platform="instagram" onclick="GoalsSystem.selectPlatform('instagram')">📸 Instagram</div>
+                                    <div class="goals-platform-chip" data-platform="tiktok" onclick="GoalsSystem.selectPlatform('tiktok')">🎵 TikTok</div>
+                                    <div class="goals-platform-chip" data-platform="twitter" onclick="GoalsSystem.selectPlatform('twitter')">🐦 X</div>
+                                </div>
+                            </div>
+
+                            <div class="goals-form-row">
+                                <div class="goals-form-group">
+                                    <label>Je veux atteindre</label>
+                                    <input type="number" id="goalTarget" placeholder="ex: 1000" min="1">
+                                </div>
+                                <div class="goals-form-group">
+                                    <label>Métrique</label>
+                                    <select id="goalMetric">
+                                        <option value="followers">Abonnés</option>
+                                        <option value="posts">Posts créés</option>
+                                    </select>
+                                </div>
+                                <div class="goals-form-group">
+                                    <label>D'ici le</label>
+                                    <input type="date" id="goalDeadline" min="${new Date().toISOString().split('T')[0]}">
+                                </div>
+                            </div>
+
+                            <button class="goals-btn-set" onclick="GoalsSystem.createGoal()">
+                                🚀 Définir mon objectif
+                            </button>
+                        </div>
+
+                        <!-- Actions stats même sans objectif -->
+                        <h4 style="margin: 25px 0 15px; color: #333;">📊 Ton activité globale</h4>
+                        <div class="goals-actions-grid">
+                            <div class="goals-action-card">
+                                <div class="goals-action-icon">✍️</div>
+                                <div class="goals-action-value">${stats.postsCreated}</div>
+                                <div class="goals-action-label">Posts créés</div>
+                            </div>
+                            <div class="goals-action-card">
+                                <div class="goals-action-icon">🔍</div>
+                                <div class="goals-action-value">${stats.auditsRun}</div>
+                                <div class="goals-action-label">Audits lancés</div>
+                            </div>
+                            <div class="goals-action-card">
+                                <div class="goals-action-icon">👤</div>
+                                <div class="goals-action-value">${stats.profileAudits}</div>
+                                <div class="goals-action-label">Profils audités</div>
+                            </div>
+                            <div class="goals-action-card">
+                                <div class="goals-action-icon">📅</div>
+                                <div class="goals-action-value">${stats.daysActive}</div>
+                                <div class="goals-action-label">Jours actifs</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Objectif en cours
+                    const platform = platformLabels[goal.platform] || { name: goal.platform, icon: '📱' };
+                    const metric = metricLabels[goal.metric] || goal.metric;
+                    const progress = Math.min(100, Math.round(((goal.currentValue - goal.startValue) / (goal.target - goal.startValue)) * 100)) || 0;
+                    const daysLeft = this.getDaysRemaining(goal.deadline);
+                    const motivation = this.getMotivation(progress);
+                    const isCompleted = goal.currentValue >= goal.target;
+
+                    if (isCompleted) {
+                        html += `
+                            <div class="goals-completed">
+                                <div class="goals-completed-icon">🏆</div>
+                                <h3>Objectif atteint !</h3>
+                                <p>Tu as atteint ${goal.target} ${metric} sur ${platform.name}. Bravo !</p>
+                                <button class="goals-btn-set" style="margin-top: 15px; width: auto;" onclick="GoalsSystem.deleteGoal()">
+                                    🎯 Définir un nouvel objectif
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div class="goals-progress-card">
+                                <div class="goals-progress-header">
+                                    <div class="goals-objective-text">
+                                        ${platform.icon} ${goal.target} ${metric} sur ${platform.name}
+                                    </div>
+                                    <div class="goals-deadline">
+                                        ${daysLeft > 0 ? `⏳ ${daysLeft} jour${daysLeft > 1 ? 's' : ''} restant${daysLeft > 1 ? 's' : ''}` : '⚠️ Délai dépassé'}
+                                    </div>
+                                </div>
+                                <div class="goals-progress-visual">
+                                    <div class="goals-progress-bar">
+                                        <div class="goals-progress-fill" style="width: ${progress}%"></div>
+                                    </div>
+                                    <div class="goals-progress-numbers">
+                                        <span class="goals-current">${goal.currentValue}</span>
+                                        <span class="goals-target">Objectif: ${goal.target}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Motivation -->
+                            <div class="goals-motivation">
+                                <div class="goals-motivation-icon">${motivation.icon}</div>
+                                <div class="goals-motivation-text">${motivation.text}</div>
+                            </div>
+                        `;
+                    }
+
+                    // Actions depuis le début de l'objectif
+                    html += `
+                        <h4 style="margin: 0 0 15px; color: #333;">📊 Tes actions depuis le début</h4>
+                        <div class="goals-actions-grid">
+                            <div class="goals-action-card">
+                                <div class="goals-action-icon">✍️</div>
+                                <div class="goals-action-value">${stats.postsCreated}</div>
+                                <div class="goals-action-label">Posts créés</div>
+                            </div>
+                            <div class="goals-action-card">
+                                <div class="goals-action-icon">🔍</div>
+                                <div class="goals-action-value">${stats.auditsRun}</div>
+                                <div class="goals-action-label">Audits lancés</div>
+                            </div>
+                            <div class="goals-action-card">
+                                <div class="goals-action-icon">👤</div>
+                                <div class="goals-action-value">${stats.profileAudits}</div>
+                                <div class="goals-action-label">Profils audités</div>
+                            </div>
+                            <div class="goals-action-card ${daysLeft <= 3 && !isCompleted ? 'highlight' : ''}">
+                                <div class="goals-action-icon">📅</div>
+                                <div class="goals-action-value">${stats.daysActive}</div>
+                                <div class="goals-action-label">Jours actifs</div>
+                            </div>
+                        </div>
+                    `;
+
+                    // Section mise à jour (pour les followers, saisie manuelle)
+                    if (goal.metric === 'followers' && !isCompleted) {
+                        html += `
+                            <div class="goals-update-section">
+                                <div class="goals-form-group">
+                                    <label>📈 Mettre à jour mon nombre d'abonnés</label>
+                                    <input type="number" id="goalCurrentValue" value="${goal.currentValue}" min="0">
+                                </div>
+                                <button class="goals-btn-update" onclick="GoalsSystem.updateCurrentValue(document.getElementById('goalCurrentValue').value)">
+                                    ✅ Mettre à jour
+                                </button>
+                            </div>
+                        `;
+                    }
+
+                    // Historique
+                    if (data.history.length > 0) {
+                        const recentHistory = data.history.slice(-5).reverse();
+                        html += `
+                            <div class="goals-history">
+                                <h4>📜 Historique des mises à jour</h4>
+                                <div class="goals-history-list">
+                                    ${recentHistory.map(h => `
+                                        <div class="goals-history-item">
+                                            <span class="goals-history-date">${new Date(h.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+                                            <span class="goals-history-value">${h.value} ${metricLabels[h.metric] || h.metric}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    // Bouton supprimer
+                    if (!isCompleted) {
+                        html += `
+                            <div style="text-align: center; margin-top: 25px;">
+                                <button class="goals-btn-delete" onclick="if(confirm('Supprimer cet objectif ?')) GoalsSystem.deleteGoal()">
+                                    🗑️ Supprimer l'objectif
+                                </button>
+                            </div>
+                        `;
+                    }
+                }
+
+                document.getElementById('goalsContent').innerHTML = html;
+                document.getElementById('goalsModal').classList.add('show');
+            },
+
+            // Sélectionner une plateforme
+            selectPlatform(platform) {
+                document.querySelectorAll('.goals-platform-chip').forEach(chip => {
+                    chip.classList.toggle('active', chip.dataset.platform === platform);
+                });
+                this.selectedPlatform = platform;
+            },
+
+            // Créer l'objectif depuis le formulaire
+            createGoal() {
+                const platform = this.selectedPlatform || 'linkedin';
+                const target = document.getElementById('goalTarget').value;
+                const metric = document.getElementById('goalMetric').value;
+                const deadline = document.getElementById('goalDeadline').value;
+
+                if (!target || !deadline) {
+                    showToast('❌ Remplis tous les champs');
+                    return;
+                }
+
+                this.setGoal(platform, metric, parseInt(target), deadline);
+                showToast('🎯 Objectif défini !');
+            },
+
+            selectedPlatform: 'linkedin'
         };
 
         // ==================== SYSTÈME FRAMEWORKS ====================
@@ -9379,10 +11484,11 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
         };
 
         // ==================== ÉTAT DE L'APPLICATION ====================
-        let currentState = { structure: 'aida', format: 'post', platform: 'linkedin', tone: 'default', idea: '', generatedContent: '', ideasContent: '', currentPillar: null, pubPlatform: 'meta', pubObjective: 'conversion', strategyMode: false, strategyDay: null };
+        let currentState = { structure: 'aida', format: 'post', platform: 'linkedin', tone: 'default', idea: '', generatedContent: '', ideasContent: '', currentPillar: null, pubPlatform: 'meta', pubObjective: 'conversion', strategyMode: false, strategyDay: null, strategyType: 'vendre' };
 
         // ==================== DONNÉES 20 JOURS STRATÉGIQUES ====================
-        const STRATEGY_DAYS = {
+        // Parcours "VENDRE MES SERVICES" - Templates conversion
+        const STRATEGY_DAYS_VENDRE = {
             1: {
                 title: "Dégommer une objection client",
                 objective: "Lever les freins à l'achat",
@@ -9564,6 +11670,492 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
                 ]
             }
         };
+
+        // Parcours "MONTRER MON EXPERTISE" - Thought Leadership pour être cité par les IA
+        const STRATEGY_DAYS_EXPERTISE = {
+            1: {
+                title: "Golden Circle — Ton POURQUOI",
+                framework: "Simon Sinek's Golden Circle",
+                objective: "Inspirer en expliquant ta mission profonde",
+                questions: [
+                    "POURQUOI fais-tu ce que tu fais ? (ta mission, ta conviction profonde)",
+                    "COMMENT le fais-tu différemment des autres ? (ta méthode unique)",
+                    "QUOI proposes-tu concrètement ? (ton offre/service)"
+                ],
+                structure: `WHY → HOW → WHAT
+
+Commence par le POURQUOI (ta conviction)
+Puis le COMMENT (ton approche unique)
+Termine par le QUOI (ton offre)
+
+Les gens n'achètent pas CE que tu fais, ils achètent POURQUOI tu le fais.`
+            },
+            2: {
+                title: "Pyramide de Minto — Argument structuré",
+                framework: "Minto's Pyramid Principle",
+                objective: "Convaincre avec une logique imparable",
+                questions: [
+                    "Quelle est ta conclusion/recommandation principale ? (dis-la en premier)",
+                    "Quels sont tes 3 arguments principaux qui soutiennent cette conclusion ?",
+                    "Quels détails/preuves viennent appuyer chaque argument ?"
+                ],
+                structure: `1. CONCLUSION D'ABORD (l'idée principale)
+2. ARGUMENTS GROUPÉS (3 max)
+3. DÉTAILS SI NÉCESSAIRE
+
+Utilisé pour : pitchs, recommandations stratégiques, prises de position.`
+            },
+            3: {
+                title: "Pixar Pitch — Histoire transformationnelle",
+                framework: "The Pixar Pitch",
+                objective: "Captiver émotionnellement avec le storytelling",
+                questions: [
+                    "Il était une fois... (contexte initial de ton client/secteur)",
+                    "Tous les jours... (la routine, le statu quo)",
+                    "Un jour... (l'élément déclencheur, le problème)",
+                    "À cause de ça... (les conséquences)",
+                    "Jusqu'à ce que finalement... (la transformation, la solution)"
+                ],
+                structure: `1. Il était une fois... [contexte]
+2. Tous les jours... [routine]
+3. Un jour... [déclencheur]
+4. À cause de ça... [conséquences]
+5. Jusqu'à ce que finalement... [résolution]
+
+Parfait pour : histoires de marque, transformations client, motivations d'équipe.`
+            },
+            4: {
+                title: "StoryBrand — Ton client est le héros",
+                framework: "StoryBrand (Donald Miller)",
+                objective: "Clarifier ton message en faisant du client le héros",
+                questions: [
+                    "Qui est le HÉROS ? (ton client, pas toi)",
+                    "Quel PROBLÈME a-t-il ? (externe, interne, philosophique)",
+                    "Qui est le GUIDE ? (toi — avec empathie + autorité)",
+                    "Quel PLAN lui donnes-tu ? (3 étapes simples)",
+                    "Quel APPEL À L'ACTION ? (clair et direct)",
+                    "Quel SUCCÈS s'il agit ? / Quel ÉCHEC s'il n'agit pas ?"
+                ],
+                structure: `HÉROS (client) → a un PROBLÈME → rencontre un GUIDE (toi)
+→ qui lui donne un PLAN → l'appelle à l'ACTION
+→ pour éviter l'ÉCHEC → et atteindre le SUCCÈS
+
+Tu n'es pas le héros. Tu es Yoda. Ton client est Luke.`
+            },
+            5: {
+                title: "ABT — Message persuasif rapide",
+                framework: "ABT (And, But, Therefore) — Randy Olson",
+                objective: "Créer un message concis et percutant",
+                questions: [
+                    "AND : Quel est le contexte partagé ? (ce qu'on sait tous)",
+                    "BUT : Quel est le problème/la tension ? (le retournement)",
+                    "THEREFORE : Quelle est ta solution/conclusion ? (l'action)"
+                ],
+                structure: `[Contexte partagé] AND [autre élément de contexte]
+BUT [problème/tension/contradiction]
+THEREFORE [solution/action/conclusion]
+
+Exemple : "Tout le monde veut être visible en ligne AND les outils existent. BUT le contenu générique ne fonctionne plus. THEREFORE il faut une stratégie de thought leadership."`
+            },
+            6: {
+                title: "What / So What / Now What",
+                framework: "Driscoll's Reflective Model",
+                objective: "Transformer une expérience en leçon actionnable",
+                questions: [
+                    "WHAT : Que s'est-il passé ? (faits objectifs)",
+                    "SO WHAT : Pourquoi c'est important ? (impact, implications)",
+                    "NOW WHAT : Que faire maintenant ? (actions recommandées)"
+                ],
+                structure: `WHAT → Les faits
+SO WHAT → L'analyse, pourquoi ça compte
+NOW WHAT → Les prochaines étapes
+
+Parfait pour : retours d'expérience, post-mortems, apprentissages.`
+            },
+            7: {
+                title: "Contenu expert ultra-poussé",
+                framework: "Deep Expertise Content",
+                objective: "Créer du contenu que les IA vont citer",
+                questions: [
+                    "Quel sujet maîtrises-tu mieux que 95% des gens ?",
+                    "Quelles données/stats peux-tu partager ?",
+                    "Quel framework ou méthodologie as-tu développé ?",
+                    "Quelle infographie ou visuel pourrait résumer ton expertise ?"
+                ],
+                structure: `TITRE : [Chiffre] + [Sujet précis] + [Bénéfice]
+HOOK : Stat ou affirmation contre-intuitive
+CONTENU : Framework visuel ou liste ultra-détaillée
+PREUVE : Données, exemples, sources
+CTA : "Save this for later" / "Follow for more"
+
+Ce contenu doit être TELLEMENT utile qu'il sera bookmarké et cité.`
+            },
+            8: {
+                title: "Opinion tranchée sur un sujet chaud",
+                framework: "Hot Take / Conviction Content",
+                objective: "Prendre position pour polariser et attirer ta tribu",
+                questions: [
+                    "Quelle actualité ou tendance de ton secteur te fait réagir ?",
+                    "Quelle est ton opinion NON consensuelle sur ce sujet ?",
+                    "Pourquoi cette opinion est-elle fondée sur ton expérience ?",
+                    "Qui va être d'accord ? Qui va être en désaccord ?"
+                ],
+                structure: `ACCROCHE : Position claire et tranchée
+CONTEXTE : Pourquoi ce sujet maintenant
+ARGUMENTATION : Basée sur ton expérience, pas des généralités
+NUANCE : Reconnaître les contre-arguments valides
+CONCLUSION : Réaffirmer ta position
+
+Tu vas perdre des gens. C'est le but. Tu veux attirer TA tribu.`
+            },
+            9: {
+                title: "Déconstruction d'un mythe",
+                framework: "Myth Busting",
+                objective: "Éduquer en cassant une idée reçue",
+                questions: [
+                    "Quel mythe persiste dans ton secteur ?",
+                    "D'où vient ce mythe ? (origine historique ou logique)",
+                    "Quelles preuves montrent qu'il est faux ?",
+                    "Quelle est la réalité que tu observes ?"
+                ],
+                structure: `LE MYTHE : "[Ce que tout le monde croit]"
+L'ORIGINE : Pourquoi on y croit
+LA RÉALITÉ : Ce que tu observes vraiment
+LES PREUVES : Données, exemples, expériences
+LA NOUVELLE VÉRITÉ : Ce qu'il faut croire à la place`
+            },
+            10: {
+                title: "Prédiction secteur / Tendances",
+                framework: "Future Forecasting",
+                objective: "Te positionner comme visionnaire de ton domaine",
+                questions: [
+                    "Quelles tendances émergentes observes-tu ?",
+                    "Qu'est-ce qui va changer dans les 2-5 prochaines années ?",
+                    "Qu'est-ce qui va disparaître ? Qu'est-ce qui va émerger ?",
+                    "Comment se préparer dès maintenant ?"
+                ],
+                structure: `ÉTAT ACTUEL : Où en est le secteur aujourd'hui
+SIGNAUX FAIBLES : Ce que tu observes que d'autres ignorent
+PRÉDICTIONS : 3-5 changements à venir
+IMPLICATIONS : Ce que ça veut dire concrètement
+ACTIONS : Comment s'y préparer
+
+Date ton post. Dans 2 ans, tu pourras dire "je l'avais prédit".`
+            },
+            11: {
+                title: "Framework original que tu as créé",
+                framework: "Proprietary Framework",
+                objective: "Créer un concept associé à ton nom",
+                questions: [
+                    "Quelle méthode utilises-tu systématiquement ?",
+                    "Peut-elle être résumée en acronyme ou en étapes ?",
+                    "Quel nom accrocheur pourrais-tu lui donner ?",
+                    "Quel visuel pourrait la représenter ?"
+                ],
+                structure: `NOM DU FRAMEWORK : [Acronyme ou nom mémorable]
+LE PROBLÈME qu'il résout
+LES ÉTAPES (3-5 max)
+EXEMPLE D'APPLICATION
+VISUEL/INFOGRAPHIE
+
+Objectif : que les gens disent "la méthode [TON NOM]" ou "le framework [NOM]".`
+            },
+            12: {
+                title: "Analyse de cas public",
+                framework: "Public Case Study",
+                objective: "Montrer ton expertise via l'analyse d'un cas connu",
+                questions: [
+                    "Quelle entreprise/personnalité de ton secteur a fait quelque chose de remarquable récemment ?",
+                    "Qu'est-ce qu'ils ont bien fait ? Mal fait ?",
+                    "Qu'aurais-tu fait différemment ?",
+                    "Quelle leçon universelle en tirer ?"
+                ],
+                structure: `LE CAS : [Entreprise/personne connue] a fait [action]
+L'ANALYSE : Ce qui a marché / pas marché
+TON AVIS D'EXPERT : Ce que j'aurais fait
+LA LEÇON : Ce que ça nous apprend à tous
+
+Tu montres ton expertise sans parler de toi directement.`
+            },
+            13: {
+                title: "Les coulisses de ton processus",
+                framework: "Behind The Scenes",
+                objective: "Humaniser ton expertise en montrant comment tu travailles",
+                questions: [
+                    "Comment tu réfléchis à un problème complexe ?",
+                    "Quels outils utilises-tu au quotidien ?",
+                    "Quelle est ta routine de travail ?",
+                    "Quels sont tes secrets de productivité ?"
+                ],
+                structure: `CONTEXTE : Le défi que tu devais résoudre
+PROCESSUS : Étape par étape, ce que tu as fait
+OUTILS : Ce que tu as utilisé
+RÉSULTAT : Ce que ça a donné
+APPRENTISSAGE : Ce que tu ferais différemment
+
+Les gens adorent voir "comment" font les experts.`
+            },
+            14: {
+                title: "Réponse approfondie à une question complexe",
+                framework: "Deep Dive Q&A",
+                objective: "Créer du contenu que les IA citeront comme réponse",
+                questions: [
+                    "Quelle question complexe te pose-t-on souvent ?",
+                    "Quelle est la réponse COMPLÈTE que tu donnerais ?",
+                    "Quelles nuances sont importantes ?",
+                    "Quelles ressources complémentaires recommandes-tu ?"
+                ],
+                structure: `LA QUESTION : [Question exacte qu'on te pose]
+RÉPONSE COURTE : La réponse en 2 lignes
+RÉPONSE LONGUE : Tous les détails, cas particuliers, nuances
+RESSOURCES : Pour aller plus loin
+
+Ce contenu doit être LA référence sur cette question.`
+            },
+            15: {
+                title: "Comparatif expert",
+                framework: "Expert Comparison",
+                objective: "Aider à choisir en montrant ta maîtrise du sujet",
+                questions: [
+                    "Quelles options/outils/méthodes les gens hésitent à choisir dans ton domaine ?",
+                    "Quels critères utilises-tu pour comparer ?",
+                    "Dans quel cas recommandes-tu quoi ?",
+                    "Quel est ton choix personnel et pourquoi ?"
+                ],
+                structure: `LE DILEMME : [Option A] vs [Option B] vs [Option C]
+LES CRITÈRES : Comment je compare
+LE TABLEAU : Comparatif visuel
+MON VERDICT : Ce que je recommande selon les cas
+MON CHOIX PERSO : Ce que j'utilise et pourquoi`
+            },
+            16: {
+                title: "Leçons d'un échec public",
+                framework: "Public Failure Analysis",
+                objective: "Gagner en crédibilité par la vulnérabilité intelligente",
+                questions: [
+                    "Quel échec professionnel es-tu prêt à partager publiquement ?",
+                    "Qu'est-ce qui a mal tourné ? (sois factuel)",
+                    "Qu'as-tu appris ?",
+                    "Que ferais-tu différemment ?"
+                ],
+                structure: `L'ÉCHEC : Ce qui s'est passé (factuel, sans excuses)
+L'ANALYSE : Pourquoi ça a échoué
+LES LEÇONS : Ce que j'en ai tiré (numéroté)
+AUJOURD'HUI : Ce que je fais différemment
+
+La vulnérabilité + l'analyse = crédibilité.`
+            },
+            17: {
+                title: "Interview/Citation d'un expert",
+                framework: "Expert Curation",
+                objective: "Te positionner en connecteur de ton écosystème",
+                questions: [
+                    "Qui admires-tu dans ton domaine ?",
+                    "Quelle citation ou idée de cette personne t'a marqué ?",
+                    "Pourquoi cette idée est-elle importante ?",
+                    "Comment l'appliques-tu ?"
+                ],
+                structure: `LA PERSONNE : [Nom] est [qui elle est]
+LA CITATION/IDÉE : "[Citation exacte]"
+POURQUOI C'EST IMPORTANT : Mon interprétation
+COMMENT JE L'APPLIQUE : Concrètement dans mon travail
+
+Tu montres que tu connais les références de ton domaine.`
+            },
+            18: {
+                title: "Les erreurs que tu vois partout",
+                framework: "Common Mistakes Exposé",
+                objective: "Éduquer en pointant ce qui ne marche pas",
+                questions: [
+                    "Quelles erreurs vois-tu constamment dans ton domaine ?",
+                    "Pourquoi les gens font-ils ces erreurs ?",
+                    "Quelles sont les conséquences ?",
+                    "Quelle est la bonne approche ?"
+                ],
+                structure: `INTRO : "Après [X années/clients], je vois toujours les mêmes erreurs"
+ERREUR 1 : [Erreur] → Pourquoi c'est un problème → La solution
+ERREUR 2 : [idem]
+ERREUR 3 : [idem]
+CONCLUSION : Le point commun entre ces erreurs`
+            },
+            19: {
+                title: "Ressources curatées",
+                framework: "Resource Curation",
+                objective: "Devenir LA référence qui centralise les meilleures ressources",
+                questions: [
+                    "Quelles sont les meilleures ressources (livres, outils, personnes) de ton domaine ?",
+                    "Pourquoi recommandes-tu chacune ?",
+                    "Pour quel niveau/besoin ?",
+                    "Qu'est-ce qui manque sur le marché ?"
+                ],
+                structure: `THÈME : Les meilleures ressources pour [objectif]
+LISTE CATÉGORISÉE :
+- Pour débuter : [ressources]
+- Pour approfondir : [ressources]
+- Pour les experts : [ressources]
+MON TOP 3 : Mes préférées et pourquoi
+CE QUI MANQUE : Le gap que j'observe
+
+Ce contenu sera sauvegardé et partagé massivement.`
+            },
+            20: {
+                title: "Manifeste / Ta vision du métier",
+                framework: "Manifesto",
+                objective: "Affirmer ta vision pour attirer ceux qui pensent comme toi",
+                questions: [
+                    "En quoi crois-tu profondément concernant ton métier ?",
+                    "Contre quoi te bats-tu ?",
+                    "Quel futur veux-tu créer ?",
+                    "Quel appel à l'action pour ceux qui partagent ta vision ?"
+                ],
+                structure: `JE CROIS QUE... [tes convictions]
+JE REFUSE DE... [ce contre quoi tu te bats]
+JE M'ENGAGE À... [ce que tu fais différemment]
+JE RÊVE D'UN MONDE OÙ... [ta vision]
+SI TU PENSES COMME MOI... [appel à rejoindre]
+
+C'est ton "I Have A Dream". Polarisant. Inspirant. Mémorable.`
+            }
+        };
+
+        // Alias pour compatibilité avec le code existant - utilise l'objectif du profil
+        function getStrategyDays() {
+            const profile = UserProfile.get();
+            const objective = profile?.strategyObjective || 'vendre';
+            return objective === 'expertise' ? STRATEGY_DAYS_EXPERTISE : STRATEGY_DAYS_VENDRE;
+        }
+
+        // ==================== GHOSTWRITER PROMPT (Mode Storytelling Anecdote) ====================
+        const GHOSTWRITER_PROMPT = `
+=== MODE STORYTELLING ANECDOTE ===
+
+Tu es un copywriter spécialisé en rédaction de publications LinkedIn. Tu es un professionnel de l'écriture de posts. Tu connais parfaitement l'algorithme LinkedIn et les bonnes pratiques pour maximiser la visibilité et l'engagement des posts.
+
+L'utilisateur t'a fourni une ANECDOTE VRAIE. Ta tâche : transformer cette anecdote en post LinkedIn percutant.
+
+RÈGLES ABSOLUES :
+- Respecte l'anecdote donnée. N'invente PAS une nouvelle histoire.
+- Enrichis avec du contexte, du storytelling, des détails percutants.
+- Si l'anecdote est courte, développe-la tout en restant fidèle aux faits.
+
+---
+
+STRUCTURE EN 5 PARTIES :
+
+1️⃣ L'ACCROCHE (1-2 phrases)
+Commence par une phrase choc, un fait marquant, une mise en scène forte, un angle inattendu ou une situation intrigante.
+
+3 méthodes d'accroche :
+- Méthode 1 : Situation conflictuelle ou atypique
+  Ex : "Un candidat est arrivé 25 minutes en retard au premier entretien 😅 Là c'est au revoir direct!"
+- Méthode 2 : Paradoxe ou phrase intrigante
+  Ex : "J'ai emmené ma voiture chez Mercedes pour la révision et ils ont fait le +1% qui va me faire revenir chez eux."
+- Méthode 3 : Constat direct (voire frontal)
+  Ex : "Hier, un membre de ma famille m'a dit : 'Ton contenu est affligeant. J'ai honte que tu sois dans ma famille.'"
+
+L'accroche doit évoquer une situation INCOMPLÈTE : le lecteur comprend ce qui se passe mais il lui manque la suite.
+
+2️⃣ LE DÉVELOPPEMENT
+Détaille l'histoire avec des événements concrets. Progresse par petits paragraphes courts.
+Chaque paragraphe apporte : un contexte, un problème, une émotion, un rebondissement.
+
+3️⃣ L'ÉVOLUTION / LA RÉSOLUTION
+Raconte comment le problème, le conflit, la difficulté a été géré.
+Développe le tournant, la décision ou la solution adoptée.
+
+4️⃣ LA RÉFLEXION / LA MORALE
+Le post doit comporter une leçon, un message universel, une morale ou un apprentissage.
+Formule cette leçon de façon concise. Tu peux la placer en fin de post ou au milieu.
+Fais en sorte que la morale s'intègre naturellement à l'histoire.
+
+5️⃣ LA CONCLUSION / PHRASE-CLÉ MARQUANTE
+Termine par 1-2 phrases mémorables, très fortes, percutantes ou inspirantes.
+Cette phrase doit être concise, punchy et frapper l'esprit.
+Ex : "Petite action +1% = Grande différence."
+Ex : "Ne laisse pas les critiques te freiner. Prouve-leur qu'elles ont tort. Et gagne."
+
+---
+
+6 TECHNIQUES DE STORYTELLING À UTILISER :
+
+1. CONFLIT/TENSION
+Introduis un conflit, un problème, une injustice, un désaccord, un obstacle.
+Mets en scène ce conflit, décris la tension ressentie.
+
+2. RESSENTIS/DOUTES
+Raconte comment tu t'es senti, quels doutes tu avais.
+Parle de tes questionnements intérieurs, de tes réactions.
+Ex : "Ça n'a pas été simple : j'ai beaucoup pleuré."
+
+3. DIALOGUES/CITATIONS
+Utilise des dialogues ou des citations directes pour donner vie à la scène.
+Ex : "Le premier réflexe a été d'appeler mon mec et de lui dire 'Ils m'ont lavé la voiture !!!!'"
+Sois concis : quelques répliques percutantes suffisent.
+
+4. DÉTAILS PRÉCIS
+Ne dis aucune généralité. Donne des détails précis : chiffres, noms, lieux, dates.
+Ex : "Il était 2h du matin, et tout le monde avait bu du vin", "Salomé Saqué"
+
+5. EFFET DE SURPRISE
+Il doit y avoir un renversement de situation ou un élément inattendu.
+Ex : On pense que le candidat va se faire recaler. Surprise : finalement, l'auteur conclut un deal avec lui.
+
+6. LIEN PERSONNEL
+Mentionne un lien personnel si possible : un ami, un mentor, un conjoint, un collaborateur.
+Mets en lumière les émotions liées à cette proximité : déception, fierté, peur de perdre la relation.
+
+---
+
+MISE EN PAGE :
+- Paragraphes très courts (1 à 3 phrases max)
+- Sauts de ligne fréquents — format aéré
+- Pas de titre ou sous-titre
+- Pas de bullet points dans le corps du texte
+- Écris d'une traite sans séparer les parties avec des séparateurs
+
+STYLE D'ÉCRITURE :
+- Langage direct et simple, comme si tu parlais à un ami
+- Ton informel et amical
+- Phrases courtes, style conversationnel
+- Pas de mots compliqués ou de jargon
+- Pas de répétitions
+- Utilise "je", "tu", "nous"
+- Conclusion courte et punchy (max 2 lignes)
+
+LONGUEUR : Minimum 240 mots, mais peut être plus long si l'histoire le justifie.
+`;
+
+        // ==================== FONCTIONS ANECDOTE ====================
+        // Récupérer l'anecdote
+        function getAnecdote() {
+            const input = document.getElementById('anecdoteInput');
+            return input ? input.value.trim() : '';
+        }
+
+        // Vérifier si mode Ghostwriter actif
+        function isGhostwriterMode() {
+            const anecdote = getAnecdote();
+            return anecdote && anecdote.length > 20;
+        }
+
+        // Initialiser les listeners anecdote
+        function initAnecdoteListeners() {
+            const anecdoteInput = document.getElementById('anecdoteInput');
+            if (anecdoteInput) {
+                anecdoteInput.addEventListener('input', function() {
+                    const section = document.getElementById('anecdoteSection');
+                    const badge = document.getElementById('ghostwriterBadge');
+
+                    if (this.value.trim().length > 20) {
+                        section?.classList.add('has-content');
+                        if (badge) badge.style.display = 'inline-flex';
+                    } else {
+                        section?.classList.remove('has-content');
+                        if (badge) badge.style.display = 'none';
+                    }
+                });
+            }
+        }
 
         const STRUCTURES = {
             'aida': { name: 'AIDA', prompt: 'Structure AIDA (Attention, Intérêt, Désir, Action)' },
@@ -10217,6 +12809,203 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
             }
         };
 
+        // ==================== SYSTÈME FREEMIUM ====================
+        const FreemiumSystem = {
+            LIMITS: {
+                posts: 4,
+                auditProfile: 1,
+                auditPosts: 1,
+                auditVideo: 1
+            },
+            KEYS: {
+                posts: 'tithot_free_posts_count',
+                auditProfile: 'tithot_free_audit_profile_count',
+                auditPosts: 'tithot_free_audit_posts_count',
+                auditVideo: 'tithot_free_audit_video_count',
+                subscription: 'tithot_subscription_status',
+                subscriptionChecked: 'tithot_subscription_last_check'
+            },
+
+            // Cache de 5 minutes pour éviter trop d'appels API
+            CACHE_DURATION: 5 * 60 * 1000,
+
+            // Vérifier si l'utilisateur a un abonnement actif (version cached)
+            isSubscribed() {
+                const status = localStorage.getItem(this.KEYS.subscription);
+                return status === 'active';
+            },
+
+            // Vérification côté serveur de l'abonnement
+            async checkSubscriptionFromServer() {
+                try {
+                    // Récupérer le token d'auth Supabase
+                    const { data: { session } } = await supabaseClient.auth.getSession();
+                    if (!session) {
+                        this.setSubscriptionStatus('free');
+                        return 'free';
+                    }
+
+                    // Vérifier le cache
+                    const lastCheck = localStorage.getItem(this.KEYS.subscriptionChecked);
+                    if (lastCheck && (Date.now() - parseInt(lastCheck)) < this.CACHE_DURATION) {
+                        return localStorage.getItem(this.KEYS.subscription) || 'free';
+                    }
+
+                    // Appeler l'API de vérification
+                    const response = await fetch(`${CONFIG.API_URL}/api/subscription`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${session.access_token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.setSubscriptionStatus(data.status);
+                        localStorage.setItem(this.KEYS.subscriptionChecked, Date.now().toString());
+                        return data.status;
+                    } else {
+                        console.warn('[FreemiumSystem] Erreur vérification abonnement:', response.status);
+                        return localStorage.getItem(this.KEYS.subscription) || 'free';
+                    }
+                } catch (error) {
+                    console.error('[FreemiumSystem] Erreur serveur:', error);
+                    return localStorage.getItem(this.KEYS.subscription) || 'free';
+                }
+            },
+
+            // Mettre à jour le statut d'abonnement
+            setSubscriptionStatus(status) {
+                localStorage.setItem(this.KEYS.subscription, status);
+            },
+
+            // Initialiser le système au chargement
+            async init() {
+                console.log('[FreemiumSystem] Initialisation...');
+                const status = await this.checkSubscriptionFromServer();
+                console.log('[FreemiumSystem] Statut abonnement:', status);
+                return status;
+            },
+
+            // Obtenir les compteurs
+            getPostsCount() {
+                return parseInt(localStorage.getItem(this.KEYS.posts) || '0');
+            },
+            getAuditProfileCount() {
+                return parseInt(localStorage.getItem(this.KEYS.auditProfile) || '0');
+            },
+            getAuditPostsCount() {
+                return parseInt(localStorage.getItem(this.KEYS.auditPosts) || '0');
+            },
+            getAuditVideoCount() {
+                return parseInt(localStorage.getItem(this.KEYS.auditVideo) || '0');
+            },
+
+            // Incrémenter les compteurs
+            incrementPosts() {
+                const current = this.getPostsCount();
+                localStorage.setItem(this.KEYS.posts, current + 1);
+                return current + 1;
+            },
+            incrementAuditProfile() {
+                const current = this.getAuditProfileCount();
+                localStorage.setItem(this.KEYS.auditProfile, current + 1);
+                return current + 1;
+            },
+            incrementAuditPosts() {
+                const current = this.getAuditPostsCount();
+                localStorage.setItem(this.KEYS.auditPosts, current + 1);
+                return current + 1;
+            },
+            incrementAuditVideo() {
+                const current = this.getAuditVideoCount();
+                localStorage.setItem(this.KEYS.auditVideo, current + 1);
+                return current + 1;
+            },
+
+            // Vérifier les limites
+            canGeneratePost() {
+                if (this.isSubscribed()) return true;
+                return this.getPostsCount() < this.LIMITS.posts;
+            },
+            canDoAuditProfile() {
+                if (this.isSubscribed()) return true;
+                return this.getAuditProfileCount() < this.LIMITS.auditProfile;
+            },
+            canDoAuditPosts() {
+                if (this.isSubscribed()) return true;
+                return this.getAuditPostsCount() < this.LIMITS.auditPosts;
+            },
+            canDoAuditVideo() {
+                if (this.isSubscribed()) return true;
+                return this.getAuditVideoCount() < this.LIMITS.auditVideo;
+            },
+
+            // Obtenir les stats d'utilisation
+            getUsageStats() {
+                return {
+                    posts: { used: this.getPostsCount(), limit: this.LIMITS.posts },
+                    auditProfile: { used: this.getAuditProfileCount(), limit: this.LIMITS.auditProfile },
+                    auditPosts: { used: this.getAuditPostsCount(), limit: this.LIMITS.auditPosts },
+                    auditVideo: { used: this.getAuditVideoCount(), limit: this.LIMITS.auditVideo },
+                    isSubscribed: this.isSubscribed()
+                };
+            },
+
+            // Afficher le paywall
+            showPaywall(type = 'posts') {
+                const stats = this.getUsageStats();
+                const modal = document.getElementById('paywallModal');
+                if (!modal) return;
+
+                const titleEl = modal.querySelector('.paywall-title');
+                const subtitleEl = modal.querySelector('.paywall-subtitle');
+                const usageEl = modal.querySelector('.paywall-usage');
+
+                const titles = {
+                    posts: { title: '🎉 Tu as utilisé tes 4 posts gratuits !', subtitle: 'Passe à la version complète pour générer du contenu illimité' },
+                    auditProfile: { title: '👤 Tu as utilisé ton audit profil gratuit !', subtitle: 'Passe à la version complète pour auditer tous tes profils' },
+                    auditPosts: { title: '📝 Tu as utilisé ton audit posts gratuit !', subtitle: 'Passe à la version complète pour analyser tous tes posts' },
+                    auditVideo: { title: '🎬 Tu as utilisé ton audit vidéo gratuit !', subtitle: 'Passe à la version complète pour auditer toutes tes vidéos' }
+                };
+
+                const t = titles[type] || titles.posts;
+                titleEl.textContent = t.title;
+                subtitleEl.textContent = t.subtitle;
+
+                usageEl.innerHTML = `
+                    <div class="usage-item">
+                        <span>📝 Posts générés</span>
+                        <span class="usage-count">${stats.posts.used}/${stats.posts.limit}</span>
+                    </div>
+                    <div class="usage-item">
+                        <span>👤 Audit profil</span>
+                        <span class="usage-count">${stats.auditProfile.used}/${stats.auditProfile.limit}</span>
+                    </div>
+                    <div class="usage-item">
+                        <span>📋 Audit posts</span>
+                        <span class="usage-count">${stats.auditPosts.used}/${stats.auditPosts.limit}</span>
+                    </div>
+                    <div class="usage-item">
+                        <span>🎬 Audit vidéo</span>
+                        <span class="usage-count">${stats.auditVideo.used}/${stats.auditVideo.limit}</span>
+                    </div>
+                `;
+
+                modal.style.display = 'flex';
+            },
+
+            // Fermer le paywall
+            closePaywall() {
+                const modal = document.getElementById('paywallModal');
+                if (modal) modal.style.display = 'none';
+            }
+        };
+
+        // Exposer globalement pour l'audit module
+        window.FreemiumSystem = FreemiumSystem;
+
         // Fonction pour afficher l'effet "Envoyé !" sur un bouton
         function showSentEffect(btn, originalText) {
             SoundSystem.playSuccess();
@@ -10274,6 +13063,9 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
                 }
             }
 
+            // Initialiser le système freemium (vérification abonnement)
+            FreemiumSystem.init();
+
             // Vérifier si l'utilisateur est admin/coach pour afficher le bouton Dashboard
             try {
                 const { data: { user } } = await window.supabase.auth.getUser();
@@ -10299,6 +13091,7 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
             updateMemoryIndicator();
             AgencySystem.updateUI();
             FrameworkSystem.updateQuickSelector();
+            initAnecdoteListeners(); // Listeners pour le champ anecdote
 
             // Initialiser le sélecteur d'audience
             setTimeout(() => {
@@ -10609,21 +13402,52 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
             }
         }
 
-        // ==================== MODE 20 JOURS STRATÉGIQUES ====================
-        // Toggle entre mode libre et stratégie
-        function toggleCreationMode(mode) {
+        // ==================== MODE CRÉATION (3 MODES) ====================
+        let currentCreationMode = 'libre';
+
+        function selectCreationMode(mode) {
+            currentCreationMode = mode;
+
+            // Mettre à jour l'UI des cartes
+            document.querySelectorAll('.creation-mode-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            const selectedCard = document.querySelector(`.creation-mode-card[data-mode="${mode}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('active');
+            }
+
             const daySelector = document.getElementById('strategyDaySelector');
             const ideaInput = document.getElementById('ideaInput');
 
             if (mode === 'strategie') {
+                // Mode 20 Jours Stratégiques
                 daySelector.style.display = 'block';
                 currentState.strategyMode = true;
+
+                // Mettre à jour les options du sélecteur selon l'objectif du profil
+                const profile = UserProfile.get();
+                const objective = profile?.strategyObjective || 'vendre';
+                currentState.strategyType = objective;
+                updateStrategyDaysForObjective(objective);
+
                 loadStrategyDay();
-                // Modifier le placeholder
                 if (ideaInput) {
-                    ideaInput.placeholder = "Réponds aux questions ci-dessus dans ce champ, puis clique sur Générer...";
+                    ideaInput.placeholder = "Réponds aux questions ci-dessus, ajoute une anecdote si tu en as une...";
                 }
+            } else if (mode === 'trends') {
+                // Mode Trends - ouvrir le modal
+                daySelector.style.display = 'none';
+                currentState.strategyMode = false;
+                currentState.strategyDay = null;
+                document.getElementById('extractionQuestions').innerHTML = '';
+                if (ideaInput) {
+                    ideaInput.placeholder = "Décris ton idée ou colle ici un texte que tu veux améliorer...";
+                }
+                // Ouvrir le modal Trends
+                showTrends();
             } else {
+                // Mode Libre
                 daySelector.style.display = 'none';
                 currentState.strategyMode = false;
                 currentState.strategyDay = null;
@@ -10634,24 +13458,52 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
             }
         }
 
+        // Alias pour compatibilité
+        function toggleCreationMode(mode) {
+            selectCreationMode(mode);
+        }
+
         // Charger les questions du jour sélectionné
         function loadStrategyDay() {
             const day = document.getElementById('strategyDay').value;
-            const data = STRATEGY_DAYS[day];
+            const profile = UserProfile.get();
+            const objective = profile?.strategyObjective || 'vendre';
+            const daysData = objective === 'expertise' ? STRATEGY_DAYS_EXPERTISE : STRATEGY_DAYS_VENDRE;
+            const data = daysData[day];
             const container = document.getElementById('extractionQuestions');
 
             if (!data) return;
 
+            // Badge du framework (pour le mode Expertise)
+            let frameworkBadge = '';
+            if (data.framework) {
+                frameworkBadge = `<div class="framework-badge">📚 ${data.framework}</div>`;
+            }
+
+            // Bloc structure (pour le mode Expertise)
+            let structureBlock = '';
+            if (data.structure) {
+                structureBlock = `
+                    <div class="structure-block">
+                        <h5>✍️ Structure :</h5>
+                        <pre>${data.structure.trim()}</pre>
+                    </div>
+                `;
+            }
+
             container.innerHTML = `
+                ${frameworkBadge}
                 <div class="day-objective">🎯 ${data.objective}</div>
                 <h4>📝 Questions pour toi :</h4>
                 <ul>
                     ${data.questions.map(q => `<li>${q}</li>`).join('')}
                 </ul>
+                ${structureBlock}
             `;
 
-            // Stocker le jour actuel pour le prompt
+            // Stocker le jour actuel et le type pour le prompt
             currentState.strategyDay = parseInt(day);
+            currentState.strategyType = objective;
         }
 
         // Initialiser les click handlers pour les tone chips
@@ -10860,9 +13712,17 @@ EXEMPLES DE RÉFÉRENCE :
 
         // Générer des hooks via l'IA
         async function generateHooks() {
-            const brief = document.getElementById('ideaInput').value.trim();
+            let brief = document.getElementById('ideaInput').value.trim();
+            const anecdote = getAnecdote();
+
+            // Si pas de brief mais une anecdote, utiliser l'anecdote
+            if (!brief && anecdote) {
+                brief = anecdote;
+                document.getElementById('ideaInput').value = anecdote;
+            }
+
             if (!brief) {
-                alert('Écris d\'abord ton brief avant de générer des hooks !');
+                alert('Écris d\'abord ton idée/sujet ou une anecdote avant de générer des hooks !');
                 return;
             }
 
@@ -11634,6 +14494,18 @@ Génère uniquement le contenu modifié, sans commentaires.`;
         // Afficher la section Hooks (appelé depuis le bouton Générer)
         function showHooksSection() {
             const brief = document.getElementById('ideaInput').value.trim();
+            const anecdote = getAnecdote();
+
+            // Si pas de brief mais une anecdote, utiliser l'anecdote comme brief
+            let effectiveBrief = brief;
+            if (!brief && anecdote) {
+                effectiveBrief = anecdote;
+                // Remplir automatiquement le champ idée avec l'anecdote
+                document.getElementById('ideaInput').value = anecdote;
+            } else if (brief && anecdote && !brief.includes(anecdote)) {
+                // Si les deux sont remplis, combiner
+                effectiveBrief = `${brief}\n\nAnecdote : ${anecdote}`;
+            }
 
             // Son de clic
             if (typeof SoundSystem !== 'undefined') {
@@ -11646,7 +14518,7 @@ Génère uniquement le contenu modifié, sans commentaires.`;
             setTimeout(() => { btn.style.transform = 'scale(1)'; }, 150);
 
             // Mettre à jour le rappel du brief
-            document.getElementById('briefRecapContent').textContent = brief || 'Aucun brief renseigné';
+            document.getElementById('briefRecapContent').textContent = effectiveBrief || 'Aucun brief renseigné';
 
             // Afficher la section hooks, masquer contenu
             document.getElementById('hooksSection').style.display = 'block';
@@ -12389,6 +15261,12 @@ ${profile ? `Adapte au style ${profile.style}, plateforme ${currentState.platfor
             const idea = document.getElementById('ideaInput').value.trim();
             if (!idea) { showToast('💡 ' + t('toasts.idea_required')); return; }
 
+            // Vérifier la limite freemium
+            if (!FreemiumSystem.canGeneratePost()) {
+                FreemiumSystem.showPaywall('posts');
+                return;
+            }
+
             // Son de clic
             SoundSystem.playClick();
 
@@ -12615,10 +15493,77 @@ ${currentState.platform === 'substack' ? `
 Crée le contenu COMPLET prêt à publier.`;
             }
 
-            // 🎯 MODE 20 JOURS STRATÉGIQUES - Ajouter les instructions spécifiques
-            if (currentState.strategyMode && currentState.strategyDay && STRATEGY_DAYS[currentState.strategyDay]) {
-                const dayData = STRATEGY_DAYS[currentState.strategyDay];
+            // 📖 MODE GHOSTWRITER (Anecdote) - Si anecdote remplie, appliquer le prompt storytelling
+            const anecdote = getAnecdote();
+            if (anecdote && anecdote.length > 20) {
                 prompt += `
+
+═══════════════════════════════════════════════════════════════
+📖 MODE STORYTELLING ANECDOTE (GHOSTWRITER)
+═══════════════════════════════════════════════════════════════
+
+${GHOSTWRITER_PROMPT}
+
+ADAPTATION AU FORMAT/PLATEFORME :
+- Format demandé : ${fmt.name}
+- Plateforme : ${plat.name}
+- Adapte la longueur et le ton selon ces paramètres.
+- Pour un carousel : découpe l'histoire en slides (1 idée par slide)
+- Pour un reel/TikTok : écris un script parlé, dynamique
+- Pour une story : version ultra-courte avec hook fort
+
+ANECDOTE FOURNIE PAR L'UTILISATEUR :
+"""
+${anecdote}
+"""
+
+INSTRUCTIONS :
+1. Transforme cette anecdote en post ${fmt.name} pour ${plat.name}
+2. Applique la structure en 5 parties (Accroche, Développement, Résolution, Morale, Conclusion)
+3. Utilise les 6 techniques de storytelling (Conflit, Ressentis, Dialogues, Détails, Surprise, Lien personnel)
+4. Respecte l'anecdote fournie - n'invente pas une nouvelle histoire
+5. Enrichis avec du contexte et des détails percutants
+
+`;
+            }
+
+            // 🎯 MODE 20 JOURS STRATÉGIQUES - Ajouter les instructions spécifiques
+            const strategyDaysObj = currentState.strategyType === 'expertise' ? STRATEGY_DAYS_EXPERTISE : STRATEGY_DAYS_VENDRE;
+            if (currentState.strategyMode && currentState.strategyDay && strategyDaysObj[currentState.strategyDay]) {
+                const dayData = strategyDaysObj[currentState.strategyDay];
+
+                // Mode Expertise (Thought Leadership)
+                if (currentState.strategyType === 'expertise') {
+                    prompt += `
+
+═══════════════════════════════════════════════════════════════
+🧠 MODE THOUGHT LEADERSHIP — JOUR ${currentState.strategyDay}/20
+═══════════════════════════════════════════════════════════════
+
+📚 FRAMEWORK : ${dayData.framework || 'Contenu expert'}
+📌 THÉMATIQUE DU JOUR : ${dayData.title}
+🎯 OBJECTIF : ${dayData.objective}
+
+📝 QUESTIONS D'EXTRACTION (l'utilisateur a répondu dans son texte) :
+${dayData.questions.map((q, i) => `${i+1}. ${q}`).join('\n')}
+
+${dayData.structure ? `✍️ STRUCTURE À SUIVRE :
+${dayData.structure}
+` : ''}
+
+CONSIGNES SPÉCIALES POUR LE THOUGHT LEADERSHIP :
+- Le contenu doit être ASSEZ PROFOND pour être cité par les IA (Perplexity, ChatGPT)
+- Utilise des données, exemples précis, noms de frameworks reconnus
+- Le ton est expert mais accessible
+- Évite le contenu générique qu'on trouve partout
+- L'utilisateur doit être reconnu comme UNE RÉFÉRENCE sur ce sujet
+- Adapte au format (${fmt.name}) et à la plateforme (${plat.name})
+- Crée un contenu qui sera bookmarké et partagé
+
+`;
+                } else {
+                    // Mode Vendre (conversion)
+                    prompt += `
 
 ═══════════════════════════════════════════════════════════════
 🎯 MODE 20 JOURS STRATÉGIQUES — JOUR ${currentState.strategyDay}/20
@@ -12638,6 +15583,7 @@ INSTRUCTIONS SPÉCIALES POUR CE TYPE DE CONTENU :
 - Garde le format (${fmt.name}) et la plateforme (${plat.name}) en tête
 
 `;
+                }
             }
 
             // Ajouter les instructions du framework si sélectionné
@@ -12689,6 +15635,9 @@ INSTRUCTIONS SPÉCIALES POUR CE TYPE DE CONTENU :
                 const contentType = currentState.format === 'pub' ? 'pub' : 'organic';
                 Analytics.trackContent(currentState.structure, currentState.platform, currentState.format, currentState.currentPillar, contentType);
 
+                // 📊 Incrémenter le compteur freemium
+                FreemiumSystem.incrementPosts();
+
                 document.getElementById('actionButtons').style.display = 'flex'; document.getElementById('visualSection').style.display = 'block';
                 displayTipsWidget(); // Afficher les bonnes pratiques
             } catch (e) {
@@ -12700,7 +15649,33 @@ INSTRUCTIONS SPÉCIALES POUR CE TYPE DE CONTENU :
 
         function regenerateContent() { generateContent(); }
         function copyContent() { navigator.clipboard.writeText(currentState.generatedContent).then(() => showToast('✅ ' + t('toasts.copied'))); }
-        
+
+        function auditGeneratedContent() {
+            if (!currentState.generatedContent) {
+                showToast('❌ Aucun contenu à auditer');
+                return;
+            }
+            // Ouvrir le module d'audit avec le contenu pré-rempli
+            if (typeof AuditModule !== 'undefined') {
+                AuditModule.openAuditModal();
+                // Passer à l'onglet Posts et pré-remplir
+                setTimeout(() => {
+                    AuditModule.switchTab('posts');
+                    // Ajouter le contenu généré comme post à auditer
+                    AuditModule.addPost();
+                    const posts = document.querySelectorAll('.post-textarea');
+                    if (posts.length > 0) {
+                        const lastPost = posts[posts.length - 1];
+                        lastPost.value = currentState.generatedContent;
+                        lastPost.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                }, 100);
+                showToast('🔍 Analyse ton contenu avant de publier !');
+            } else {
+                showToast('❌ Module d\'audit non disponible');
+            }
+        }
+
         // ==================== VOICE FIDELITY BADGE ====================
         function getVoiceFidelityBadge() {
             const profile = UserProfile.get();
@@ -13501,7 +16476,8 @@ Pour chaque suggestion :
         function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
         function updateProfileButton() { const btn = document.getElementById('profileBtn'); if (!btn) return; const p = UserProfile.get(); if (p?.nom) btn.innerHTML = `✏️ ${p.nom}`; }
         function showStatsModal() { ProgressionSystem.showStats(); }
-        
+        function showGoalsModal() { GoalsSystem.showDashboard(); }
+
         // ==================== PLANNING IA ====================
         function showPlanningModal() {
             const modal = document.getElementById('planningModal');
@@ -15455,30 +18431,9 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
         });
     </script>
 
-    <!-- Module Agent Autopilot -->
-    <script src="agent-module.js?v=20241205n"></script>
-    <script src="missions-module.js?v=20241230"></script>
     <script>
-        // Initialiser l'Agent Autopilot et vérifier le statut
+        // Initialiser les modules au chargement
         document.addEventListener('DOMContentLoaded', async function() {
-            if (typeof AgentAutopilot !== 'undefined') {
-                await AgentAutopilot.init();
-                // Vérifier s'il y a des notifications non lues
-                const notifications = await AgentAutopilot.loadNotifications();
-                if (notifications && notifications.length > 0) {
-                    const dot = document.getElementById('autopilotDot');
-                    if (dot) {
-                        dot.style.display = 'inline-block';
-                        dot.title = `${notifications.length} notification(s)`;
-                    }
-                }
-            }
-
-            // Initialiser le module Audit
-            if (typeof AuditModule !== 'undefined') {
-                AuditModule.init();
-            }
-
             // Initialiser le module Prospecter
             if (typeof ProspecterModule !== 'undefined') {
                 ProspecterModule.init();
@@ -15493,13 +18448,8 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
 
         // Fonction pour afficher le hint paramètres
         function showSettingsHintIfNeeded() {
-            // Si settings hint déjà fermé définitivement, passer à l'audit hint
-            if (localStorage.getItem('settings_hint_dismissed')) {
-                setTimeout(() => showAuditHintIfNeeded(), 500);
-                return;
-            }
+            if (localStorage.getItem('settings_hint_dismissed')) return;
 
-            // Afficher immédiatement
             const hint = document.getElementById('settingsHint');
             const overlay = document.getElementById('settingsHintOverlay');
             if (hint) {
@@ -15517,37 +18467,6 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
                 if (overlay) overlay.classList.remove('show');
                 if (permanent) {
                     localStorage.setItem('settings_hint_dismissed', 'true');
-                }
-            }
-            // Après fermeture du hint settings, afficher le hint audit
-            setTimeout(() => showAuditHintIfNeeded(), 1000);
-        }
-
-        // Fonction pour afficher le hint audit
-        function showAuditHintIfNeeded() {
-            // Ne pas afficher si "ne plus montrer" a été cliqué
-            if (localStorage.getItem('audit_hint_dismissed')) return;
-            // Ne pas afficher si le hint settings est visible
-            const settingsHint = document.getElementById('settingsHint');
-            if (settingsHint && settingsHint.classList.contains('show')) return;
-
-            const hint = document.getElementById('auditHint');
-            const overlay = document.getElementById('auditHintOverlay');
-            if (hint) {
-                hint.classList.add('show');
-                if (overlay) overlay.classList.add('show');
-            }
-        }
-
-        // Fermer le hint audit
-        function closeAuditHint(permanent = false) {
-            const hint = document.getElementById('auditHint');
-            const overlay = document.getElementById('auditHintOverlay');
-            if (hint) {
-                hint.classList.remove('show');
-                if (overlay) overlay.classList.remove('show');
-                if (permanent) {
-                    localStorage.setItem('audit_hint_dismissed', 'true');
                 }
             }
         }
@@ -15870,6 +18789,9 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
 
     <!-- Module Collaboration (Workspaces, Team, Comments, Notifications) -->
     <script src="collaboration-module.js?v=20260107"></script>
+
+    <!-- Module Audit RS -->
+    <script src="audit-module.js?v=20260111"></script>
     <script>
         // Afficher/Cacher les éléments de collaboration selon le plan utilisateur
         function updateCollaborationUI() {

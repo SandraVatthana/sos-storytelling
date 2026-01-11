@@ -60,6 +60,15 @@ export default {
       return handleBrevoWebhookEnhanced(request, env, corsHeaders);
     }
 
+    if (url.pathname === '/webhook/lemonsqueezy' && request.method === 'POST') {
+      return handleLemonSqueezyWebhook(request, env, corsHeaders);
+    }
+
+    // ============ SUBSCRIPTION API ============
+    if (url.pathname === '/api/subscription' && request.method === 'GET') {
+      return handleSubscriptionCheck(request, env, corsHeaders);
+    }
+
     // ============ UNSUBSCRIBE PAGE ============
     if (url.pathname === '/unsubscribe' && request.method === 'GET') {
       return handleUnsubscribePage(request, env, corsHeaders);
@@ -134,6 +143,16 @@ export default {
     // ============ SPINTAX GENERATOR ============
     if (url.pathname === '/api/spintax' && request.method === 'POST') {
       return handleSpintaxGenerator(request, env, corsHeaders);
+    }
+
+    // ============ VISUAL AUDIT (Claude Vision) ============
+    if (url.pathname === '/audit-visual' && request.method === 'POST') {
+      return handleVisualAudit(request, env, corsHeaders);
+    }
+
+    // ============ VIDEO AUDIT (Google Gemini) ============
+    if (url.pathname === '/audit-video' && request.method === 'POST') {
+      return handleVideoAudit(request, env, corsHeaders);
     }
 
     // ============ FRONTEND (AI calls - Claude & Perplexity) ============
@@ -1346,6 +1365,233 @@ async function handleUnsubscribeAction(request, env, corsHeaders) {
 }
 
 // ============================================================
+// LEMON SQUEEZY WEBHOOK & SUBSCRIPTION
+// ============================================================
+
+async function handleLemonSqueezyWebhook(request, env, corsHeaders) {
+  try {
+    const body = await request.text();
+    const payload = JSON.parse(body);
+
+    // Vérifier la signature (optionnel mais recommandé)
+    const signature = request.headers.get('X-Signature');
+    if (env.LEMONSQUEEZY_WEBHOOK_SECRET && signature) {
+      const expectedSignature = await computeHmacSignature(body, env.LEMONSQUEEZY_WEBHOOK_SECRET);
+      if (signature !== expectedSignature) {
+        console.log('Invalid webhook signature');
+        return jsonResponse({ error: 'Invalid signature' }, 401, corsHeaders);
+      }
+    }
+
+    const eventName = payload.meta?.event_name;
+    const customData = payload.meta?.custom_data || {};
+    const userEmail = customData.email || payload.data?.attributes?.user_email;
+    const userId = customData.user_id;
+
+    console.log(`Lemon Squeezy webhook: ${eventName} for ${userEmail}`);
+
+    if (!userEmail && !userId) {
+      return jsonResponse({ error: 'No user identifier' }, 400, corsHeaders);
+    }
+
+    // Déterminer le statut selon l'événement
+    let subscriptionStatus = null;
+    let subscriptionData = {};
+
+    switch (eventName) {
+      case 'subscription_created':
+      case 'subscription_resumed':
+        subscriptionStatus = 'active';
+        subscriptionData = {
+          plan: payload.data?.attributes?.product_name || 'Solo',
+          variant: payload.data?.attributes?.variant_name || 'Monthly',
+          renews_at: payload.data?.attributes?.renews_at,
+          subscription_id: payload.data?.id
+        };
+        break;
+
+      case 'subscription_updated':
+        // Vérifier si toujours actif
+        const status = payload.data?.attributes?.status;
+        subscriptionStatus = (status === 'active' || status === 'on_trial') ? 'active' : status;
+        subscriptionData = {
+          plan: payload.data?.attributes?.product_name,
+          variant: payload.data?.attributes?.variant_name,
+          renews_at: payload.data?.attributes?.renews_at,
+          subscription_id: payload.data?.id
+        };
+        break;
+
+      case 'subscription_cancelled':
+        subscriptionStatus = 'cancelled';
+        subscriptionData = {
+          ends_at: payload.data?.attributes?.ends_at
+        };
+        break;
+
+      case 'subscription_expired':
+        subscriptionStatus = 'expired';
+        break;
+
+      case 'subscription_payment_failed':
+        subscriptionStatus = 'past_due';
+        break;
+
+      case 'order_created':
+        // Pour les achats one-time (si applicable)
+        subscriptionStatus = 'active';
+        subscriptionData = {
+          plan: payload.data?.attributes?.first_order_item?.product_name || 'Solo',
+          type: 'one_time'
+        };
+        break;
+
+      default:
+        console.log(`Unhandled event: ${eventName}`);
+        return jsonResponse({ received: true, event: eventName }, 200, corsHeaders);
+    }
+
+    // Mettre à jour dans Supabase
+    if (subscriptionStatus) {
+      await updateSubscriptionStatus(env, userEmail, userId, subscriptionStatus, subscriptionData);
+    }
+
+    return jsonResponse({ success: true, event: eventName, status: subscriptionStatus }, 200, corsHeaders);
+
+  } catch (error) {
+    console.error('Webhook error:', error);
+    return jsonResponse({ error: error.message }, 500, corsHeaders);
+  }
+}
+
+async function updateSubscriptionStatus(env, email, userId, status, data = {}) {
+  // Chercher l'utilisateur par email ou userId
+  let userIdToUpdate = userId;
+
+  if (!userIdToUpdate && email) {
+    // Chercher l'utilisateur par email dans auth.users
+    const searchResponse = await fetch(
+      `${env.SUPABASE_URL}/auth/v1/admin/users?filter=email.eq.${encodeURIComponent(email)}`,
+      {
+        headers: {
+          'apikey': env.SUPABASE_SERVICE_KEY,
+          'Authorization': `Bearer ${env.SUPABASE_SERVICE_KEY}`
+        }
+      }
+    );
+
+    if (searchResponse.ok) {
+      const users = await searchResponse.json();
+      if (users.users && users.users.length > 0) {
+        userIdToUpdate = users.users[0].id;
+      }
+    }
+  }
+
+  if (!userIdToUpdate) {
+    console.log(`User not found for email: ${email}`);
+    return false;
+  }
+
+  // Upsert dans la table subscriptions
+  const subscriptionRecord = {
+    user_id: userIdToUpdate,
+    status: status,
+    plan: data.plan || 'Solo',
+    variant: data.variant || 'Monthly',
+    subscription_id: data.subscription_id || null,
+    renews_at: data.renews_at || null,
+    ends_at: data.ends_at || null,
+    updated_at: new Date().toISOString()
+  };
+
+  const response = await fetch(`${env.SUPABASE_URL}/rest/v1/subscriptions`, {
+    method: 'POST',
+    headers: {
+      'apikey': env.SUPABASE_SERVICE_KEY,
+      'Authorization': `Bearer ${env.SUPABASE_SERVICE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'resolution=merge-duplicates'
+    },
+    body: JSON.stringify(subscriptionRecord)
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Supabase update error:', errorText);
+    return false;
+  }
+
+  console.log(`Subscription updated for user ${userIdToUpdate}: ${status}`);
+  return true;
+}
+
+async function handleSubscriptionCheck(request, env, corsHeaders) {
+  try {
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return jsonResponse({ error: 'Authorization required' }, 401, corsHeaders);
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const user = await verifySupabaseToken(token, env);
+
+    if (!user) {
+      return jsonResponse({ error: 'Invalid token' }, 401, corsHeaders);
+    }
+
+    // Récupérer le statut d'abonnement
+    const response = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/subscriptions?user_id=eq.${user.id}&select=*`,
+      {
+        headers: {
+          'apikey': env.SUPABASE_SERVICE_KEY,
+          'Authorization': `Bearer ${env.SUPABASE_SERVICE_KEY}`
+        }
+      }
+    );
+
+    if (!response.ok) {
+      return jsonResponse({ status: 'free', plan: null }, 200, corsHeaders);
+    }
+
+    const subscriptions = await response.json();
+
+    if (subscriptions.length === 0) {
+      return jsonResponse({ status: 'free', plan: null }, 200, corsHeaders);
+    }
+
+    const sub = subscriptions[0];
+    return jsonResponse({
+      status: sub.status,
+      plan: sub.plan,
+      variant: sub.variant,
+      renews_at: sub.renews_at,
+      ends_at: sub.ends_at
+    }, 200, corsHeaders);
+
+  } catch (error) {
+    console.error('Subscription check error:', error);
+    return jsonResponse({ error: error.message }, 500, corsHeaders);
+  }
+}
+
+async function computeHmacSignature(body, secret) {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  const signature = await crypto.subtle.sign('HMAC', key, encoder.encode(body));
+  return Array.from(new Uint8Array(signature))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+// ============================================================
 // HELPERS
 // ============================================================
 
@@ -2204,6 +2450,368 @@ async function handleSpintaxGenerator(request, env, corsHeaders) {
   } catch (error) {
     console.error('Spintax Generator Error:', error);
     return jsonResponse({ error: 'Internal error' }, 500, corsHeaders);
+  }
+}
+
+// ============================================================
+// VISUAL AUDIT - Analyse de profil avec Claude Vision
+// ============================================================
+
+async function handleVisualAudit(request, env, corsHeaders) {
+  try {
+    const body = await request.json();
+    const { platform, keywords = [], profileImage, postImages = [] } = body;
+
+    if (!profileImage) {
+      return jsonResponse({ error: 'Profile image required' }, 400, corsHeaders);
+    }
+
+    // Extraire le type d'image et les données base64
+    const profileMatch = profileImage.match(/^data:(image\/\w+);base64,(.+)$/);
+    if (!profileMatch) {
+      return jsonResponse({ error: 'Invalid image format' }, 400, corsHeaders);
+    }
+
+    const profileMediaType = profileMatch[1];
+    const profileData = profileMatch[2];
+
+    // Construire le contenu du message pour Claude Vision
+    const messageContent = [];
+
+    // Image du profil
+    messageContent.push({
+      type: "image",
+      source: {
+        type: "base64",
+        media_type: profileMediaType,
+        data: profileData
+      }
+    });
+
+    // Images des posts (si présentes)
+    for (const postImage of postImages.slice(0, 3)) {
+      const postMatch = postImage.match(/^data:(image\/\w+);base64,(.+)$/);
+      if (postMatch) {
+        messageContent.push({
+          type: "image",
+          source: {
+            type: "base64",
+            media_type: postMatch[1],
+            data: postMatch[2]
+          }
+        });
+      }
+    }
+
+    // Prompt d'analyse
+    const platformNames = {
+      linkedin: 'LinkedIn',
+      instagram: 'Instagram',
+      tiktok: 'TikTok',
+      twitter: 'X (Twitter)'
+    };
+
+    const keywordsContext = keywords.length > 0
+      ? `\nLe domaine d'expertise déclaré : ${keywords.join(', ')}`
+      : '';
+
+    const analysisPrompt = `Tu es un expert en personal branding, design visuel et storytelling sur les réseaux sociaux.
+
+Analyse cette capture d'écran d'un profil ${platformNames[platform] || platform}.${keywordsContext}
+
+${postImages.length > 0 ? `J'ai également fourni ${postImages.length} captures de posts récents.` : ''}
+
+Évalue les éléments suivants et donne une note sur 100 pour chaque critère :
+
+1. **Photo de profil** (sur 100) :
+   - Qualité de l'image (netteté, éclairage, résolution)
+   - Professionnalisme vs authenticité (le bon équilibre)
+   - Visage visible et expression engageante
+   - Fond approprié (pas distrayant)
+
+2. **Bannière/couverture** (sur 100) :
+   - Message clair et lisible
+   - Cohérence avec l'activité professionnelle
+   - Qualité graphique (pas pixelisé, bien cadré)
+   - Appel à l'action ou promesse visible
+
+3. **Bio/titre** (sur 100) :
+   - Clarté de la promesse de valeur
+   - Structure : qui tu aides + comment + résultat
+   - Mots-clés pertinents pour le SEO
+   - Personnalité qui transparaît
+
+4. **Palette de couleurs** (sur 100) :
+   - Harmonie des couleurs (2-3 couleurs max recommandé)
+   - Cohérence entre bannière, posts, et identité
+   - Contraste suffisant pour la lisibilité
+   - Couleurs qui évoquent les bonnes émotions pour le secteur
+
+5. **Typographie & Design** (sur 100) :
+   - Lisibilité des textes sur les visuels
+   - Cohérence des polices utilisées
+   - Hiérarchie visuelle claire
+   - Qualité professionnelle vs amateur
+
+6. **Branding & Reconnaissance** (sur 100) :
+   - Style visuel reconnaissable au premier coup d'œil
+   - Éléments récurrents (logo, couleurs, style photo)
+   - Différenciation par rapport aux concurrents
+   - Mémorabilité de l'identité visuelle
+
+7. **Storytelling & Personnalité** (sur 100) :
+   - Ton de voix cohérent et distinctif
+   - Histoire personnelle qui transparaît
+   - Connexion émotionnelle potentielle
+   - Authenticité perçue
+${postImages.length > 0 ? `
+8. **Posts analysés** (sur 100) :
+   - Qualité des accroches (premiers mots)
+   - Structure narrative des posts
+   - Cohérence visuelle entre les posts
+   - Potentiel d'engagement` : ''}
+
+Réponds UNIQUEMENT avec un JSON valide (sans markdown) dans ce format exact :
+{
+  "globalScore": <moyenne des scores>,
+  "summary": {
+    "message": "<résumé en 2-3 phrases de l'impression générale, comme si tu parlais directement à la personne>"
+  },
+  "analysis": {
+    "photo": { "score": <0-100>, "feedback": "<commentaire détaillé et constructif>" },
+    "banner": { "score": <0-100>, "feedback": "<commentaire détaillé et constructif>" },
+    "bio": { "score": <0-100>, "feedback": "<commentaire détaillé et constructif>" },
+    "colors": { "score": <0-100>, "feedback": "<analyse de la palette de couleurs>" },
+    "typography": { "score": <0-100>, "feedback": "<analyse typo et design>" },
+    "branding": { "score": <0-100>, "feedback": "<analyse identité visuelle>" },
+    "storytelling": { "score": <0-100>, "feedback": "<analyse ton et personnalité>" }${postImages.length > 0 ? ',\n    "posts": { "score": <0-100>, "feedback": "<analyse des posts>" }' : ''}
+  },
+  "colorPalette": {
+    "detected": ["<couleur1>", "<couleur2>", "<couleur3>"],
+    "harmony": "<harmonieuse|discordante|à améliorer>",
+    "suggestion": "<suggestion de palette si nécessaire>"
+  },
+  "recommendations": [
+    "<action prioritaire 1 - la plus urgente>",
+    "<action prioritaire 2>",
+    "<action prioritaire 3>",
+    "<action prioritaire 4>",
+    "<action prioritaire 5>"
+  ],
+  "quickWins": [
+    "<amélioration rapide qui peut être faite en 5 min>",
+    "<amélioration rapide 2>"
+  ]
+}`;
+
+    messageContent.push({
+      type: "text",
+      text: analysisPrompt
+    });
+
+    // Appel Claude Vision API
+    const claudeResponse = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": env.ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01"
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 2000,
+        messages: [{
+          role: "user",
+          content: messageContent
+        }]
+      })
+    });
+
+    if (!claudeResponse.ok) {
+      const errorText = await claudeResponse.text();
+      console.error('Claude Vision Error:', errorText);
+      return jsonResponse({ error: 'Erreur analyse IA' }, 503, corsHeaders);
+    }
+
+    const data = await claudeResponse.json();
+    const responseText = data.content[0].text;
+
+    // Parser le JSON de la réponse
+    let auditResult;
+    try {
+      // Nettoyer le texte (au cas où Claude ajoute du markdown)
+      const cleanedText = responseText
+        .replace(/```json\n?/g, '')
+        .replace(/```\n?/g, '')
+        .trim();
+      auditResult = JSON.parse(cleanedText);
+    } catch (parseError) {
+      console.error('JSON Parse Error:', parseError, responseText);
+      // Fallback si le parsing échoue
+      auditResult = {
+        globalScore: 70,
+        summary: { message: responseText.substring(0, 500) },
+        analysis: {},
+        recommendations: ["Améliore ta photo de profil", "Clarifie ta bio", "Soigne ta bannière"]
+      };
+    }
+
+    return jsonResponse(auditResult, 200, corsHeaders);
+
+  } catch (error) {
+    console.error('Visual Audit Error:', error);
+    return jsonResponse({ error: 'Erreur interne' }, 500, corsHeaders);
+  }
+}
+
+// ============================================================
+// VIDEO AUDIT - Analyse de Reels/vidéos avec Google Gemini
+// ============================================================
+
+async function handleVideoAudit(request, env, corsHeaders) {
+  try {
+    // Vérifier que la clé Gemini est configurée
+    if (!env.GEMINI_API_KEY) {
+      return jsonResponse({ error: 'Gemini API key not configured' }, 500, corsHeaders);
+    }
+
+    const body = await request.json();
+    const { platform, videoData, videoMimeType = 'video/mp4', keywords = [] } = body;
+
+    if (!videoData) {
+      return jsonResponse({ error: 'Video data required' }, 400, corsHeaders);
+    }
+
+    // Extraire les données base64 si format data URL
+    let base64Data = videoData;
+    let mimeType = videoMimeType;
+
+    const dataUrlMatch = videoData.match(/^data:(video\/\w+);base64,(.+)$/);
+    if (dataUrlMatch) {
+      mimeType = dataUrlMatch[1];
+      base64Data = dataUrlMatch[2];
+    }
+
+    // Noms des plateformes
+    const platformNames = {
+      instagram: 'Instagram Reel',
+      tiktok: 'TikTok',
+      youtube: 'YouTube Short',
+      linkedin: 'LinkedIn Video'
+    };
+
+    const keywordsContext = keywords.length > 0
+      ? `\nLe créateur travaille dans le domaine : ${keywords.join(', ')}`
+      : '';
+
+    // Prompt d'analyse vidéo
+    const videoAnalysisPrompt = `Tu es un expert en création de contenu vidéo court (Reels, TikTok, Shorts) et en personal branding.
+
+Analyse cette vidéo ${platformNames[platform] || 'courte'}.${keywordsContext}
+
+Évalue les critères suivants avec une note sur 100 :
+
+1. **Hook (3 premières secondes)** : Accroche-t-il l'attention immédiatement ? Y a-t-il un élément visuel ou textuel percutant ?
+2. **Rythme/Pacing** : Le montage est-il dynamique ? Y a-t-il des temps morts ? La durée est-elle optimale ?
+3. **Audio** : Qualité du son, choix de la musique, voix off claire ?
+4. **Textes à l'écran** : Lisibilité, timing d'apparition, valeur ajoutée ?
+5. **Structure narrative** : Y a-t-il une intro, un développement, une conclusion/CTA ?
+6. **Qualité visuelle** : Éclairage, cadrage, stabilité, résolution ?
+7. **Engagement potentiel** : Donne-t-il envie de liker, commenter, partager, suivre ?
+
+Réponds UNIQUEMENT avec un JSON valide (sans markdown) dans ce format exact :
+{
+  "globalScore": <moyenne des scores>,
+  "summary": {
+    "message": "<résumé en 2-3 phrases de l'impression générale>"
+  },
+  "analysis": {
+    "hook": { "score": <0-100>, "feedback": "<commentaire sur les 3 premières secondes>" },
+    "pacing": { "score": <0-100>, "feedback": "<commentaire sur le rythme>" },
+    "audio": { "score": <0-100>, "feedback": "<commentaire sur l'audio>" },
+    "text": { "score": <0-100>, "feedback": "<commentaire sur les textes>" },
+    "structure": { "score": <0-100>, "feedback": "<commentaire sur la structure>" },
+    "visual": { "score": <0-100>, "feedback": "<commentaire sur la qualité visuelle>" },
+    "engagement": { "score": <0-100>, "feedback": "<commentaire sur le potentiel viral>" }
+  },
+  "recommendations": [
+    "<action prioritaire 1>",
+    "<action prioritaire 2>",
+    "<action prioritaire 3>"
+  ],
+  "optimalDuration": "<durée recommandée pour ce type de contenu>",
+  "viralPotential": "<faible|moyen|élevé|très élevé>"
+}`;
+
+    // Appel Gemini API avec la vidéo
+    const geminiResponse = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${env.GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              {
+                inline_data: {
+                  mime_type: mimeType,
+                  data: base64Data
+                }
+              },
+              {
+                text: videoAnalysisPrompt
+              }
+            ]
+          }],
+          generationConfig: {
+            temperature: 0.4,
+            maxOutputTokens: 2000
+          }
+        })
+      }
+    );
+
+    if (!geminiResponse.ok) {
+      const errorText = await geminiResponse.text();
+      console.error('Gemini API Error:', errorText);
+      return jsonResponse({ error: 'Erreur analyse vidéo', details: errorText }, 503, corsHeaders);
+    }
+
+    const geminiData = await geminiResponse.json();
+
+    // Extraire le texte de la réponse Gemini
+    const responseText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!responseText) {
+      return jsonResponse({ error: 'Réponse vide de Gemini' }, 500, corsHeaders);
+    }
+
+    // Parser le JSON
+    let auditResult;
+    try {
+      const cleanedText = responseText
+        .replace(/```json\n?/g, '')
+        .replace(/```\n?/g, '')
+        .trim();
+      auditResult = JSON.parse(cleanedText);
+    } catch (parseError) {
+      console.error('JSON Parse Error:', parseError, responseText);
+      auditResult = {
+        globalScore: 70,
+        summary: { message: responseText.substring(0, 500) },
+        analysis: {},
+        recommendations: ["Améliore ton hook", "Ajoute des sous-titres", "Optimise la durée"],
+        viralPotential: "moyen"
+      };
+    }
+
+    return jsonResponse(auditResult, 200, corsHeaders);
+
+  } catch (error) {
+    console.error('Video Audit Error:', error);
+    return jsonResponse({ error: 'Erreur interne' }, 500, corsHeaders);
   }
 }
 

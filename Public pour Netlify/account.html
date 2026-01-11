@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon compte - SOS Storytelling</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --primary: #6366F1;
+            --secondary: #8B5CF6;
+            --accent: #A855F7;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 50%, #f093fb 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: white;
+            border: none;
+            border-radius: 10px;
+            color: #333;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .card-icon {
+            font-size: 2em;
+        }
+
+        .card-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .card-subtitle {
+            font-size: 0.9em;
+            color: #64748b;
+        }
+
+        /* Subscription Status */
+        .subscription-status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .status-badge.free {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-badge.active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.cancelled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-badge.past_due {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-info {
+            flex: 1;
+        }
+
+        .status-plan {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 1.1em;
+        }
+
+        .status-detail {
+            font-size: 0.9em;
+            color: #64748b;
+        }
+
+        /* Usage Stats */
+        .usage-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .usage-item {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .usage-icon {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .usage-count {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .usage-label {
+            font-size: 0.85em;
+            color: #64748b;
+        }
+
+        /* Plans */
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .plan-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .plan-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.15);
+        }
+
+        .plan-card.current {
+            border-color: var(--success);
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+        }
+
+        .plan-card.current::after {
+            content: 'Actuel';
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .plan-name {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+
+        .plan-price {
+            font-size: 2em;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .plan-period {
+            color: #64748b;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .plan-features {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .plan-feature {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 0;
+            font-size: 0.9em;
+            color: #475569;
+        }
+
+        .plan-feature::before {
+            content: '✓';
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .plan-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .plan-btn.primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .plan-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .plan-btn.secondary {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .plan-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border: 1px solid #93c5fd;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .info-box h4 {
+            color: #1e40af;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-box p {
+            color: #1e40af;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .info-box ol {
+            color: #1e40af;
+            font-size: 0.95em;
+            line-height: 1.8;
+            padding-left: 20px;
+        }
+
+        /* Warning Box */
+        .warning-box {
+            background: linear-gradient(135deg, #fefce8, #fef9c3);
+            border: 1px solid #fcd34d;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .warning-box h4 {
+            color: #92400e;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .warning-box p {
+            color: #78350f;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        /* Actions */
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .action-btn.danger {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .action-btn.danger:hover {
+            background: #fecaca;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e5e7eb;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .plans-grid {
+                grid-template-columns: 1fr;
+            }
+            .usage-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="app.html" class="back-btn">← Retour à l'app</a>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="card">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Chargement de ton compte...</p>
+            </div>
+        </div>
+
+        <!-- Main Content (hidden initially) -->
+        <div id="mainContent" style="display: none;">
+
+            <!-- User Info -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">👤</span>
+                    <div>
+                        <div class="card-title">Mon compte</div>
+                        <div class="card-subtitle" id="userEmail">-</div>
+                    </div>
+                </div>
+
+                <div class="subscription-status">
+                    <span class="status-badge" id="statusBadge">Chargement...</span>
+                    <div class="status-info">
+                        <div class="status-plan" id="planName">-</div>
+                        <div class="status-detail" id="planDetail">-</div>
+                    </div>
+                </div>
+
+                <!-- Usage for Free users -->
+                <div id="usageSection" style="display: none;">
+                    <h4 style="margin-bottom: 15px; color: #1e293b;">Ton utilisation gratuite</h4>
+                    <div class="usage-grid">
+                        <div class="usage-item">
+                            <div class="usage-icon">📝</div>
+                            <div class="usage-count" id="postsUsed">0/4</div>
+                            <div class="usage-label">Posts générés</div>
+                        </div>
+                        <div class="usage-item">
+                            <div class="usage-icon">👤</div>
+                            <div class="usage-count" id="auditProfileUsed">0/1</div>
+                            <div class="usage-label">Audit profil</div>
+                        </div>
+                        <div class="usage-item">
+                            <div class="usage-icon">📋</div>
+                            <div class="usage-count" id="auditPostsUsed">0/1</div>
+                            <div class="usage-label">Audit posts</div>
+                        </div>
+                        <div class="usage-item">
+                            <div class="usage-icon">🎬</div>
+                            <div class="usage-count" id="auditVideoUsed">0/1</div>
+                            <div class="usage-label">Audit vidéo</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plans -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">💎</span>
+                    <div>
+                        <div class="card-title">Choisir mon offre</div>
+                        <div class="card-subtitle">Sélectionne l'offre qui correspond à tes besoins</div>
+                    </div>
+                </div>
+
+                <div class="plans-grid" id="plansGrid">
+                    <!-- SOS Storytelling Solo -->
+                    <div class="plan-card" id="planSolo">
+                        <div class="plan-name">SOS Storytelling</div>
+                        <div class="plan-price">47€</div>
+                        <div class="plan-period">/mois ou 470€/an</div>
+                        <div class="plan-features">
+                            <div class="plan-feature">Posts illimités</div>
+                            <div class="plan-feature">Audits illimités</div>
+                            <div class="plan-feature">Tous les frameworks</div>
+                            <div class="plan-feature">Planning IA</div>
+                        </div>
+                        <a href="https://myinnerquest.lemonsqueezy.com/checkout/buy/74412bb8-7df8-4d11-a7bb-c8434dc687a7" class="plan-btn primary" id="btnSolo">
+                            Choisir Solo
+                        </a>
+                    </div>
+
+                    <!-- SOS GEO Solo -->
+                    <div class="plan-card" id="planGeo">
+                        <div class="plan-name">SOS GEO</div>
+                        <div class="plan-price">37€</div>
+                        <div class="plan-period">/mois ou 370€/an</div>
+                        <div class="plan-features">
+                            <div class="plan-feature">Référencement IA</div>
+                            <div class="plan-feature">Audit visibilité</div>
+                            <div class="plan-feature">Optimisation SEO</div>
+                        </div>
+                        <a href="https://myinnerquest.lemonsqueezy.com/checkout/buy/96ad214e-69e8-466d-81e6-11dda2b9741c" class="plan-btn primary" id="btnGeo">
+                            Choisir GEO
+                        </a>
+                    </div>
+
+                    <!-- Bundle Duo -->
+                    <div class="plan-card" id="planDuo" style="border-color: #f59e0b;">
+                        <div style="position: absolute; top: -10px; left: 20px; background: linear-gradient(135deg, #f59e0b, #fbbf24); color: white; padding: 4px 12px; border-radius: 10px; font-size: 0.75em; font-weight: 600;">POPULAIRE</div>
+                        <div class="plan-name">Bundle Duo</div>
+                        <div class="plan-price">69€</div>
+                        <div class="plan-period">/mois ou 690€/an</div>
+                        <div class="plan-features">
+                            <div class="plan-feature">SOS Storytelling</div>
+                            <div class="plan-feature">SOS GEO</div>
+                            <div class="plan-feature">Économise 15€/mois</div>
+                        </div>
+                        <a href="https://myinnerquest.lemonsqueezy.com/checkout/buy/7783816c-a82d-4985-9c58-b5021e39bfc5" class="plan-btn primary" id="btnDuo" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);">
+                            Choisir Duo
+                        </a>
+                    </div>
+
+                    <!-- Bundle Trio -->
+                    <div class="plan-card" id="planTrio" style="border-color: var(--accent);">
+                        <div style="position: absolute; top: -10px; left: 20px; background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; padding: 4px 12px; border-radius: 10px; font-size: 0.75em; font-weight: 600;">BEST VALUE</div>
+                        <div class="plan-name">Bundle Trio</div>
+                        <div class="plan-price">89€</div>
+                        <div class="plan-period">/mois ou 890€/an</div>
+                        <div class="plan-features">
+                            <div class="plan-feature">SOS Storytelling</div>
+                            <div class="plan-feature">SOS GEO</div>
+                            <div class="plan-feature">SOS Prospector</div>
+                            <div class="plan-feature">Économise 32€/mois</div>
+                        </div>
+                        <a href="https://myinnerquest.lemonsqueezy.com/checkout/buy/8f063847-801a-46fe-b9ea-d28d7ad26961" class="plan-btn primary" id="btnTrio">
+                            Choisir Trio
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Info for plan changes -->
+                <div class="info-box">
+                    <h4>ℹ️ Comment changer d'offre ?</h4>
+                    <p>Pour passer à une offre supérieure ou modifier ton abonnement :</p>
+                    <ol>
+                        <li>Clique sur la nouvelle offre souhaitée</li>
+                        <li>Finalise le paiement sur Lemon Squeezy</li>
+                        <li>Ton ancien abonnement sera automatiquement remplacé</li>
+                        <li>Tu bénéficieras immédiatement de ta nouvelle offre</li>
+                    </ol>
+                </div>
+
+                <div class="warning-box" id="warningDowngrade" style="display: none;">
+                    <h4>⚠️ Annulation en cours</h4>
+                    <p>Ton abonnement est annulé. Tu conserves l'accès jusqu'au <strong id="endsAtDate">-</strong>. Après cette date, tu repasseras en version gratuite.</p>
+                </div>
+            </div>
+
+            <!-- Manage Subscription -->
+            <div class="card" id="manageCard" style="display: none;">
+                <div class="card-header">
+                    <span class="card-icon">⚙️</span>
+                    <div>
+                        <div class="card-title">Gérer mon abonnement</div>
+                        <div class="card-subtitle">Factures, moyens de paiement, annulation</div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <a href="https://myinnerquest.lemonsqueezy.com/billing" target="_blank" class="action-btn" style="background: #f1f5f9; color: #333;">
+                        📄 Mes factures
+                    </a>
+                    <a href="https://myinnerquest.lemonsqueezy.com/billing" target="_blank" class="action-btn" style="background: #f1f5f9; color: #333;">
+                        💳 Modifier paiement
+                    </a>
+                    <a href="https://myinnerquest.lemonsqueezy.com/billing" target="_blank" class="action-btn danger">
+                        ❌ Annuler abonnement
+                    </a>
+                </div>
+
+                <div class="info-box" style="margin-top: 20px;">
+                    <h4>💡 Bon à savoir</h4>
+                    <p>En cas d'annulation, tu conserves l'accès jusqu'à la fin de ta période de facturation. Tu peux te réabonner à tout moment pour retrouver l'accès complet.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        // Initialize Supabase
+        initSupabase();
+
+        let currentUser = null;
+        let subscriptionData = null;
+
+        // Load account data
+        async function loadAccountData() {
+            try {
+                // Check auth
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (!session) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                currentUser = session.user;
+                document.getElementById('userEmail').textContent = currentUser.email;
+
+                // Fetch subscription from API
+                const response = await fetch(`${CONFIG.API_URL}/api/subscription`, {
+                    headers: {
+                        'Authorization': `Bearer ${session.access_token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    subscriptionData = await response.json();
+                } else {
+                    subscriptionData = { status: 'free', plan: null };
+                }
+
+                // Update UI
+                updateUI();
+
+                // Show main content
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+
+            } catch (error) {
+                console.error('Error loading account:', error);
+                document.getElementById('loadingState').innerHTML = `
+                    <div class="loading">
+                        <p style="color: #ef4444;">Erreur de chargement. <a href="app.html">Retour à l'app</a></p>
+                    </div>
+                `;
+            }
+        }
+
+        function updateUI() {
+            const status = subscriptionData.status || 'free';
+            const plan = subscriptionData.plan || 'Gratuit';
+
+            // Update status badge
+            const badge = document.getElementById('statusBadge');
+            badge.className = 'status-badge ' + status;
+
+            const statusLabels = {
+                'free': 'Gratuit',
+                'active': 'Actif',
+                'cancelled': 'Annulé',
+                'expired': 'Expiré',
+                'past_due': 'Paiement en attente'
+            };
+            badge.textContent = statusLabels[status] || status;
+
+            // Update plan info
+            document.getElementById('planName').textContent = status === 'free' ? 'Version gratuite' : `Plan ${plan}`;
+
+            if (status === 'active' && subscriptionData.renews_at) {
+                const renewDate = new Date(subscriptionData.renews_at).toLocaleDateString('fr-FR');
+                document.getElementById('planDetail').textContent = `Prochain renouvellement : ${renewDate}`;
+            } else if (status === 'cancelled' && subscriptionData.ends_at) {
+                const endDate = new Date(subscriptionData.ends_at).toLocaleDateString('fr-FR');
+                document.getElementById('planDetail').textContent = `Accès jusqu'au : ${endDate}`;
+                document.getElementById('endsAtDate').textContent = endDate;
+                document.getElementById('warningDowngrade').style.display = 'block';
+            } else if (status === 'free') {
+                document.getElementById('planDetail').textContent = '4 posts + 3 audits offerts';
+            } else {
+                document.getElementById('planDetail').textContent = '';
+            }
+
+            // Show usage for free users
+            if (status === 'free') {
+                document.getElementById('usageSection').style.display = 'block';
+                updateUsageStats();
+            }
+
+            // Show manage card for paid users
+            if (status === 'active' || status === 'cancelled') {
+                document.getElementById('manageCard').style.display = 'block';
+            }
+
+            // Update plan cards
+            updatePlanCards(status, plan);
+
+            // Add user email to checkout links
+            addCheckoutParams();
+        }
+
+        function updateUsageStats() {
+            const posts = parseInt(localStorage.getItem('tithot_free_posts_count') || '0');
+            const auditProfile = parseInt(localStorage.getItem('tithot_free_audit_profile_count') || '0');
+            const auditPosts = parseInt(localStorage.getItem('tithot_free_audit_posts_count') || '0');
+            const auditVideo = parseInt(localStorage.getItem('tithot_free_audit_video_count') || '0');
+
+            document.getElementById('postsUsed').textContent = `${posts}/4`;
+            document.getElementById('auditProfileUsed').textContent = `${auditProfile}/1`;
+            document.getElementById('auditPostsUsed').textContent = `${auditPosts}/1`;
+            document.getElementById('auditVideoUsed').textContent = `${auditVideo}/1`;
+        }
+
+        function updatePlanCards(currentStatus, currentPlan) {
+            // Mark current plan
+            if (currentStatus === 'active' && currentPlan) {
+                let planId = 'planSolo'; // default
+                const planLower = currentPlan.toLowerCase();
+
+                if (planLower.includes('trio')) {
+                    planId = 'planTrio';
+                } else if (planLower.includes('duo')) {
+                    planId = 'planDuo';
+                } else if (planLower.includes('geo')) {
+                    planId = 'planGeo';
+                } else {
+                    planId = 'planSolo';
+                }
+
+                const currentCard = document.getElementById(planId);
+                if (currentCard) {
+                    currentCard.classList.add('current');
+                    const btn = currentCard.querySelector('.plan-btn');
+                    if (btn) {
+                        btn.textContent = 'Plan actuel';
+                        btn.classList.remove('primary');
+                        btn.classList.add('secondary');
+                        btn.style.pointerEvents = 'none';
+                    }
+                }
+            }
+        }
+
+        function addCheckoutParams() {
+            if (!currentUser) return;
+
+            const links = document.querySelectorAll('.plan-btn[href*="lemonsqueezy"]');
+            links.forEach(link => {
+                const url = new URL(link.href);
+                url.searchParams.set('checkout[email]', currentUser.email);
+                url.searchParams.set('checkout[custom][email]', currentUser.email);
+                url.searchParams.set('checkout[custom][user_id]', currentUser.id);
+                link.href = url.toString();
+            });
+        }
+
+        // Load on page ready
+        loadAccountData();
+    </script>
+</body>
+</html>

@@ -6,30 +6,22 @@
     
     <!-- SEO Meta Tags -->
     <title>SOS Storytelling - Création de contenu IA pour réseaux sociaux | Agences & Freelances</title>
-    <meta name="description" content="L'IA qui comprend votre business et crée du contenu qui vous ressemble. Générez du contenu avec du storytelling pour vos réseaux sociaux en quelques clics. Essai gratuit de 7 jours.">
+    <meta name="description" content="L'IA qui comprend ton business et crée du contenu qui te ressemble. Génère du contenu avec du storytelling pour tes réseaux sociaux en quelques clics. Essai gratuit de 7 jours.">
     <meta name="keywords" content="création contenu IA, automatisation réseaux sociaux, calendrier éditorial, community manager, social media manager, génération contenu LinkedIn, outil agence social media, storytelling IA">
     <meta name="author" content="My Inner Quest">
     <meta name="robots" content="index, follow">
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="favicon.png">
-    <link rel="apple-touch-icon" href="favicon.png">
-
-    <!-- Canonical -->
-    <link rel="canonical" href="https://sosstorytelling.fr">
-
-    <!-- Open Graph (partage réseaux sociaux) -->
-    <meta property="og:title" content="SOS Storytelling | Outil IA white label pour bootcamps">
-    <meta property="og:description" content="Vos clientes créent du contenu avec leur style, vous gardez la main. Dashboard coach, messages personnalisés, white label complet.">
+    <link rel="canonical" href="https://myinnerquest.fr/sos-storytelling">
+    
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://myinnerquest.fr/sos-storytelling">
-    <meta property="og:title" content="SOS Storytelling - L'IA qui comprend votre business et crée du contenu qui vous ressemble">
+    <meta property="og:title" content="SOS Storytelling - L'IA qui comprend ton business et crée du contenu qui te ressemble">
     <meta property="og:description" content="Générez du contenu avec du storytelling pour vos réseaux sociaux en quelques clics. Essai gratuit de 7 jours.">
     <meta property="og:image" content="https://myinnerquest.fr/images/sos-storytelling-og.png">
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="SOS Storytelling - L'IA qui comprend votre business et crée du contenu qui vous ressemble">
+    <meta name="twitter:title" content="SOS Storytelling - L'IA qui comprend ton business et crée du contenu qui te ressemble">
     <meta name="twitter:description" content="Générez du contenu avec du storytelling pour vos réseaux sociaux en quelques clics. Essai gratuit de 7 jours.">
     
     <!-- Schema.org JSON-LD -->
@@ -40,336 +32,209 @@
         "name": "SOS Storytelling",
         "applicationCategory": "BusinessApplication",
         "operatingSystem": "Web",
-        "description": "Outil IA en white label pour bootcamps et programmes d'accompagnement. Création de contenu, dashboard coach, messages personnalisés.",
+        "description": "Outil de création de contenu IA pour réseaux sociaux avec structures narratives, calendrier éditorial et voix de marque personnalisée",
         "offers": {
-            "@type": "Offer",
-            "price": "2925",
+            "@type": "AggregateOffer",
+            "lowPrice": "47",
+            "highPrice": "300",
             "priceCurrency": "EUR",
-            "priceValidUntil": "2025-12-31"
+            "offerCount": "4"
         },
-        "provider": {
+        "creator": {
             "@type": "Organization",
             "name": "My Inner Quest",
-            "url": "https://myinnerquest.fr",
-            "address": {
-                "@type": "PostalAddress",
-                "addressCountry": "FR",
-                "addressRegion": "Nouvelle-Aquitaine"
-            }
+            "url": "https://myinnerquest.fr"
         }
     }
     </script>
-
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { overflow-x: hidden; }
 
         :root {
-            --primary: #6366F1;
-            --primary-dark: #4F46E5;
-            --primary-vivid: #4338CA;
-            --secondary: #8B5CF6;
-            --accent: #EC4899;
-            --accent-warm: #F97316;
-            --dark: #1E293B;
-            --gray-700: #374151;
-            --gray-600: #475569;
-            --gray-400: #94A3B8;
-            --gray-200: #E2E8F0;
-            --gray-100: #F8FAFC;
-            --gray-50: #FAFBFC;
-            --white: #FFFFFF;
+            --primary: #667eea;
+            --primary-light: #764ba2;
+            --accent: #f5576c;
+            --accent-light: #f093fb;
+            --dark: #0a0a0f;
+            --dark-lighter: #12121a;
         }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            color: var(--dark);
-            line-height: 1.6;
+        
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background: var(--dark); 
+            color: #fff; 
             overflow-x: hidden;
         }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 24px;
+        
+        /* ============ LOADING SCREEN ============ */
+        .loader {
+            position: fixed;
+            inset: 0;
+            background: var(--dark);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            transition: opacity 0.8s, visibility 0.8s;
         }
-
-        .section {
-            padding: 80px 0;
+        .loader.hidden {
+            opacity: 0;
+            visibility: hidden;
         }
-
-        .section-white {
-            background: var(--white);
+        .loader-logo {
+            width: 80px;
+            height: 80px;
+            animation: pulse-loader 1.5s ease-in-out infinite;
         }
-
-        .section-gray {
-            background: var(--gray-100);
-        }
-
-        .section-light {
-            background: linear-gradient(180deg, var(--gray-50) 0%, var(--white) 100%);
-        }
-
-        .section-dark {
-            background: linear-gradient(135deg, var(--dark) 0%, #0F172A 100%);
-            color: var(--white);
-        }
-
-        .section-gradient {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: var(--white);
-        }
-
-        /* Section separator */
-        .section-separator {
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--gray-200), transparent);
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
-        .text-gradient {
-            background: linear-gradient(135deg, var(--primary), var(--accent));
+        .loader-text {
+            font-size: 1.2em;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
+            letter-spacing: 3px;
+            text-transform: uppercase;
         }
-
-        h1 {
-            font-size: clamp(2.4rem, 5vw, 3.2rem);
-            font-weight: 800;
-            line-height: 1.15;
-            margin-bottom: 20px;
-            letter-spacing: -0.02em;
+        .loader-bar {
+            width: 200px;
+            height: 3px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
         }
-
-        h2 {
-            font-size: clamp(1.8rem, 3.5vw, 2.5rem);
-            font-weight: 700;
-            line-height: 1.2;
-            margin-bottom: 16px;
+        .loader-bar::after {
+            content: '';
+            display: block;
+            width: 40%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            animation: loading 1.5s ease-in-out infinite;
         }
-
-        h3 {
-            font-size: 1.4rem;
-            font-weight: 700;
-            margin-bottom: 12px;
+        @keyframes loading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(350%); }
         }
-
-        h4 {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 8px;
+        @keyframes pulse-loader {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
         }
-
-        .subtitle {
-            font-size: 1.1rem;
-            color: var(--gray-700);
-            max-width: 580px;
-            margin: 0 auto 28px;
-            line-height: 1.7;
+        
+        /* ============ CURSOR GLOW ============ */
+        .cursor-glow {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(102,126,234,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: opacity 0.3s;
+            mix-blend-mode: screen;
         }
-
-        .text-accent {
-            color: var(--accent-warm);
-            font-weight: 600;
+        
+        /* ============ SHOOTING STARS ============ */
+        .shooting-star {
+            position: fixed;
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), transparent);
+            border-radius: 50%;
+            animation: shoot 1s ease-out forwards;
+            pointer-events: none;
+            z-index: 1;
         }
-
-        .section-dark .subtitle {
-            color: var(--gray-400);
+        @keyframes shoot {
+            0% { transform: translateX(0) translateY(0); opacity: 1; }
+            100% { transform: translateX(300px) translateY(150px); opacity: 0; }
         }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 16px 32px;
-            font-size: 1.05rem;
-            font-weight: 600;
-            border-radius: 12px;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: none;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-vivid) 0%, var(--secondary) 100%);
-            color: var(--white);
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.55);
-        }
-
-        .btn-primary.btn-large {
-            padding: 18px 40px;
-            font-size: 1.15rem;
-        }
-
-        .btn-outline {
-            background: transparent;
-            color: var(--primary);
-            border: 2px solid var(--primary);
-            padding: 14px 28px;
-        }
-
-        .btn-outline:hover {
-            background: var(--primary);
-            color: var(--white);
-            transform: translateY(-2px);
-        }
-
-        .btn-white {
-            background: var(--white);
-            color: var(--primary);
-        }
-
-        .btn-white:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
-        }
-
-        .navbar {
+        
+        /* ============ PARTICLES CANVAS ============ */
+        #particles-canvas {
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--gray-200);
-            padding: 16px 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
         }
-
-        .navbar .container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        
+        /* ============ HEADER ============ */
+        .header { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            z-index: 100; 
+            padding: 15px 40px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: rgba(10,10,15,0.8); 
+            backdrop-filter: blur(20px); 
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s;
         }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--primary);
-            text-decoration: none;
+        .header.scrolled {
+            padding: 10px 40px;
+            background: rgba(10,10,15,0.95);
         }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 32px;
+        .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo-img { 
+            height: 45px; 
+            width: auto;
+            transition: transform 0.3s;
         }
-
-        .nav-links a {
-            color: var(--gray-600);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-
-        .nav-links a:hover {
-            color: var(--primary);
-        }
-
-        .nav-cta {
-            padding: 10px 20px;
-            font-size: 0.95rem;
-            color: var(--white) !important;
-        }
-
-        /* Bouton avec halo jaune */
-        .btn-glow-yellow {
+        .logo:hover .logo-img { transform: scale(1.05) rotate(5deg); }
+        .logo-text { font-size: 1.3em; font-weight: 700; color: #fff; }
+        .nav { display: flex; gap: 30px; align-items: center; }
+        .nav a { 
+            color: rgba(255,255,255,0.7); 
+            text-decoration: none; 
+            font-weight: 500; 
+            transition: all 0.3s; 
             position: relative;
-            box-shadow:
-                0 0 15px rgba(251, 191, 36, 0.5),
-                0 0 30px rgba(251, 191, 36, 0.3),
-                0 4px 15px rgba(99, 102, 241, 0.3);
-            animation: pulse-glow 2s ease-in-out infinite;
         }
-
-        .btn-glow-yellow::before {
-            content: '';
-            position: absolute;
-            inset: -3px;
-            background: linear-gradient(135deg, #FCD34D, #FBBF24, #F59E0B);
-            border-radius: inherit;
-            z-index: -1;
-            opacity: 0.5;
-            filter: blur(8px);
+        .nav a::after { 
+            content: ''; 
+            position: absolute; 
+            bottom: -5px; 
+            left: 0; 
+            width: 0; 
+            height: 2px; 
+            background: var(--accent); 
+            transition: width 0.3s;
         }
-
-        .btn-glow-yellow:hover {
-            transform: translateY(-2px);
-            box-shadow:
-                0 0 25px rgba(251, 191, 36, 0.7),
-                0 0 50px rgba(251, 191, 36, 0.4),
-                0 6px 20px rgba(99, 102, 241, 0.4);
-        }
-
-        .btn-glow-yellow:hover::before {
-            opacity: 0.8;
-            filter: blur(12px);
-        }
-
-        @keyframes pulse-glow {
-            0%, 100% {
-                box-shadow:
-                    0 0 15px rgba(251, 191, 36, 0.5),
-                    0 0 30px rgba(251, 191, 36, 0.3),
-                    0 4px 15px rgba(99, 102, 241, 0.3);
-            }
-            50% {
-                box-shadow:
-                    0 0 20px rgba(251, 191, 36, 0.6),
-                    0 0 40px rgba(251, 191, 36, 0.4),
-                    0 4px 20px rgba(99, 102, 241, 0.4);
-            }
-        }
-
-        .hero {
-            padding: 140px 0 60px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        .nav a:hover { color: var(--accent); }
+        .nav a:hover::after { width: 100%; }
+        .btn-cta { 
+            background: linear-gradient(135deg, var(--primary), var(--primary-light)); 
+            color: white; 
+            padding: 12px 25px; 
+            border-radius: 30px; 
+            font-weight: 600; 
+            text-decoration: none; 
+            transition: all 0.3s;
             position: relative;
             overflow: hidden;
         }
-
-        .hero::before {
+        .btn-cta::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
-                        radial-gradient(ellipse at 70% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-            pointer-events: none;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
         }
-
-        .btn-login {
-            color: white;
-            padding: 12px 25px;
-            border-radius: 30px;
-            font-weight: 500;
-            text-decoration: none;
-            transition: all 0.3s;
-            border: 1px solid rgba(255,255,255,0.3);
-            background: transparent;
-        }
-        .btn-login:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-            background: rgba(245, 87, 108, 0.1);
-        }
+        .btn-cta:hover::before { left: 100%; }
+        .btn-cta:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(102,126,234,0.4); }
 
         /* Language Toggle */
         .lang-toggle {
@@ -410,83 +275,178 @@
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.5);
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .hero-carousel-dot.active {
-            background: white;
-            transform: scale(1.2);
-        }
-
-        .hero-carousel-arrows {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            padding: 0 10px;
-            pointer-events: none;
-        }
-
-        .hero-carousel-arrow {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.9);
-            border: none;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
-            color: #333;
-            pointer-events: all;
             transition: all 0.3s;
         }
-
-        .hero-carousel-arrow:hover {
-            background: white;
+        .sound-toggle:hover {
+            background: rgba(102,126,234,0.2);
+            border-color: var(--primary);
             transform: scale(1.1);
         }
-
-        @media (max-width: 900px) {
-            .hero-wrapper {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-            .hero-content {
-                text-align: center;
-                order: 1;
-            }
-            .hero-carousel {
-                order: 2;
-                margin-top: 30px;
-            }
-            .hero-mockup {
-                order: 2;
+        .sound-toggle svg { width: 24px; height: 24px; fill: #fff; }
+        .sound-toggle.muted svg { opacity: 0.4; }
+        .sound-toggle .sound-waves {
+            position: absolute;
+            inset: -5px;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            opacity: 0;
+            animation: sound-wave 1.5s ease-out infinite;
+        }
+        .sound-toggle:not(.muted) .sound-waves { opacity: 1; }
+        @keyframes sound-wave {
+            0% { transform: scale(1); opacity: 0.5; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        
+        /* ============ HERO ============ */
+        .hero { 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            text-align: center; 
+            padding: 120px 20px 60px; 
+            position: relative; 
+            overflow: hidden;
+        }
+        
+        /* Floating keywords */
+        .floating-keywords {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .floating-word {
+            position: absolute;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: rgba(102,126,234,0.12);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: floatWord 20s linear infinite;
+            white-space: nowrap;
+        }
+        @keyframes floatWord {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            100% { transform: translateY(-100px) rotate(10deg); opacity: 0; }
+        }
+        
+        /* Gradient orbs */
+        .hero-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+            animation: float 8s ease-in-out infinite;
+            pointer-events: none;
+            will-change: transform;
+        }
+        .hero-orb-1 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(102,126,234,0.25) 0%, transparent 70%);
+            top: 10%; left: 5%;
+        }
+        .hero-orb-2 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(245,87,108,0.2) 0%, transparent 70%);
+            bottom: 20%; right: 10%;
+            animation-delay: -4s;
+        }
+        .hero-orb-3 {
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(240,147,251,0.15) 0%, transparent 70%);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -2s;
+        }
+        
+        @keyframes float { 
+            0%, 100% { transform: translateY(0) scale(1); } 
+            50% { transform: translateY(-30px) scale(1.05); } 
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+        }
+        
+        .badge { 
+            display: inline-block; 
+            padding: 10px 24px; 
+            background: rgba(255,255,255,0.05); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 30px; 
+            font-size: 0.9em; 
+            color: rgba(255,255,255,0.8); 
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+        
+        .hero h1 { 
+            font-size: clamp(2.5em, 6vw, 4.5em); 
+            font-weight: 800; 
+            line-height: 1.1; 
+            margin-bottom: 25px;
+        }
+        .hero h1 .word {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(50px) rotateX(-90deg);
+            animation: wordReveal 0.8s ease-out forwards;
+        }
+        .hero h1 .gradient { 
+            background: linear-gradient(135deg, var(--accent), var(--accent-light)); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            background-clip: text;
+            position: relative;
+        }
+        
+        @keyframes wordReveal {
+            to {
+                opacity: 1;
+                transform: translateY(0) rotateX(0);
             }
         }
-
-        .hero-cta {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .hero p {
+            font-size: 1.3em;
+            color: rgba(255,255,255,0.7);
+            max-width: 650px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+            animation: fadeInUp 1s ease-out 0.6s both;
         }
 
-        .hero-cta-buttons {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-            justify-content: center;
+        .hero-subtitle {
+            font-size: 1.15em !important;
+            max-width: 700px !important;
+            margin: 0 auto 25px !important;
+            line-height: 1.7 !important;
         }
 
-        .hero-badges {
+        /* Target audience tags */
+        .target-tags {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
@@ -624,652 +584,935 @@
             display: inline-flex; 
             align-items: center; 
             gap: 10px;
-            margin-top: 16px;
+            position: relative;
+            overflow: hidden;
         }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 14px;
-            background: var(--white);
-            border: 1px solid var(--gray-200);
-            border-radius: 100px;
-            font-size: 0.8rem;
-            color: var(--gray-700);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
         }
-
-        .badge span:first-child {
-            font-size: 1rem;
+        .btn-primary:hover::before { left: 100%; }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(102,126,234,0.5); }
+        .btn-secondary { 
+            background: transparent; 
+            border: 2px solid rgba(255,255,255,0.2); 
+            color: white; 
+            padding: 16px 35px; 
+            border-radius: 35px; 
+            font-weight: 600; 
+            text-decoration: none; 
+            transition: all 0.3s;
         }
-
-        /* Reassurance Band */
-        .reassurance-band {
-            background: var(--white);
-            border-top: 1px solid var(--gray-200);
-            border-bottom: 1px solid var(--gray-200);
-            padding: 24px 0;
-        }
-
-        .reassurance-content {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 40px;
-            flex-wrap: wrap;
-        }
-
-        .reassurance-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.95rem;
-            color: var(--gray-700);
-        }
-
-        .reassurance-item span:first-child {
-            font-size: 1.2rem;
-        }
-
-        .reassurance-item strong {
+        .btn-secondary:hover { 
+            border-color: var(--primary); 
+            background: rgba(102,126,234,0.1);
             color: var(--primary);
         }
-
-        /* Testimonial Mini */
-        .testimonial-mini {
-            max-width: 500px;
-            margin: 24px auto 0;
-            padding: 20px 24px;
-            background: var(--white);
-            border-radius: 16px;
-            border: 1px solid var(--gray-200);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-            text-align: left;
+        
+        .hero-note { 
+            margin-top: 25px; 
+            font-size: 0.9em; 
+            color: rgba(255,255,255,0.5);
+            animation: fadeInUp 1s ease-out 1.2s both;
         }
-
-        .testimonial-mini p {
-            font-size: 0.95rem;
-            color: var(--gray-700);
-            font-style: italic;
-            margin-bottom: 12px;
-            line-height: 1.6;
-        }
-
-        .testimonial-mini .author {
-            font-size: 0.85rem;
-            color: var(--gray-600);
-            font-style: normal;
-        }
-
-        .testimonial-mini .author strong {
-            color: var(--dark);
-        }
-
-        .problem-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 32px;
-            margin-top: 60px;
-        }
-
-        .problem-card {
-            background: var(--white);
-            padding: 32px;
-            border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        }
-
-        .problem-icon {
-            font-size: 2.5rem;
-            margin-bottom: 16px;
-        }
-
-        .problem-card h4 {
-            color: var(--dark);
-            font-size: 1.1rem;
-        }
-
-        .problem-card p {
-            color: var(--gray-600);
-            font-size: 0.95rem;
-        }
-
-        .solution-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 32px;
-            margin-top: 60px;
-        }
-
-        .solution-card {
-            background: var(--white);
-            padding: 32px;
-            border-radius: 20px;
-            border: 1px solid var(--gray-200);
-            transition: all 0.3s ease;
-        }
-
-        .solution-card:hover {
-            border-color: var(--primary);
-            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.15);
-            transform: translateY(-5px);
-        }
-
-        .solution-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-        }
-
-        .solution-card ul {
-            list-style: none;
-            margin-top: 16px;
-        }
-
-        .solution-card li {
-            padding: 6px 0;
-            color: var(--gray-600);
-            font-size: 0.95rem;
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-        }
-
-        .solution-card li::before {
-            content: "•";
-            color: var(--primary);
-            font-weight: bold;
-        }
-
-        .steps-container {
+        
+        /* Scroll indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
             flex-direction: column;
-            gap: 40px;
-            margin-top: 60px;
-            max-width: 800px;
+            align-items: center;
+            gap: 10px;
+            opacity: 0.6;
+            animation: fadeInUp 1s ease-out 1.5s both;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        .scroll-indicator:hover { opacity: 1; }
+        .scroll-indicator span { font-size: 0.8em; text-transform: uppercase; letter-spacing: 2px; }
+        .scroll-indicator .mouse {
+            width: 24px;
+            height: 40px;
+            border: 2px solid rgba(255,255,255,0.5);
+            border-radius: 12px;
+            position: relative;
+        }
+        .scroll-indicator .mouse::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 2px;
+            animation: scrollDown 1.5s ease-in-out infinite;
+        }
+        @keyframes scrollDown {
+            0%, 100% { opacity: 1; top: 8px; }
+            50% { opacity: 0.3; top: 20px; }
+        }
+        
+        /* ============ FEATURES ============ */
+        .features { 
+            padding: 120px 40px; 
+            background: linear-gradient(180deg, var(--dark) 0%, var(--dark-lighter) 100%);
+            position: relative;
+            z-index: 1;
+        }
+        .section-title { 
+            text-align: center; 
+            font-size: 2.5em; 
+            font-weight: 700; 
+            margin-bottom: 15px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s;
+        }
+        .section-title.visible { opacity: 1; transform: translateY(0); }
+        .section-subtitle { 
+            text-align: center; 
+            color: rgba(255,255,255,0.6); 
+            font-size: 1.1em; 
+            margin-bottom: 60px;
+            max-width: 600px;
             margin-left: auto;
             margin-right: auto;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s 0.2s;
         }
-
-        .step {
-            display: flex;
-            gap: 24px;
-            align-items: flex-start;
+        .section-subtitle.visible { opacity: 1; transform: translateY(0); }
+        
+        .features-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 30px; 
+            max-width: 1200px; 
+            margin: 0 auto;
         }
-
-        .step-number {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--white);
-            font-size: 1.25rem;
-            font-weight: 700;
-            flex-shrink: 0;
+        .feature-card { 
+            background: rgba(255,255,255,0.03); 
+            border: 1px solid rgba(255,255,255,0.08); 
+            border-radius: 24px; 
+            padding: 40px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(50px);
+            transform-style: preserve-3d;
+            perspective: 1000px;
         }
-
-        .step-content h4 {
-            color: var(--white);
+        .feature-card.visible { opacity: 1; transform: translateY(0); }
+        .feature-card::before { 
+            content: ''; 
+            position: absolute; 
+            top: 0; left: 0; right: 0; 
+            height: 4px; 
+            background: linear-gradient(90deg, var(--primary), var(--accent)); 
+            opacity: 0; 
+            transition: opacity 0.3s;
         }
-
-        .step-content p {
-            color: var(--gray-400);
+        .feature-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(102,126,234,0.15) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
         }
-
-        .tech-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 32px;
-            margin-top: 40px;
+        .feature-card:hover { border-color: rgba(102,126,234,0.3); }
+        .feature-card:hover::before { opacity: 1; }
+        .feature-card:hover::after { opacity: 1; }
+        
+        .feature-icon { 
+            width: 70px; 
+            height: 70px; 
+            background: linear-gradient(135deg, var(--primary), var(--primary-light)); 
+            border-radius: 18px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1.8em; 
+            margin-bottom: 25px;
+            transition: transform 0.3s, box-shadow 0.3s;
         }
-
-        .tech-card {
-            background: var(--white);
-            padding: 24px;
-            border-radius: 16px;
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 10px 30px rgba(102,126,234,0.3);
+        }
+        .feature-card h3 { font-size: 1.4em; font-weight: 600; margin-bottom: 15px; }
+        .feature-card p { color: rgba(255,255,255,0.6); line-height: 1.7; }
+        
+        /* ============ STATS ============ */
+        .stats { 
+            padding: 100px 40px; 
+            background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(245,87,108,0.1));
+            position: relative;
+            z-index: 1;
+        }
+        .stats-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 40px; 
+            max-width: 1000px; 
+            margin: 0 auto; 
             text-align: center;
         }
-
-        .tech-card h4 {
-            color: var(--dark);
-            margin-bottom: 16px;
+        .stat-item {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s;
         }
-
-        .tech-list {
-            list-style: none;
+        .stat-item.visible { opacity: 1; transform: translateY(0); }
+        .stat-item h3 { 
+            font-size: 3.5em; 
+            font-weight: 800; 
+            background: linear-gradient(135deg, var(--accent), var(--accent-light)); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            background-clip: text;
         }
+        .stat-item p { color: rgba(255,255,255,0.7); font-size: 1.1em; margin-top: 5px; }
 
-        .tech-list li {
-            padding: 8px 0;
-            color: var(--gray-600);
-            border-bottom: 1px solid var(--gray-200);
-        }
-
-        .tech-list li:last-child {
-            border-bottom: none;
-        }
-
-        .tech-benefits {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 24px;
-            margin-top: 50px;
-        }
-
-        .tech-benefit {
-            text-align: center;
-        }
-
-        .tech-benefit-icon {
-            font-size: 2rem;
-            margin-bottom: 12px;
-        }
-
-        .tech-benefit h4 {
-            color: var(--dark);
-            font-size: 1.1rem;
-        }
-
-        .tech-benefit p {
-            color: var(--gray-600);
-            font-size: 0.9rem;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 24px;
-            margin-top: 60px;
-        }
-
-        .feature-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 24px;
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .feature-card h4 {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 8px;
-        }
-
-        .feature-card p {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.95rem;
-        }
-
-        .audience-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 32px;
-            margin-top: 60px;
-        }
-
-        .audience-card {
-            background: var(--white);
-            padding: 32px;
-            border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        }
-
-        .audience-icon {
-            font-size: 2.5rem;
-            margin-bottom: 16px;
-        }
-
-        .audience-card h4 {
-            color: var(--dark);
-        }
-
-        .audience-card p {
-            color: var(--gray-600);
-            margin-bottom: 16px;
-        }
-
-        .audience-result {
-            background: var(--gray-100);
-            padding: 16px;
-            border-radius: 12px;
-            font-size: 0.95rem;
-        }
-
-        .audience-result strong {
-            color: var(--primary);
-        }
-
-        .pricing-card {
-            max-width: 600px;
-            margin: 60px auto 0;
-            background: var(--white);
-            border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        /* ============ WORKFLOW TIMELINE ============ */
+        .workflow-section {
+            padding: 100px 40px;
+            background: linear-gradient(180deg, var(--dark) 0%, var(--dark-lighter) 100%);
+            position: relative;
             overflow: hidden;
         }
-
-        .pricing-header {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: var(--white);
-            padding: 32px;
-            text-align: center;
+        .workflow-section::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(102,126,234,0.08) 0%, transparent 70%);
+            pointer-events: none;
         }
-
-        .pricing-header h3 {
-            font-size: 1.5rem;
-            margin-bottom: 8px;
+        .workflow-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
         }
-
-        .pricing-price {
-            font-size: 3rem;
-            font-weight: 800;
-        }
-
-        .pricing-period {
-            font-size: 1rem;
-            opacity: 0.9;
-        }
-
-        .pricing-body {
-            padding: 32px;
-        }
-
-        .pricing-features {
-            list-style: none;
-            margin-bottom: 24px;
-        }
-
-        .pricing-features li {
-            padding: 12px 0;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid var(--gray-200);
-        }
-
-        .pricing-features li:last-child {
-            border-bottom: none;
-        }
-
-        .pricing-check {
-            color: #10B981;
-            font-size: 1.2rem;
-        }
-
-        .pricing-setup {
-            background: var(--gray-100);
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 24px;
-        }
-
-        .pricing-setup h4 {
-            color: var(--dark);
-            margin-bottom: 12px;
-        }
-
-        .pricing-setup ul {
-            list-style: none;
-            font-size: 0.9rem;
-            color: var(--gray-600);
-        }
-
-        .pricing-setup li {
-            padding: 4px 0;
-        }
-
-        .pricing-note {
-            text-align: center;
-            margin-top: 32px;
-            color: var(--gray-600);
-            font-size: 0.95rem;
-        }
-
-        .pricing-note strong {
-            color: var(--primary);
-        }
-
-        .after-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 32px;
-            margin-top: 60px;
-        }
-
-        .after-card {
-            background: var(--white);
-            padding: 28px;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        }
-
-        .after-card h4 {
-            color: var(--primary);
-            margin-bottom: 16px;
-        }
-
-        .after-card ul {
-            list-style: none;
-        }
-
-        .after-card li {
-            padding: 8px 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--gray-600);
-        }
-
-        .faq-container {
-            max-width: 800px;
-            margin: 60px auto 0;
-        }
-
-        .faq-item {
-            background: var(--white);
-            border-radius: 16px;
-            margin-bottom: 16px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        }
-
-        .faq-question {
-            width: 100%;
-            padding: 24px;
-            background: none;
-            border: none;
-            text-align: left;
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--dark);
-            cursor: pointer;
+        .workflow-timeline {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            transition: background 0.2s;
+            align-items: flex-start;
+            position: relative;
+            margin-top: 60px;
         }
-
-        .faq-question:hover {
-            background: var(--gray-100);
+        .workflow-timeline::before {
+            content: '';
+            position: absolute;
+            top: 45px;
+            left: 10%;
+            right: 10%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            opacity: 0.3;
+            z-index: 0;
         }
-
-        .faq-icon {
-            font-size: 1.5rem;
-            color: var(--primary);
-            transition: transform 0.3s;
-        }
-
-        .faq-item.active .faq-icon {
-            transform: rotate(45deg);
-        }
-
-        .faq-answer {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-
-        .faq-item.active .faq-answer {
-            max-height: 500px;
-        }
-
-        .faq-answer-content {
-            padding: 0 24px 24px;
-            color: var(--gray-600);
-            line-height: 1.7;
-        }
-
-        .cta-section {
-            text-align: center;
-        }
-
-        .cta-section h2 {
-            color: var(--white);
-        }
-
-        .cta-section .subtitle {
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .cta-reassurance {
+        .workflow-step {
+            flex: 1;
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 0 15px;
+            position: relative;
+            z-index: 1;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+        .workflow-step.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .workflow-step:nth-child(1) { transition-delay: 0.1s; }
+        .workflow-step:nth-child(2) { transition-delay: 0.2s; }
+        .workflow-step:nth-child(3) { transition-delay: 0.3s; }
+        .workflow-step:nth-child(4) { transition-delay: 0.4s; }
+        .workflow-number {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            display: flex;
+            align-items: center;
             justify-content: center;
-            gap: 24px;
-            margin-top: 32px;
+            font-size: 2.2em;
+            font-weight: 700;
+            color: white;
+            box-shadow: 0 10px 40px rgba(102,126,234,0.4);
+            margin-bottom: 25px;
+            position: relative;
         }
-
-        .cta-reassurance span {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 0.95rem;
+        .workflow-number::after {
+            content: '';
+            position: absolute;
+            inset: -5px;
+            border-radius: 50%;
+            border: 2px solid rgba(102,126,234,0.3);
+            animation: pulse-ring 2s ease-out infinite;
         }
-
-        .footer {
-            background: var(--dark);
-            color: var(--white);
-            padding: 60px 0 30px;
+        @keyframes pulse-ring {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.3); opacity: 0; }
         }
-
-        .footer-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-            gap: 32px;
-            margin-bottom: 40px;
-        }
-
-        .footer-brand p {
-            color: var(--gray-400);
-            margin-top: 16px;
-            font-size: 0.95rem;
-        }
-
-        .footer h4 {
-            color: var(--white);
+        .workflow-icon {
+            font-size: 2.5em;
             margin-bottom: 20px;
-            font-size: 1rem;
+            display: block;
         }
-
-        .footer-links {
-            list-style: none;
+        .workflow-step h3 {
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: white;
         }
-
-        .footer-links li {
-            margin-bottom: 12px;
+        .workflow-step p {
+            font-size: 0.95em;
+            color: rgba(255,255,255,0.6);
+            line-height: 1.5;
+            max-width: 200px;
         }
-
-        .footer-links a {
-            color: var(--gray-400);
-            text-decoration: none;
-            font-size: 0.95rem;
-            transition: color 0.2s;
+        .workflow-arrow {
+            position: absolute;
+            top: 45px;
+            right: -20px;
+            color: var(--primary);
+            font-size: 1.5em;
+            opacity: 0.5;
         }
-
-        .footer-links a:hover {
-            color: var(--white);
-        }
-
-        .footer-bottom {
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding-top: 24px;
-            text-align: center;
-            color: var(--gray-400);
-            font-size: 0.9rem;
-        }
-
-        @media (max-width: 768px) {
-            .nav-links {
+        @media (max-width: 900px) {
+            .workflow-timeline {
+                flex-direction: column;
+                gap: 40px;
+                align-items: center;
+            }
+            .workflow-timeline::before {
+                top: 0;
+                bottom: 0;
+                left: 50%;
+                right: auto;
+                width: 3px;
+                height: auto;
+            }
+            .workflow-step {
+                flex-direction: row;
+                text-align: left;
+                gap: 20px;
+                max-width: 400px;
+            }
+            .workflow-number {
+                width: 70px;
+                height: 70px;
+                font-size: 1.8em;
+                flex-shrink: 0;
+                margin-bottom: 0;
+            }
+            .workflow-step p {
+                max-width: none;
+            }
+            .workflow-arrow {
                 display: none;
             }
-
-            .section {
-                padding: 50px 0;
+        }
+        @media (max-width: 600px) {
+            .workflow-section {
+                padding: 60px 20px;
             }
-
-            .hero {
-                padding: 110px 0 40px;
+            .workflow-number {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5em;
             }
-
-            .hero-cta-buttons {
-                flex-direction: column;
-                width: 100%;
+            .workflow-step h3 {
+                font-size: 1.1em;
             }
+        }
 
-            .hero-cta-buttons .btn {
-                width: 100%;
+        /* ============ KILLER FEATURE (AI COACH) ============ */
+        .killer-feature {
+            padding: 100px 40px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(102, 126, 234, 0.1) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .killer-feature::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .killer-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+        .killer-content h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #10b981, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .killer-content p {
+            font-size: 1.2em;
+            color: rgba(255,255,255,0.8);
+            line-height: 1.7;
+            margin-bottom: 25px;
+        }
+        .killer-quote {
+            font-style: italic;
+            font-size: 1.1em !important;
+            color: rgba(255,255,255,0.6) !important;
+            border-left: 3px solid #10b981;
+            padding-left: 15px;
+            margin-bottom: 20px !important;
+        }
+        .killer-loop {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .loop-step {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            border-left: 3px solid #10b981;
+            transition: all 0.3s;
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        .loop-step.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .loop-step:nth-child(1) { transition-delay: 0.1s; }
+        .loop-step:nth-child(2) { transition-delay: 0.2s; }
+        .loop-step:nth-child(3) { transition-delay: 0.3s; }
+        .loop-step:nth-child(4) { transition-delay: 0.4s; }
+        .loop-step:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateX(5px);
+        }
+        .loop-step .step-icon {
+            font-size: 1.5em;
+        }
+        .loop-step .step-text {
+            color: rgba(255,255,255,0.9);
+            font-size: 1em;
+        }
+        .loop-step .step-arrow {
+            margin-left: auto;
+            color: #10b981;
+            font-size: 1.2em;
+        }
+        .killer-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 900px) {
+            .killer-container {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .killer-content h2 {
+                font-size: 2em;
+            }
+            .loop-step {
                 justify-content: center;
             }
+        }
 
-            .hero-badges {
-                gap: 8px;
+        /* ============ FEATURES CAROUSEL ============ */
+        .features-carousel-section {
+            padding: 80px 40px;
+            background: var(--dark);
+            overflow: hidden;
+        }
+        .carousel-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+        .carousel-track {
+            display: flex;
+            gap: 30px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            padding: 20px 0;
+        }
+        .carousel-track::-webkit-scrollbar {
+            display: none;
+        }
+        .carousel-slide {
+            flex: 0 0 350px;
+            scroll-snap-align: center;
+            background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(245,87,108,0.05));
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.5s;
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        .carousel-slide.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .carousel-slide.visible:hover {
+            transform: scale(1) translateY(-5px);
+            border-color: rgba(102,126,234,0.3);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .carousel-image {
+            width: 100%;
+            height: 220px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.3);
+            font-size: 3em;
+            position: relative;
+        }
+        .carousel-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .carousel-image .placeholder-text {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            font-size: 0.4em;
+            color: rgba(255,255,255,0.5);
+            background: rgba(0,0,0,0.5);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .carousel-content {
+            padding: 25px;
+        }
+        .carousel-content h3 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            color: white;
+        }
+        .carousel-content p {
+            font-size: 0.95em;
+            color: rgba(255,255,255,0.7);
+            line-height: 1.5;
+        }
+        .carousel-nav {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .carousel-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .carousel-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        .carousel-dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .carousel-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .carousel-dot.active {
+            background: var(--primary);
+            transform: scale(1.2);
+        }
+        @media (max-width: 600px) {
+            .carousel-slide {
+                flex: 0 0 300px;
             }
-
-            .badge {
-                font-size: 0.75rem;
-                padding: 6px 12px;
+            .carousel-image {
+                height: 180px;
             }
+        }
 
-            .reassurance-content {
+        /* ============ USE CASES ============ */
+        .use-cases { 
+            padding: 120px 40px; 
+            background: var(--dark);
+            position: relative;
+            z-index: 1;
+        }
+        .use-cases-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 25px; 
+            max-width: 1200px; 
+            margin: 0 auto;
+        }
+        .use-case-card { 
+            background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(245,87,108,0.05)); 
+            border: 1px solid rgba(255,255,255,0.08); 
+            border-radius: 20px; 
+            padding: 35px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s;
+        }
+        .use-case-card.visible { opacity: 1; transform: translateY(0); }
+        .use-case-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(102,126,234,0.3);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .use-case-card h3 { font-size: 1.2em; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .use-case-card p { color: rgba(255,255,255,0.6); font-size: 0.95em; line-height: 1.7; }
+        
+        /* ============ MARQUEE ============ */
+        .marquee-section {
+            padding: 40px 0;
+            background: rgba(102,126,234,0.05);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+        .marquee {
+            display: flex;
+            animation: marquee 30s linear infinite;
+        }
+        .marquee-content {
+            display: flex;
+            gap: 60px;
+            padding: 0 30px;
+            white-space: nowrap;
+        }
+        .marquee-item {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: rgba(255,255,255,0.15);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .marquee-item span { color: var(--accent); }
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        
+        /* ============ PRICING ============ */
+        /* BETA: Section masquée temporairement */
+        #tarifs {
+            display: none !important;
+            padding: 120px 40px;
+            background: var(--dark);
+            position: relative;
+            z-index: 1;
+        }
+        .pricing-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); 
+            gap: 25px; 
+            max-width: 1200px; 
+            margin: 0 auto;
+        }
+        .pricing-card { 
+            background: rgba(255,255,255,0.03); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 25px; 
+            padding: 40px; 
+            text-align: center; 
+            transition: all 0.4s;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        .pricing-card.visible { opacity: 1; transform: translateY(0); }
+        .pricing-card.popular { 
+            border-color: var(--primary); 
+            background: rgba(102,126,234,0.1); 
+            transform: scale(1.03);
+        }
+        .pricing-card.popular.visible { transform: scale(1.03); }
+        .pricing-card:hover { transform: translateY(-8px); }
+        .pricing-card.popular:hover { transform: scale(1.03) translateY(-8px); }
+        .pricing-badge { 
+            display: inline-block; 
+            background: linear-gradient(135deg, var(--primary), var(--primary-light)); 
+            color: white; 
+            padding: 6px 18px; 
+            border-radius: 20px; 
+            font-size: 0.8em; 
+            font-weight: 600; 
+            margin-bottom: 15px;
+        }
+        .pricing-card h3 { font-size: 1.5em; margin-bottom: 8px; }
+        .pricing-subtitle { color: rgba(255,255,255,0.5); font-size: 0.9em; margin-bottom: 15px; }
+        .pricing-price { font-size: 3em; font-weight: 800; margin: 20px 0; }
+        .pricing-price span { font-size: 0.35em; color: rgba(255,255,255,0.6); }
+        .pricing-features { list-style: none; margin: 30px 0; text-align: left; }
+        .pricing-features li { 
+            padding: 10px 0; 
+            color: rgba(255,255,255,0.7); 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            font-size: 0.95em;
+        }
+        .pricing-features li::before { content: '✓'; color: var(--primary); font-weight: bold; }
+        .pricing-btn { 
+            display: block; 
+            width: 100%; 
+            padding: 16px; 
+            border-radius: 30px; 
+            font-weight: 600; 
+            text-decoration: none; 
+            text-align: center; 
+            transition: all 0.3s; 
+            font-size: 1em;
+        }
+        .pricing-btn.primary { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; }
+        .pricing-btn.secondary { background: transparent; border: 2px solid rgba(255,255,255,0.2); color: white; }
+        .pricing-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(102,126,234,0.3); }
+        
+        .trial-banner {
+            max-width: 800px;
+            margin: 0 auto 60px;
+            padding: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s;
+        }
+        .trial-banner.visible { opacity: 1; transform: translateY(0); }
+        .trial-banner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .trial-banner h3 { font-size: 2em; margin-bottom: 15px; position: relative; }
+        .trial-banner p { opacity: 0.9; margin-bottom: 30px; font-size: 1.1em; position: relative; }
+        .trial-banner .btn-primary { 
+            background: white; 
+            color: var(--primary); 
+            display: inline-flex;
+            position: relative;
+        }
+        .trial-banner .btn-primary:hover { box-shadow: 0 15px 40px rgba(0,0,0,0.3); }
+        
+        /* ============ FAQ ============ */
+        .faq { 
+            padding: 120px 40px; 
+            background: linear-gradient(180deg, var(--dark) 0%, var(--dark-lighter) 100%);
+            position: relative;
+            z-index: 1;
+        }
+        .faq-container { max-width: 800px; margin: 0 auto; }
+        .faq-item { 
+            background: rgba(255,255,255,0.03); 
+            border: 1px solid rgba(255,255,255,0.08); 
+            border-radius: 16px; 
+            margin-bottom: 15px; 
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s;
+        }
+        .faq-item.visible { opacity: 1; transform: translateY(0); }
+        .faq-question { 
+            padding: 25px 30px; 
+            cursor: pointer; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            font-weight: 600; 
+            font-size: 1.1em; 
+            transition: all 0.3s;
+        }
+        .faq-question:hover { background: rgba(255,255,255,0.03); }
+        .faq-question::after { content: '+'; font-size: 1.5em; color: var(--primary); transition: transform 0.3s; }
+        .faq-item.open .faq-question::after { transform: rotate(45deg); }
+        .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out, padding 0.3s; }
+        .faq-item.open .faq-answer { max-height: 500px; padding: 0 30px 25px; }
+        .faq-answer p { color: rgba(255,255,255,0.7); line-height: 1.7; }
+        
+        /* ============ NEWSLETTER ============ */
+        .newsletter { 
+            padding: 100px 40px; 
+            background: linear-gradient(135deg, var(--primary), var(--primary-light)); 
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .newsletter::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .newsletter h2 { font-size: 2em; margin-bottom: 15px; position: relative; }
+        .newsletter p { opacity: 0.9; margin-bottom: 30px; max-width: 500px; margin-left: auto; margin-right: auto; position: relative; }
+        .newsletter-form { display: flex; gap: 15px; max-width: 500px; margin: 0 auto; flex-wrap: wrap; justify-content: center; position: relative; }
+        .newsletter-form input { 
+            flex: 1; 
+            min-width: 250px; 
+            padding: 16px 25px; 
+            border: none; 
+            border-radius: 30px; 
+            font-family: inherit; 
+            font-size: 1em;
+            background: rgba(255,255,255,0.9);
+            transition: all 0.3s;
+        }
+        .newsletter-form input:focus {
+            outline: none;
+            background: #fff;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.2);
+            transform: scale(1.02);
+        }
+        .newsletter-form button { 
+            background: var(--dark); 
+            color: white; 
+            border: none; 
+            padding: 16px 35px; 
+            border-radius: 30px; 
+            font-family: inherit; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.3s;
+        }
+        .newsletter-form button:hover { 
+            transform: translateY(-2px) scale(1.05); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        /* ============ FOOTER ============ */
+        .footer { 
+            padding: 60px 40px 30px; 
+            background: #06060a; 
+            border-top: 1px solid rgba(255,255,255,0.05);
+            position: relative;
+            z-index: 1;
+        }
+        .footer-content { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 40px; 
+            margin-bottom: 40px;
+        }
+        .footer-col h4 { font-size: 1.1em; margin-bottom: 20px; color: #fff; }
+        .footer-col a { display: block; color: rgba(255,255,255,0.6); text-decoration: none; margin-bottom: 12px; transition: all 0.3s; }
+        .footer-col a:hover { color: var(--accent); transform: translateX(5px); }
+        .footer-col p { color: rgba(255,255,255,0.6); line-height: 1.6; }
+        .footer-bottom { text-align: center; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.05); }
+        .footer-social { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        .footer-social a { 
+            width: 48px; 
+            height: 48px; 
+            background: rgba(255,255,255,0.05); 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: rgba(255,255,255,0.7); 
+            text-decoration: none; 
+            transition: all 0.3s; 
+            font-size: 1.2em;
+        }
+        .footer-social a:hover { 
+            background: linear-gradient(135deg, var(--primary), var(--primary-light)); 
+            color: white; 
+            transform: translateY(-3px) rotate(5deg);
+        }
+        .footer-copy { color: rgba(255,255,255,0.4); font-size: 0.9em; }
+        .footer-copy a { color: rgba(255,255,255,0.5); text-decoration: none; }
+        .footer-copy a:hover { color: var(--accent); }
+        .footer-legal { margin-top: 15px; font-size: 0.8em; color: rgba(255,255,255,0.3); }
+        
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 768px) {
+            .header { padding: 15px 20px; }
+            .nav {
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(10,10,15,0.98);
                 flex-direction: column;
-                gap: 16px;
-            }
-
-            .testimonial-mini {
-                margin: 16px auto 0;
-                padding: 16px 20px;
-            }
-
-            .footer-grid {
-                grid-template-columns: 1fr;
-                gap: 32px;
-            }
-
-            .step {
-                flex-direction: column;
-                text-align: center;
+                justify-content: center;
                 align-items: center;
+                padding: 80px 30px 50px;
+                gap: 20px;
+                transform: translateX(100%);
+                transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                overflow-y: auto;
+                z-index: 100;
             }
             .nav.active { transform: translateX(0); }
             .nav a { font-size: 1.2em; }
-            .nav .btn-login {
-                margin-top: 10px;
-                padding: 12px 30px;
-                font-size: 1em;
-            }
             .nav .btn-cta {
                 margin-top: 15px;
                 padding: 15px 35px;
@@ -1372,9 +1615,147 @@
             .pricing-price { font-size: 2em; }
             .footer-content { grid-template-columns: 1fr; text-align: center; }
         }
+
+        /* Promo Banner */
+        .promo-banner {
+            background: linear-gradient(90deg, #10b981, #059669);
+            color: white;
+            text-align: center;
+            padding: 12px 20px;
+            font-size: 0.95em;
+            font-weight: 500;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 101;
+        }
+        .promo-banner .promo-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .promo-banner .old-price {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+        .promo-banner .new-price {
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+        .promo-banner .countdown {
+            background: rgba(0,0,0,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-family: monospace;
+            font-size: 0.95em;
+        }
+        .promo-banner .promo-cta {
+            background: white;
+            color: #059669;
+            padding: 6px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        .promo-banner .promo-cta:hover {
+            transform: scale(1.05);
+        }
+        body.has-promo .header {
+            top: 44px;
+        }
+        body.has-promo .hero {
+            padding-top: 180px;
+        }
+        @media (max-width: 768px) {
+            .promo-banner {
+                font-size: 0.85em;
+                padding: 10px 15px;
+            }
+            .promo-banner .promo-content {
+                gap: 8px;
+            }
+            .promo-banner .promo-cta {
+                display: none;
+            }
+        }
+
+        /* Cross-sell Section */
+        .cross-sell-section {
+            background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(168,85,247,0.1));
+            padding: 60px 40px;
+            text-align: center;
+        }
+        .cross-sell-section h2 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+        .cross-sell-section .subtitle {
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+        .cross-sell-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .cross-sell-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: left;
+            transition: all 0.3s;
+        }
+        .cross-sell-card:hover {
+            background: rgba(255,255,255,0.08);
+            transform: translateY(-5px);
+        }
+        .cross-sell-card h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+        .cross-sell-card .tagline {
+            color: var(--accent);
+            font-size: 0.95em;
+            margin-bottom: 15px;
+        }
+        .cross-sell-card p {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .cross-sell-card .cross-sell-link {
+            display: inline-block;
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .cross-sell-card .cross-sell-link:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
-<body>
+<body class="has-promo">
+    <!-- Promo Banner -->
+    <div class="promo-banner" id="promoBanner">
+        <div class="promo-content">
+            <span>🚀 Offre early adopter :</span>
+            <span class="old-price">67€/mois</span>
+            <span class="new-price">47€/mois</span>
+            <span>• 4 posts + 3 audits offerts</span>
+            <span class="countdown" id="promoCountdown">--j --h --m</span>
+            <a href="login.html" class="promo-cta">J'en profite →</a>
+        </div>
+    </div>
+
     <!-- Loading Screen -->
     <div class="loader" id="loader">
         <img src="logo-sos-storytelling.png" alt="Loading" class="loader-logo">
@@ -1405,13 +1786,16 @@
             <span></span><span></span><span></span>
         </button>
         <nav class="nav" id="nav">
-            <a href="#fonctionnalites">Fonctionnalités</a>
-            <a href="#tarifs">Tarifs</a>
-            <a href="business.html" style="color: #f5576c;">Coachs & Agences</a>
+            <a href="#fonctionnalites" data-i18n="nav.features">Fonctionnalités</a>
+            <a href="#usecases" data-i18n="nav.for_who">Pour qui ?</a>
+            <!-- BETA: Masqué temporairement <a href="#tarifs">Tarifs</a> -->
             <a href="#faq">FAQ</a>
             <a href="mailto:contact@myinnerquest.fr">Contact</a>
-            <a href="login.html" class="btn-login">Se connecter</a>
-            <a href="login.html" class="btn-cta">Essai gratuit</a>
+            <div class="lang-toggle">
+                <button class="lang-btn active" data-lang="fr">FR</button>
+                <button class="lang-btn" data-lang="en">EN</button>
+            </div>
+            <a href="login.html" class="btn-cta" data-i18n="nav.free_trial">Essai gratuit</a>
         </nav>
     </header>
 
@@ -1434,20 +1818,37 @@
             <div class="hero-orb hero-orb-3"></div>
             
             <div class="hero-content">
-                <span class="badge" style="background: linear-gradient(135deg, #ef4444, #dc2626); animation: pulse 2s infinite;">⏰ Offre Early Adopter — Jusqu'au 20 février</span>
+                <span class="badge">✨ Contenu • Newsletter • Prospection</span>
                 <h1 class="hero-title">
-                    <span class="word" style="animation-delay: 0.3s">Crée du contenu</span>
-                    <span class="word gradient" style="animation-delay: 0.5s">qui te ressemble.</span>
-                    <span class="word" style="animation-delay: 0.7s">Trouve des clients</span>
-                    <span class="word gradient" style="animation-delay: 0.9s">qui te correspondent.</span>
+                    <span class="word" style="animation-delay: 0.3s">L'outil IA</span>
+                    <span class="word gradient" style="animation-delay: 0.5s">tout-en-un</span>
+                    <span class="word" style="animation-delay: 0.7s">des solopreneures</span>
+                    <span class="word gradient" style="animation-delay: 0.9s">débordées</span>
                 </h1>
-                <p class="hero-subtitle">L'outil IA tout-en-un qui apprend ton style d'écriture, génère ton contenu ET personnalise ta prospection — sans sonner comme tout le monde.</p>
+                <p class="hero-subtitle">Crée du contenu qui te ressemble et trouve des clients qui te correspondent, sans ouvrir 3 outils différents.</p>
+
+                <p class="hero-proof" style="font-size: 0.95em; color: rgba(255,255,255,0.7); margin: 20px 0;">
+                    Ton style cloné en 3 textes • Jusqu'à 15 h/semaine récupérées • Données hébergées en Europe 🇪🇺
+                </p>
+
+                <ul class="hero-bullets" style="list-style: none; text-align: left; max-width: 500px; margin: 25px auto; font-size: 1.05em;">
+                    <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #f093fb;">✓</span> Posts LinkedIn & Instagram guidés par le storytelling
+                    </li>
+                    <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #f093fb;">✓</span> Newsletters prêtes à envoyer en un clic
+                    </li>
+                    <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #f093fb;">✓</span> Messages de prospection personnalisés qui ne sonnent pas comme ChatGPT
+                    </li>
+                </ul>
 
                 <div class="hero-cta">
-                    <a href="https://myinnerquest.lemonsqueezy.com/buy/74412bb8-7df8-4d11-a7bb-c8434dc687a7" class="btn-primary" style="font-size: 1.1em;">Commencer à 77€/mois →</a>
-                    <a href="#audit-section" class="btn-secondary">🔍 Faire mon audit gratuit</a>
+                    <a href="login.html" class="btn-primary">Commencer gratuitement →</a>
                 </div>
-                <p class="hero-note">✅ 15h/semaine récupérées • ✅ Style cloné en 3 textes • ✅ Données hébergées en Europe 🇫🇷</p>
+                <p class="hero-note" style="margin-top: 15px;">
+                    <a href="#audit" style="color: rgba(255,255,255,0.6); text-decoration: underline;">Ou faire mon audit gratuit d'abord</a>
+                </p>
 
             </div>
 
@@ -1471,92 +1872,200 @@
             </div>
         </section>
 
-        <!-- Problem Section -->
-        <section class="problem-section" style="padding: 80px 40px; background: linear-gradient(180deg, var(--dark) 0%, rgba(245,87,108,0.05) 100%);">
-            <div style="max-width: 900px; margin: 0 auto; text-align: center;">
-                <h2 class="section-title" style="font-size: 2em; margin-bottom: 20px;">Tu passes 15h/semaine à créer du contenu.<br>Et LinkedIn t'affiche 7 impressions.</h2>
-                <p class="section-subtitle" style="margin-bottom: 50px;">On connaît. Voici ce que tu vis probablement :</p>
+        <!-- Workflow Section -->
+        <section class="workflow-section" id="workflow">
+            <div class="workflow-container">
+                <h2 class="section-title">Comment ça marche</h2>
+                <p class="section-subtitle">De l'audit à la prospection, tout ton personal branding en un seul endroit</p>
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px;">
-                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 30px; text-align: left;">
-                        <div style="font-size: 2em; margin-bottom: 15px;">😴</div>
-                        <h3 style="color: #f5576c; font-size: 1.1em; margin-bottom: 10px;">"ChatGPT écrit du contenu fade"</h3>
-                        <p style="color: rgba(255,255,255,0.6); font-size: 0.95em;">Ça ne te ressemble pas, tes prospects le sentent. Tu passes plus de temps à réécrire qu'à créer.</p>
+                <div class="workflow-timeline">
+                    <div class="workflow-step" data-step="1">
+                        <div class="workflow-number">1</div>
+                        <div class="workflow-icon">🔍</div>
+                        <h3>Audite tes réseaux</h3>
+                        <p>Analyse ton profil et tes posts. Découvre ce qui fonctionne et ce qui te freine</p>
                     </div>
-                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 30px; text-align: left;">
-                        <div style="font-size: 2em; margin-bottom: 15px;">👻</div>
-                        <h3 style="color: #f5576c; font-size: 1.1em; margin-bottom: 10px;">"Mes DM restent sans réponse"</h3>
-                        <p style="color: rgba(255,255,255,0.6); font-size: 0.95em;">Messages copiés-collés = ignorés. Tes prospects voient que c'est du mass mailing déguisé.</p>
+
+                    <div class="workflow-step" data-step="2">
+                        <div class="workflow-number">2</div>
+                        <div class="workflow-icon">✍️</div>
+                        <h3>Crée tes contenus</h3>
+                        <p>Posts LinkedIn, carrousels, vidéos TikTok... L'IA écrit avec ton style, pas celui de ChatGPT</p>
                     </div>
-                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 30px; text-align: left;">
-                        <div style="font-size: 2em; margin-bottom: 15px;">🤯</div>
-                        <h3 style="color: #f5576c; font-size: 1.1em; margin-bottom: 10px;">"Je n'ai pas le temps de tout faire"</h3>
-                        <p style="color: rgba(255,255,255,0.6); font-size: 0.95em;">Tu jongles entre 5 outils differents. Contenu, prospection, emails, planning... Ca ne finit jamais.</p>
+
+                    <div class="workflow-step" data-step="3">
+                        <div class="workflow-number">3</div>
+                        <div class="workflow-icon">📧</div>
+                        <h3>Prépare tes newsletters</h3>
+                        <p>Transforme tes posts en emails engageants. Prêts à envoyer en un clic</p>
+                    </div>
+
+                    <div class="workflow-step" data-step="4">
+                        <div class="workflow-number">4</div>
+                        <div class="workflow-icon">🎯</div>
+                        <h3>Prospecte efficacement</h3>
+                        <p>Messages personnalisés qui sonnent humain. Fini le copier-coller robotique</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Features Section - 4 Modes -->
+        <!-- Features Section -->
         <section class="features" id="fonctionnalites">
-            <h2 class="section-title">4 modes. Un seul outil. Zéro prise de tête.</h2>
-            <p class="section-subtitle">Choisis ce que tu veux faire, l'IA s'occupe du reste</p>
+            <h2 class="section-title" data-i18n="features.title">Tout ce qu'il te faut pour créer du contenu qui te ressemble</h2>
+            <p class="section-subtitle" data-i18n="features.subtitle">Des fonctionnalités pensées pour les créateurs exigeants et les agences performantes</p>
 
-            <div style="max-width: 1100px; margin: 0 auto; display: grid; gap: 40px;">
+            <div class="features-grid">
+                <article class="feature-card">
+                    <div class="feature-icon">📖</div>
+                    <h3 data-i18n="features.f1_title">20+ Structures Narratives</h3>
+                    <p data-i18n="features.f1_desc">AIDA, PAS, Storytelling, Hook-Story-Offer... Choisis la structure qui captive ton audience. Chaque framework est optimisé pour convertir.</p>
+                </article>
 
-                <!-- Mode CREER -->
-                <div style="background: linear-gradient(135deg, rgba(102,126,234,0.15) 0%, rgba(118,75,162,0.1) 100%); border: 1px solid rgba(102,126,234,0.3); border-radius: 20px; padding: 40px; display: grid; grid-template-columns: auto 1fr; gap: 30px; align-items: start;">
-                    <div style="font-size: 3em;">✨</div>
-                    <div>
-                        <h3 style="font-size: 1.5em; margin-bottom: 8px; color: #667eea;">CRÉER — Attirer avec tes contenus</h3>
-                        <p style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">Posts réseaux sociaux, newsletters, emails de lancement... Tout avec TON style.</p>
-                        <ul style="list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px;">
-                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ Posts LinkedIn, Instagram, TikTok</li>
-                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ Newsletters prêtes à envoyer</li>
-                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ 20+ structures narratives (AIDA, PAS...)</li>
-                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ Emails de lancement & séquences</li>
-                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ Idées contextualisées à ton secteur</li>
-                        </ul>
+                <article class="feature-card">
+                    <div class="feature-icon">🎤</div>
+                    <h3 data-i18n="features.f2_title">Ma Voix - Ton ADN</h3>
+                    <p data-i18n="features.f2_desc">L'IA apprend ton style d'écriture et mémorise tes préférences. Plus tu l'utilises, plus elle te ressemble. Fini le contenu générique.</p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon">🗓️</div>
+                    <h3 data-i18n="features.f3_title">Planning IA Automatisé</h3>
+                    <p data-i18n="features.f3_desc">Génère un calendrier éditorial complet en un clic. L'IA équilibre tes piliers de contenu et optimise les horaires de publication.</p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon">🔥</div>
+                    <h3 data-i18n="features.f4_title">TRENDS en Temps Réel</h3>
+                    <p data-i18n="features.f4_desc">Détecte les sujets tendances de ton secteur. Ne rate plus jamais une opportunité de surfer sur l'actualité.</p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon">📤</div>
+                    <h3 data-i18n="features.f5_title">Export Multi-Outils</h3>
+                    <p data-i18n="features.f5_desc">Exporte vers Metricool, Swello, Buffer ou CSV en un clic. Compatible avec tous tes outils de planification existants.</p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <h3 data-i18n="features.f6_title">Mode Multi-Clients</h3>
+                    <p data-i18n="features.f6_desc">Gère jusqu'à 30 clients avec des profils de voix distincts. Dashboard analytics, exports bulk, rapports détaillés.</p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3 data-i18n="features.f7_title">Audit Posts & Profils</h3>
+                    <p data-i18n="features.f7_desc">Analyse tes posts LinkedIn et Instagram sous l'angle du storytelling. Découvre ce qui capte l'attention et ce qui fait scroller.</p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon">📧</div>
+                    <h3 data-i18n="features.f8_title">Newsletters en 1 clic</h3>
+                    <p data-i18n="features.f8_desc">Transforme tes meilleurs posts en newsletters prêtes à envoyer. Format optimisé pour l'email, ton style préservé.</p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon">💬</div>
+                    <h3 data-i18n="features.f9_title">Prospection Humaine</h3>
+                    <p data-i18n="features.f9_desc">Messages personnalisés qui ne sonnent pas comme du ChatGPT copié-collé. Connexion authentique, réponses garanties.</p>
+                </article>
+            </div>
+        </section>
+
+        <!-- Killer Feature: AI Coach Loop -->
+        <section class="killer-feature" id="ai-coach">
+            <div class="killer-container">
+                <div class="killer-content">
+                    <span class="killer-badge">🧠 IA qui apprend de toi</span>
+                    <p class="killer-quote">"La folie, c'est de faire toujours la même chose et de s'attendre à un résultat différent."</p>
+                    <h2>Ton coach IA personnel qui s'améliore avec toi</h2>
+                    <p>SOS Storytelling ne se contente pas de générer des textes : elle apprend de tes meilleurs contenus, mémorise ton activité, ton style et tes objectifs, puis ajuste ses idées et recommandations à chaque nouvelle utilisation. Grâce aux audits, tu découvres tes erreurs et tes axes d'amélioration pour progresser vraiment.</p>
+                    <a href="login.html" class="btn-primary">Essayer gratuitement →</a>
+                </div>
+                <div class="killer-loop">
+                    <div class="loop-step">
+                        <span class="step-icon">🔍</span>
+                        <span class="step-text">Audite ton profil et tes posts</span>
+                    </div>
+                    <div class="loop-step">
+                        <span class="step-icon">✍️</span>
+                        <span class="step-text">Génère du contenu avec ton style</span>
+                    </div>
+                    <div class="loop-step">
+                        <span class="step-icon">✅</span>
+                        <span class="step-text">Audite avant de publier</span>
+                    </div>
+                    <div class="loop-step">
+                        <span class="step-icon">📈</span>
+                        <span class="step-text">L'IA apprend ce qui marche pour toi</span>
                     </div>
                 </div>
+            </div>
+        </section>
 
-                <!-- Mode PROSPECTER -->
-                <div style="background: linear-gradient(135deg, rgba(240,147,251,0.15) 0%, rgba(245,87,108,0.1) 100%); border: 1px solid rgba(240,147,251,0.3); border-radius: 20px; padding: 40px; display: grid; grid-template-columns: auto 1fr; gap: 30px; align-items: start;">
-                    <div style="font-size: 3em;">🎯</div>
-                    <div>
-                        <h3 style="font-size: 1.5em; margin-bottom: 8px; color: #f093fb;">PROSPECTER — Trouver et contacter tes clients idéaux <span style="background: #10b981; color: white; font-size: 0.6em; padding: 4px 10px; border-radius: 10px; margin-left: 10px;">NOUVEAU</span></h3>
-                        <p style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">L'IA analyse les contenus publics de tes prospects et crée des messages personnalisés.</p>
-                        <ul style="list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px;">
-                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ Analyse les posts récents de tes prospects</li>
-                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ Messages DM contextualisés</li>
-                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ Import contacts (LinkedIn, CSV)</li>
-                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ Séquences de prospection automatisées</li>
-                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ Inbox Intelligente : tri auto des réponses</li>
-                        </ul>
-                        <div style="margin-top: 25px;">
-                            <a href="https://sosextensionprosp.netlify.app/prospects?from=sos" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #f093fb, #f5576c); color: white; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 600; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 10px 30px rgba(240,147,251,0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
-                                🎯 Essayer la prospection par DM
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
-                            </a>
+        <!-- Features Carousel -->
+        <section class="features-carousel-section">
+            <div class="carousel-container">
+                <h2 class="section-title">Découvre l'interface</h2>
+                <p class="section-subtitle">Des captures à venir - en attendant, voici ce qui t'attend</p>
+
+                <div class="carousel-track" id="carouselTrack">
+                    <div class="carousel-slide">
+                        <div class="carousel-image">
+                            📊
+                            <span class="placeholder-text">Capture à venir</span>
+                        </div>
+                        <div class="carousel-content">
+                            <h3>Audit de profil</h3>
+                            <p>Analyse visuelle de ton profil LinkedIn, Instagram ou TikTok avec des scores détaillés.</p>
+                        </div>
+                    </div>
+                    <div class="carousel-slide">
+                        <div class="carousel-image">
+                            ✍️
+                            <span class="placeholder-text">Capture à venir</span>
+                        </div>
+                        <div class="carousel-content">
+                            <h3>Génération de contenu</h3>
+                            <p>Interface intuitive pour créer des posts avec 20+ structures narratives.</p>
+                        </div>
+                    </div>
+                    <div class="carousel-slide">
+                        <div class="carousel-image">
+                            🔍
+                            <span class="placeholder-text">Capture à venir</span>
+                        </div>
+                        <div class="carousel-content">
+                            <h3>Audit de posts</h3>
+                            <p>Analyse storytelling de tes posts avec scores et recommandations.</p>
+                        </div>
+                    </div>
+                    <div class="carousel-slide">
+                        <div class="carousel-image">
+                            📧
+                            <span class="placeholder-text">Capture à venir</span>
+                        </div>
+                        <div class="carousel-content">
+                            <h3>Newsletters</h3>
+                            <p>Transforme tes posts en newsletters prêtes à envoyer.</p>
+                        </div>
+                    </div>
+                    <div class="carousel-slide">
+                        <div class="carousel-image">
+                            💬
+                            <span class="placeholder-text">Capture à venir</span>
+                        </div>
+                        <div class="carousel-content">
+                            <h3>Prospection</h3>
+                            <p>Messages personnalisés qui ne sonnent pas robotique.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Mode MULTI-AGENTS -->
-                <div style="background: linear-gradient(135deg, rgba(30,41,59,0.8) 0%, rgba(51,65,85,0.6) 100%); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 40px; display: grid; grid-template-columns: auto 1fr; gap: 30px; align-items: start;">
-                    <div style="font-size: 3em;">🚀</div>
-                    <div>
-                        <h3 style="font-size: 1.5em; margin-bottom: 8px; color: white;">MULTI-AGENTS — L'IA gère pour toi <span style="background: #10b981; color: white; font-size: 0.6em; padding: 4px 10px; border-radius: 10px; margin-left: 10px;">NOUVEAU</span></h3>
-                        <p style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">Tu valides, l'IA exécute. Contenu + prospection + emails en pilote automatique.</p>
-                        <ul style="list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px;">
-                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ "Crée mon contenu du mois" → 1 clic</li>
-                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ Prospection automatisée</li>
-                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ Tu gardes le contrôle</li>
-                            <li style="color: rgba(255,255,255,0.8); padding: 8px 0;">✅ Sans faire le travail</li>
-                        </ul>
-                    </div>
+                <div class="carousel-nav">
+                    <button class="carousel-btn" onclick="scrollCarousel(-1)">←</button>
+                    <button class="carousel-btn" onclick="scrollCarousel(1)">→</button>
                 </div>
-
             </div>
         </section>
 
@@ -1584,35 +2093,38 @@
 
         <!-- Use Cases Section -->
         <section class="use-cases" id="usecases">
-            <h2 class="section-title">Pour qui ?</h2>
-            <p class="section-subtitle">SOS Storytelling s'adapte à votre métier et vos ambitions</p>
+            <h2 class="section-title" data-i18n="usecases.title">Conçu pour ceux qui créent du contenu régulièrement</h2>
+            <p class="section-subtitle" data-i18n="usecases.subtitle">Que tu sois freelance ou agence, SOS Storytelling s'adapte à ton workflow</p>
 
-            <div class="use-cases-grid" style="max-width: 1000px; margin: 0 auto; grid-template-columns: repeat(3, 1fr);">
-                <article class="use-case-card" style="text-align: center; padding: 40px 30px;">
-                    <div style="font-size: 3em; margin-bottom: 20px;">👤</div>
-                    <h3 style="font-size: 1.3em; margin-bottom: 15px;">Créateurs individuels</h3>
-                    <p style="color: rgba(255,255,255,0.7); line-height: 1.6;">Freelances, consultants, personal branding... Créez du contenu qui vous ressemble et trouvez des clients qualifiés, sans y passer vos journées.</p>
-                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-                        <span style="background: rgba(139,92,246,0.2); color: #a78bfa; padding: 5px 12px; border-radius: 20px; font-size: 0.85em;">Plan SOLO</span>
-                    </div>
+            <div class="use-cases-grid">
+                <article class="use-case-card">
+                    <h3 data-i18n="usecases.u1_title">👤 Freelance / Solopreneur</h3>
+                    <p data-i18n="usecases.u1_desc">Crée du contenu consistant sans y passer des heures. Garde ta voix authentique tout en multipliant ta présence en ligne.</p>
                 </article>
 
-                <article class="use-case-card" style="text-align: center; padding: 40px 30px;">
-                    <div style="font-size: 3em; margin-bottom: 20px;">🎓</div>
-                    <h3 style="font-size: 1.3em; margin-bottom: 15px;">Coachs & Formateurs</h3>
-                    <p style="color: rgba(255,255,255,0.7); line-height: 1.6;">Équipez vos coachées avec un outil professionnel en white label. Votre marque, vos méthodes, leur succès.</p>
-                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-                        <a href="business.html" style="background: rgba(245,87,108,0.2); color: #f5576c; padding: 5px 12px; border-radius: 20px; font-size: 0.85em; text-decoration: none;">Plan WHITE LABEL →</a>
-                    </div>
+                <article class="use-case-card">
+                    <h3 data-i18n="usecases.u2_title">📱 Community Manager</h3>
+                    <p data-i18n="usecases.u2_desc">Génère des idées fraîches pour tes clients, respecte leurs guidelines de marque, et exporte directement vers tes outils de planification.</p>
                 </article>
 
-                <article class="use-case-card" style="text-align: center; padding: 40px 30px;">
-                    <div style="font-size: 3em; margin-bottom: 20px;">🏢</div>
-                    <h3 style="font-size: 1.3em; margin-bottom: 15px;">Agences & Équipes</h3>
-                    <p style="color: rgba(255,255,255,0.7); line-height: 1.6;">Gérez plusieurs clients avec des voix distinctes. Planning multi-clients, analytics, exports bulk... Scalez votre production de contenu.</p>
-                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-                        <a href="business.html" style="background: rgba(245,87,108,0.2); color: #f5576c; padding: 5px 12px; border-radius: 20px; font-size: 0.85em; text-decoration: none;">Plan WHITE LABEL →</a>
-                    </div>
+                <article class="use-case-card">
+                    <h3 data-i18n="usecases.u3_title">🏢 Agence Social Media</h3>
+                    <p data-i18n="usecases.u3_desc">Gère plusieurs clients avec des voix distinctes, suis la production de contenu avec le dashboard analytics, et scale ton activité.</p>
+                </article>
+
+                <article class="use-case-card">
+                    <h3 data-i18n="usecases.u4_title">🎯 Consultant Marketing</h3>
+                    <p data-i18n="usecases.u4_desc">Impressionne tes clients avec des contenus structurés et percutants. Utilise les frameworks éprouvés pour maximiser l'engagement.</p>
+                </article>
+
+                <article class="use-case-card">
+                    <h3 data-i18n="usecases.u5_title">🛍️ E-commerce</h3>
+                    <p data-i18n="usecases.u5_desc">Crée du contenu produit qui convertit. Storytelling, témoignages, lancements... Tout est optimisé pour la vente.</p>
+                </article>
+
+                <article class="use-case-card">
+                    <h3 data-i18n="usecases.u6_title">👩‍💼 Personal Branding</h3>
+                    <p data-i18n="usecases.u6_desc">Développe ta marque personnelle avec du contenu qui te ressemble. LinkedIn, Instagram, TikTok... Sois partout, authentiquement.</p>
                 </article>
             </div>
         </section>
@@ -1641,205 +2153,148 @@
 
         <!-- Pricing Section -->
         <section id="tarifs">
-            <h2 class="section-title">Un prix simple, tout inclus</h2>
-            <p class="section-subtitle">Pas de fonctionnalités cachées. Tout est débloqué dès le premier jour.</p>
+            <h2 class="section-title">Teste gratuitement, sans carte bancaire</h2>
+            <p class="section-subtitle">4 posts + 3 audits offerts pour découvrir la puissance de l'IA</p>
 
-            <!-- Early Adopter Main Card -->
-            <div style="max-width: 600px; margin: 0 auto;">
-                <article style="background: linear-gradient(145deg, rgba(139,92,246,0.15), rgba(245,87,108,0.1)); border: 2px solid rgba(139,92,246,0.4); border-radius: 24px; padding: 50px 40px; text-align: center; position: relative; overflow: hidden;">
+            <!-- Trial Banner -->
+            <div class="trial-banner">
+                <h3>🎁 4 posts + 3 audits gratuits</h3>
+                <p>Génère tes premiers contenus et audite ton profil, tes posts et tes reels gratuitement. Sans engagement.</p>
+                <a href="login.html" class="btn-primary">Commencer gratuitement</a>
+                <p style="margin-top: 20px; font-size: 0.9em; opacity: 0.8; position: relative;">✓ Sans carte bancaire • ✓ Aucun engagement • ✓ Données exportables</p>
+            </div>
 
-                    <!-- Badge Early Adopter -->
-                    <div style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #ef4444, #dc2626); color: white; padding: 8px 20px; border-radius: 30px; font-size: 0.85em; font-weight: 600; animation: pulse 2s infinite;">
-                        🚀 Offre Early Adopter — 100 premiers comptes / avant le 20 février
-                    </div>
+            <p style="text-align: center; color: rgba(255,255,255,0.6); margin-bottom: 40px;">Après l'essai, choisis ton plan :</p>
+            
+            <p style="text-align: center; color: #10b981; font-size: 0.9em; margin-bottom: 20px; font-weight: 600;">🚀 Tarifs early adopters – Ces tarifs sont réservés aux premiers utilisateurs</p>
 
-                    <h3 style="font-size: 2em; margin-top: 30px; margin-bottom: 10px;">Plan SOLO</h3>
-                    <p style="color: rgba(255,255,255,0.6); margin-bottom: 30px;">Pour les créateurs individuels</p>
+            <!-- Toggle Mensuel/Annuel -->
+            <div style="display: flex; justify-content: center; margin-bottom: 30px;">
+                <div id="billingToggle" style="display: inline-flex; background: rgba(255,255,255,0.1); border-radius: 30px; padding: 4px;">
+                    <button onclick="setBilling('monthly')" id="btnMonthly" style="padding: 10px 25px; border-radius: 25px; border: none; cursor: pointer; font-weight: 600; transition: all 0.3s; background: white; color: #667eea;">Mensuel</button>
+                    <button onclick="setBilling('annual')" id="btnAnnual" style="padding: 10px 25px; border-radius: 25px; border: none; cursor: pointer; font-weight: 600; transition: all 0.3s; background: transparent; color: rgba(255,255,255,0.7);">Annuel <span style="background: #10b981; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75em; margin-left: 5px;">-17%</span></button>
+                </div>
+            </div>
 
-                    <!-- Toggle Mensuel/Annuel -->
-                    <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 30px;">
-                        <button onclick="showMonthly()" id="btn-monthly" style="background: rgba(139,92,246,0.3); color: #fff; border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; font-weight: 600; transition: all 0.3s;">Mensuel</button>
-                        <button onclick="showAnnual()" id="btn-annual" style="background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; font-weight: 600; transition: all 0.3s;">Annuel <span style="background: #22c55e; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75em; margin-left: 5px;">-20%</span></button>
-                    </div>
-
-                    <!-- Prix Mensuel -->
-                    <div id="price-monthly" style="margin-bottom: 30px;">
-                        <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
-                            <span style="font-size: 2em; color: rgba(255,255,255,0.4); text-decoration: line-through;">97€</span>
-                            <span style="font-size: 4em; font-weight: 800; background: linear-gradient(135deg, #8b5cf6, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">77€</span>
-                            <span style="color: rgba(255,255,255,0.6);">/mois</span>
-                        </div>
-                        <p style="color: #22c55e; font-size: 0.9em; margin-top: 10px;">🚀 <strong>Early Adopter</strong> : 77€/mois au lieu de 97€ jusqu'au 15 février</p>
-                    </div>
-
-                    <!-- Prix Annuel (caché par défaut) -->
-                    <div id="price-annual" style="margin-bottom: 30px; display: none;">
-                        <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
-                            <span style="font-size: 2em; color: rgba(255,255,255,0.4); text-decoration: line-through;">924€</span>
-                            <span style="font-size: 4em; font-weight: 800; background: linear-gradient(135deg, #22c55e, #4ade80); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">770€</span>
-                            <span style="color: rgba(255,255,255,0.6);">/an</span>
-                        </div>
-                        <p style="color: #22c55e; font-size: 0.9em; margin-top: 10px;">🚀 Early Adopter : 770€/an (64€/mois) jusqu'au 15 février</p>
-                    </div>
-
-                    <!-- Features List -->
-                    <ul style="list-style: none; text-align: left; max-width: 350px; margin: 0 auto 30px;">
-                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 10px;">
-                            <span style="color: #22c55e;">✓</span> Contenus illimités (posts, carrousels, vidéos...)
-                        </li>
-                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 10px;">
-                            <span style="color: #22c55e;">✓</span> 🎤 Ma Voix — Clone ton style d'écriture
-                        </li>
-                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 10px;">
-                            <span style="color: #22c55e;">✓</span> 🔍 Prospection automatisée LinkedIn
-                        </li>
-                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 10px;">
-                            <span style="color: #22c55e;">✓</span> 📊 Audit GEO + Réseaux sociaux
-                        </li>
-                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 10px;">
-                            <span style="color: #22c55e;">✓</span> 📅 Planning IA personnalisé
-                        </li>
-                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 10px;">
-                            <span style="color: #22c55e;">✓</span> Export vers Metricool, Buffer, Swello...
-                        </li>
-                        <li style="padding: 10px 0; display: flex; align-items: center; gap: 10px;">
-                            <span style="color: #22c55e;">✓</span> Support prioritaire par email
-                        </li>
+            <div class="pricing-grid">
+                <article class="pricing-card">
+                    <h3>Solo</h3>
+                    <p class="pricing-subtitle">Pour les créateurs individuels</p>
+                    <div class="pricing-price" id="priceSolo">47€<span>/mois</span></div>
+                    <p class="price-detail" id="priceSoloDetail" style="font-size: 0.8em; color: rgba(255,255,255,0.5); margin-top: -10px; margin-bottom: 15px; text-decoration: line-through;">67€/mois après early adopters</p>
+                    <ul class="pricing-features">
+                        <li>Contenus illimités</li>
+                        <li>🎤 Ma Voix complète</li>
+                        <li>TRENDS illimité</li>
+                        <li>Planning IA</li>
+                        <li>Export CSV & outils</li>
+                        <li>Support prioritaire</li>
                     </ul>
+                    <a href="https://myinnerquest.lemonsqueezy.com/buy/74412bb8-7df8-4d11-a7bb-c8434dc687a7" id="linkSolo" class="pricing-btn secondary">Choisir Solo</a>
+                </article>
 
-                    <!-- CTA -->
-                    <a href="login.html" style="display: inline-block; background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white; padding: 18px 50px; border-radius: 30px; text-decoration: none; font-weight: 700; font-size: 1.1em; transition: all 0.3s; box-shadow: 0 10px 30px rgba(139,92,246,0.4);">
-                        Commencer l'essai gratuit 7 jours
-                    </a>
-                    <p style="margin-top: 15px; color: rgba(255,255,255,0.5); font-size: 0.85em;">✓ Sans carte bancaire • ✓ Annulation en 1 clic</p>
+                <article class="pricing-card">
+                    <h3>Agence Starter</h3>
+                    <p class="pricing-subtitle">Jusqu'à 10 clients</p>
+                    <div class="pricing-price" id="priceStarter">99€<span>/mois</span></div>
+                    <ul class="pricing-features">
+                        <li>Tout de Solo +</li>
+                        <li>🎤 Voix PAR CLIENT</li>
+                        <li>Import CSV clients</li>
+                        <li>Dashboard analytics</li>
+                        <li>Planning multi-clients</li>
+                        <li>Support dédié</li>
+                    </ul>
+                    <a href="https://myinnerquest.lemonsqueezy.com/buy/c743c114-dc29-48a3-b34b-0fd30d3db204" id="linkStarter" class="pricing-btn secondary">Choisir Starter</a>
+                </article>
 
-                    <!-- Garantie -->
-                    <div style="margin-top: 30px; padding: 20px; background: rgba(34,197,94,0.1); border-radius: 15px; border: 1px solid rgba(34,197,94,0.3);">
-                        <p style="color: #22c55e; font-weight: 600; margin-bottom: 5px;">🛡️ Garantie satisfait ou remboursé 14 jours</p>
-                        <p style="color: rgba(255,255,255,0.6); font-size: 0.85em;">Si l'outil ne vous convient pas, on vous rembourse. Sans questions.</p>
-                    </div>
+                <article class="pricing-card popular">
+                    <span class="pricing-badge">Populaire</span>
+                    <h3>Agence Scale</h3>
+                    <p class="pricing-subtitle">Jusqu'à 30 clients</p>
+                    <div class="pricing-price" id="priceScale">199€<span>/mois</span></div>
+                    <ul class="pricing-features">
+                        <li>Tout de Starter +</li>
+                        <li>🎤 30 profils de voix</li>
+                        <li>Analytics avancées</li>
+                        <li>Exports bulk illimités</li>
+                        <li>Onboarding équipe</li>
+                        <li>Support prioritaire</li>
+                    </ul>
+                    <a href="https://myinnerquest.lemonsqueezy.com/buy/0177ea61-1b2b-4897-8913-2f6b0ce8afa7" id="linkScale" class="pricing-btn primary">Choisir Scale</a>
+                </article>
+
+                <article class="pricing-card">
+                    <h3>Enterprise</h3>
+                    <p class="pricing-subtitle">30+ clients, sur devis</p>
+                    <div class="pricing-price" style="font-size: 1.8em;">À partir de<br>300€<span>/mois</span></div>
+                    <ul class="pricing-features">
+                        <li>Clients illimités</li>
+                        <li>Multi-utilisateurs</li>
+                        <li>API & SSO</li>
+                        <li>Voix sur-mesure</li>
+                        <li>Onboarding personnalisé</li>
+                        <li>Account manager dédié</li>
+                    </ul>
+                    <a href="mailto:contact@myinnerquest.fr" class="pricing-btn secondary">Nous contacter</a>
                 </article>
             </div>
-
-            <!-- Comparaison outils -->
-            <div style="max-width: 700px; margin: 60px auto 0; text-align: center;">
-                <h3 style="font-size: 1.3em; margin-bottom: 30px; color: rgba(255,255,255,0.9);">Ce que vous payeriez ailleurs :</h3>
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px;">
-                    <div style="background: rgba(255,255,255,0.05); padding: 20px 15px; border-radius: 15px;">
-                        <p style="font-weight: 600; margin-bottom: 5px;">Jasper</p>
-                        <p style="color: #ef4444; font-size: 1.2em;">59€/mois</p>
-                        <p style="font-size: 0.75em; color: rgba(255,255,255,0.4);">Contenu seul</p>
-                    </div>
-                    <div style="background: rgba(255,255,255,0.05); padding: 20px 15px; border-radius: 15px;">
-                        <p style="font-weight: 600; margin-bottom: 5px;">Taplio</p>
-                        <p style="color: #ef4444; font-size: 1.2em;">49€/mois</p>
-                        <p style="font-size: 0.75em; color: rgba(255,255,255,0.4);">LinkedIn seul</p>
-                    </div>
-                    <div style="background: rgba(255,255,255,0.05); padding: 20px 15px; border-radius: 15px;">
-                        <p style="font-weight: 600; margin-bottom: 5px;">Phantombuster</p>
-                        <p style="color: #ef4444; font-size: 1.2em;">59€/mois</p>
-                        <p style="font-size: 0.75em; color: rgba(255,255,255,0.4);">Scraping seul</p>
-                    </div>
-                    <div style="background: rgba(255,255,255,0.05); padding: 20px 15px; border-radius: 15px;">
-                        <p style="font-weight: 600; margin-bottom: 5px;">Total</p>
-                        <p style="color: #ef4444; font-size: 1.2em; text-decoration: line-through;">167€/mois</p>
-                        <p style="font-size: 0.75em; color: rgba(255,255,255,0.4);">3 outils séparés</p>
-                    </div>
-                </div>
-                <p style="color: rgba(255,255,255,0.6); font-size: 0.95em;">
-                    <strong style="color: #22c55e;">SOS Storytelling = 77€/mois</strong> pour tout en un seul endroit
-                </p>
+            
+            <div style="text-align: center; margin-top: 50px; padding: 30px; background: rgba(255,255,255,0.03); border-radius: 20px; max-width: 600px; margin-left: auto; margin-right: auto;">
+                <p style="color: rgba(255,255,255,0.7); font-size: 0.95em;">💡 <strong>Pendant ton essai, atteins ces 2 moments clés :</strong></p>
+                <p style="color: rgba(255,255,255,0.5); font-size: 0.9em; margin-top: 10px;">1. Voir ton score de fidélité "Ma Voix" • 2. Générer ton premier Planning IA</p>
             </div>
 
-            <!-- Lien vers B2B -->
-            <div style="text-align: center; margin-top: 50px; padding: 30px; background: rgba(245,87,108,0.1); border-radius: 20px; border: 1px solid rgba(245,87,108,0.2); max-width: 600px; margin-left: auto; margin-right: auto;">
-                <p style="color: rgba(255,255,255,0.8); font-size: 1em; margin-bottom: 15px;">
-                    🎓 <strong>Coach ou formateur ?</strong> Équipez vos clients avec notre solution white label
-                </p>
-                <a href="business.html" style="color: #f5576c; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
-                    Découvrir l'offre WHITE LABEL →
-                </a>
-            </div>
-
-            <script>
-                function showMonthly() {
-                    document.getElementById('price-monthly').style.display = 'block';
-                    document.getElementById('price-annual').style.display = 'none';
-                    document.getElementById('btn-monthly').style.background = 'rgba(139,92,246,0.3)';
-                    document.getElementById('btn-monthly').style.color = '#fff';
-                    document.getElementById('btn-annual').style.background = 'rgba(255,255,255,0.1)';
-                    document.getElementById('btn-annual').style.color = 'rgba(255,255,255,0.6)';
-                }
-                function showAnnual() {
-                    document.getElementById('price-monthly').style.display = 'none';
-                    document.getElementById('price-annual').style.display = 'block';
-                    document.getElementById('btn-annual').style.background = 'rgba(34,197,94,0.3)';
-                    document.getElementById('btn-annual').style.color = '#fff';
-                    document.getElementById('btn-monthly').style.background = 'rgba(255,255,255,0.1)';
-                    document.getElementById('btn-monthly').style.color = 'rgba(255,255,255,0.6)';
-                }
-            </script>
+            <p style="text-align: center; margin-top: 40px; color: rgba(255,255,255,0.5); font-size: 0.85em;">
+                ✨ Fonctionne encore mieux avec <a href="https://sosgeo.fr" target="_blank" style="color: var(--accent); text-decoration: none;">SOS GEO</a> & <a href="https://sosprospector.fr" target="_blank" style="color: var(--accent); text-decoration: none;">SOS Prospector</a>
+            </p>
         </section>
 
         <!-- FAQ Section -->
         <section class="faq" id="faq">
-            <h2 class="section-title">Questions fréquentes</h2>
-            <p class="section-subtitle">Tout ce que vous devez savoir avant de commencer</p>
+            <h2 class="section-title" data-i18n="faq.title">Questions fréquentes</h2>
+            <p class="section-subtitle" data-i18n="faq.subtitle">Tout ce que tu dois savoir avant de commencer</p>
 
             <div class="faq-container">
                 <article class="faq-item">
-                    <div class="faq-question">Qu'est-ce que la fonctionnalité "Ma Voix" ?</div>
+                    <div class="faq-question" data-i18n="faq.q1">Puis-je utiliser SOS Storytelling pour plusieurs clients ?</div>
                     <div class="faq-answer">
-                        <p>"Ma Voix" est notre technologie propriétaire qui analyse votre style d'écriture. Elle apprend votre ton, vos expressions, vos emojis préférés, et génère du contenu qui vous ressemble vraiment. Score de fidélité affiché à chaque génération.</p>
+                        <p data-i18n="faq.a1">Absolument ! Les plans Agence Starter (jusqu'à 10 clients) et Agence Scale (jusqu'à 30 clients) permettent de gérer plusieurs profils de voix distincts. Chaque client a son propre style, ses piliers de contenu, et tu peux basculer entre eux en un clic.</p>
                     </div>
                 </article>
 
                 <article class="faq-item">
-                    <div class="faq-question">Comment fonctionne la prospection LinkedIn ?</div>
+                    <div class="faq-question" data-i18n="faq.q2">Qu'est-ce que la fonctionnalité "Ma Voix" ?</div>
                     <div class="faq-answer">
-                        <p>Vous définissez vos critères (poste, secteur, localisation), et l'IA trouve les profils qui correspondent. Vous recevez une liste qualifiée avec suggestions de messages personnalisés. Tout se passe dans une Inbox Intelligente pour un suivi simple.</p>
+                        <p data-i18n="faq.a2">"Ma Voix" est notre technologie propriétaire qui analyse ton style d'écriture et mémorise tes préférences. Elle apprend ton ton, tes expressions favorites, tes emojis préférés, et génère du contenu qui te ressemble vraiment.</p>
                     </div>
                 </article>
 
                 <article class="faq-item">
-                    <div class="faq-question">La prospection automatisée est-elle légale ?</div>
+                    <div class="faq-question" data-i18n="faq.q3">Puis-je exporter mes contenus vers mes outils de planification ?</div>
                     <div class="faq-answer">
-                        <p>Oui, à 100%. Notre système respecte les conditions d'utilisation de LinkedIn et le RGPD. Nous utilisons uniquement des données publiques, les volumes restent raisonnables, et vous gardez le contrôle total sur les messages envoyés.</p>
+                        <p data-i18n="faq.a3">Oui ! SOS Storytelling permet d'exporter en un clic vers Metricool, Swello, Buffer ou en CSV générique compatible avec n'importe quel outil. Le format est optimisé pour chaque plateforme.</p>
                     </div>
                 </article>
 
                 <article class="faq-item">
-                    <div class="faq-question">Qu'est-ce que l'Inbox Intelligente ?</div>
+                    <div class="faq-question" data-i18n="faq.q4">Quelles plateformes sociales sont supportées ?</div>
                     <div class="faq-answer">
-                        <p>C'est votre centre de prospection. Tous vos prospects, leurs profils, l'historique des échanges, le scoring automatique. L'IA suggère les meilleures réponses et vous alerte quand un prospect est "chaud". Plus de prospects qui tombent dans l'oubli.</p>
+                        <p data-i18n="faq.a4">LinkedIn, Instagram, TikTok, Facebook, Twitter/X, YouTube, et newsletters. Chaque contenu est automatiquement optimisé pour les spécificités de chaque plateforme.</p>
                     </div>
                 </article>
 
                 <article class="faq-item">
-                    <div class="faq-question">C'est quoi l'audit GEO ?</div>
+                    <div class="faq-question" data-i18n="faq.q5">Mes données sont-elles sécurisées ?</div>
                     <div class="faq-answer">
-                        <p>GEO = Generative Engine Optimization. L'audit analyse votre présence dans les réponses des IA (ChatGPT, Perplexity, Claude...). Vous découvrez si les IA parlent de vous, ce qu'elles disent, et comment améliorer votre visibilité dans ce nouveau canal.</p>
+                        <p data-i18n="faq.a5">Tes données sont stockées de manière sécurisée et ne sont jamais utilisées pour entraîner des modèles IA externes. Tu peux exporter ou supprimer tes données à tout moment (RGPD). Nous utilisons le chiffrement SSL et des serveurs européens.</p>
                     </div>
                 </article>
 
                 <article class="faq-item">
-                    <div class="faq-question">Est-ce que mes données sont utilisées pour entraîner des IA ?</div>
+                    <div class="faq-question" data-i18n="faq.q6">Puis-je annuler mon abonnement à tout moment ?</div>
                     <div class="faq-answer">
-                        <p>Non, jamais. Vos contenus et profils de voix ne servent qu'à personnaliser VOTRE expérience. Stockage sécurisé sur serveurs européens, chiffrement SSL, conformité RGPD complète. Vous pouvez exporter ou supprimer vos données à tout moment.</p>
-                    </div>
-                </article>
-
-                <article class="faq-item">
-                    <div class="faq-question">Que se passe-t-il après l'offre Early Adopter ?</div>
-                    <div class="faq-answer">
-                        <p>Cette offre à <strong>77€/mois au lieu de 97€</strong> est réservée aux early adopters jusqu'au <strong>15 février</strong>. Après cette date, le tarif normal de 97€/mois s'appliquera aux nouveaux inscrits. Vous pouvez annuler à tout moment, sans engagement.</p>
-                    </div>
-                </article>
-
-                <article class="faq-item">
-                    <div class="faq-question">Puis-je annuler mon abonnement ?</div>
-                    <div class="faq-answer">
-                        <p>Oui, en un clic depuis votre compte. Pas de justification, pas de pénalité. L'accès reste actif jusqu'à la fin de la période payée. Et vous avez 14 jours de garantie satisfait ou remboursé.</p>
+                        <p data-i18n="faq.a6">Oui, sans aucune condition. Tu peux annuler ton abonnement en un clic depuis ton compte. L'accès reste actif jusqu'à la fin de la période payée. Tes données restent exportables pendant 30 jours après l'annulation.</p>
                     </div>
                 </article>
             </div>
@@ -1847,363 +2302,335 @@
 
         <!-- Newsletter Section -->
         <section class="newsletter" id="newsletter">
-            <h2 data-i18n="newsletter.title">Recevez nos tips de storytelling</h2>
+            <h2 data-i18n="newsletter.title">Reçois nos tips de storytelling</h2>
             <p data-i18n="newsletter.subtitle">Chaque semaine, une technique de création de contenu qui fait la différence. Pas de spam, promis.</p>
             <form class="newsletter-form" id="newsletterForm">
-                <input type="email" name="email" placeholder="votre@email.com" data-i18n-placeholder="newsletter.placeholder" required>
+                <input type="email" name="email" placeholder="ton@email.com" data-i18n-placeholder="newsletter.placeholder" required>
                 <button type="submit" data-i18n="newsletter.button">S'inscrire</button>
             </form>
         </section>
     </main>
 
+    <!-- Cross-sell Section -->
+    <section class="cross-sell-section">
+        <h2>🚀 Booste ta visibilité avec notre écosystème</h2>
+        <p class="subtitle">SOS Storytelling fonctionne encore mieux avec nos autres outils</p>
+
+        <div class="cross-sell-grid">
+            <div class="cross-sell-card">
+                <h3>🌍 SOS GEO</h3>
+                <p class="tagline">Deviens la référence des IA</p>
+                <p>Rends ta marque visible et citée dans les réponses de ChatGPT, Perplexity et autres IA. Pendant que tes concurrents optimisent pour Google, prends une longueur d'avance sur le SEO de demain.</p>
+                <a href="https://sosgeo.fr" target="_blank" class="cross-sell-link">Découvrir SOS GEO →</a>
+            </div>
+
+            <div class="cross-sell-card">
+                <h3>💬 SOS Prospector</h3>
+                <p class="tagline">Transforme ton contenu en clients</p>
+                <p>Convertis tes posts en rendez-vous grâce aux DM intelligents. L'IA analyse les profils qui interagissent avec ton contenu et t'aide à engager la conversation qui mène au closing.</p>
+                <a href="https://sosprospector.fr" target="_blank" class="cross-sell-link">Découvrir SOS Prospector →</a>
+            </div>
+        </div>
+    </section>
+
     <footer class="footer">
         <div class="footer-content">
             <div class="footer-col">
                 <h4>SOS Storytelling</h4>
-                <p>L'IA qui crée du contenu à ta voix et trouve tes clients. Créé avec ❤️ par My Inner Quest.</p>
+                <p data-i18n="footer.tagline">L'IA qui transforme tes idées en contenus percutants. Créé avec ❤️ par My Inner Quest.</p>
             </div>
             <div class="footer-col">
-                <h4>Produit</h4>
-                <a href="#fonctionnalites">Fonctionnalités</a>
-                <a href="#tarifs">Tarifs</a>
-                <a href="#faq">FAQ</a>
-                <a href="login.html">Essai gratuit 7 jours</a>
+                <h4 data-i18n="footer.product">Produit</h4>
+                <a href="#fonctionnalites" data-i18n="footer.features">Fonctionnalités</a>
+                <a href="#tarifs" data-i18n="footer.pricing">Tarifs</a>
+                <a href="#faq" data-i18n="footer.faq">FAQ</a>
+                <a href="login.html" data-i18n="footer.free_trial">Essai gratuit</a>
             </div>
             <div class="footer-col">
-                <h4>Offres</h4>
-                <a href="#tarifs">Plan SOLO</a>
-                <a href="business.html">Plan WHITE LABEL</a>
-                <a href="business.html">Pour les Coachs</a>
+                <h4>Nos autres outils</h4>
+                <a href="https://sosgeo.fr" target="_blank" title="Deviens la référence des IA - Rends ta marque visible et citée dans les réponses des IA">🌍 SOS GEO - Visibilité IA</a>
+                <a href="https://sosprospector.fr" target="_blank" title="Transforme ton contenu en clients - Convertis tes posts en rendez-vous grâce aux DM">💬 SOS Prospector - DM</a>
             </div>
             <div class="footer-col">
                 <h4>Contact</h4>
                 <a href="mailto:contact@myinnerquest.fr">contact@myinnerquest.fr</a>
-                <a href="https://linktr.ee/myinnerquest" target="_blank">Tous nos liens</a>
+                <a href="https://linktr.ee/myinnerquest" target="_blank" data-i18n="footer.all_links">Tous nos liens</a>
             </div>
         </div>
-    </nav>
-
-    <!-- HERO -->
-    <section class="hero">
-        <div class="container">
-            <div class="hero-wrapper">
-                <div class="hero-content">
-                    <h1>Vos clientes créent du contenu avec leur style.<br><span class="text-gradient">Vous gardez la main.</span></h1>
-                    <p class="subtitle">L'outil IA <span class="text-accent">en white label</span> pour bootcamps et programmes d'accompagnement. Vos clientes produisent posts, newsletters et emails — vous suivez leur progression en temps réel.</p>
-
-                    <div class="hero-cta">
-                        <div class="hero-cta-buttons">
-                            <a href="https://calendly.com/sandra-devonssay/demo-sos-storytelling" target="_blank" class="btn btn-primary btn-large">Réserver une démo →</a>
-                            <a href="app-b2b.html" class="btn btn-outline" style="background: rgba(255,255,255,0.15); color: white; border-color: rgba(255,255,255,0.4);">Tester gratuitement →</a>
-                        </div>
-
-                        <div class="hero-badges">
-                            <div class="badge">
-                                <span>🚀</span>
-                                <span>100+ participantes par cohorte</span>
-                            </div>
-                            <div class="badge">
-                                <span>🎨</span>
-                                <span>White label complet</span>
-                            </div>
-                            <div class="badge">
-                                <span>🔑</span>
-                                <span>Vos propres clés API</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="testimonial-mini" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(10px);">
-                        <p style="color: rgba(255,255,255,0.95); font-style: normal;">🚀 <strong>En phase pilote</strong> — Places limitées pour les premiers partenaires bootcamp</p>
-                    </div>
-                </div>
-
-                <div class="hero-mockup">
-                    <div class="hero-carousel" id="heroCarousel">
-                        <div class="hero-carousel-inner">
-                            <div class="hero-carousel-slide">
-                                <img src="mockup-1.png" alt="Dashboard Coach - Vue d'ensemble">
-                            </div>
-                            <div class="hero-carousel-slide">
-                                <img src="mockup-2.png" alt="Création de contenu IA">
-                            </div>
-                            <div class="hero-carousel-slide">
-                                <img src="mockup-3.png" alt="Suivi des clientes">
-                            </div>
-                            <div class="hero-carousel-slide">
-                                <img src="mockup-4.png" alt="Messages personnalisés">
-                            </div>
-                        </div>
-                        <div class="hero-carousel-arrows">
-                            <button class="hero-carousel-arrow" onclick="moveCarousel(-1)">‹</button>
-                            <button class="hero-carousel-arrow" onclick="moveCarousel(1)">›</button>
-                        </div>
-                        <div class="hero-carousel-dots">
-                            <button class="hero-carousel-dot active" onclick="goToSlide(0)"></button>
-                            <button class="hero-carousel-dot" onclick="goToSlide(1)"></button>
-                            <button class="hero-carousel-dot" onclick="goToSlide(2)"></button>
-                            <button class="hero-carousel-dot" onclick="goToSlide(3)"></button>
-                        </div>
-                    </div>
-                </div>
+        <div class="footer-bottom">
+            <div class="footer-social">
+                <a href="https://www.instagram.com/myinnerquest.fr/" target="_blank" title="Instagram">📸</a>
+                <a href="#" target="_blank" title="TikTok">🎵</a>
             </div>
             <p class="footer-copy">
-                © 2025 My Inner Quest - SOS Storytelling. Tous droits réservés.<br>
-                <a href="mentions-legales.html">Mentions légales</a> | <a href="cgv.html">CGV</a> | <a href="confidentialite.html">Confidentialité</a>
+                © 2025 My Inner Quest - SOS Storytelling. <span data-i18n="footer.rights">Tous droits réservés.</span><br>
+                <a href="mentions-legales.html" data-i18n="footer.legal">Mentions légales</a> | <a href="cgv.html">CGV</a>
             </p>
-        </div>
-    </section>
-
-    <!-- AFTER BOOTCAMP SECTION -->
-    <section class="section section-gray">
-        <div class="container">
-            <div class="text-center">
-                <h2>Et après le bootcamp ?</h2>
-                <p class="subtitle">Vos clientes peuvent continuer en individuel</p>
-            </div>
-
-            <div class="after-grid">
-                <div class="after-card">
-                    <h4>✓ Ce qu'elles gardent</h4>
-                    <ul>
-                        <li>✓ Tout leur historique de contenus</li>
-                        <li>✓ Leur style cloné</li>
-                        <li>✓ Leurs listes de prospection</li>
-                    </ul>
-                </div>
-                <div class="after-card">
-                    <h4>→ Ce qui change</h4>
-                    <ul>
-                        <li>• Interface SOS Storytelling (plus votre white label)</li>
-                        <li>• 19€/mois (avec code promo exclusif)</li>
-                        <li>• Plus d'accès aux messages quotidiens ni au chat coach</li>
-                    </ul>
-                </div>
-                <div class="after-card">
-                    <h4>💰 Pour vous</h4>
-                    <ul>
-                        <li>• Commission sur chaque ancienne cliente qui continue</li>
-                        <li>• Revenus passifs</li>
-                        <li>• Vos clientes restent dans l'écosystème</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- FAQ SECTION -->
-    <section id="faq" class="section">
-        <div class="container">
-            <div class="text-center">
-                <h2>Questions fréquentes</h2>
-            </div>
-
-            <div class="faq-container">
-                <div class="faq-item">
-                    <button class="faq-question">
-                        Mes clientes peuvent-elles continuer après le bootcamp ?
-                        <span class="faq-icon">+</span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            Oui ! À la fin du programme, elles reçoivent une offre spéciale pour continuer en individuel (19€/mois avec un code promo exclusif). Elles gardent tout leur historique et leur style cloné.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faq-item">
-                    <button class="faq-question">
-                        Qui paie les coûts d'IA (Claude, etc.) ?
-                        <span class="faq-icon">+</span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            Vous utilisez vos propres clés API. Vous payez directement Anthropic et Perplexity — comptez environ 100-300€/mois selon l'usage de votre cohorte. Avantage : transparence totale, pas de marge cachée, et si les prix baissent, vous en profitez direct.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faq-item">
-                    <button class="faq-question">
-                        Est-ce que vous voyez mes prompts/frameworks ?
-                        <span class="faq-icon">+</span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            Non. Vos prompts restent confidentiels. Vous les importez vous-même via l'interface admin. Nous ne voyons que la structure technique, pas le contenu.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faq-item">
-                    <button class="faq-question">
-                        Combien de temps pour le setup ?
-                        <span class="faq-icon">+</span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            Quelques jours maximum. On configure ensemble, vous faites un call de validation, et c'est parti pour votre prochaine cohorte.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faq-item">
-                    <button class="faq-question">
-                        Mes clientes doivent-elles télécharger une app ?
-                        <span class="faq-icon">+</span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            Non. C'est une webapp (PWA) qui s'installe sur leur téléphone en un clic, sans passer par l'App Store. Elles reçoivent les notifications push comme une vraie app.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faq-item">
-                    <button class="faq-question">
-                        Puis-je avoir plusieurs cohortes en parallèle ?
-                        <span class="faq-icon">+</span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            Oui. Chaque cohorte a son propre espace, ses propres coachs assignés, ses propres métriques. Vous voyez tout depuis un dashboard global.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faq-item">
-                    <button class="faq-question">
-                        Que se passe-t-il si une cliente a un problème technique ?
-                        <span class="faq-icon">+</span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            Vos coachs sont formés pour gérer le support de premier niveau. Pour les problèmes techniques complexes, notre équipe intervient sous 24h.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faq-item">
-                    <button class="faq-question">
-                        Je peux tester avant de m'engager ?
-                        <span class="faq-icon">+</span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            On fait une démo personnalisée de 30 minutes où vous voyez l'outil avec vos couleurs et votre cas d'usage. Pas de pitch générique.
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA SECTION -->
-    <section class="section section-gradient cta-section">
-        <div class="container">
-            <h2>Prête à scaler votre accompagnement ?</h2>
-            <p class="subtitle">Réservez une démo de 30 minutes. On vous montre l'outil avec vos couleurs, vos frameworks, votre cas d'usage.</p>
-            <a href="https://calendly.com/sandra-devonssay/demo-sos-storytelling" target="_blank" class="btn btn-white">Réserver une démo →</a>
-
-            <div class="cta-reassurance">
-                <span>✓ Démo personnalisée, pas un pitch générique</span>
-                <span>✓ On répond à toutes vos questions</span>
-                <span>✓ Zéro engagement avant d'avoir vu l'outil</span>
-            </div>
-        </div>
-    </section>
-
-    <!-- MADE IN FRANCE BANNER -->
-    <div style="background: linear-gradient(135deg, #1E3A5F 0%, #2D4A6F 100%); color: white; padding: 16px 0; text-align: center;">
-        <div class="container">
-            <span style="font-size: 1rem;">🇫🇷 Solution française · Données hébergées en Europe · Support en français</span>
-        </div>
-    </div>
-
-    <!-- FOOTER -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-brand">
-                    <a href="#" class="logo"><img src="logo-sos-storytelling.png" alt="SOS Storytelling" style="height: 36px;"></a>
-                    <p>L'outil IA en white label pour les bootcamps et programmes d'accompagnement.<br>Créé avec 💜 par My Inner Quest à Linxe, France.</p>
-                </div>
-                <div>
-                    <h4>Produit</h4>
-                    <ul class="footer-links">
-                        <li><a href="#features">Fonctionnalités</a></li>
-                        <li><a href="#pricing">Tarifs</a></li>
-                        <li><a href="#faq">FAQ</a></li>
-                        <li><a href="https://calendly.com/sandra-devonssay/demo-sos-storytelling" target="_blank">Démo</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4>Ressources</h4>
-                    <ul class="footer-links">
-                        <li><a href="#">Guide de démarrage</a></li>
-                        <li><a href="#">Études de cas</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4>Légal</h4>
-                    <ul class="footer-links">
-                        <li><a href="mentions-legales.html">Mentions légales</a></li>
-                        <li><a href="cgv.html">CGV</a></li>
-                        <li><a href="confidentialite.html">Politique de confidentialité</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4>Contact</h4>
-                    <ul class="footer-links">
-                        <li><a href="mailto:contact@myinnerquest.fr">contact@myinnerquest.fr</a></li>
-                        <li><a href="https://linkedin.com/in/VOTRE_PROFIL" target="_blank">LinkedIn</a></li>
-                        <li><span style="color: var(--gray-400);">Nouvelle-Aquitaine, France</span></li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Footer SEO Text -->
-            <p style="font-size: 0.85rem; color: var(--gray-400); max-width: 800px; margin: 32px auto 0; text-align: center; line-height: 1.6;">
-                SOS Storytelling est une solution SaaS française d'aide à la création de contenu pour les bootcamps, programmes d'accompagnement et coachs business. Notre outil IA en white label permet aux formateurs de suivre leurs cohortes (50 à 150+ participantes) avec un dashboard coach, des messages personnalisés et une plateforme de création de contenu intégrée.
+            <p class="footer-legal">
+                My Inner Quest - 922 route de l'océan, 40260 Linxe<br>
+                SIRET : 988 456 349 00014
             </p>
-
-            <div class="footer-bottom">
-                © 2025 SOS Storytelling by My Inner Quest. Tous droits réservés.
-            </div>
         </div>
     </footer>
 
     <script>
-        // FAQ Accordion
-        document.querySelectorAll('.faq-question').forEach(button => {
-            button.addEventListener('click', () => {
-                const item = button.parentElement;
-                const isActive = item.classList.contains('active');
-                document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
-                if (!isActive) {
-                    item.classList.add('active');
+        // ============ LOADING SCREEN ============
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('hidden');
+            }, 1500);
+        });
+        
+        // ============ CURSOR GLOW ============
+        const cursorGlow = document.getElementById('cursorGlow');
+        let cursorX = 0, cursorY = 0;
+        let glowX = 0, glowY = 0;
+        
+        document.addEventListener('mousemove', (e) => {
+            cursorX = e.clientX;
+            cursorY = e.clientY;
+        });
+        
+        function animateCursor() {
+            glowX += (cursorX - glowX) * 0.1;
+            glowY += (cursorY - glowY) * 0.1;
+            cursorGlow.style.left = glowX + 'px';
+            cursorGlow.style.top = glowY + 'px';
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+        
+        // ============ PARTICLES SYSTEM ============
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let mouse = { x: null, y: null, radius: 150 };
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        window.addEventListener('mousemove', (e) => { mouse.x = e.x; mouse.y = e.y; });
+        window.addEventListener('mouseout', () => { mouse.x = null; mouse.y = null; });
+        
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.baseX = this.x;
+                this.baseY = this.y;
+                this.density = (Math.random() * 30) + 1;
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.speedY = (Math.random() - 0.5) * 0.5;
+                this.opacity = Math.random() * 0.5 + 0.2;
+                this.color = Math.random() > 0.6 ? '#667eea' : Math.random() > 0.5 ? '#f5576c' : '#ffffff';
+                this.twinkleSpeed = Math.random() * 0.02 + 0.01;
+                this.twinklePhase = Math.random() * Math.PI * 2;
+            }
+            
+            draw() {
+                const twinkle = Math.sin(Date.now() * this.twinkleSpeed + this.twinklePhase) * 0.3 + 0.7;
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = this.opacity * twinkle;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.closePath();
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+            
+            update() {
+                if (mouse.x !== null && mouse.y !== null) {
+                    let dx = mouse.x - this.x;
+                    let dy = mouse.y - this.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < mouse.radius) {
+                        let force = (mouse.radius - distance) / mouse.radius;
+                        this.x -= (dx / distance) * force * this.density;
+                        this.y -= (dy / distance) * force * this.density;
+                    } else {
+                        this.x += (this.baseX - this.x) / 10;
+                        this.y += (this.baseY - this.y) / 10;
+                    }
+                } else {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    if (this.x < 0 || this.x > canvas.width) this.x = this.baseX = Math.random() * canvas.width;
+                    if (this.y < 0 || this.y > canvas.height) this.y = this.baseY = Math.random() * canvas.height;
+                }
+                this.draw();
+            }
+        }
+        
+        function initParticles() {
+            particles = [];
+            let num = Math.min((canvas.width * canvas.height) / 9000, 150);
+            for (let i = 0; i < num; i++) particles.push(new Particle());
+        }
+        initParticles();
+        window.addEventListener('resize', initParticles);
+        
+        function connectParticles() {
+            for (let a = 0; a < particles.length; a++) {
+                for (let b = a; b < particles.length; b++) {
+                    let dist = (particles[a].x - particles[b].x) ** 2 + (particles[a].y - particles[b].y) ** 2;
+                    if (dist < 15000) {
+                        ctx.strokeStyle = `rgba(102, 126, 234, ${(1 - dist / 15000) * 0.15})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[a].x, particles[a].y);
+                        ctx.lineTo(particles[b].x, particles[b].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+        
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => p.update());
+            connectParticles();
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+        
+        // ============ SHOOTING STARS ============
+        function createShootingStar() {
+            const star = document.createElement('div');
+            star.className = 'shooting-star';
+            star.style.left = Math.random() * 70 + '%';
+            star.style.top = Math.random() * 50 + '%';
+            star.style.transform = `rotate(${Math.random() * 20 + 30}deg)`;
+            document.body.appendChild(star);
+            setTimeout(() => star.remove(), 1000);
+        }
+        setInterval(() => { if (Math.random() > 0.7) createShootingStar(); }, 3000);
+        
+        // ============ SCROLL ANIMATIONS ============
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, i) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => entry.target.classList.add('visible'), i * 100);
                 }
             });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+        
+        document.querySelectorAll('.section-title, .section-subtitle, .feature-card, .use-case-card, .stat-item, .pricing-card, .faq-item, .trial-banner, .workflow-step, .loop-step, .carousel-slide').forEach(el => observer.observe(el));
+        
+        // ============ HEADER SCROLL ============
+        window.addEventListener('scroll', () => {
+            document.querySelector('.header').classList.toggle('scrolled', window.scrollY > 50);
         });
-
-        // Smooth scroll
+        
+        // ============ MOBILE MENU ============
+        const menuToggle = document.getElementById('menuToggle');
+        const nav = document.getElementById('nav');
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            nav.classList.toggle('active');
+        });
+        document.querySelectorAll('.nav a').forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                nav.classList.remove('active');
+            });
+        });
+        
+        // ============ SMOOTH SCROLL ============
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
+            anchor.addEventListener('click', function (e) {
                 e.preventDefault();
                 const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
             });
         });
 
-        // Navbar scroll effect
-        window.addEventListener('scroll', () => {
-            const navbar = document.querySelector('.navbar');
-            if (window.scrollY > 50) {
-                navbar.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.1)';
+        // ============ FEATURES CAROUSEL ============
+        function scrollCarousel(direction) {
+            const track = document.getElementById('carouselTrack');
+            if (!track) return;
+            const slideWidth = 380; // slide width + gap
+            track.scrollBy({ left: direction * slideWidth, behavior: 'smooth' });
+        }
+
+        // ============ 3D TILT ON CARDS ============
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const rotateX = (y - rect.height / 2) / 20;
+                const rotateY = (rect.width / 2 - x) / 20;
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(0)`;
+                card.style.setProperty('--mouse-x', `${(x / rect.width) * 100}%`);
+                card.style.setProperty('--mouse-y', `${(y / rect.height) * 100}%`);
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
+            });
+        });
+        
+        // ============ FAQ ACCORDION ============
+        document.querySelectorAll('.faq-question').forEach(q => {
+            q.addEventListener('click', () => {
+                const item = q.parentElement;
+                const wasOpen = item.classList.contains('open');
+                document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+                if (!wasOpen) item.classList.add('open');
+            });
+        });
+        
+        // ============ VIDEO PLACEHOLDER ============
+        document.getElementById('videoPlaceholder')?.addEventListener('click', () => {
+            alert('🎬 Vidéo de démonstration bientôt disponible !');
+        });
+        
+        // ============ AUDIO SYSTEM ============
+        const soundToggle = document.getElementById('soundToggle');
+        const soundIcon = document.getElementById('soundIcon');
+        let isMuted = true, audioContext = null, ambientGain = null;
+        
+        function createAmbientSound() {
+            if (audioContext) return;
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            ambientGain = audioContext.createGain();
+            ambientGain.gain.value = 0.12;
+            ambientGain.connect(audioContext.destination);
+            
+            [80, 120, 160].forEach((freq, i) => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                gain.gain.value = 0.08 / (i + 1);
+                const lfo = audioContext.createOscillator();
+                const lfoGain = audioContext.createGain();
+                lfo.frequency.value = 0.08 + i * 0.03;
+                lfoGain.gain.value = 4;
+                lfo.connect(lfoGain);
+                lfoGain.connect(osc.frequency);
+                lfo.start();
+                osc.connect(gain);
+                gain.connect(ambientGain);
+                osc.start();
+            });
+        }
+        
+        soundToggle.addEventListener('click', () => {
+            isMuted = !isMuted;
+            soundToggle.classList.toggle('muted');
+            if (!isMuted) {
+                createAmbientSound();
+                if (audioContext.state === 'suspended') audioContext.resume();
+                ambientGain.gain.value = 0.12;
+                soundIcon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>';
             } else {
-                navbar.style.boxShadow = 'none';
+                if (ambientGain) ambientGain.gain.value = 0;
+                soundIcon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
             }
         });
         
@@ -2228,10 +2655,10 @@
                         subtitle: "SOS Storytelling analyse tes textes, ton activité et tes objectifs grâce à un onboarding intelligent, puis génère pour toi des contenus et newsletters alignés à ton style, ton offre et ton client idéal.",
                         cta_primary: "Essayer gratuitement →",
                         cta_secondary: "▶ Voir une démo",
-                        note: "✓ Sans carte bancaire • ✓ 7 jours gratuits • ✓ Annulation libre"
+                        note: "✓ Sans carte bancaire • ✓ 4 posts + 3 audits offerts • ✓ Aucun engagement"
                     },
                     features: {
-                        title: "Tout ce qu'il vous faut pour créer du contenu impactant",
+                        title: "Tout ce qu'il te faut pour créer du contenu qui te ressemble",
                         subtitle: "Des fonctionnalités pensées pour les créateurs exigeants et les agences performantes",
                         f1_title: "20+ Structures Narratives",
                         f1_desc: "AIDA, PAS, Storytelling, Hook-Story-Offer... Choisissez la structure qui captive votre audience. Chaque framework est optimisé pour convertir.",
@@ -2244,13 +2671,19 @@
                         f5_title: "Export Multi-Outils",
                         f5_desc: "Exportez vers Metricool, Swello, Buffer ou CSV en un clic. Compatible avec tous vos outils de planification existants.",
                         f6_title: "Mode Multi-Clients",
-                        f6_desc: "Gérez jusqu'à 30 clients avec des profils de voix distincts. Dashboard analytics, exports bulk, rapports détaillés."
+                        f6_desc: "Gérez jusqu'à 30 clients avec des profils de voix distincts. Dashboard analytics, exports bulk, rapports détaillés.",
+                        f7_title: "Audit Posts & Profils",
+                        f7_desc: "Analyse tes posts LinkedIn et Instagram sous l'angle du storytelling. Découvre ce qui capte l'attention et ce qui fait scroller.",
+                        f8_title: "Newsletters en 1 clic",
+                        f8_desc: "Transforme tes meilleurs posts en newsletters prêtes à envoyer. Format optimisé pour l'email, ton style préservé.",
+                        f9_title: "Prospection Humaine",
+                        f9_desc: "Messages personnalisés qui ne sonnent pas comme du ChatGPT copié-collé. Connexion authentique, réponses garanties."
                     },
                     stats: {
                         s1: "Structures narratives", s2: "Pour un contenu parfait", s3: "Plateformes supportées", s4: "D'inspiration créative"
                     },
                     usecases: {
-                        title: "Conçu pour ceux qui créent du contenu sérieusement",
+                        title: "Conçu pour ceux qui créent du contenu régulièrement",
                         subtitle: "Que vous soyez freelance ou agence, SOS Storytelling s'adapte à votre workflow",
                         u1_title: "👤 Freelance / Solopreneur",
                         u1_desc: "Créez du contenu consistant sans y passer des heures. Gardez votre voix authentique tout en multipliant votre présence en ligne.",
@@ -2288,7 +2721,7 @@
                         button: "S'inscrire"
                     },
                     footer: {
-                        tagline: "L'IA qui transforme vos idées en contenus percutants. Créé avec ❤️ par My Inner Quest.",
+                        tagline: "L'IA qui transforme tes idées en contenus qui te ressemblent. Créé avec ❤️ par My Inner Quest.",
                         product: "Produit", resources: "Ressources",
                         features: "Fonctionnalités", pricing: "Tarifs", faq: "FAQ", free_trial: "Essai gratuit",
                         guide: "Guide de démarrage", tutorials: "Tutoriels vidéo", blog: "Blog",
@@ -2308,7 +2741,7 @@
                         note: "✓ No credit card • ✓ 7 days free • ✓ Cancel anytime"
                     },
                     features: {
-                        title: "Everything you need to create impactful content",
+                        title: "Everything you need to create content that sounds like you",
                         subtitle: "Features designed for demanding creators and high-performing agencies",
                         f1_title: "20+ Narrative Structures",
                         f1_desc: "AIDA, PAS, Storytelling, Hook-Story-Offer... Choose the structure that captivates your audience. Each framework is optimized to convert.",
@@ -2321,7 +2754,13 @@
                         f5_title: "Multi-Tool Export",
                         f5_desc: "Export to Metricool, Swello, Buffer or CSV in one click. Compatible with all your existing scheduling tools.",
                         f6_title: "Multi-Client Mode",
-                        f6_desc: "Manage up to 30 clients with distinct voice profiles. Analytics dashboard, bulk exports, detailed reports."
+                        f6_desc: "Manage up to 30 clients with distinct voice profiles. Analytics dashboard, bulk exports, detailed reports.",
+                        f7_title: "Posts & Profile Audit",
+                        f7_desc: "Analyze your LinkedIn and Instagram posts through a storytelling lens. Discover what grabs attention and what makes people scroll away.",
+                        f8_title: "Newsletters in 1 click",
+                        f8_desc: "Turn your best posts into ready-to-send newsletters. Email-optimized format, your style preserved.",
+                        f9_title: "Human Outreach",
+                        f9_desc: "Personalized messages that don't sound like copy-pasted ChatGPT. Authentic connection, guaranteed responses."
                     },
                     stats: {
                         s1: "Narrative structures", s2: "For perfect content", s3: "Supported platforms", s4: "Of creative inspiration"
@@ -2336,7 +2775,7 @@
                         u3_title: "🏢 Social Media Agency",
                         u3_desc: "Manage multiple clients with distinct voices, track content production with the analytics dashboard, and scale your business.",
                         u4_title: "🎯 Marketing Consultant",
-                        u4_desc: "Impress your clients with structured and impactful content. Use proven frameworks to maximize engagement.",
+                        u4_desc: "Impress your clients with structured, authentic content. Use proven frameworks to maximize engagement.",
                         u5_title: "🛍️ E-commerce",
                         u5_desc: "Create product content that converts. Storytelling, testimonials, launches... Everything is optimized for sales.",
                         u6_title: "👩‍💼 Personal Branding",
@@ -2365,7 +2804,7 @@
                         button: "Subscribe"
                     },
                     footer: {
-                        tagline: "The AI that transforms your ideas into impactful content. Made with ❤️ by My Inner Quest.",
+                        tagline: "The AI that transforms your ideas into content that connects. Made with ❤️ by My Inner Quest.",
                         product: "Product", resources: "Resources",
                         features: "Features", pricing: "Pricing", faq: "FAQ", free_trial: "Free Trial",
                         guide: "Getting Started Guide", tutorials: "Video Tutorials", blog: "Blog",
@@ -2433,8 +2872,94 @@
         // Initialize i18n
         LandingI18N.init();
 
+        // Billing toggle (Mensuel/Annuel)
+        let currentBilling = 'monthly';
+
+        // Prix et liens Lemon Squeezy (à mettre à jour quand créés)
+        const pricingData = {
+            solo: {
+                monthly: { price: '47€', period: '/mois', detail: '67€/mois après early adopters', link: 'https://myinnerquest.lemonsqueezy.com/buy/74412bb8-7df8-4d11-a7bb-c8434dc687a7' },
+                annual: { price: '470€', period: '/an', detail: '670€/an après early adopters • 2 mois offerts', link: 'https://myinnerquest.lemonsqueezy.com/buy/74412bb8-7df8-4d11-a7bb-c8434dc687a7' } // Mettre à jour le lien annuel
+            },
+            starter: {
+                monthly: { price: '99€', period: '/mois', link: 'https://myinnerquest.lemonsqueezy.com/buy/c743c114-dc29-48a3-b34b-0fd30d3db204' },
+                annual: { price: '990€', period: '/an', link: 'https://myinnerquest.lemonsqueezy.com/buy/c743c114-dc29-48a3-b34b-0fd30d3db204' }
+            },
+            scale: {
+                monthly: { price: '199€', period: '/mois', link: 'https://myinnerquest.lemonsqueezy.com/buy/0177ea61-1b2b-4897-8913-2f6b0ce8afa7' },
+                annual: { price: '1990€', period: '/an', link: 'https://myinnerquest.lemonsqueezy.com/buy/0177ea61-1b2b-4897-8913-2f6b0ce8afa7' }
+            }
+        };
+
+        function setBilling(type) {
+            currentBilling = type;
+
+            // Toggle buttons style
+            const btnMonthly = document.getElementById('btnMonthly');
+            const btnAnnual = document.getElementById('btnAnnual');
+
+            if (type === 'monthly') {
+                btnMonthly.style.background = 'white';
+                btnMonthly.style.color = '#667eea';
+                btnAnnual.style.background = 'transparent';
+                btnAnnual.style.color = 'rgba(255,255,255,0.7)';
+            } else {
+                btnAnnual.style.background = 'white';
+                btnAnnual.style.color = '#667eea';
+                btnMonthly.style.background = 'transparent';
+                btnMonthly.style.color = 'rgba(255,255,255,0.7)';
+            }
+
+            // Update Solo
+            const soloData = pricingData.solo[type];
+            document.getElementById('priceSolo').innerHTML = `${soloData.price}<span>${soloData.period}</span>`;
+            document.getElementById('priceSoloDetail').innerHTML = soloData.detail;
+            document.getElementById('linkSolo').href = soloData.link;
+
+            // Update Starter
+            const starterData = pricingData.starter[type];
+            document.getElementById('priceStarter').innerHTML = `${starterData.price}<span>${starterData.period}</span>`;
+            document.getElementById('linkStarter').href = starterData.link;
+
+            // Update Scale
+            const scaleData = pricingData.scale[type];
+            document.getElementById('priceScale').innerHTML = `${scaleData.price}<span>${scaleData.period}</span>`;
+            document.getElementById('linkScale').href = scaleData.link;
+        }
+
+        // Promo countdown - 20 février 2025
+        (function() {
+            const endDate = new Date('2025-02-20T23:59:59');
+            const countdownEl = document.getElementById('promoCountdown');
+            const bannerEl = document.getElementById('promoBanner');
+
+            function updateCountdown() {
+                const now = new Date();
+                const diff = endDate - now;
+
+                if (diff <= 0) {
+                    // Offre expirée
+                    if (bannerEl) {
+                        bannerEl.style.display = 'none';
+                        document.body.classList.remove('has-promo');
+                    }
+                    return;
+                }
+
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+                if (countdownEl) {
+                    countdownEl.textContent = `${days}j ${hours}h ${minutes}m`;
+                }
+            }
+
+            updateCountdown();
+            setInterval(updateCountdown, 60000); // Update every minute
+        })();
+
         console.log('✨ SOS Storytelling Experience loaded');
     </script>
-
 </body>
 </html>
