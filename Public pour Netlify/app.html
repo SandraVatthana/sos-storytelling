@@ -3524,6 +3524,14 @@
         .modal { background: white; border-radius: 20px; padding: 30px; max-width: 600px; width: 100%; max-height: 80vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .modal-title { font-size: 1.5em; font-weight: 700; color: #333; }
+        .modal-title .info-tooltip {
+            font-size: 0.6em;
+            cursor: help;
+            opacity: 0.7;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        .modal-title .info-tooltip:hover { opacity: 1; }
         .modal-close { background: none; border: none; font-size: 1.5em; cursor: pointer; color: #999; }
         .favorite-item { background: #f8f9fa; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
         .favorite-item-date { font-size: 0.8em; color: #999; margin-bottom: 8px; }
@@ -3819,6 +3827,57 @@
         .profile-reminder-close:hover { opacity: 1; }
         @keyframes reminderPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); } 50% { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); } }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+
+        /* Mini Stats Banner */
+        .mini-stats-banner {
+            background: linear-gradient(135deg, rgba(102,126,234,0.08), rgba(118,75,162,0.08));
+            border: 1px solid rgba(102,126,234,0.15);
+            border-radius: 12px;
+            padding: 10px 16px;
+            margin-bottom: 15px;
+            font-size: 0.85em;
+            color: #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .mini-stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .mini-stat strong {
+            color: #667eea;
+            font-weight: 700;
+        }
+        .mini-stat-divider {
+            color: #ccc;
+            margin: 0 4px;
+        }
+        .resume-last-btn {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-left: 8px;
+            font-family: inherit;
+        }
+        .resume-last-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(17,153,142,0.3);
+        }
+        @media (max-width: 600px) {
+            .mini-stats-banner { flex-direction: column; gap: 6px; }
+            .mini-stat-divider { display: none; }
+            .resume-last-btn { margin-left: 0; margin-top: 8px; }
+        }
 
         /* Export Button */
         .action-btn.export { background: linear-gradient(135deg, #667eea, #764ba2); border: none; color: white; }
@@ -4739,6 +4798,18 @@
                     <button class="profile-reminder-close" onclick="event.stopPropagation(); hideProfileReminder();" title="Fermer">✕</button>
                 </div>
 
+                <!-- Mini Stats de Progression -->
+                <div class="mini-stats-banner" id="miniStatsBanner">
+                    <span class="mini-stat" title="Contenus créés">📝 <strong id="statTotalContents">0</strong> contenus</span>
+                    <span class="mini-stat-divider">•</span>
+                    <span class="mini-stat" title="Structures testées">📖 <strong id="statStructuresUsed">0</strong> structures</span>
+                    <span class="mini-stat-divider">•</span>
+                    <span class="mini-stat" title="Dernière création" id="statLastAction">🕐 Première création ?</span>
+                    <button class="resume-last-btn" id="resumeLastBtn" onclick="resumeLastContent()" style="display: none;" title="Reprendre ton dernier contenu">
+                        🔄 Reprendre
+                    </button>
+                </div>
+
                 <div id="memoryIndicator" class="memory-indicator" style="display: none;">
                     🧠 <span id="memoryText"></span>
                 </div>
@@ -5003,20 +5074,20 @@
                         <!-- Questions d'extraction -->
                         <div id="extractionQuestions" class="extraction-questions"></div>
 
-                        <!-- Anecdote intégrée au mode 20 jours -->
+                        <!-- Input principal du mode 20 jours -->
                         <div class="anecdote-inline">
                             <label class="anecdote-inline-label">
-                                📖 Une anecdote à raconter ? <span class="optional-badge">optionnel</span>
+                                ✍️ Ta réponse / ton histoire
                             </label>
                             <textarea
                                 id="anecdoteInput"
                                 class="anecdote-input"
-                                placeholder="Une histoire vraie, une situation vécue, un échange marquant..."
-                                rows="3"
+                                placeholder="Réponds aux questions ci-dessus : raconte une situation vécue, un échange marquant, une leçon apprise..."
+                                rows="4"
                             ></textarea>
                             <div class="anecdote-hint">
                                 <span class="hint-icon">💡</span>
-                                <span>L'IA transformera ton anecdote en storytelling percutant</span>
+                                <span>L'IA transformera ton vécu en post structuré et engageant</span>
                             </div>
                         </div>
                     </div>
@@ -5809,10 +5880,15 @@
     <div class="modal-overlay" id="voiceModal">
         <div class="modal" style="max-width: 750px; max-height: 90vh;">
             <div class="modal-header" style="background: linear-gradient(135deg, #667eea, #764ba2);">
-                <h2 class="modal-title">🎤 <span data-i18n="modals.voice">Mon Style</span></h2>
+                <h2 class="modal-title">🎤 <span data-i18n="modals.voice">Mon Style</span>
+                    <span class="info-tooltip" title="Ton style = ton identité éditoriale : ton ton, tes expressions, ta façon d'écrire. Pas ta voix audio !">ⓘ</span>
+                </h2>
                 <button class="modal-close" onclick="closeVoiceModal()">&times;</button>
             </div>
-            <div id="voiceContent" style="padding: 20px; overflow-y: auto; max-height: calc(90vh - 80px);"></div>
+            <p style="padding: 15px 20px 0; margin: 0; color: rgba(255,255,255,0.9); background: linear-gradient(135deg, #667eea, #764ba2); font-size: 0.9em;">
+                💡 Ton style d'écriture unique : ton ton, tes expressions favorites, ta signature. L'IA apprend à écrire comme toi.
+            </p>
+            <div id="voiceContent" style="padding: 20px; overflow-y: auto; max-height: calc(90vh - 120px);"></div>
         </div>
     </div>
 
@@ -6551,6 +6627,11 @@ Solution  | Présenter votre solution</pre>
             if (!profile.dateCreation) profile.dateCreation = now;
             profile.dateModification = now;
             localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(profile));
+
+            // Sync vers le cloud (async, non-bloquant)
+            if (window.ProfileSync) {
+                ProfileSync.saveToCloud(profile).catch(() => {});
+            }
         }
 
         function hasValidProfile() {
@@ -6567,6 +6648,118 @@ Solution  | Présenter votre solution</pre>
             getSummary: () => { const p = getUserProfile(); return p ? `${p.nom} • ${p.domaine} • ${p.plateformes.join(', ')}` : 'Aucun profil'; },
             DEFAULT: DEFAULT_PROFILE
         };
+
+        // ==================== PROFILE SYNC (CLOUD) ====================
+        const ProfileSync = {
+            TABLE: 'user_profiles',
+
+            // Sauvegarder le profil dans Supabase
+            async saveToCloud(profile) {
+                try {
+                    const supabase = window.supabaseApp || initSupabase();
+                    if (!supabase) return false;
+
+                    const { data: { user } } = await supabase.auth.getUser();
+                    if (!user) return false;
+
+                    const { error } = await supabase
+                        .from(this.TABLE)
+                        .upsert({
+                            user_id: user.id,
+                            profile_data: profile,
+                            updated_at: new Date().toISOString()
+                        }, { onConflict: 'user_id' });
+
+                    if (error) {
+                        console.log('[ProfileSync] Erreur sauvegarde cloud:', error.message);
+                        return false;
+                    }
+
+                    console.log('[ProfileSync] Profil sauvegardé dans le cloud');
+                    return true;
+                } catch (e) {
+                    console.log('[ProfileSync] Erreur:', e.message);
+                    return false;
+                }
+            },
+
+            // Charger le profil depuis Supabase
+            async loadFromCloud() {
+                try {
+                    const supabase = window.supabaseApp || initSupabase();
+                    if (!supabase) return null;
+
+                    const { data: { user } } = await supabase.auth.getUser();
+                    if (!user) return null;
+
+                    const { data, error } = await supabase
+                        .from(this.TABLE)
+                        .select('profile_data, updated_at')
+                        .eq('user_id', user.id)
+                        .single();
+
+                    if (error || !data) {
+                        console.log('[ProfileSync] Aucun profil cloud trouvé');
+                        return null;
+                    }
+
+                    console.log('[ProfileSync] Profil chargé depuis le cloud');
+                    return data.profile_data;
+                } catch (e) {
+                    console.log('[ProfileSync] Erreur chargement:', e.message);
+                    return null;
+                }
+            },
+
+            // Synchroniser : charge depuis le cloud si plus récent, sinon sauvegarde le local
+            async sync() {
+                try {
+                    const localProfile = getUserProfile();
+                    const cloudProfile = await this.loadFromCloud();
+
+                    if (!localProfile && cloudProfile) {
+                        // Pas de profil local mais un profil cloud existe → restaurer
+                        saveUserProfile(cloudProfile);
+                        console.log('[ProfileSync] Profil restauré depuis le cloud');
+                        showToast('☁️ Profil restauré depuis le cloud');
+                        updateProfileButton();
+                        return cloudProfile;
+                    }
+
+                    if (localProfile && !cloudProfile) {
+                        // Profil local mais pas cloud → sauvegarder dans le cloud
+                        await this.saveToCloud(localProfile);
+                        return localProfile;
+                    }
+
+                    if (localProfile && cloudProfile) {
+                        // Les deux existent → prendre le plus récent
+                        const localDate = new Date(localProfile.dateModification || 0);
+                        const cloudDate = new Date(cloudProfile.dateModification || 0);
+
+                        if (cloudDate > localDate) {
+                            // Cloud plus récent → restaurer
+                            saveUserProfile(cloudProfile);
+                            console.log('[ProfileSync] Profil cloud plus récent, restauré');
+                            updateProfileButton();
+                            return cloudProfile;
+                        } else if (localDate > cloudDate) {
+                            // Local plus récent → sauvegarder dans le cloud
+                            await this.saveToCloud(localProfile);
+                            return localProfile;
+                        }
+                    }
+
+                    return localProfile;
+                } catch (e) {
+                    console.log('[ProfileSync] Erreur sync:', e.message);
+                    return getUserProfile();
+                }
+            }
+        };
+
+        // Exposer globalement
+        window.ProfileSync = ProfileSync;
 
         // ==================== ONBOARDING SYSTEM ====================
         const ONBOARDING_OPTIONS = {
@@ -8137,6 +8330,7 @@ ${persona.vocabulary.join(', ')}
                 this.save(data);
                 this.addXP(10);
                 this.checkBadges();
+                this.updateMiniStats();
             },
             
             // Définition des badges
@@ -8282,8 +8476,126 @@ ${persona.vocabulary.join(', ')}
                     </div>
                 `;
                 document.getElementById('statsModal').classList.add('show');
+            },
+
+            // Mettre à jour la mini-bannière de stats
+            updateMiniStats() {
+                const data = this.get();
+                const totalContentsEl = document.getElementById('statTotalContents');
+                const structuresUsedEl = document.getElementById('statStructuresUsed');
+                const lastActionEl = document.getElementById('statLastAction');
+
+                if (totalContentsEl) {
+                    totalContentsEl.textContent = data.totalContents || 0;
+                }
+
+                if (structuresUsedEl) {
+                    // Compter le nombre de structures différentes utilisées
+                    const structuresCount = Object.keys(data.byFormat || {}).length;
+                    structuresUsedEl.textContent = structuresCount;
+                }
+
+                if (lastActionEl) {
+                    if (data.lastContentDate) {
+                        const lastDate = new Date(data.lastContentDate);
+                        const now = new Date();
+                        const diffMs = now - lastDate;
+                        const diffMins = Math.floor(diffMs / 60000);
+                        const diffHours = Math.floor(diffMs / 3600000);
+                        const diffDays = Math.floor(diffMs / 86400000);
+
+                        let timeAgo;
+                        if (diffMins < 1) {
+                            timeAgo = "À l'instant";
+                        } else if (diffMins < 60) {
+                            timeAgo = `Il y a ${diffMins} min`;
+                        } else if (diffHours < 24) {
+                            timeAgo = `Il y a ${diffHours}h`;
+                        } else if (diffDays === 1) {
+                            timeAgo = "Hier";
+                        } else if (diffDays < 7) {
+                            timeAgo = `Il y a ${diffDays} jours`;
+                        } else {
+                            timeAgo = lastDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+                        }
+                        lastActionEl.innerHTML = `🕐 ${timeAgo}`;
+                    } else {
+                        lastActionEl.innerHTML = '🕐 Première création ?';
+                    }
+                }
             }
         };
+
+        // ==================== SYSTÈME DERNIER CONTENU ====================
+        const LastContentManager = {
+            KEY: 'tithot_last_content',
+
+            save(content, platform, format, structure) {
+                const data = {
+                    content: content,
+                    platform: platform,
+                    format: format,
+                    structure: structure,
+                    date: new Date().toISOString()
+                };
+                localStorage.setItem(this.KEY, JSON.stringify(data));
+                this.updateButton();
+            },
+
+            get() {
+                try {
+                    return JSON.parse(localStorage.getItem(this.KEY));
+                } catch (e) {
+                    return null;
+                }
+            },
+
+            updateButton() {
+                const btn = document.getElementById('resumeLastBtn');
+                if (!btn) return;
+                const data = this.get();
+                if (data && data.content) {
+                    btn.style.display = 'inline-flex';
+                } else {
+                    btn.style.display = 'none';
+                }
+            }
+        };
+
+        // Fonction globale pour reprendre le dernier contenu
+        function resumeLastContent() {
+            const data = LastContentManager.get();
+            if (!data || !data.content) {
+                showToast('❌ Aucun contenu à reprendre');
+                return;
+            }
+
+            // Restaurer l'état
+            if (data.platform && PLATFORMS[data.platform]) {
+                selectPlatform(data.platform);
+            }
+            if (data.format && FORMATS[data.format]) {
+                selectFormat(data.format);
+            }
+            if (data.structure) {
+                selectStructure(data.structure);
+            }
+
+            // Afficher le contenu
+            currentState.generatedContent = data.content;
+            const outputContent = document.getElementById('outputContent');
+            if (outputContent) {
+                outputContent.innerHTML = `<div class="output-text">${formatResponse(data.content)}</div>`;
+            }
+
+            // Afficher les boutons d'action
+            const actionButtons = document.getElementById('actionButtons');
+            if (actionButtons) actionButtons.style.display = 'flex';
+            const visualSection = document.getElementById('visualSection');
+            if (visualSection) visualSection.style.display = 'block';
+
+            showToast('✅ Contenu restauré !');
+        }
 
         // ==================== SYSTÈME OBJECTIFS (GAMIFICATION) ====================
         const GoalsSystem = {
@@ -12169,23 +12481,158 @@ LONGUEUR : Minimum 240 mots, mais peut être plus long si l'histoire le justifie
         };
         
         const FORMATS = {
-            'post': { name: 'Post', length: '150-300 mots', specifics: 'texte fluide avec sauts de ligne' },
-            'carousel': { name: 'Carousel', length: '8-10 slides', specifics: 'Slide 1 = hook, 1 idée par slide' },
-            'reel': { name: 'Reel', length: 'script 30-60 sec', specifics: 'Script parlé, hook en 3 sec' },
-            'story': { name: 'Story', length: '3-5 stories', specifics: '1 idée par story' },
-            'thread': { name: 'Thread', length: '5-10 tweets', specifics: '280 car max par tweet' },
-            'article': { name: 'Article', length: '500-800 mots', specifics: 'Introduction, sous-titres, conclusion' }
+            'post': {
+                name: 'Post',
+                length: '150-300 mots',
+                specifics: 'texte fluide avec sauts de ligne',
+                rules: 'Hook fort en 2 lignes max, paragraphes courts, CTA final avec question engageante'
+            },
+            'carousel': {
+                name: 'Carousel',
+                length: '8-10 slides',
+                specifics: 'Slide 1 = hook, 1 idée par slide',
+                rules: 'Slide 1 = accroche FORTE qui donne envie de swiper, 1 idée MAX par slide, slide finale = CTA + récap, texte court par slide (max 20 mots), numéroter les slides'
+            },
+            'reel': {
+                name: 'Reel/TikTok',
+                length: 'script 30-60 sec',
+                specifics: 'Script parlé, hook en 3 sec',
+                rules: 'Format SCRIPT PARLÉ (indiquer ce que la personne doit DIRE), hook dans les 3 premières secondes, phrases courtes et dynamiques, indiquer [TEXTE À L\'ÉCRAN] si pertinent'
+            },
+            'story': {
+                name: 'Story',
+                length: '3-5 stories',
+                specifics: '1 idée par story',
+                rules: 'Texte court et lisible (max 100 caractères par story), 1 idée par story, dernière story = CTA (swipe up, réponse, lien, sondage)'
+            },
+            'thread': {
+                name: 'Thread',
+                length: '5-10 tweets',
+                specifics: '280 car max par tweet',
+                rules: 'STRICT : 280 caractères MAXIMUM par tweet, numéroter 1/, 2/, etc., tweet 1 = hook accrocheur, dernier tweet = CTA et récap'
+            },
+            'article': {
+                name: 'Article/Blog',
+                length: '500-800 mots',
+                specifics: 'Introduction, sous-titres, conclusion',
+                rules: 'Introduction engageante avec promesse, H2/H3 pour structurer, listes à puces pour la lisibilité, conclusion avec CTA clair'
+            }
         };
         
         const PLATFORMS = {
-            'linkedin': { name: 'LinkedIn', tone: 'professionnel mais humain' },
-            'instagram': { name: 'Instagram', tone: 'visuel, émotionnel' },
-            'tiktok': { name: 'TikTok', tone: 'dynamique, direct' },
-            'twitter': { name: 'Twitter/X', tone: 'concis, percutant' },
-            'facebook': { name: 'Facebook', tone: 'conversationnel' },
-            'youtube': { name: 'YouTube', tone: 'dynamique et engageant', icon: '🎬' },
-            'substack': { name: 'Substack', tone: 'intime et conversationnel', icon: '📨' }
+            'linkedin': {
+                name: 'LinkedIn',
+                tone: 'professionnel mais humain',
+                rules: `RÈGLES LINKEDIN :
+- Longueur idéale : 1300-1500 caractères (posts longs performent mieux)
+- Hook : Les 2 premières lignes AVANT le "voir plus" sont cruciales
+- Formatage : Sauts de ligne fréquents, paragraphes courts (1-3 phrases)
+- Hashtags : 3-5 maximum, en fin de post, mix populaires/niche
+- Liens : ÉVITER dans le post (algorithme pénalise), mettre en commentaire
+- Emojis : Avec parcimonie (1-2 max), professionnels
+- CTA : Question ouverte qui invite au commentaire
+- INTERDIT : Éditer le post dans les 2h après publication`
+            },
+            'instagram': {
+                name: 'Instagram',
+                tone: 'visuel et émotionnel',
+                rules: `RÈGLES INSTAGRAM :
+- Légende : 150-300 caractères pour posts feed (court et percutant)
+- Hashtags : 5-10 pertinents, mix populaires et niche, en fin de légende
+- Emojis : Autorisés et encouragés, renforcent l'émotion
+- Formatage : Sauts de ligne, aéré, facile à scanner
+- CTA : Invite à sauvegarder, partager ou commenter
+- Stories : 1 idée par story, texte court et lisible
+- Reels : Hook dans les 3 premières secondes`
+            },
+            'tiktok': {
+                name: 'TikTok',
+                tone: 'dynamique, authentique et direct',
+                rules: `RÈGLES TIKTOK :
+- Hook : Les 3 PREMIÈRES SECONDES sont CRITIQUES (rétention)
+- Format : Script parlé, pas de texte à lire
+- Ton : Conversationnel, comme si tu parlais à un ami
+- Durée script : 30-60 secondes optimal
+- Hashtags : 3-5 dont 1-2 tendance (#fyp, #pourtoi)
+- Sons : Mentionner si un son tendance serait pertinent
+- CTA : "Suis-moi pour plus de...", "Commente si..."`
+            },
+            'twitter': {
+                name: 'Twitter/X',
+                tone: 'concis et percutant',
+                rules: `RÈGLES TWITTER/X :
+- Longueur : 280 caractères MAXIMUM par tweet (STRICT)
+- Threads : Numéroter (1/, 2/, etc.), 5-10 tweets max
+- Hook : Premier tweet = accroche forte
+- Hashtags : 1-2 maximum, intégrés naturellement
+- Emojis : Avec parcimonie
+- CTA : RT, like, follow ou question
+- Ton : Direct, opinions tranchées performent`
+            },
+            'facebook': {
+                name: 'Facebook',
+                tone: 'conversationnel et accessible',
+                rules: `RÈGLES FACEBOOK :
+- Longueur : 100-250 mots idéal
+- Formatage : Paragraphes courts, aéré
+- Emojis : Autorisés, ton friendly
+- Questions : Encouragent l'engagement
+- Liens : Autorisés mais reach réduit
+- Groupes : Ton plus communautaire`
+            },
+            'youtube': {
+                name: 'YouTube',
+                tone: 'dynamique et engageant',
+                icon: '🎬',
+                rules: `RÈGLES YOUTUBE :
+- Format : Script PARLÉ (pas à lire, à dire à voix haute)
+- Hook : 5 premières secondes = captiver immédiatement
+- Structure : Hook → Problème → Solution → Valeur → CTA
+- Description : 150-200 mots SEO avec mots-clés
+- Titre : 3 propositions accrocheuses (curiosité/bénéfice/tension)
+- Timestamps : Suggérer des chapitres
+- CTA : "Abonne-toi", "Active la cloche", "Dis-moi en commentaire"`
+            },
+            'substack': {
+                name: 'Substack',
+                tone: 'intime et conversationnel',
+                icon: '📨',
+                rules: `RÈGLES SUBSTACK/NEWSLETTER :
+- Longueur : 800-1500 mots (format long accepté)
+- Ton : Comme une lettre à un ami proche
+- Accroche : Anecdote personnelle ou réflexion
+- Structure : Sous-titres clairs pour faciliter la lecture
+- Contenu : Alterner réflexion personnelle et valeur actionnable
+- CTA : Invitation à répondre à l'email ou s'abonner
+- PAS de hashtags, signature personnelle à la fin`
+            }
         };
+
+        // Fonction pour générer les règles de plateforme pour les prompts
+        function getPlatformRulesForPrompt(platformKey, formatKey) {
+            const platform = PLATFORMS[platformKey];
+            const format = FORMATS[formatKey];
+
+            if (!platform) return '';
+
+            let rules = `
+═══════════════════════════════════════════════════════════════
+CONTRAINTES ${platform.name.toUpperCase()} - À RESPECTER IMPÉRATIVEMENT
+═══════════════════════════════════════════════════════════════
+${platform.rules || ''}
+`;
+
+            if (format && format.rules) {
+                rules += `
+═══════════════════════════════════════════════════════════════
+CONTRAINTES FORMAT ${format.name.toUpperCase()}
+═══════════════════════════════════════════════════════════════
+${format.rules}
+`;
+            }
+
+            return rules;
+        }
 
         function selectPlatform(platform) {
             document.querySelectorAll('.platform-chip').forEach(c => c.classList.remove('active'));
@@ -13086,12 +13533,21 @@ LONGUEUR : Minimum 240 mots, mais peut être plus long si l'histoire le justifie
             }
 
             initSelectors();
-            updateProfileButton();
+
+            // Synchroniser le profil depuis le cloud (restaure si effacé localement)
+            ProfileSync.sync().then(() => {
+                updateProfileButton();
+            }).catch(() => {
+                updateProfileButton();
+            });
+
             updatePillarSuggestion();
             updateMemoryIndicator();
             AgencySystem.updateUI();
             FrameworkSystem.updateQuickSelector();
             initAnecdoteListeners(); // Listeners pour le champ anecdote
+            ProgressionSystem.updateMiniStats(); // Mise à jour des mini-stats
+            LastContentManager.updateButton(); // Afficher le bouton Reprendre si contenu existant
 
             // Initialiser le sélecteur d'audience
             setTimeout(() => {
@@ -13418,12 +13874,18 @@ LONGUEUR : Minimum 240 mots, mais peut être plus long si l'histoire le justifie
             }
 
             const daySelector = document.getElementById('strategyDaySelector');
+            const ideaSection = document.getElementById('ideaSection');
             const ideaInput = document.getElementById('ideaInput');
 
             if (mode === 'strategie') {
                 // Mode 20 Jours Stratégiques
                 daySelector.style.display = 'block';
                 currentState.strategyMode = true;
+
+                // CACHER le champ "Idée/sujet" - les questions + anecdote suffisent
+                if (ideaSection) {
+                    ideaSection.style.display = 'none';
+                }
 
                 // Mettre à jour les options du sélecteur selon l'objectif du profil
                 const profile = UserProfile.get();
@@ -13432,15 +13894,17 @@ LONGUEUR : Minimum 240 mots, mais peut être plus long si l'histoire le justifie
                 updateStrategyDaysForObjective(objective);
 
                 loadStrategyDay();
-                if (ideaInput) {
-                    ideaInput.placeholder = "Réponds aux questions ci-dessus, ajoute une anecdote si tu en as une...";
-                }
             } else if (mode === 'trends') {
                 // Mode Trends - ouvrir le modal
                 daySelector.style.display = 'none';
                 currentState.strategyMode = false;
                 currentState.strategyDay = null;
                 document.getElementById('extractionQuestions').innerHTML = '';
+
+                // AFFICHER le champ "Idée/sujet"
+                if (ideaSection) {
+                    ideaSection.style.display = 'block';
+                }
                 if (ideaInput) {
                     ideaInput.placeholder = "Décris ton idée ou colle ici un texte que tu veux améliorer...";
                 }
@@ -13452,6 +13916,11 @@ LONGUEUR : Minimum 240 mots, mais peut être plus long si l'histoire le justifie
                 currentState.strategyMode = false;
                 currentState.strategyDay = null;
                 document.getElementById('extractionQuestions').innerHTML = '';
+
+                // AFFICHER le champ "Idée/sujet"
+                if (ideaSection) {
+                    ideaSection.style.display = 'block';
+                }
                 if (ideaInput) {
                     ideaInput.placeholder = "Décris ton idée ou colle ici un texte que tu veux améliorer...";
                 }
@@ -14327,11 +14796,14 @@ ${audienceContext ? `
 ═══ AUDIENCE ═══
 ${audienceContext}` : ''}
 
+${getPlatformRulesForPrompt(currentState.platform, currentState.format)}
+
 ═══ MISSION ═══
 Crée un contenu complet et engageant pour ${currentState.platform} en utilisant OBLIGATOIREMENT le hook fourni comme première ligne.
 ${formatInstructions}
 
 RAPPEL: Écris dans le style PERSONNEL de l'auteur, pas de manière générique. Utilise ses expressions, son ton, sa signature.
+IMPORTANT: Respecte STRICTEMENT les contraintes de la plateforme et du format ci-dessus.
 
 Génère uniquement le contenu final, sans commentaires.`;
             }
@@ -15239,11 +15711,12 @@ ${profile ? `Adapte au style ${profile.style}, plateforme ${currentState.platfor
             try {
                 await callAIStream(prompt, document.getElementById('streamOutput'));
                 currentState.generatedContent = document.getElementById('streamOutput')?.innerText || '';
-                
+
                 // Sauvegarder dans la mémoire
                 const profile = UserProfile.get();
                 ContentMemory.addContent(currentState.generatedContent, currentState.currentPillar, currentState.platform, currentState.format);
                 ProgressionSystem.trackContent(currentState.platform, currentState.format);
+                LastContentManager.save(currentState.generatedContent, currentState.platform, currentState.format, currentState.structure);
                 if (AgencySystem.isAgencyMode()) {
                     AgencySystem.trackContent(currentState.platform, currentState.format, currentState.structure, currentState.generatedContent);
                 }
@@ -15457,7 +15930,9 @@ SUJET : "${currentState.idea}"
 - Format : ${fmt.name} (${fmt.length}, ${fmt.specifics})
 - Plateforme : ${plat.name} (ton ${plat.tone})
 
-RÈGLES DE RÉDACTION IMPORTANTES :
+${getPlatformRulesForPrompt(currentState.platform, currentState.format)}
+
+RÈGLES DE RÉDACTION GÉNÉRALES :
 
 1. **HOOK** : Les 2 premières lignes doivent capter l'attention immédiatement (curiosité, émotion, paradoxe)
 
@@ -15466,31 +15941,11 @@ RÈGLES DE RÉDACTION IMPORTANTES :
 3. **CTA + QUESTION D'ENGAGEMENT** : Termine TOUJOURS par :
    - Une question ouverte qui invite à partager son expérience OU
    - Un appel à l'action clair (commenter, partager, sauvegarder)
-   - Exemples : "Et toi, tu as déjà vécu ça ?", "Dis-moi en commentaire...", "Tag quelqu'un qui a besoin de lire ça"
 
 4. **RYTHME** : Varie la longueur des phrases. Phrases courtes pour l'impact. Plus longues pour le développement.
+${styleInstruction}
 
-5. **HASHTAGS** : 5-10 hashtags pertinents à la fin, mélange de populaires et niches.
-${currentState.platform === 'youtube' ? `
-6. **SPÉCIAL YOUTUBE** :
-   - Format SCRIPT PARLÉ (pas de texte à lire, mais à dire)
-   - HOOK 5 SECONDES : La première phrase doit captiver immédiatement
-   - Structure : Hook → Problème → Solution → Valeur → CTA
-   - Ton DYNAMIQUE, comme si tu parlais à un ami
-   - Inclus une DESCRIPTION SEO optimisée (150-200 mots avec mots-clés)
-   - Propose 3 IDÉES DE TITRES accrocheurs (curiosité, bénéfice, ou tension)
-   - Ajoute des TIMESTAMPS suggérés pour les sections principales` : ''}
-${currentState.platform === 'substack' ? `
-6. **SPÉCIAL SUBSTACK** :
-   - Format NEWSLETTER INTIME (800-1500 mots)
-   - Ton CONVERSATIONNEL comme une lettre à un ami proche
-   - Commence par une accroche personnelle (anecdote, réflexion, question)
-   - Structure avec SOUS-TITRES clairs pour faciliter la lecture
-   - Alterne entre réflexion personnelle et valeur actionnable
-   - Termine par un CTA "S'abonner" ou invitation à répondre
-   - Pas de hashtags, mais une signature personnelle à la fin` : ''}${styleInstruction}
-
-Crée le contenu COMPLET prêt à publier.`;
+Crée le contenu COMPLET prêt à publier en respectant STRICTEMENT les contraintes de la plateforme ci-dessus.`;
             }
 
             // 📖 MODE GHOSTWRITER (Anecdote) - Si anecdote remplie, appliquer le prompt storytelling
@@ -15626,11 +16081,12 @@ INSTRUCTIONS SPÉCIALES POUR CE TYPE DE CONTENU :
                 // Sauvegarder dans la mémoire
                 ContentMemory.addContent(currentState.generatedContent, currentState.currentPillar, currentState.platform, currentState.format);
                 ProgressionSystem.trackContent(currentState.platform, currentState.format);
+                LastContentManager.save(currentState.generatedContent, currentState.platform, currentState.format, currentState.structure);
                 if (AgencySystem.isAgencyMode()) {
                     AgencySystem.trackContent(currentState.platform, currentState.format, currentState.structure, currentState.generatedContent);
                 }
                 updateMemoryIndicator();
-                
+
                 // 📊 Analytics Supabase
                 const contentType = currentState.format === 'pub' ? 'pub' : 'organic';
                 Analytics.trackContent(currentState.structure, currentState.platform, currentState.format, currentState.currentPillar, contentType);
@@ -16066,6 +16522,7 @@ Pour chaque suggestion :
             try {
                 await callAIStream(prompt, document.getElementById('streamOutput'));
                 currentState.generatedContent = document.getElementById('streamOutput')?.innerText || '';
+                LastContentManager.save(currentState.generatedContent, currentState.platform, currentState.format, currentState.structure);
                 document.getElementById('actionButtons').style.display = 'flex'; document.getElementById('visualSection').style.display = 'block';
             } catch (e) {
                 out.innerHTML = `<div class="output-placeholder"><p>❌ ${e.message}</p></div>`;

@@ -236,7 +236,7 @@
         .btn-cta:hover::before { left: 100%; }
         .btn-cta:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(102,126,234,0.4); }
 
-        /* Language Toggle */
+        /* Language Toggle - Masqué temporairement
         .lang-toggle {
             display: flex;
             gap: 5px;
@@ -261,6 +261,7 @@
             background: linear-gradient(135deg, var(--primary), var(--primary-light));
             color: #fff;
         }
+        */
 
         /* Mobile Menu */
         .menu-toggle { display: none; background: none; border: none; cursor: pointer; padding: 10px; z-index: 101; }
@@ -1741,6 +1742,106 @@
         .cross-sell-card .cross-sell-link:hover {
             text-decoration: underline;
         }
+
+        /* ============ PAIN POINT SECTION ============ */
+        .pain-section {
+            padding: 100px 40px;
+            background: linear-gradient(180deg, var(--dark) 0%, rgba(102,126,234,0.05) 50%, var(--dark) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .pain-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1px;
+            height: 80px;
+            background: linear-gradient(180deg, transparent, var(--primary), transparent);
+        }
+        .pain-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .pain-hook {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .pain-hook h2 {
+            font-size: 2.2em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.8) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        .pain-hook .subhook {
+            color: var(--accent);
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+        .pain-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+        .pain-block {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 35px;
+            position: relative;
+            transition: all 0.4s;
+        }
+        .pain-block:hover {
+            border-color: rgba(102,126,234,0.3);
+            transform: translateY(-5px);
+        }
+        .pain-block.problem {
+            border-left: 3px solid var(--accent);
+        }
+        .pain-block.solution {
+            border-left: 3px solid #38ef7d;
+        }
+        .pain-block-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+        .pain-block.problem .pain-block-icon {
+            background: rgba(245, 87, 108, 0.15);
+        }
+        .pain-block.solution .pain-block-icon {
+            background: rgba(56, 239, 125, 0.15);
+        }
+        .pain-block h3 {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+        .pain-block p {
+            color: rgba(255,255,255,0.7);
+            line-height: 1.7;
+            font-size: 1em;
+        }
+        .pain-block .highlight {
+            color: #fff;
+            font-weight: 500;
+        }
+        @media (max-width: 768px) {
+            .pain-section { padding: 60px 20px; }
+            .pain-content { grid-template-columns: 1fr; gap: 25px; }
+            .pain-hook h2 { font-size: 1.6em; }
+            .pain-block { padding: 25px; }
+        }
     </style>
 </head>
 <body class="has-promo">
@@ -1791,10 +1892,12 @@
             <!-- BETA: Masqué temporairement <a href="#tarifs">Tarifs</a> -->
             <a href="#faq">FAQ</a>
             <a href="mailto:contact@myinnerquest.fr">Contact</a>
+            <!-- Toggle FR/EN masqué temporairement
             <div class="lang-toggle">
                 <button class="lang-btn active" data-lang="fr">FR</button>
                 <button class="lang-btn" data-lang="en">EN</button>
             </div>
+            -->
             <a href="login.html" class="btn-cta" data-i18n="nav.free_trial">Essai gratuit</a>
         </nav>
     </header>
@@ -1820,12 +1923,12 @@
             <div class="hero-content">
                 <span class="badge">✨ Contenu • Newsletter • Prospection</span>
                 <h1 class="hero-title">
-                    <span class="word" style="animation-delay: 0.3s">L'outil IA</span>
-                    <span class="word gradient" style="animation-delay: 0.5s">tout-en-un</span>
-                    <span class="word" style="animation-delay: 0.7s">des solopreneures</span>
-                    <span class="word gradient" style="animation-delay: 0.9s">débordées</span>
+                    <span class="word" style="animation-delay: 0.3s">Le stack IA</span>
+                    <span class="word gradient" style="animation-delay: 0.5s">qui transforme</span>
+                    <span class="word" style="animation-delay: 0.7s">ta voix</span>
+                    <span class="word gradient" style="animation-delay: 0.9s">en clients</span>
                 </h1>
-                <p class="hero-subtitle">Crée du contenu qui te ressemble et trouve des clients qui te correspondent, sans ouvrir 3 outils différents.</p>
+                <p class="hero-subtitle">Contenu, newsletter et prospection réunis dans un seul système — sans t'éparpiller, sans sonner comme ChatGPT.</p>
 
                 <p class="hero-proof" style="font-size: 0.95em; color: rgba(255,255,255,0.7); margin: 20px 0;">
                     Ton style cloné en 3 textes • Jusqu'à 15 h/semaine récupérées • Données hébergées en Europe 🇪🇺
@@ -1839,12 +1942,13 @@
                         <span style="color: #f093fb;">✓</span> Newsletters prêtes à envoyer en un clic
                     </li>
                     <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
-                        <span style="color: #f093fb;">✓</span> Messages de prospection personnalisés qui ne sonnent pas comme ChatGPT
+                        <span style="color: #f093fb;">✓</span> Messages de prospection personnalisés qui sonnent humain
                     </li>
                 </ul>
 
                 <div class="hero-cta">
-                    <a href="login.html" class="btn-primary">Commencer gratuitement →</a>
+                    <a href="login.html" class="btn-primary">Arrêter de m'éparpiller →</a>
+                    <a href="login.html" class="btn-secondary" style="background: transparent; border: 2px solid rgba(255,255,255,0.3); color: #fff;">Essai gratuit</a>
                 </div>
                 <p class="hero-note" style="margin-top: 15px;">
                     <a href="#audit" style="color: rgba(255,255,255,0.6); text-decoration: underline;">Ou faire mon audit gratuit d'abord</a>
@@ -1869,6 +1973,51 @@
             <div class="scroll-indicator" onclick="document.getElementById('fonctionnalites').scrollIntoView({behavior: 'smooth'})">
                 <div class="mouse"></div>
                 <span>Scroll</span>
+            </div>
+        </section>
+
+        <!-- Pain Point Section -->
+        <section class="pain-section">
+            <div class="pain-container">
+                <div class="pain-hook">
+                    <h2>Tu n'es pas nul.le en contenu.</h2>
+                    <p class="subhook">Tu es juste perdu.e dans les codes.</p>
+                    <p style="color: rgba(255,255,255,0.6); font-size: 1.05em; margin-top: 20px; font-style: italic;">
+                        Tu n'as pas un problème d'idées. Tu as un problème de <span style="color: var(--accent); font-weight: 600;">dispersion</span>.
+                    </p>
+                </div>
+
+                <div class="pain-content">
+                    <div class="pain-block problem">
+                        <div class="pain-block-icon">😵</div>
+                        <h3>Le casse-tête des plateformes</h3>
+                        <p>
+                            Sur LinkedIn on te dit <span class="highlight">"storytelling long"</span>, sur Instagram <span class="highlight">"carrousel court"</span>, en newsletter <span class="highlight">"copy qui convertit"</span>...
+                            <br><br>
+                            Et à chaque fois il faut réécrire, adapter, reformuler. Tu passes plus de temps à <span class="highlight">traduire ton message pour chaque plateforme</span> qu'à parler à tes clients.
+                        </p>
+                    </div>
+
+                    <div class="pain-block solution">
+                        <div class="pain-block-icon">✨</div>
+                        <h3>Une idée, une voix, tous les formats</h3>
+                        <p>
+                            Avec SOS Storytelling, tu gardes <span class="highlight">une seule idée, une seule voix</span>, et l'app se charge de l'adapter aux bons formats, aux bons codes et aux bons canaux pour toi.
+                            <br><br>
+                            <span class="highlight">Fini le casse-tête des plateformes</span>, tu te concentres sur ce que tu veux vraiment dire.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="pain-block solution" style="margin-top: 30px; border-left-color: var(--primary);">
+                    <div class="pain-block-icon" style="background: rgba(102,126,234,0.15);">🎯</div>
+                    <h3>Tout ton personal branding, centralisé</h3>
+                    <p>
+                        Au lieu de t'éparpiller entre générateurs de texte, outils de planification et CRM, SOS Storytelling <span class="highlight">centralise tout : ta voix, ton contenu et ton pipeline</span>.
+                        <br><br>
+                        Tu écris une fois, l'app adapte, structure et connecte tes posts, emails et messages de prospection pour qu'ils <span class="highlight">travaillent ensemble pour ton business</span>.
+                    </p>
+                </div>
             </div>
         </section>
 
@@ -2314,7 +2463,7 @@
     <!-- Cross-sell Section -->
     <section class="cross-sell-section">
         <h2>🚀 Booste ta visibilité avec notre écosystème</h2>
-        <p class="subtitle">SOS Storytelling fonctionne encore mieux avec nos autres outils</p>
+        <p class="subtitle">Pour aller encore plus loin dans ta stratégie</p>
 
         <div class="cross-sell-grid">
             <div class="cross-sell-card">
@@ -2638,7 +2787,7 @@
         document.getElementById('newsletterForm')?.addEventListener('submit', function(e) {
             e.preventDefault();
             const lang = localStorage.getItem('sos_lang') || 'fr';
-            alert(lang === 'en' ? 'Thank you for subscribing! 🎉' : 'Merci pour votre inscription ! 🎉');
+            alert(lang === 'en' ? 'Thank you for subscribing! 🎉' : 'Merci pour ton inscription ! 🎉');
             this.reset();
         });
 
@@ -2661,17 +2810,17 @@
                         title: "Tout ce qu'il te faut pour créer du contenu qui te ressemble",
                         subtitle: "Des fonctionnalités pensées pour les créateurs exigeants et les agences performantes",
                         f1_title: "20+ Structures Narratives",
-                        f1_desc: "AIDA, PAS, Storytelling, Hook-Story-Offer... Choisissez la structure qui captive votre audience. Chaque framework est optimisé pour convertir.",
-                        f2_title: "Ma Voix - Votre ADN",
-                        f2_desc: "L'IA apprend votre style d'écriture et mémorise vos préférences. Plus vous l'utilisez, plus elle vous ressemble. Fini le contenu générique.",
+                        f1_desc: "AIDA, PAS, Storytelling, Hook-Story-Offer... Choisis la structure qui captive ton audience. Chaque framework est optimisé pour convertir.",
+                        f2_title: "Ma Voix - Ton ADN",
+                        f2_desc: "L'IA apprend ton style d'écriture et mémorise tes préférences. Plus tu l'utilises, plus elle te ressemble. Fini le contenu générique.",
                         f3_title: "Planning IA Automatisé",
-                        f3_desc: "Générez un calendrier éditorial complet en un clic. L'IA équilibre vos piliers de contenu et optimise les horaires de publication.",
+                        f3_desc: "Génère un calendrier éditorial complet en un clic. L'IA équilibre tes piliers de contenu et optimise les horaires de publication.",
                         f4_title: "TRENDS en Temps Réel",
-                        f4_desc: "Détectez les sujets tendances de votre secteur. Ne ratez plus jamais une opportunité de surfer sur l'actualité.",
+                        f4_desc: "Détecte les sujets tendances de ton secteur. Ne rate plus jamais une opportunité de surfer sur l'actualité.",
                         f5_title: "Export Multi-Outils",
-                        f5_desc: "Exportez vers Metricool, Swello, Buffer ou CSV en un clic. Compatible avec tous vos outils de planification existants.",
+                        f5_desc: "Exporte vers Metricool, Swello, Buffer ou CSV en un clic. Compatible avec tous tes outils de planification existants.",
                         f6_title: "Mode Multi-Clients",
-                        f6_desc: "Gérez jusqu'à 30 clients avec des profils de voix distincts. Dashboard analytics, exports bulk, rapports détaillés.",
+                        f6_desc: "Gère jusqu'à 30 clients avec des profils de voix distincts. Dashboard analytics, exports bulk, rapports détaillés.",
                         f7_title: "Audit Posts & Profils",
                         f7_desc: "Analyse tes posts LinkedIn et Instagram sous l'angle du storytelling. Découvre ce qui capte l'attention et ce qui fait scroller.",
                         f8_title: "Newsletters en 1 clic",
@@ -2684,40 +2833,40 @@
                     },
                     usecases: {
                         title: "Conçu pour ceux qui créent du contenu régulièrement",
-                        subtitle: "Que vous soyez freelance ou agence, SOS Storytelling s'adapte à votre workflow",
+                        subtitle: "Que tu sois freelance ou en agence, SOS Storytelling s'adapte à ton workflow",
                         u1_title: "👤 Freelance / Solopreneur",
-                        u1_desc: "Créez du contenu consistant sans y passer des heures. Gardez votre voix authentique tout en multipliant votre présence en ligne.",
+                        u1_desc: "Crée du contenu consistant sans y passer des heures. Garde ta voix authentique tout en multipliant ta présence en ligne.",
                         u2_title: "📱 Community Manager",
-                        u2_desc: "Générez des idées fraîches pour vos clients, respectez leurs guidelines de marque, et exportez directement vers vos outils de planification.",
+                        u2_desc: "Génère des idées fraîches pour tes clients, respecte leurs guidelines de marque, et exporte directement vers tes outils de planification.",
                         u3_title: "🏢 Agence Social Media",
-                        u3_desc: "Gérez plusieurs clients avec des voix distinctes, suivez la production de contenu avec le dashboard analytics, et scalez votre activité.",
+                        u3_desc: "Gère plusieurs clients avec des voix distinctes, suis la production de contenu avec le dashboard analytics, et scale ton activité.",
                         u4_title: "🎯 Consultant Marketing",
-                        u4_desc: "Impressionnez vos clients avec des contenus structurés et percutants. Utilisez les frameworks éprouvés pour maximiser l'engagement.",
+                        u4_desc: "Impressionne tes clients avec des contenus structurés et percutants. Utilise les frameworks éprouvés pour maximiser l'engagement.",
                         u5_title: "🛍️ E-commerce",
-                        u5_desc: "Créez du contenu produit qui convertit. Storytelling, témoignages, lancements... Tout est optimisé pour la vente.",
+                        u5_desc: "Crée du contenu produit qui convertit. Storytelling, témoignages, lancements... Tout est optimisé pour la vente.",
                         u6_title: "👩‍💼 Personal Branding",
-                        u6_desc: "Développez votre marque personnelle avec du contenu qui vous ressemble. LinkedIn, Instagram, TikTok... Soyez partout, authentiquement."
+                        u6_desc: "Développe ta marque personnelle avec du contenu qui te ressemble. LinkedIn, Instagram, TikTok... Sois partout, authentiquement."
                     },
                     faq: {
                         title: "Questions fréquentes",
-                        subtitle: "Tout ce que vous devez savoir avant de commencer",
+                        subtitle: "Tout ce que tu dois savoir avant de commencer",
                         q1: "Puis-je utiliser SOS Storytelling pour plusieurs clients ?",
-                        a1: "Absolument ! Les plans Agence Starter (jusqu'à 10 clients) et Agence Scale (jusqu'à 30 clients) permettent de gérer plusieurs profils de voix distincts. Chaque client a son propre style, ses piliers de contenu, et vous pouvez basculer entre eux en un clic.",
+                        a1: "Absolument ! Les plans Agence Starter (jusqu'à 10 clients) et Agence Scale (jusqu'à 30 clients) permettent de gérer plusieurs profils de voix distincts. Chaque client a son propre style, ses piliers de contenu, et tu peux basculer entre eux en un clic.",
                         q2: "Qu'est-ce que la fonctionnalité \"Ma Voix\" ?",
-                        a2: "\"Ma Voix\" est notre technologie propriétaire qui analyse votre style d'écriture et mémorise vos préférences. Elle apprend votre ton, vos expressions favorites, vos emojis préférés, et génère du contenu qui vous ressemble vraiment.",
+                        a2: "\"Ma Voix\" est notre technologie propriétaire qui analyse ton style d'écriture et mémorise tes préférences. Elle apprend ton ton, tes expressions favorites, tes emojis préférés, et génère du contenu qui te ressemble vraiment.",
                         q3: "Puis-je exporter mes contenus vers mes outils de planification ?",
                         a3: "Oui ! SOS Storytelling permet d'exporter en un clic vers Metricool, Swello, Buffer ou en CSV générique compatible avec n'importe quel outil. Le format est optimisé pour chaque plateforme.",
                         q4: "Quelles plateformes sociales sont supportées ?",
                         a4: "LinkedIn, Instagram, TikTok, Facebook, Twitter/X, YouTube, et newsletters. Chaque contenu est automatiquement optimisé pour les spécificités de chaque plateforme.",
                         q5: "Mes données sont-elles sécurisées ?",
-                        a5: "Vos données sont stockées de manière sécurisée et ne sont jamais utilisées pour entraîner des modèles IA externes. Vous pouvez exporter ou supprimer vos données à tout moment (RGPD). Nous utilisons le chiffrement SSL et des serveurs européens.",
+                        a5: "Tes données sont stockées de manière sécurisée et ne sont jamais utilisées pour entraîner des modèles IA externes. Tu peux exporter ou supprimer tes données à tout moment (RGPD). Nous utilisons le chiffrement SSL et des serveurs européens.",
                         q6: "Puis-je annuler mon abonnement à tout moment ?",
-                        a6: "Oui, sans aucune condition. Vous pouvez annuler votre abonnement en un clic depuis votre compte. L'accès reste actif jusqu'à la fin de la période payée. Vos données restent exportables pendant 30 jours après l'annulation."
+                        a6: "Oui, sans aucune condition. Tu peux annuler ton abonnement en un clic depuis ton compte. L'accès reste actif jusqu'à la fin de la période payée. Tes données restent exportables pendant 30 jours après l'annulation."
                     },
                     newsletter: {
-                        title: "Recevez nos tips de storytelling",
+                        title: "Reçois nos tips de storytelling",
                         subtitle: "Chaque semaine, une technique de création de contenu qui fait la différence. Pas de spam, promis.",
-                        placeholder: "votre@email.com",
+                        placeholder: "ton@email.com",
                         button: "S'inscrire"
                     },
                     footer: {

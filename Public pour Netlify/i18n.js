@@ -1063,26 +1063,7 @@ const I18N = {
             this.currentLanguage = savedLang;
         }
 
-        // Essayer de charger depuis le profil Supabase
-        if (window.supabaseApp) {
-            try {
-                const { data: { user } } = await window.supabaseApp.auth.getUser();
-                if (user) {
-                    const { data: profile } = await window.supabaseApp
-                        .from('users')
-                        .select('language')
-                        .eq('id', user.id)
-                        .single();
-
-                    if (profile?.language) {
-                        this.currentLanguage = profile.language;
-                        localStorage.setItem('sos_language', profile.language);
-                    }
-                }
-            } catch (e) {
-                console.log('Could not load language from profile');
-            }
-        }
+        // Langue gérée via localStorage uniquement (app française par défaut)
 
         // Mettre a jour l'attribut lang du HTML
         document.documentElement.lang = this.currentLanguage;

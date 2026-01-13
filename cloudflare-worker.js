@@ -11,7 +11,8 @@ const ALLOWED_ORIGINS = [
   // Dev/test (à retirer en prod si besoin)
   'http://localhost:3000',
   'http://localhost:5173',
-  'http://127.0.0.1:5500'
+  'http://127.0.0.1:5500',
+  'null' // Pour tests locaux en file:// - À RETIRER EN PROD
 ];
 
 function getCorsHeaders(request) {
