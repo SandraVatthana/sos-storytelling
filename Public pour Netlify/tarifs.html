@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarifs - SOS Storytelling</title>
+    <meta name="description" content="Découvrez nos tarifs : 4 posts + 3 audits gratuits, puis Solo à 47€/mois (offre early adopter). Plans Agence disponibles.">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #667eea;
+            --accent: #f093fb;
+            --bg-dark: #0a0a1a;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 50%, #0f0f23 100%);
+            color: white;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 10, 26, 0.9);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: white;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+        }
+
+        .logo span {
+            font-weight: 700;
+            font-size: 1.2em;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .nav a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav a:hover {
+            color: white;
+        }
+
+        .btn-cta {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 12px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .btn-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 120px 20px 60px;
+        }
+
+        .page-title {
+            text-align: center;
+            font-size: 2.5em;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .page-subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 1.1em;
+            margin-bottom: 40px;
+        }
+
+        /* Promo Banner */
+        .promo-banner {
+            background: linear-gradient(135deg, #f5576c, #f093fb);
+            padding: 15px 20px;
+            text-align: center;
+            margin-bottom: 40px;
+            border-radius: 15px;
+        }
+
+        .promo-banner strong {
+            font-size: 1.1em;
+        }
+
+        .countdown {
+            background: rgba(0,0,0,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin-left: 10px;
+            font-weight: 600;
+        }
+
+        /* Trial Banner */
+        .trial-banner {
+            background: linear-gradient(135deg, rgba(102,126,234,0.2), rgba(168,85,247,0.2));
+            border: 2px solid rgba(102,126,234,0.3);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .trial-banner h3 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .trial-banner p {
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 20px;
+        }
+
+        .btn-primary {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 16px 35px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1em;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Billing Toggle */
+        .billing-toggle {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .billing-toggle-inner {
+            display: inline-flex;
+            background: rgba(255,255,255,0.1);
+            border-radius: 30px;
+            padding: 4px;
+        }
+
+        .billing-btn {
+            padding: 12px 30px;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: inherit;
+            transition: all 0.3s;
+            background: transparent;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .billing-btn.active {
+            background: white;
+            color: var(--primary);
+        }
+
+        .badge-discount {
+            background: #10b981;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            margin-left: 8px;
+        }
+
+        /* Pricing Grid */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .pricing-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 35px 30px;
+            text-align: center;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(102,126,234,0.3);
+        }
+
+        .pricing-card.popular {
+            border: 2px solid var(--accent);
+            transform: scale(1.02);
+        }
+
+        .pricing-card.popular:hover {
+            transform: scale(1.02) translateY(-5px);
+        }
+
+        .pricing-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--accent), #f5576c);
+            color: white;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 700;
+        }
+
+        .pricing-card h3 {
+            font-size: 1.4em;
+            margin-bottom: 8px;
+        }
+
+        .pricing-subtitle {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9em;
+            margin-bottom: 20px;
+        }
+
+        .pricing-price {
+            font-size: 2.8em;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .pricing-price span {
+            font-size: 0.35em;
+            font-weight: 400;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .price-detail {
+            font-size: 0.85em;
+            color: rgba(255,255,255,0.5);
+            text-decoration: line-through;
+            margin-bottom: 20px;
+        }
+
+        .pricing-features {
+            list-style: none;
+            text-align: left;
+            margin: 25px 0;
+        }
+
+        .pricing-features li {
+            padding: 10px 0;
+            color: rgba(255,255,255,0.8);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pricing-features li::before {
+            content: '✓';
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .pricing-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .pricing-btn.primary {
+            background: linear-gradient(135deg, var(--accent), #f5576c);
+            color: white;
+        }
+
+        .pricing-btn.secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .pricing-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Early Adopter Notice */
+        .early-notice {
+            text-align: center;
+            color: #10b981;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+
+        /* Guarantee */
+        .guarantee {
+            text-align: center;
+            padding: 30px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 15px;
+            margin-bottom: 40px;
+        }
+
+        .guarantee p {
+            color: #10b981;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+        }
+
+        .footer a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            margin: 0 15px;
+        }
+
+        .footer a:hover {
+            color: var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+            }
+            .nav {
+                display: none;
+            }
+            .page-title {
+                font-size: 1.8em;
+            }
+            .pricing-card.popular {
+                transform: scale(1);
+            }
+            .trial-banner {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="index.html" class="logo">
+            <img src="logo-sos-storytelling.png" alt="SOS Storytelling">
+            <span>SOS Storytelling</span>
+        </a>
+        <nav class="nav">
+            <a href="index.html#fonctionnalites">Fonctionnalités</a>
+            <a href="index.html#usecases">Pour qui ?</a>
+            <a href="index.html#faq">FAQ</a>
+            <a href="login.html" class="btn-cta">Commencer gratuitement</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <!-- Promo Banner -->
+        <div class="promo-banner">
+            <strong>Offre early adopter jusqu'au 20 février : 47€/mois au lieu de 67€</strong>
+            <span class="countdown" id="countdown">--j --h</span>
+        </div>
+
+        <h1 class="page-title">Nos Tarifs</h1>
+        <p class="page-subtitle">4 posts + 3 audits gratuits pour commencer</p>
+
+        <!-- Trial Banner -->
+        <div class="trial-banner">
+            <h3>Commence gratuitement</h3>
+            <p>Génère tes premiers contenus et audite ton profil, tes posts et tes reels gratuitement. Sans carte bancaire.</p>
+            <a href="login.html" class="btn-primary">Commencer gratuitement</a>
+            <p style="margin-top: 20px; font-size: 0.9em; opacity: 0.7;">4 posts + 3 audits offerts • Sans engagement</p>
+        </div>
+
+        <p class="early-notice">Tarifs early adopters – Réservés aux premiers utilisateurs</p>
+
+        <!-- Billing Toggle -->
+        <div class="billing-toggle">
+            <div class="billing-toggle-inner">
+                <button class="billing-btn active" id="btnMonthly" onclick="setBilling('monthly')">Mensuel</button>
+                <button class="billing-btn" id="btnAnnual" onclick="setBilling('annual')">Annuel <span class="badge-discount">-17%</span></button>
+            </div>
+        </div>
+
+        <!-- Pricing Grid -->
+        <div class="pricing-grid">
+            <article class="pricing-card">
+                <h3>Solo</h3>
+                <p class="pricing-subtitle">Pour les créateurs individuels</p>
+                <div class="pricing-price" id="priceSolo">47€<span>/mois</span></div>
+                <p class="price-detail" id="priceSoloDetail">67€/mois après le 20 février</p>
+                <ul class="pricing-features">
+                    <li>Contenus illimités</li>
+                    <li>Ma Voix complète</li>
+                    <li>TRENDS illimité</li>
+                    <li>Planning IA</li>
+                    <li>Export CSV & outils</li>
+                    <li>Support prioritaire</li>
+                </ul>
+                <a href="https://myinnerquest.lemonsqueezy.com/buy/74412bb8-7df8-4d11-a7bb-c8434dc687a7" id="linkSolo" class="pricing-btn secondary">Choisir Solo</a>
+            </article>
+
+            <article class="pricing-card">
+                <h3>Agence Starter</h3>
+                <p class="pricing-subtitle">Jusqu'à 10 clients</p>
+                <div class="pricing-price" id="priceStarter">99€<span>/mois</span></div>
+                <ul class="pricing-features">
+                    <li>Tout de Solo +</li>
+                    <li>Voix PAR CLIENT</li>
+                    <li>Import CSV clients</li>
+                    <li>Dashboard analytics</li>
+                    <li>Planning multi-clients</li>
+                    <li>Support dédié</li>
+                </ul>
+                <a href="https://myinnerquest.lemonsqueezy.com/buy/c743c114-dc29-48a3-b34b-0fd30d3db204" id="linkStarter" class="pricing-btn secondary">Choisir Starter</a>
+            </article>
+
+            <article class="pricing-card popular">
+                <span class="pricing-badge">Populaire</span>
+                <h3>Agence Scale</h3>
+                <p class="pricing-subtitle">Jusqu'à 30 clients</p>
+                <div class="pricing-price" id="priceScale">199€<span>/mois</span></div>
+                <ul class="pricing-features">
+                    <li>Tout de Starter +</li>
+                    <li>30 profils de voix</li>
+                    <li>Analytics avancées</li>
+                    <li>Exports bulk illimités</li>
+                    <li>Onboarding équipe</li>
+                    <li>Support prioritaire</li>
+                </ul>
+                <a href="https://myinnerquest.lemonsqueezy.com/buy/0177ea61-1b2b-4897-8913-2f6b0ce8afa7" id="linkScale" class="pricing-btn primary">Choisir Scale</a>
+            </article>
+
+            <article class="pricing-card">
+                <h3>Enterprise</h3>
+                <p class="pricing-subtitle">30+ clients, sur devis</p>
+                <div class="pricing-price" style="font-size: 1.8em;">À partir de<br>300€<span>/mois</span></div>
+                <ul class="pricing-features">
+                    <li>Clients illimités</li>
+                    <li>Multi-utilisateurs</li>
+                    <li>API & SSO</li>
+                    <li>Voix sur-mesure</li>
+                    <li>Onboarding personnalisé</li>
+                    <li>Account manager dédié</li>
+                </ul>
+                <a href="mailto:contact@myinnerquest.fr" class="pricing-btn secondary">Nous contacter</a>
+            </article>
+        </div>
+
+        <!-- Guarantee -->
+        <div class="guarantee">
+            <p>Satisfait ou remboursé pendant 30 jours. Annulation en 1 clic, sans condition.</p>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>
+            <a href="index.html">Accueil</a>
+            <a href="mentions-legales.html">Mentions légales</a>
+            <a href="cgv.html">CGV</a>
+            <a href="mailto:contact@myinnerquest.fr">Contact</a>
+        </p>
+        <p style="margin-top: 20px;">© 2025 SOS Storytelling by My Inner Quest. Tous droits réservés.</p>
+    </footer>
+
+    <script>
+        // Pricing data
+        const pricingData = {
+            solo: {
+                monthly: { price: '47€', period: '/mois', detail: '67€/mois après le 20 février' },
+                annual: { price: '470€', period: '/an', detail: '804€/an après le 20 février' }
+            },
+            starter: {
+                monthly: { price: '99€', period: '/mois' },
+                annual: { price: '990€', period: '/an' }
+            },
+            scale: {
+                monthly: { price: '199€', period: '/mois' },
+                annual: { price: '1990€', period: '/an' }
+            }
+        };
+
+        function setBilling(type) {
+            const btnMonthly = document.getElementById('btnMonthly');
+            const btnAnnual = document.getElementById('btnAnnual');
+
+            if (type === 'monthly') {
+                btnMonthly.classList.add('active');
+                btnAnnual.classList.remove('active');
+            } else {
+                btnAnnual.classList.add('active');
+                btnMonthly.classList.remove('active');
+            }
+
+            // Update Solo
+            const soloData = pricingData.solo[type];
+            document.getElementById('priceSolo').innerHTML = `${soloData.price}<span>${soloData.period}</span>`;
+            document.getElementById('priceSoloDetail').textContent = soloData.detail || '';
+
+            // Update Starter
+            const starterData = pricingData.starter[type];
+            document.getElementById('priceStarter').innerHTML = `${starterData.price}<span>${starterData.period}</span>`;
+
+            // Update Scale
+            const scaleData = pricingData.scale[type];
+            document.getElementById('priceScale').innerHTML = `${scaleData.price}<span>${scaleData.period}</span>`;
+        }
+
+        // Countdown
+        (function() {
+            const endDate = new Date('2025-02-20T23:59:59');
+            const countdownEl = document.getElementById('countdown');
+
+            function updateCountdown() {
+                const now = new Date();
+                const diff = endDate - now;
+
+                if (diff <= 0) {
+                    countdownEl.textContent = 'Offre terminée';
+                    return;
+                }
+
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+                countdownEl.textContent = `${days}j ${hours}h`;
+            }
+
+            updateCountdown();
+            setInterval(updateCountdown, 60000);
+        })();
+    </script>
+</body>
+</html>
