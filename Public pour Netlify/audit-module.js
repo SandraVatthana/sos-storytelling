@@ -817,6 +817,7 @@ const AuditModule = (function() {
 
             <div class="audit-section">
                 <h3>1️⃣ Choisis ta plateforme</h3>
+                <p class="audit-hint" style="margin-bottom: 12px;">L'analyse est adaptée aux codes spécifiques de chaque réseau (taille photo, format bio, etc.)</p>
                 <div class="audit-platforms">
                     ${Object.entries(PLATFORMS).map(([key, p]) => `
                         <button class="audit-platform-btn ${selectedPlatform === key ? 'active' : ''}"
@@ -887,7 +888,7 @@ const AuditModule = (function() {
 
             <div class="audit-info-feedback" style="margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #e0f2fe, #f0f9ff); border-radius: 10px; border-left: 4px solid #0ea5e9;">
                 <p style="margin: 0; color: #0369a1; font-size: 0.9em;">
-                    💡 <strong>L'analyse prend environ 30 secondes.</strong> Tu recevras un rapport détaillé avec un score, des points forts et des recommandations actionnables.
+                    ⏱️ <strong>~30 secondes</strong> • 📄 Rapport avec score et recommandations • 💾 Sauvegardé automatiquement
                 </p>
             </div>
         `;
@@ -1186,7 +1187,7 @@ const AuditModule = (function() {
 
             <div class="audit-info-feedback" style="margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #e0f2fe, #f0f9ff); border-radius: 10px; border-left: 4px solid #0ea5e9;">
                 <p style="margin: 0; color: #0369a1; font-size: 0.9em;">
-                    💡 <strong>L'analyse prend 1-2 minutes</strong> selon le nombre de posts. Tu recevras un rapport avec des scores par critère et des conseils pour améliorer tes prochains posts.
+                    ⏱️ <strong>~1-2 min</strong> selon le nombre de posts • 📄 Scores par critère + conseils • 💾 Sauvegardé automatiquement
                 </p>
             </div>
         `;
@@ -1814,7 +1815,7 @@ const AuditModule = (function() {
 
             <div class="audit-info-feedback" style="margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #e0f2fe, #f0f9ff); border-radius: 10px; border-left: 4px solid #0ea5e9;">
                 <p style="margin: 0; color: #0369a1; font-size: 0.9em;">
-                    💡 <strong>L'analyse prend environ 1-2 minutes.</strong> L'IA analysera le hook, le rythme, les sous-titres, le CTA et te donnera un score détaillé avec des conseils d'amélioration.
+                    ⏱️ <strong>~1-2 min</strong> • 📄 Analyse hook, rythme, CTA + score détaillé • 💾 Sauvegardé automatiquement
                 </p>
             </div>
         `;
