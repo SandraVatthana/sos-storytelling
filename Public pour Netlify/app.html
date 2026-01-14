@@ -4539,7 +4539,7 @@
             <!-- Dropdown Réseaux Sociaux -->
             <div class="header-dropdown">
                 <button class="btn btn-primary dropdown-toggle" onclick="toggleDropdown('createDropdown')">
-                    📱 <span data-i18n="menu.create">Réseaux Sociaux</span> <span class="dropdown-arrow">▼</span>
+                    ✨ <span data-i18n="menu.create">Créer du contenu</span> <span class="dropdown-arrow">▼</span>
                 </button>
                 <div class="dropdown-menu" id="createDropdown">
                     <a class="dropdown-item" onclick="closeDropdowns(); showQuickPost()">📝 <span data-i18n="menu.write_post">Écrire un post</span></a>
@@ -4550,7 +4550,7 @@
             <!-- Dropdown Emails -->
             <div class="header-dropdown">
                 <button class="btn btn-newsletter dropdown-toggle" onclick="toggleDropdown('emailsDropdown')">
-                    📧 <span data-i18n="menu.emails">Emails</span> <span class="dropdown-arrow">▼</span>
+                    📧 <span data-i18n="menu.emails">Newsletters & Prospection</span> <span class="dropdown-arrow">▼</span>
                 </button>
                 <div class="dropdown-menu dropdown-menu-sections" id="emailsDropdown">
                     <!-- Section Newsletter -->
@@ -4578,7 +4578,7 @@
             <!-- Dropdown Dashboard -->
             <div class="header-dropdown">
                 <button class="btn btn-stats dropdown-toggle" onclick="toggleDropdown('dashboardDropdown')">
-                    📊 <span data-i18n="menu.dashboard">Dashboard</span> <span class="dropdown-arrow">▼</span>
+                    📊 <span data-i18n="menu.dashboard">Audits</span> <span class="dropdown-arrow">▼</span>
                 </button>
                 <div class="dropdown-menu" id="dashboardDropdown">
                     <a class="dropdown-item" onclick="closeDropdowns(); showPlanningModal()">🗓️ <span data-i18n="menu.planning">Planning IA</span></a>
@@ -4792,9 +4792,9 @@
                 <h2 class="panel-title">⚙️ <span data-i18n="config.title">Configuration</span></h2>
 
                 <!-- Profile Reminder -->
-                <div class="profile-reminder" id="profileReminder" onclick="openOnboardingModal()" style="display: none;">
+                <div class="profile-reminder" id="profileReminder" style="display: none;">
                     <span class="profile-reminder-icon">💡</span>
-                    <span class="profile-reminder-text">Pense à remplir <strong>Mon Profil</strong> et <strong>Mon Style</strong> pour personnaliser tes contenus !</span>
+                    <span class="profile-reminder-text">Pense à remplir <a href="#" onclick="event.preventDefault(); Onboarding.forceShow();" style="color: #92400e; text-decoration: underline; font-weight: 700;">Mon Profil</a> et <a href="#" onclick="event.preventDefault(); showVoiceModal();" style="color: #92400e; text-decoration: underline; font-weight: 700;">Mon Style</a> pour personnaliser tes contenus !</span>
                     <button class="profile-reminder-close" onclick="event.stopPropagation(); hideProfileReminder();" title="Fermer">✕</button>
                 </div>
 
@@ -6349,25 +6349,28 @@ Solution  | Présenter votre solution</pre>
             <div class="welcome-popup-text">
                 Découvre comment créer du contenu en 2 minutes
             </div>
+            <div style="background: linear-gradient(135deg, #fef3c7, #fde68a); padding: 12px 16px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #f59e0b;">
+                <span style="font-size: 1.1em;">🎁</span> <strong style="color: #92400e;">Tes 4 posts + 3 audits offerts t'attendent !</strong>
+            </div>
             <div class="welcome-popup-features">
                 <div class="welcome-popup-feature">
+                    <span class="welcome-popup-feature-icon">🎤</span>
+                    <span class="welcome-popup-feature-text">Clone ta voix en collant 3 de tes anciens textes</span>
+                </div>
+                <div class="welcome-popup-feature">
                     <span class="welcome-popup-feature-icon">✍️</span>
-                    <span class="welcome-popup-feature-text">Génère des posts LinkedIn percutants</span>
+                    <span class="welcome-popup-feature-text">Génère ton premier post LinkedIn avec ton style</span>
                 </div>
                 <div class="welcome-popup-feature">
                     <span class="welcome-popup-feature-icon">📧</span>
-                    <span class="welcome-popup-feature-text">Crée des newsletters engageantes</span>
-                </div>
-                <div class="welcome-popup-feature">
-                    <span class="welcome-popup-feature-icon">🎯</span>
-                    <span class="welcome-popup-feature-text">Personnalise ta voix unique</span>
+                    <span class="welcome-popup-feature-text">Crée ta première newsletter engageante</span>
                 </div>
             </div>
-            <button class="welcome-popup-btn" onclick="startGuidedDemo()">🎯 Lancer la démo guidée</button>
+            <button class="welcome-popup-btn" onclick="startGuidedDemo()">🚀 Lancer la démo guidée</button>
             <button class="welcome-popup-skip" onclick="closeWelcomePopup()">Explorer par moi-même</button>
-            <div class="welcome-popup-checkbox">
+            <div class="welcome-popup-checkbox" style="opacity: 0.5;">
                 <input type="checkbox" id="welcomeDontShow">
-                <label for="welcomeDontShow">Ne plus afficher ce message</label>
+                <label for="welcomeDontShow" style="font-size: 0.75em; color: #aaa;">Ne plus afficher</label>
             </div>
         </div>
     </div>
@@ -17718,7 +17721,26 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
             border-color: #667eea;
             background: #f0f4ff;
         }
-        
+
+        .chat-support-btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .chat-support-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
         .chatbot-input {
             padding: 15px;
             background: white;
@@ -17908,19 +17930,19 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
             // Base de connaissances FAQ (bilingue)
             faq: [
                 {
-                    keywords: ['essai', 'gratuit', 'trial', '14 jours', 'tester', 'test', 'free'],
-                    answer_fr: "L'essai gratuit dure <strong>14 jours</strong>, sans carte bancaire ! Vous avez accès à toutes les fonctionnalités : génération illimitée, Mon Style, Planning IA, exports... À la fin, vous choisissez de souscrire ou non. 🚀",
-                    answer_en: "The free trial lasts <strong>14 days</strong>, no credit card required! You get access to all features: unlimited generation, My Voice, AI Planning, exports... At the end, you choose whether to subscribe or not. 🚀"
+                    keywords: ['essai', 'gratuit', 'trial', 'tester', 'test', 'free', 'freemium'],
+                    answer_fr: "SOS Storytelling est <strong>freemium</strong> : tu peux créer <strong>4 posts + 3 audits gratuits</strong>, sans carte bancaire ! Ensuite, tu choisis de passer à l'offre payante (47€/mois Early Adopter) pour un accès illimité. 🚀",
+                    answer_en: "SOS Storytelling is <strong>freemium</strong>: you can create <strong>4 posts + 3 free audits</strong>, no credit card required! Then you choose to upgrade to paid (€47/month Early Adopter) for unlimited access. 🚀"
                 },
                 {
                     keywords: ['prix', 'tarif', 'coût', 'combien', 'abonnement', 'plan', 'price', 'cost', 'pricing', 'early adopter', '47', '67'],
-                    answer_fr: "🚀 <strong>Offre Early Adopter</strong> (jusqu'au 20 février) : <strong>47€/mois</strong> au lieu de 67€ (ou 470€/an au lieu de 804€). Plans Agence : Starter (10 clients) à 99€/mois, Scale (30 clients) à 199€/mois. Essai gratuit 14 jours inclus ! 💰",
-                    answer_en: "🚀 <strong>Early Adopter Offer</strong> (until Feb 20): <strong>€47/month</strong> instead of €67 (or €470/year instead of €804). Agency plans: Starter (10 clients) €99/month, Scale (30 clients) €199/month. 14-day free trial included! 💰"
+                    answer_fr: "🚀 <strong>Offre Early Adopter</strong> (jusqu'au 20 février 2026) : <strong>47€/mois</strong> au lieu de 67€ (ou 470€/an). Plans Agence : Starter (10 clients) à 99€/mois, Scale (30 clients) à 199€/mois. 4 posts + 3 audits gratuits pour tester ! 💰",
+                    answer_en: "🚀 <strong>Early Adopter Offer</strong> (until Feb 20, 2026): <strong>€47/month</strong> instead of €67 (or €470/year). Agency plans: Starter (10 clients) €99/month, Scale (30 clients) €199/month. 4 posts + 3 free audits to try! 💰"
                 },
                 {
-                    keywords: ['mon style', 'voix', 'style', 'ton', 'personnaliser', 'voice', 'my voice', 'customize'],
-                    answer_fr: "\"Mon Style\" analyse vos textes pour capturer votre style unique ! <strong>Conseil important :</strong> utilisez des textes vraiment écrits par vous (pas générés par IA) pour un résultat authentique. Plus vous ajoutez de textes, plus la fidélité augmente. 🎤",
-                    answer_en: "\"My Voice\" analyzes your texts to capture your unique style! <strong>Important tip:</strong> use texts actually written by you (not AI-generated) for an authentic result. The more texts you add, the higher the fidelity. 🎤"
+                    keywords: ['mon style', 'ma voix', 'voix', 'style', 'ton', 'personnaliser', 'voice', 'my voice', 'customize'],
+                    answer_fr: "\"<strong>Ma Voix</strong>\" analyse tes textes pour capturer ton style d'écriture unique ! <strong>Conseil :</strong> utilise des textes vraiment écrits par toi (pas générés par IA) pour un résultat authentique. Plus tu ajoutes de textes, plus la fidélité augmente. 🎤",
+                    answer_en: "\"<strong>My Voice</strong>\" analyzes your texts to capture your unique writing style! <strong>Tip:</strong> use texts actually written by you (not AI-generated) for an authentic result. The more texts you add, the higher the fidelity. 🎤"
                 },
                 {
                     keywords: ['planning', 'calendrier', 'planifier', 'programmer', 'calendar', 'schedule'],
@@ -17990,8 +18012,8 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
                 },
                 {
                     keywords: ['commencer', 'débuter', 'premier', 'start', 'begin', 'first', 'onboarding', 'démarrer'],
-                    answer_fr: "Pour bien démarrer : <strong>1)</strong> Complétez votre profil (domaine, audience, style) <strong>2)</strong> Ajoutez 3-5 textes dans \"Mon Style\" pour personnaliser l'IA <strong>3)</strong> Testez la génération de post ! Conseil : commencez par un post LinkedIn classique. 🚀",
-                    answer_en: "To get started: <strong>1)</strong> Complete your profile (domain, audience, style) <strong>2)</strong> Add 3-5 texts in \"My Voice\" to personalize the AI <strong>3)</strong> Try generating a post! Tip: start with a classic LinkedIn post. 🚀"
+                    answer_fr: "Pour bien démarrer : <strong>1)</strong> Complète ton profil (domaine, audience, style) <strong>2)</strong> Ajoute 3-5 textes dans \"Ma Voix\" pour personnaliser l'IA <strong>3)</strong> Teste la génération de post ! Tu as 4 posts gratuits pour essayer. Conseil : commence par un post LinkedIn classique. 🚀",
+                    answer_en: "To get started: <strong>1)</strong> Complete your profile (domain, audience, style) <strong>2)</strong> Add 3-5 texts in \"My Voice\" to personalize the AI <strong>3)</strong> Try generating a post! You have 4 free posts to try. Tip: start with a classic LinkedIn post. 🚀"
                 },
                 {
                     keywords: ['profil', 'compte', 'paramètre', 'réglage', 'profile', 'account', 'settings', 'configuration'],
@@ -18073,15 +18095,15 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
             // Questions suggérées (bilingues)
             quickReplies_fr: [
                 "Comment créer mon premier post ?",
-                "C'est quoi Mon Style ?",
+                "C'est quoi Ma Voix ?",
                 "Quels sont les tarifs ?",
-                "J'ai un problème technique"
+                "💬 Parler à Sandra"
             ],
             quickReplies_en: [
                 "How do I create my first post?",
                 "What is My Voice?",
                 "What are the prices?",
-                "I have a technical issue"
+                "💬 Chat with Sandra"
             ],
 
             getQuickReplies() {
@@ -18148,6 +18170,11 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
             },
             
             askQuestion(question) {
+                // Si c'est "Parler à Sandra", ouvrir directement Tawk
+                if (question.includes('Parler à Sandra') || question.includes('Chat with Sandra')) {
+                    this.openSupport();
+                    return;
+                }
                 document.getElementById('chatbotInput').value = question;
                 this.sendMessage();
             },
@@ -18239,10 +18266,10 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
                     }
                 }
 
-                // Réponse par défaut (fallback email)
+                // Réponse par défaut (fallback avec bouton support)
                 return lang === 'en'
-                    ? "I'm not sure I understand your question. 🤔<br><br>For a personalized response, contact us: <a href='mailto:contact@myinnerquest.fr'>contact@myinnerquest.fr</a><br><br>Or try rephrasing with words like: pricing, free trial, My Voice, planning, export, agency..."
-                    : "Je ne suis pas sûr de comprendre votre question. 🤔<br><br>Pour une réponse personnalisée, contactez-nous : <a href='mailto:contact@myinnerquest.fr'>contact@myinnerquest.fr</a><br><br>Ou essayez de reformuler avec des mots comme : tarif, essai gratuit, Mon Style, planning, export, agence...";
+                    ? "I'm not sure I understand your question. 🤔<br><br>Try rephrasing with words like: pricing, free, My Voice, planning, export...<br><br><button class='chat-support-btn' onclick='Chatbot.openSupport()'>💬 Chat with Sandra</button>"
+                    : "Je ne suis pas sûr de comprendre ta question. 🤔<br><br>Essaie de reformuler avec des mots comme : tarif, gratuit, Ma Voix, planning, export...<br><br><button class='chat-support-btn' onclick='Chatbot.openSupport()'>💬 Parler à Sandra</button>";
             },
             
             addMessage(content, type) {
@@ -18285,9 +18312,24 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
                 const warning = document.createElement('div');
                 warning.className = 'chat-limit-warning';
                 warning.innerHTML = lang === 'en'
-                    ? `⚠️ You've reached the message limit for this session.<br><a href="mailto:contact@myinnerquest.fr">Contact us</a> for more help!`
-                    : `⚠️ Vous avez atteint la limite de messages pour cette session.<br><a href="mailto:contact@myinnerquest.fr">Contactez-nous</a> pour plus d'aide !`;
+                    ? `⚠️ You've reached the message limit.<br><button class='chat-support-btn' onclick='Chatbot.openSupport()'>💬 Chat with Sandra</button>`
+                    : `⚠️ Tu as atteint la limite de messages.<br><button class='chat-support-btn' onclick='Chatbot.openSupport()'>💬 Parler à Sandra</button>`;
                 messages.parentElement.insertBefore(warning, messages.nextSibling);
+            },
+
+            openSupport() {
+                // Ouvrir Tawk.to
+                if (typeof Tawk_API !== 'undefined' && Tawk_API.maximize) {
+                    Tawk_API.maximize();
+                    // Fermer Tithot
+                    this.isOpen = false;
+                    document.getElementById('chatbotWindow').classList.remove('show');
+                    document.getElementById('chatbotIcon').textContent = '💬';
+                    document.getElementById('chatbotToggle').classList.remove('open');
+                } else {
+                    // Fallback si Tawk pas chargé
+                    window.open('mailto:contact@myinnerquest.fr', '_blank');
+                }
             }
         };
         
@@ -19283,6 +19325,20 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
             setTimeout(updateCollaborationUI, 1000);
         });
     </script>
+
+    <!--Start of Tawk.to Script-->
+    <script type="text/javascript">
+    var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+    (function(){
+    var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+    s1.async=true;
+    s1.src='https://embed.tawk.to/6966beea48d012197e10aab2/1jesljgqk';
+    s1.charset='UTF-8';
+    s1.setAttribute('crossorigin','*');
+    s0.parentNode.insertBefore(s1,s0);
+    })();
+    </script>
+    <!--End of Tawk.to Script-->
 
 </body>
 </html>

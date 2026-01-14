@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>À propos - SOS Storytelling | Sandra Devonssay</title>
+    <meta name="description" content="Découvrez l'histoire de Sandra, maman solo entrepreneure qui a créé SOS Storytelling pour aider les entrepreneures à créer du contenu authentique sans y passer des heures.">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #667eea;
+            --primary-light: #764ba2;
+            --accent: #f5576c;
+            --accent-light: #f093fb;
+            --dark: #0a0a0f;
+            --dark-lighter: #12121a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--dark);
+            color: #fff;
+            line-height: 1.8;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(10,10,15,0.95);
+            backdrop-filter: blur(20px);
+            padding: 20px 40px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header a.logo {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header a.logo:hover { color: var(--accent); }
+
+        .header-nav {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .header-nav a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.95em;
+            transition: color 0.3s;
+        }
+
+        .header-nav a:hover { color: #fff; }
+
+        .btn-cta {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95em;
+            transition: all 0.3s;
+        }
+
+        .btn-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102,126,234,0.4);
+        }
+
+        /* Hero */
+        .hero {
+            padding: 180px 40px 100px;
+            background: linear-gradient(180deg, var(--dark) 0%, var(--dark-lighter) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(102,126,234,0.1) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            max-width: 900px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 60px;
+            align-items: start;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Photo placeholder */
+        .photo-container {
+            position: relative;
+        }
+
+        .photo-placeholder {
+            width: 280px;
+            height: 350px;
+            background: linear-gradient(135deg, rgba(102,126,234,0.2), rgba(245,87,108,0.2));
+            border: 2px dashed rgba(255,255,255,0.2);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .photo-placeholder:hover {
+            border-color: rgba(255,255,255,0.4);
+            background: linear-gradient(135deg, rgba(102,126,234,0.3), rgba(245,87,108,0.3));
+        }
+
+        .photo-placeholder .icon {
+            font-size: 4em;
+            opacity: 0.5;
+        }
+
+        /* Si tu as une vraie photo, utilise cette classe */
+        .photo-real {
+            width: 280px;
+            height: 350px;
+            object-fit: cover;
+            border-radius: 20px;
+            border: 3px solid rgba(255,255,255,0.1);
+        }
+
+        .photo-decoration {
+            position: absolute;
+            bottom: -20px;
+            right: -20px;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            border-radius: 50%;
+            opacity: 0.2;
+            z-index: -1;
+        }
+
+        .hero-intro h1 {
+            font-size: 2.8em;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #fff, rgba(255,255,255,0.8));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-intro .tagline {
+            color: var(--accent);
+            font-size: 1.2em;
+            font-weight: 500;
+            margin-bottom: 30px;
+        }
+
+        /* Story */
+        .story-section {
+            padding: 80px 40px;
+            background: var(--dark-lighter);
+        }
+
+        .story-container {
+            max-width: 750px;
+            margin: 0 auto;
+        }
+
+        .story-text {
+            font-size: 1.15em;
+            color: rgba(255,255,255,0.85);
+            line-height: 1.9;
+        }
+
+        .story-text p {
+            margin-bottom: 25px;
+        }
+
+        .story-text .highlight {
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .story-text .big-quote {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #fff;
+            text-align: center;
+            padding: 40px 30px;
+            margin: 40px 0;
+            background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(245,87,108,0.1));
+            border-left: 4px solid var(--accent);
+            border-radius: 0 15px 15px 0;
+        }
+
+        .story-text ul {
+            list-style: none;
+            margin: 25px 0;
+            padding-left: 0;
+        }
+
+        .story-text ul li {
+            padding: 12px 0 12px 35px;
+            position: relative;
+            color: rgba(255,255,255,0.85);
+        }
+
+        .story-text ul li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .story-text .section-break {
+            text-align: center;
+            padding: 30px 0;
+            color: rgba(255,255,255,0.3);
+            font-size: 1.5em;
+            letter-spacing: 10px;
+        }
+
+        .signature {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 80px 40px;
+            background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(245,87,108,0.1));
+            text-align: center;
+        }
+
+        .cta-section h2 {
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .cta-section p {
+            color: rgba(255,255,255,0.7);
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+
+        .cta-section .btn-cta {
+            display: inline-block;
+            padding: 18px 40px;
+            font-size: 1.1em;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 40px;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .footer-links a {
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            font-size: 0.95em;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover { color: var(--accent); }
+
+        .footer-copy {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.9em;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .photo-container {
+                margin: 0 auto;
+            }
+
+            .hero-intro h1 {
+                font-size: 2.2em;
+            }
+
+            .header-nav {
+                display: none;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .hero {
+                padding: 140px 20px 60px;
+            }
+
+            .story-section {
+                padding: 60px 20px;
+            }
+
+            .photo-placeholder,
+            .photo-real {
+                width: 220px;
+                height: 280px;
+            }
+
+            .hero-intro h1 {
+                font-size: 1.8em;
+            }
+
+            .story-text {
+                font-size: 1.05em;
+            }
+
+            .story-text .big-quote {
+                font-size: 1.2em;
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="index.html" class="logo">
+                <img src="logo-sos-storytelling.png" alt="SOS Storytelling" style="height: 40px;">
+            </a>
+            <nav class="header-nav">
+                <a href="index.html">Accueil</a>
+                <a href="index.html#fonctionnalites">Fonctionnalités</a>
+                <a href="tarifs.html">Tarifs</a>
+                <a href="login.html" class="btn-cta">Commencer gratuitement</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <div class="photo-container">
+                <img src="sandra.png" alt="Sandra Devonssay" class="photo-real">
+                <div class="photo-decoration"></div>
+            </div>
+            <div class="hero-intro">
+                <h1>À propos</h1>
+                <p class="tagline">L'histoire derrière SOS Storytelling</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="story-section">
+        <div class="story-container">
+            <div class="story-text">
+                <p>16h par jour dans ma cuisine. Ma fille qui fait ses devoirs à côté. Mon labrador qui réclame sa balade. Et moi, entre deux réunions visio, qui essaie de comprendre comment fonctionne l'algorithme LinkedIn.</p>
+
+                <p class="big-quote">Bienvenue dans la vie d'une maman solo entrepreneure.</p>
+
+                <p>Quand je me suis lancée, j'ai vite compris que les réseaux sociaux allaient être indispensables pour trouver des clients. Le problème ? Jusque-là, je les utilisais pour poster des photos de vacances et garder contact avec mes amis.</p>
+
+                <p>Du jour au lendemain, je devais :</p>
+
+                <ul>
+                    <li>Créer des pages pro qui donnent envie</li>
+                    <li>Lancer une newsletter</li>
+                    <li>Prospecter sans passer pour une vendeuse de tapis</li>
+                </ul>
+
+                <p><span class="highlight">Je voulais être partout. Résultat : je n'étais nulle part.</span></p>
+
+                <p>Et surtout, je n'avais pas le temps. Pas avec Chloé à récupérer au collège. Pas avec Viggo qui me fixe avec sa laisse dans la gueule. Pas avec les factures qui n'attendent pas.</p>
+
+                <div class="section-break">• • •</div>
+
+                <p>Alors j'ai fait ce que je sais faire : <span class="highlight">j'ai bidouillé</span>. Nuit après nuit, j'ai construit des outils qui me faisaient gagner du temps. Des prompts qui apprenaient ma façon de parler. Des templates qui m'évitaient de repartir de zéro à chaque post.</p>
+
+                <p>Au début, c'était juste pour moi.</p>
+
+                <p>Puis j'ai partagé avec des amies entrepreneures. Elles galéraient avec les mêmes trucs : ChatGPT qui crache du contenu générique, l'impression de devoir tout réexpliquer à chaque fois, les posts qui tombent à plat sans savoir pourquoi.</p>
+
+                <p>Avec mes outils, elles ont commencé à créer des contenus qui leur ressemblaient vraiment. En quelques clics. <span class="highlight">L'IA apprenait d'elles</span> - leur ton, leur histoire, leur offre.</p>
+
+                <p>Mais ce qui a tout changé, c'est l'audit de leurs réseaux. Enfin, elles comprenaient ce qui clochait. Pourquoi ce carousel ne marchait pas. Pourquoi leur profil ne convertissait pas. Et surtout, comment corriger.</p>
+
+                <p class="big-quote">SOS Storytelling, c'est ça.</p>
+
+                <p>Un outil construit à 2h du matin dans une cuisine, par une maman qui n'avait pas le temps de devenir experte en marketing - mais qui avait besoin de résultats quand même.</p>
+
+                <p><span class="highlight">Si tu te reconnais, tu es au bon endroit.</span></p>
+
+                <p class="signature">- Sandra 🐕</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <h2>Prête à simplifier ta création de contenu ?</h2>
+        <p>4 posts + 3 audits gratuits, sans carte bancaire.</p>
+        <a href="login.html" class="btn-cta">Essayer SOS Storytelling</a>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="index.html">Accueil</a>
+            <a href="tarifs.html">Tarifs</a>
+            <a href="mentions-legales.html">Mentions légales</a>
+            <a href="confidentialite.html">Confidentialité</a>
+            <a href="cgv.html">CGV</a>
+            <a href="mailto:contact@myinnerquest.fr">Contact</a>
+        </div>
+        <p class="footer-copy">© 2025 My Inner Quest - Tous droits réservés</p>
+    </footer>
+</body>
+</html>

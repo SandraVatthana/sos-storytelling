@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- SEO Meta Tags -->
-    <title>SOS Storytelling - Création de contenu IA pour réseaux sociaux | Agences & Freelances</title>
+    <title>SOS Storytelling - Création de contenu IA pour solopreneures | Réseaux sociaux & Personal Branding</title>
     <meta name="description" content="L'IA qui comprend ton business et crée du contenu qui te ressemble. Génère du contenu avec du storytelling pour tes réseaux sociaux en quelques clics. 4 posts + 3 audits gratuits.">
-    <meta name="keywords" content="création contenu IA, automatisation réseaux sociaux, calendrier éditorial, community manager, social media manager, génération contenu LinkedIn, outil agence social media, storytelling IA">
+    <meta name="keywords" content="création contenu IA, solopreneure, personal branding, storytelling LinkedIn, automatisation réseaux sociaux, calendrier éditorial, génération contenu LinkedIn, IA copywriting, contenu authentique">
     <meta name="author" content="My Inner Quest">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://myinnerquest.fr/sos-storytelling">
@@ -236,32 +236,6 @@
         .btn-cta:hover::before { left: 100%; }
         .btn-cta:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(102,126,234,0.4); }
 
-        /* Language Toggle - Masqué temporairement
-        .lang-toggle {
-            display: flex;
-            gap: 5px;
-            background: rgba(255,255,255,0.1);
-            padding: 4px;
-            border-radius: 20px;
-        }
-        .lang-btn {
-            background: transparent;
-            border: none;
-            color: rgba(255,255,255,0.6);
-            padding: 6px 12px;
-            border-radius: 16px;
-            cursor: pointer;
-            font-family: inherit;
-            font-weight: 500;
-            font-size: 0.85em;
-            transition: all 0.3s;
-        }
-        .lang-btn:hover { color: #fff; }
-        .lang-btn.active {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            color: #fff;
-        }
-        */
 
         /* Mobile Menu */
         .menu-toggle { display: none; background: none; border: none; cursor: pointer; padding: 10px; z-index: 101; }
@@ -785,6 +759,146 @@
             background-clip: text;
         }
         .stat-item p { color: rgba(255,255,255,0.7); font-size: 1.1em; margin-top: 5px; }
+
+        /* ============ TRANSFORMATION SECTION ============ */
+        .transformation-section {
+            padding: 80px 40px;
+            background: linear-gradient(135deg, rgba(16,185,129,0.05), rgba(102,126,234,0.08));
+            position: relative;
+        }
+        .transformation-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .transformation-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 50px;
+        }
+        .transformation-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 35px 25px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s;
+        }
+        .transformation-card.visible { opacity: 1; transform: translateY(0); }
+        .transformation-card:hover { border-color: rgba(16,185,129,0.3); transform: translateY(-5px); }
+        .transformation-before {
+            color: rgba(255,255,255,0.5);
+            font-size: 1em;
+            margin-bottom: 10px;
+            text-decoration: line-through;
+        }
+        .transformation-arrow {
+            font-size: 1.5em;
+            margin: 10px 0;
+        }
+        .transformation-after {
+            font-size: 1.8em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #10b981, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .transformation-label {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.95em;
+            margin-top: 15px;
+        }
+
+        /* ============ TESTIMONIALS SECTION ============ */
+        .testimonials-section {
+            padding: 100px 40px;
+            background: linear-gradient(180deg, var(--dark-lighter) 0%, var(--dark) 100%);
+            position: relative;
+        }
+        .testimonials-container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 50px;
+        }
+        .testimonial-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 35px 30px;
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s;
+        }
+        .testimonial-card.visible { opacity: 1; transform: translateY(0); }
+        .testimonial-card:hover { border-color: rgba(245,87,108,0.3); }
+        .testimonial-quote {
+            font-size: 2em;
+            color: var(--accent);
+            opacity: 0.3;
+            position: absolute;
+            top: 20px;
+            left: 25px;
+        }
+        .testimonial-text {
+            color: rgba(255,255,255,0.85);
+            font-size: 1.05em;
+            line-height: 1.7;
+            font-style: italic;
+            margin-bottom: 25px;
+            padding-top: 20px;
+        }
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .testimonial-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3em;
+            font-weight: 600;
+            color: white;
+        }
+        .testimonial-avatar-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+        .testimonial-info h4 {
+            color: white;
+            font-size: 1em;
+            font-weight: 600;
+        }
+        .testimonial-info p {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9em;
+        }
+        .testimonial-stars {
+            color: #fbbf24;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 900px) {
+            .transformation-grid, .testimonials-grid { grid-template-columns: 1fr; gap: 20px; }
+        }
 
         /* ============ WORKFLOW TIMELINE ============ */
         .workflow-section {
@@ -1848,10 +1962,10 @@
     <!-- Promo Banner Early Adopter -->
     <div class="promo-banner" id="promoBanner">
         <div class="promo-content">
-            <span>🚀 Offre early adopter jusqu'au 20 février :</span>
-            <span class="old-price">67€/mois</span>
+            <span>🚀 Offre early adopter :</span>
             <span class="new-price">47€/mois</span>
-            <span class="countdown" id="promoCountdown">--j --h --m</span>
+            <span class="old-price">au lieu de 67€</span>
+            <span class="countdown" id="promoCountdown">⏱️ Plus que --j --h --m</span>
             <a href="login.html" class="promo-cta">J'en profite →</a>
         </div>
     </div>
@@ -1890,13 +2004,7 @@
             <a href="#usecases" data-i18n="nav.for_who">Pour qui ?</a>
             <a href="tarifs.html" data-i18n="nav.pricing">Tarifs</a>
             <a href="#faq">FAQ</a>
-            <a href="mailto:contact@myinnerquest.fr">Contact</a>
-            <!-- Toggle FR/EN masqué temporairement
-            <div class="lang-toggle">
-                <button class="lang-btn active" data-lang="fr">FR</button>
-                <button class="lang-btn" data-lang="en">EN</button>
-            </div>
-            -->
+            <a href="a-propos.html">À propos</a>
             <a href="login.html" class="btn-cta" data-i18n="nav.free_trial">Commencer gratuitement</a>
         </nav>
     </header>
@@ -1920,7 +2028,7 @@
             <div class="hero-orb hero-orb-3"></div>
             
             <div class="hero-content">
-                <span class="badge">✨ Contenu • Newsletter • Prospection</span>
+                <span class="badge">✨ Contenu • Newsletter • Email B2B</span>
                 <h1 class="hero-title">
                     <span class="word" style="animation-delay: 0.3s">Le stack IA</span>
                     <span class="word gradient" style="animation-delay: 0.5s">qui transforme</span>
@@ -1941,20 +2049,19 @@
                         <span style="color: #f093fb;">✓</span> Newsletters prêtes à envoyer en un clic
                     </li>
                     <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
-                        <span style="color: #f093fb;">✓</span> Messages de prospection personnalisés qui sonnent humain
+                        <span style="color: #f093fb;">✓</span> Emails de prospection B2B qui sonnent humain
                     </li>
                 </ul>
 
+                <p style="margin-bottom: 15px; font-size: 1.1em; color: rgba(255,255,255,0.8); font-style: italic;">
+                    Arrête de t'éparpiller. Centralise tout.
+                </p>
                 <div class="hero-cta">
-                    <a href="login.html" class="btn-primary">Arrêter de m'éparpiller →</a>
-                    <a href="login.html" class="btn-secondary" style="background: transparent; border: 2px solid rgba(255,255,255,0.3); color: #fff;">Commencer gratuitement</a>
+                    <a href="login.html" class="btn-primary" style="font-size: 1.1em; padding: 18px 35px;">
+                        Commencer gratuitement →
+                        <span style="display: block; font-size: 0.75em; font-weight: 400; margin-top: 3px; opacity: 0.9;">4 posts + 3 audits offerts • Sans CB</span>
+                    </a>
                 </div>
-                <p class="hero-note" style="margin-top: 15px; font-size: 0.9em; color: rgba(255,255,255,0.7);">
-                    ✨ 4 posts + 3 audits gratuits • Sans carte bancaire
-                </p>
-                <p class="hero-note" style="margin-top: 10px;">
-                    <a href="#audit" style="color: rgba(255,255,255,0.6); text-decoration: underline;">Ou faire mon audit gratuit d'abord</a>
-                </p>
 
             </div>
 
@@ -1982,8 +2089,8 @@
         <section class="pain-section">
             <div class="pain-container">
                 <div class="pain-hook">
-                    <h2>Tu n'es pas nul.le en contenu.</h2>
-                    <p class="subhook">Tu es juste perdu.e dans les codes.</p>
+                    <h2>Tu n'es pas nulle en contenu.</h2>
+                    <p class="subhook">Tu es juste perdue dans les codes.</p>
                     <p style="color: rgba(255,255,255,0.6); font-size: 1.05em; margin-top: 20px; font-style: italic;">
                         Tu n'as pas un problème d'idées. Tu as un problème de <span style="color: var(--accent); font-weight: 600;">dispersion</span>.
                     </p>
@@ -2019,6 +2126,35 @@
                         <br><br>
                         Tu écris une fois, l'app adapte, structure et connecte tes posts, emails et messages de prospection pour qu'ils <span class="highlight">travaillent ensemble pour ton business</span>.
                     </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Transformation Section -->
+        <section class="transformation-section">
+            <div class="transformation-container">
+                <h2 class="section-title">Ce que ça change concrètement</h2>
+                <p class="section-subtitle">Des résultats visibles dès la première utilisation</p>
+
+                <div class="transformation-grid">
+                    <div class="transformation-card">
+                        <div class="transformation-before">5 heures par semaine</div>
+                        <div class="transformation-arrow">↓</div>
+                        <div class="transformation-after">30 minutes</div>
+                        <p class="transformation-label">Temps de création de contenu</p>
+                    </div>
+                    <div class="transformation-card">
+                        <div class="transformation-before">Page blanche</div>
+                        <div class="transformation-arrow">↓</div>
+                        <div class="transformation-after">3 min chrono</div>
+                        <p class="transformation-label">De l'idée au post prêt à publier</p>
+                    </div>
+                    <div class="transformation-card">
+                        <div class="transformation-before">Contenu générique</div>
+                        <div class="transformation-arrow">↓</div>
+                        <div class="transformation-after">100% toi</div>
+                        <p class="transformation-label">Ta voix, ton style, reconnue</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -2064,61 +2200,68 @@
         <!-- Features Section -->
         <section class="features" id="fonctionnalites">
             <h2 class="section-title" data-i18n="features.title">Tout ce qu'il te faut pour créer du contenu qui te ressemble</h2>
-            <p class="section-subtitle" data-i18n="features.subtitle">Des fonctionnalités pensées pour les créateurs exigeants et les agences performantes</p>
+            <p class="section-subtitle">Pensé pour toi, solopreneure qui veux créer du contenu authentique sans y passer des heures.</p>
 
+            <!-- Fonctionnalités essentielles pour solopreneurs -->
             <div class="features-grid">
                 <article class="feature-card">
-                    <div class="feature-icon">📖</div>
-                    <h3 data-i18n="features.f1_title">20+ Structures Narratives</h3>
-                    <p data-i18n="features.f1_desc">AIDA, PAS, Storytelling, Hook-Story-Offer... Choisis la structure qui captive ton audience. Chaque framework est optimisé pour convertir.</p>
-                </article>
-
-                <article class="feature-card">
                     <div class="feature-icon">🎤</div>
-                    <h3 data-i18n="features.f2_title">Ma Voix - Ton ADN</h3>
-                    <p data-i18n="features.f2_desc">L'IA apprend ton style d'écriture et mémorise tes préférences. Plus tu l'utilises, plus elle te ressemble. Fini le contenu générique.</p>
+                    <h3>Ma Voix - Ton ADN</h3>
+                    <p>L'IA apprend ton style d'écriture et mémorise tes préférences. Plus tu l'utilises, plus elle te ressemble. Fini le contenu générique.</p>
                 </article>
 
                 <article class="feature-card">
-                    <div class="feature-icon">🗓️</div>
-                    <h3 data-i18n="features.f3_title">Planning IA Automatisé</h3>
-                    <p data-i18n="features.f3_desc">Génère un calendrier éditorial complet en un clic. L'IA équilibre tes piliers de contenu et optimise les horaires de publication.</p>
-                </article>
-
-                <article class="feature-card">
-                    <div class="feature-icon">🔥</div>
-                    <h3 data-i18n="features.f4_title">TRENDS en Temps Réel</h3>
-                    <p data-i18n="features.f4_desc">Détecte les sujets tendances de ton secteur. Ne rate plus jamais une opportunité de surfer sur l'actualité.</p>
-                </article>
-
-                <article class="feature-card">
-                    <div class="feature-icon">📤</div>
-                    <h3 data-i18n="features.f5_title">Export Multi-Outils</h3>
-                    <p data-i18n="features.f5_desc">Exporte vers Metricool, Swello, Buffer ou CSV en un clic. Compatible avec tous tes outils de planification existants.</p>
-                </article>
-
-                <article class="feature-card">
-                    <div class="feature-icon">👥</div>
-                    <h3 data-i18n="features.f6_title">Mode Multi-Clients</h3>
-                    <p data-i18n="features.f6_desc">Gère jusqu'à 30 clients avec des profils de voix distincts. Dashboard analytics, exports bulk, rapports détaillés.</p>
+                    <div class="feature-icon">📖</div>
+                    <h3>20+ Structures Narratives</h3>
+                    <p>AIDA, PAS, Storytelling, Hook-Story-Offer... Choisis la structure qui captive ton audience. Chaque framework est optimisé pour convertir.</p>
                 </article>
 
                 <article class="feature-card">
                     <div class="feature-icon">🔍</div>
-                    <h3 data-i18n="features.f7_title">Audit Posts & Profils</h3>
-                    <p data-i18n="features.f7_desc">Analyse tes posts LinkedIn et Instagram sous l'angle du storytelling. Découvre ce qui capte l'attention et ce qui fait scroller.</p>
+                    <h3>Audit Posts & Profils</h3>
+                    <p>Analyse tes posts LinkedIn et Instagram sous l'angle du storytelling. Découvre ce qui capte l'attention et ce qui fait scroller.</p>
                 </article>
 
                 <article class="feature-card">
                     <div class="feature-icon">📧</div>
-                    <h3 data-i18n="features.f8_title">Newsletters en 1 clic</h3>
-                    <p data-i18n="features.f8_desc">Transforme tes meilleurs posts en newsletters prêtes à envoyer. Format optimisé pour l'email, ton style préservé.</p>
+                    <h3>Newsletters en 1 clic</h3>
+                    <p>Transforme tes meilleurs posts en newsletters prêtes à envoyer. Format optimisé pour l'email, ton style préservé.</p>
                 </article>
 
                 <article class="feature-card">
-                    <div class="feature-icon">💬</div>
-                    <h3 data-i18n="features.f9_title">Prospection Humaine</h3>
-                    <p data-i18n="features.f9_desc">Messages personnalisés qui ne sonnent pas comme du ChatGPT copié-collé. Connexion authentique, réponses garanties.</p>
+                    <div class="feature-icon">🗓️</div>
+                    <h3>Planning IA Automatisé</h3>
+                    <p>Génère un calendrier éditorial complet en un clic. L'IA équilibre tes piliers de contenu et optimise les horaires de publication.</p>
+                </article>
+            </div>
+
+            <!-- Fonctionnalités avancées -->
+            <div style="margin-top: 50px; text-align: center;">
+                <p style="color: rgba(255,255,255,0.5); font-size: 0.9em; margin-bottom: 20px;">Et pour aller plus loin...</p>
+            </div>
+            <div class="features-grid" style="opacity: 0.85;">
+                <article class="feature-card">
+                    <div class="feature-icon">🔥</div>
+                    <h3>TRENDS en Temps Réel</h3>
+                    <p>Détecte les sujets tendances de ton secteur. Ne rate plus jamais une opportunité de surfer sur l'actualité.</p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon">📧</div>
+                    <h3>Prospection Email <span style="font-size: 0.6em; background: rgba(102,126,234,0.3); padding: 3px 8px; border-radius: 10px;">B2B</span></h3>
+                    <p>Emails de prospection personnalisés qui ne sonnent pas robotiques. Pour la prospection B2C par DM, découvre <a href="https://sosprospector.fr" target="_blank" style="color: #f093fb;">SOS Prospector</a>.</p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon">📤</div>
+                    <h3>Export Multi-Outils</h3>
+                    <p>Exporte vers Metricool, Swello, Buffer ou CSV en un clic. Compatible avec tous tes outils de planification existants.</p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <h3 style="display: flex; align-items: center; gap: 8px; justify-content: center;">Mode Multi-Clients <span style="font-size: 0.6em; background: rgba(102,126,234,0.3); padding: 3px 8px; border-radius: 10px;">Agences</span></h3>
+                    <p>Gère jusqu'à 30 clients avec des profils de voix distincts. Dashboard analytics, exports bulk, rapports détaillés.</p>
                 </article>
             </div>
         </section>
@@ -2203,12 +2346,12 @@
                     </div>
                     <div class="carousel-slide">
                         <div class="carousel-image">
-                            💬
+                            📧
                             <span class="placeholder-text">Capture à venir</span>
                         </div>
                         <div class="carousel-content">
-                            <h3>Prospection</h3>
-                            <p>Messages personnalisés qui ne sonnent pas robotique.</p>
+                            <h3>Prospection Email B2B</h3>
+                            <p>Emails personnalisés qui ne sonnent pas robotique. Pour les DM B2C → <a href="https://sosprospector.fr" target="_blank" style="color: #f093fb;">SOS Prospector</a></p>
                         </div>
                     </div>
                 </div>
@@ -2238,6 +2381,58 @@
                 <div class="stat-item">
                     <h3>∞</h3>
                     <p data-i18n="stats.s4">D'inspiration créative</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="testimonials-section">
+            <div class="testimonials-container">
+                <h2 class="section-title">Ce qu'elles en disent</h2>
+                <p class="section-subtitle">Des entrepreneures comme toi qui ont transformé leur création de contenu</p>
+
+                <div class="testimonials-grid">
+                    <div class="testimonial-card">
+                        <span class="testimonial-quote">"</span>
+                        <p class="testimonial-text">J'ai très peu de temps à consacrer à mes réseaux sociaux entre mes consultations. SOS Storytelling me permet de créer une semaine de contenus en moins d'une heure. C'est devenu mon rituel du dimanche soir !</p>
+                        <div class="testimonial-author">
+                            <img src="testimonial-hasnaa.jpg" alt="Hasnaa Tazi" class="testimonial-avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="testimonial-avatar" style="display: none;">H</div>
+                            <div class="testimonial-info">
+                                <h4>Hasnaa Tazi</h4>
+                                <p>Thérapeute EMDR</p>
+                                <div class="testimonial-stars">★★★★★</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="testimonial-card">
+                        <span class="testimonial-quote">"</span>
+                        <p class="testimonial-text">J'ai géré toutes mes newsletters avec SOS Storytelling et j'ai adoré la facilité. En 3 clics, mon post devient une newsletter prête à envoyer. Ce que j'ai le plus apprécié, c'est les audits de mes RS, ça m'a permis d'améliorer la cohérence de mes posts.</p>
+                        <div class="testimonial-author">
+                            <img src="testimonial-cindy.jpg" alt="Cindy Pereira" class="testimonial-avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="testimonial-avatar" style="display: none;">C</div>
+                            <div class="testimonial-info">
+                                <h4>Cindy Pereira</h4>
+                                <p>Gérante</p>
+                                <div class="testimonial-stars">★★★★★</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="testimonial-card">
+                        <span class="testimonial-quote">"</span>
+                        <p class="testimonial-text">Ce que j'aime c'est que ça garde vraiment mon style d'écriture, mes expressions. Mes clientes me disent "j'ai l'impression de te lire" alors que c'est l'IA qui a fait 80% du travail. Le gain de temps est énorme.</p>
+                        <div class="testimonial-author">
+                            <img src="testimonial-linda.jpg" alt="Linda Ferreira" class="testimonial-avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="testimonial-avatar" style="display: none;">L</div>
+                            <div class="testimonial-info">
+                                <h4>Linda Ferreira</h4>
+                                <p>Naturopathe</p>
+                                <div class="testimonial-stars">★★★★★</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -2495,6 +2690,7 @@
                 <a href="#fonctionnalites" data-i18n="footer.features">Fonctionnalités</a>
                 <a href="tarifs.html" data-i18n="footer.pricing">Tarifs</a>
                 <a href="#faq" data-i18n="footer.faq">FAQ</a>
+                <a href="a-propos.html">À propos</a>
                 <a href="login.html" data-i18n="footer.free_trial">Commencer gratuitement</a>
             </div>
             <div class="footer-col">
@@ -2511,7 +2707,6 @@
         <div class="footer-bottom">
             <div class="footer-social">
                 <a href="https://www.instagram.com/myinnerquest.fr/" target="_blank" title="Instagram">📸</a>
-                <a href="#" target="_blank" title="TikTok">🎵</a>
             </div>
             <p class="footer-copy">
                 © 2025 My Inner Quest - SOS Storytelling. <span data-i18n="footer.rights">Tous droits réservés.</span><br>
@@ -2670,7 +2865,7 @@
             });
         }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
         
-        document.querySelectorAll('.section-title, .section-subtitle, .feature-card, .use-case-card, .stat-item, .pricing-card, .faq-item, .trial-banner, .workflow-step, .loop-step, .carousel-slide').forEach(el => observer.observe(el));
+        document.querySelectorAll('.section-title, .section-subtitle, .feature-card, .use-case-card, .stat-item, .pricing-card, .faq-item, .trial-banner, .workflow-step, .loop-step, .carousel-slide, .transformation-card, .testimonial-card').forEach(el => observer.observe(el));
         
         // ============ HEADER SCROLL ============
         window.addEventListener('scroll', () => {
@@ -3131,5 +3326,19 @@
 
         console.log('✨ SOS Storytelling Experience loaded');
     </script>
+
+    <!--Start of Tawk.to Script-->
+    <script type="text/javascript">
+    var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+    (function(){
+    var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+    s1.async=true;
+    s1.src='https://embed.tawk.to/6966beea48d012197e10aab2/1jesljgqk';
+    s1.charset='UTF-8';
+    s1.setAttribute('crossorigin','*');
+    s0.parentNode.insertBefore(s1,s0);
+    })();
+    </script>
+    <!--End of Tawk.to Script-->
 </body>
 </html>

@@ -566,8 +566,10 @@ const InboxModule = {
     document.getElementById('detailBody').textContent = response.body_text || response.body_snippet || '';
 
     // Afficher le panel
-    document.getElementById('detailPanel').classList.add('open');
-    document.getElementById('inboxOverlay').classList.add('visible');
+    const detailPanel = document.getElementById('detailPanel');
+    const inboxOverlay = document.getElementById('inboxOverlay');
+    if (detailPanel) detailPanel.classList.add('open');
+    if (inboxOverlay) inboxOverlay.classList.add('visible');
 
     // Marquer comme "en cours" si nouveau
     if (response.status === 'new') {
@@ -576,8 +578,10 @@ const InboxModule = {
   },
 
   closeDetailPanel() {
-    document.getElementById('detailPanel').classList.remove('open');
-    document.getElementById('inboxOverlay').classList.remove('visible');
+    const detailPanel = document.getElementById('detailPanel');
+    const inboxOverlay = document.getElementById('inboxOverlay');
+    if (detailPanel) detailPanel.classList.remove('open');
+    if (inboxOverlay) inboxOverlay.classList.remove('visible');
     this.selectedResponse = null;
   },
 

@@ -789,22 +789,25 @@ Avez-vous des questions ? Je suis disponible pour un appel de 15 min quand ça v
     }
 
     // ==================== IMPORT TABS ====================
-    function switchImportTab(tab) {
+    function switchImportTab(tab, e) {
         // Update tab buttons
         document.querySelectorAll('.import-tabs .import-tab').forEach(btn => {
             btn.classList.remove('active');
         });
-        event.target.classList.add('active');
+        if (e && e.target) e.target.classList.add('active');
 
         // Update tab content
         document.querySelectorAll('.import-tab-content').forEach(content => {
             content.classList.remove('active');
         });
 
-        if (tab === 'manual') {
-            document.getElementById('manual-add-tab').classList.add('active');
-        } else {
-            document.getElementById('csv-import-tab').classList.add('active');
+        const manualTab = document.getElementById('manual-add-tab');
+        const csvTab = document.getElementById('csv-import-tab');
+
+        if (tab === 'manual' && manualTab) {
+            manualTab.classList.add('active');
+        } else if (csvTab) {
+            csvTab.classList.add('active');
         }
     }
 
@@ -1203,7 +1206,8 @@ Avez-vous des questions ? Je suis disponible pour un appel de 15 min quand ça v
         document.querySelectorAll('.autopilot-content .tab-content').forEach(content => {
             content.classList.remove('active');
         });
-        document.getElementById(`agent-${tab}`).classList.add('active');
+        const tabElement = document.getElementById(`agent-${tab}`);
+        if (tabElement) tabElement.classList.add('active');
 
         // Render the tab content
         switch (tab) {

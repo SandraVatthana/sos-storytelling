@@ -38,16 +38,69 @@ window.MissionsModule = (function() {
         await loadTemplates();
     }
 
+    // ==================== TEMPLATES PAR DÉFAUT ====================
+    function getDefaultTemplates() {
+        return [
+            { id: 'email-sequence', name: 'Séquence emails', icon: '📧', category: 'emails', suggested_command: 'Crée une séquence de 5 emails sur [SUJET]' },
+            { id: 'newsletter', name: 'Newsletter', icon: '📰', category: 'emails', suggested_command: 'Rédige une newsletter sur [SUJET]' },
+            { id: 'prospection-dm', name: 'Messages de prospection', icon: '💬', category: 'prospection', suggested_command: 'Crée 10 messages de prospection personnalisés' },
+            { id: 'contenu-mensuel', name: 'Contenu mensuel', icon: '📅', category: 'content', suggested_command: 'Prépare mon contenu pour 1 mois' },
+            { id: 'relance-prospects', name: 'Relance prospects', icon: '🔄', category: 'followup', suggested_command: 'Prépare des relances pour mes prospects inactifs' },
+            { id: 'analyse-concurrence', name: 'Analyse concurrence', icon: '🔍', category: 'analysis', suggested_command: 'Analyse les contenus de [CONCURRENT]' }
+        ];
+    }
+
     // ==================== TEMPLATES ====================
     async function loadTemplates() {
         try {
             const response = await fetch(`${WORKER_URL}/missions/templates`);
+            if (!response.ok) {
+                console.warn('Templates API indisponible, utilisation des templates par défaut');
+                templates = getDefaultTemplates();
+                return;
+            }
             const data = await response.json();
             if (data.success) {
-                templates = data.templates;
+                // Dédupliquer les templates par nom normalisé
+                const seen = new Set();
+
+                // Templates à exclure complètement
+                const excludeNames = ['calendrier mensuel', 'calendrier'];
+
+                templates = data.templates.filter(t => {
+                    // Normaliser le nom : minuscules, sans accents, normaliser verbes
+                    let normalized = t.name
+                        .toLowerCase()
+                        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // enlever accents
+                        .replace(/\s+/g, ' ')
+                        .trim()
+                        // Normaliser les variations de verbes
+                        .replace(/relancer/g, 'relance')
+                        .replace(/analyser/g, 'analyse')
+                        .replace(/prospecter/g, 'prospection');
+
+                    // Exclure certains templates
+                    if (excludeNames.some(ex => normalized.includes(ex))) return false;
+
+                    if (seen.has(normalized)) return false;
+                    seen.add(normalized);
+                    return true;
+                });
+
+                // FORCER le template "contenu mensuel" à toujours avoir 1 mois fixe
+                templates = templates.map(t => {
+                    if (t.name.toLowerCase().includes('contenu mensuel')) {
+                        return {
+                            ...t,
+                            suggested_command: 'Prépare mon contenu pour 1 mois'
+                        };
+                    }
+                    return t;
+                });
             }
         } catch (e) {
             console.error('Erreur chargement templates:', e);
+            templates = getDefaultTemplates();
         }
     }
 
@@ -67,7 +120,10 @@ window.MissionsModule = (function() {
                 </div>
                 <div class="missions-tabs">
                     <button class="tab-btn active" data-tab="new" onclick="MissionsModule.switchTab('new')">
-                        ✨ Nouvelle
+                        ✨ Nouvelle Mission
+                    </button>
+                    <button class="tab-btn" data-tab="agent" onclick="MissionsModule.switchTab('agent')">
+                        🤖 Agent Email
                     </button>
                     <button class="tab-btn" data-tab="active" onclick="MissionsModule.switchTab('active')">
                         🔄 En cours
@@ -78,6 +134,7 @@ window.MissionsModule = (function() {
                 </div>
                 <div class="missions-content">
                     <div id="tab-new" class="tab-content active"></div>
+                    <div id="tab-agent" class="tab-content"></div>
                     <div id="tab-active" class="tab-content"></div>
                     <div id="tab-history" class="tab-content"></div>
                 </div>
@@ -110,12 +167,108 @@ window.MissionsModule = (function() {
         document.querySelectorAll('.missions-content .tab-content').forEach(content => {
             content.classList.remove('active');
         });
-        document.getElementById(`tab-${tab}`).classList.add('active');
+        const tabElement = document.getElementById(`tab-${tab}`);
+        if (tabElement) {
+            tabElement.classList.add('active');
+        }
 
         switch (tab) {
             case 'new': renderNewMissionTab(); break;
+            case 'agent': renderAgentTab(); break;
             case 'active': renderActiveMissionsTab(); break;
             case 'history': renderHistoryTab(); break;
+        }
+    }
+
+    // ==================== TAB: AGENT EMAIL ====================
+    function renderAgentTab() {
+        const container = document.getElementById('tab-agent');
+        if (!container) return;
+
+        // Utiliser Agent Autopilot s'il est disponible
+        if (typeof AgentAutopilot !== 'undefined') {
+            container.innerHTML = `
+                <div class="agent-embed">
+                    <div class="agent-embed-header">
+                        <p class="agent-embed-desc">Gérez l'envoi automatique d'emails et suivez vos prospects chauds.</p>
+                    </div>
+                    <div class="agent-embed-actions">
+                        <button class="btn-agent-open" onclick="MissionsModule.closeModal(); AgentAutopilot.openAutopilotModal();">
+                            🤖 Ouvrir l'Agent Email complet
+                        </button>
+                    </div>
+                    <div class="agent-quick-stats" id="agent-quick-stats">
+                        <p class="loading">Chargement des stats...</p>
+                    </div>
+                </div>
+            `;
+            // Charger les stats rapides
+            loadAgentQuickStats();
+        } else {
+            container.innerHTML = `
+                <div class="agent-embed">
+                    <p class="empty">Module Agent Email non disponible.</p>
+                </div>
+            `;
+        }
+    }
+
+    async function loadAgentQuickStats() {
+        const container = document.getElementById('agent-quick-stats');
+        if (!container) return;
+
+        try {
+            // Récupérer quelques stats basiques depuis Supabase
+            const db = window.supabaseApp;
+            if (!db) {
+                container.innerHTML = '<p class="empty">Base de données non connectée</p>';
+                return;
+            }
+
+            const { data: config } = await db
+                .from('agent_config')
+                .select('*')
+                .eq('user_id', currentUserId)
+                .single();
+
+            const { count: prospectsCount } = await db
+                .from('prospects')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', currentUserId);
+
+            const { count: hotCount } = await db
+                .from('prospects')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', currentUserId)
+                .eq('agent_status', 'hot');
+
+            container.innerHTML = `
+                <div class="quick-stats-grid">
+                    <div class="quick-stat">
+                        <span class="quick-stat-icon">📧</span>
+                        <span class="quick-stat-value">${config?.total_emails_sent || 0}</span>
+                        <span class="quick-stat-label">Emails envoyés</span>
+                    </div>
+                    <div class="quick-stat">
+                        <span class="quick-stat-icon">👥</span>
+                        <span class="quick-stat-value">${prospectsCount || 0}</span>
+                        <span class="quick-stat-label">Prospects</span>
+                    </div>
+                    <div class="quick-stat">
+                        <span class="quick-stat-icon">🔥</span>
+                        <span class="quick-stat-value">${hotCount || 0}</span>
+                        <span class="quick-stat-label">Chauds</span>
+                    </div>
+                    <div class="quick-stat">
+                        <span class="quick-stat-icon">${config?.is_active ? '✅' : '⏸️'}</span>
+                        <span class="quick-stat-value">${config?.is_active ? 'Actif' : 'Pause'}</span>
+                        <span class="quick-stat-label">Agent</span>
+                    </div>
+                </div>
+            `;
+        } catch (e) {
+            console.error('Erreur chargement stats agent:', e);
+            container.innerHTML = '<p class="empty">Erreur de chargement</p>';
         }
     }
 
@@ -194,6 +347,15 @@ window.MissionsModule = (function() {
             return;
         }
 
+        // Forcer 1 mois pour les commandes "contenu mensuel" (empêcher les abus)
+        let finalCommand = command;
+        if (command.toLowerCase().includes('contenu mensuel') || command.toLowerCase().includes('calendrier mensuel') || command.toLowerCase().includes('contenu pour')) {
+            // Remplacer tout nombre de mois ou placeholder {month} par "1 mois"
+            finalCommand = command
+                .replace(/\{month\}/gi, '1 mois')
+                .replace(/(\d+)\s*mois/gi, '1 mois');
+        }
+
         showToast('🚀 Lancement de la mission...');
 
         try {
@@ -202,7 +364,7 @@ window.MissionsModule = (function() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    command,
+                    command: finalCommand,
                     user_id: currentUserId,
                     organization_id: currentOrgId
                 })
