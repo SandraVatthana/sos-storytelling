@@ -14795,21 +14795,59 @@ INSTRUCTION CRITIQUE: Tu dois écrire EXACTEMENT comme cette personne. Imite son
                     }
                 }
 
+                // Récupérer les instructions du framework si sélectionné
+                const frameworkInstructions = FrameworkSystem.getPromptInstructions();
+
                 contentPrompt = `Tu es un ghostwriter expert qui écrit AU NOM de l'auteur, en adoptant parfaitement son style unique.
 ${profileContext}
 ═══ CONTEXTE ═══
 - Plateforme: ${currentState.platform}
 - Format: ${currentState.format}
 - Hook choisi: "${hook}"
-- Brief de base: ${brief}
 ${audienceContext ? `
 ═══ AUDIENCE ═══
 ${audienceContext}` : ''}
 
+═══════════════════════════════════════════════════════════════
+⚠️ INSTRUCTION CRITIQUE : FUSION HISTOIRE + HOOK
+═══════════════════════════════════════════════════════════════
+
+HISTOIRE PERSONNELLE DE L'AUTEUR (à intégrer OBLIGATOIREMENT) :
+${brief}
+
+Le HOOK ci-dessus est l'ANGLE D'ATTAQUE, pas le sujet complet.
+Tu DOIS fusionner l'histoire personnelle avec le hook :
+
+1. UTILISE les détails CONCRETS de l'histoire :
+   - Les chiffres mentionnés (ex: "2 clients", "6 mois", "15 clients")
+   - Les situations vécues (ex: "fins de mois difficiles", "doutes")
+   - Les émotions décrites (ex: "syndrome imposteur", "déclic")
+   - Les transformations racontées
+
+2. Le hook = l'accroche qui lance le récit
+3. L'histoire = la MATIÈRE du post (les preuves, le vécu, les exemples)
+
+❌ INTERDIT : Générer un post "parallèle" qui ignore l'histoire
+❌ INTERDIT : Inventer des chiffres ou situations non mentionnées
+✅ OBLIGATOIRE : Les éléments clés de l'histoire doivent apparaître dans le post
+
+${frameworkInstructions ? `
+═══════════════════════════════════════════════════════════════
+📐 FRAMEWORK DE STRUCTURE (à suivre STRICTEMENT)
+═══════════════════════════════════════════════════════════════
+${frameworkInstructions}
+
+IMPORTANT : Applique ce framework EN UTILISANT l'histoire personnelle comme matière première.
+Chaque étape du framework doit puiser dans l'anecdote fournie.
+` : ''}
+
 ${getPlatformRulesForPrompt(currentState.platform, currentState.format)}
 
 ═══ MISSION ═══
-Crée un contenu complet et engageant pour ${currentState.platform} en utilisant OBLIGATOIREMENT le hook fourni comme première ligne.
+Crée un contenu complet et engageant pour ${currentState.platform} :
+1. Commence par le hook fourni (première ligne)
+2. Développe en utilisant les éléments de l'histoire personnelle
+3. Applique le framework si sélectionné
 ${formatInstructions}
 
 RAPPEL: Écris dans le style PERSONNEL de l'auteur, pas de manière générique. Utilise ses expressions, son ton, sa signature.
@@ -14834,6 +14872,11 @@ Génère uniquement le contenu final, sans commentaires.`;
 
                 // Sauvegarder dans la mémoire
                 ContentMemory.addContent(generatedText, currentState.currentPillar, currentState.platform, currentState.format);
+
+                // Tracker l'usage du framework si sélectionné
+                if (FrameworkSystem.selectedFramework) {
+                    FrameworkSystem.incrementUsage(FrameworkSystem.selectedFramework);
+                }
 
             } catch (error) {
                 console.error('Erreur génération contenu:', error);
