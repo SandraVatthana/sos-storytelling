@@ -747,7 +747,7 @@ const AuditModule = (function() {
                             📝 Posts
                         </button>
                         <button class="audit-tab" data-tab="videos" onclick="AuditModule.switchTab('videos')">
-                            🎬 Reels/Vidéos
+                            🎬 Reels & Vidéos
                         </button>
                     </div>
 
@@ -804,7 +804,7 @@ const AuditModule = (function() {
             <div class="audit-section">
                 <div class="audit-info-box">
                     <h4>📸 Audit visuel de ton profil</h4>
-                    <p>Upload des captures d'écran et l'IA analysera :</p>
+                    <p>Upload <strong>une capture d'écran complète</strong> de ton profil et l'IA analysera :</p>
                     <ul>
                         <li><strong>Photo de profil</strong> - Professionnelle ? Regard caméra ?</li>
                         <li><strong>Bannière</strong> - Cohérente avec ton activité ?</li>
@@ -830,8 +830,8 @@ const AuditModule = (function() {
             </div>
 
             <div class="audit-section">
-                <h3>2️⃣ Capture de ton profil ${platformInfo.emoji}</h3>
-                <p class="audit-hint">${platformInfo.hint}</p>
+                <h3>2️⃣ Capture complète de ton profil ${platformInfo.emoji}</h3>
+                <p class="audit-hint">📱 <strong>Fais UNE seule capture d'écran</strong> montrant : photo, bannière ET bio visibles en même temps.</p>
                 <div class="screenshot-upload-zone" onclick="document.getElementById('profileScreenshot').click()">
                     ${profileScreenshots.profile ? `
                         <img src="${profileScreenshots.profile.data}" alt="Capture profil" class="screenshot-preview">
@@ -884,6 +884,12 @@ const AuditModule = (function() {
             </button>
 
             ${!profileScreenshots.profile ? '<p class="audit-hint" style="text-align: center; margin-top: 10px;">Ajoute au moins la capture de ton profil</p>' : ''}
+
+            <div class="audit-info-feedback" style="margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #e0f2fe, #f0f9ff); border-radius: 10px; border-left: 4px solid #0ea5e9;">
+                <p style="margin: 0; color: #0369a1; font-size: 0.9em;">
+                    💡 <strong>L'analyse prend environ 30 secondes.</strong> Tu recevras un rapport détaillé avec un score, des points forts et des recommandations actionnables.
+                </p>
+            </div>
         `;
     }
 
@@ -1132,8 +1138,8 @@ const AuditModule = (function() {
 
             <div class="audit-section">
                 <div class="audit-posts-header">
-                    <h3>📋 Tes posts (${posts.length})</h3>
-                    <button class="audit-add-btn" onclick="AuditModule.addPost()">+ Ajouter</button>
+                    <h3>📋 Tes posts <span class="posts-count-badge">${posts.length}/5 max</span></h3>
+                    <button class="audit-add-btn" onclick="AuditModule.addPost()" ${posts.length >= 5 ? 'disabled style="opacity:0.5"' : ''}>+ Ajouter</button>
                 </div>
 
                 <div class="audit-posts-list">
@@ -1177,6 +1183,12 @@ const AuditModule = (function() {
             <button class="audit-run-btn" onclick="AuditModule.runPostsAnalysis()">
                 📊 Analyser mes posts
             </button>
+
+            <div class="audit-info-feedback" style="margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #e0f2fe, #f0f9ff); border-radius: 10px; border-left: 4px solid #0ea5e9;">
+                <p style="margin: 0; color: #0369a1; font-size: 0.9em;">
+                    💡 <strong>L'analyse prend 1-2 minutes</strong> selon le nombre de posts. Tu recevras un rapport avec des scores par critère et des conseils pour améliorer tes prochains posts.
+                </p>
+            </div>
         `;
     }
 
@@ -1777,7 +1789,7 @@ const AuditModule = (function() {
                     ` : `
                         <span style="font-size: 3em;">🎥</span>
                         <p>Clique ou glisse ta vidéo ici</p>
-                        <p class="audit-hint">MP4, MOV, WebM - Max 50MB</p>
+                        <p class="audit-hint">MP4, MOV, WebM - Max 50MB, durée max 90 secondes</p>
                     `}
                 </div>
                 <input type="file" id="videoInput" accept="video/*" style="display: none;"
@@ -1799,6 +1811,12 @@ const AuditModule = (function() {
             </button>
 
             ${!videoData ? '<p class="audit-hint" style="text-align: center; margin-top: 10px;">Upload une vidéo pour lancer l\'analyse</p>' : ''}
+
+            <div class="audit-info-feedback" style="margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #e0f2fe, #f0f9ff); border-radius: 10px; border-left: 4px solid #0ea5e9;">
+                <p style="margin: 0; color: #0369a1; font-size: 0.9em;">
+                    💡 <strong>L'analyse prend environ 1-2 minutes.</strong> L'IA analysera le hook, le rythme, les sous-titres, le CTA et te donnera un score détaillé avec des conseils d'amélioration.
+                </p>
+            </div>
         `;
     }
 
