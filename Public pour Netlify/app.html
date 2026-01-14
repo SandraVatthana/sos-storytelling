@@ -5104,13 +5104,13 @@
                 </div>
 
                 <p style="text-align: center; color: #333; font-size: 0.9em; margin-bottom: 8px; font-weight: 500;"><span data-i18n="config.then_press">Puis appuie sur</span> 👇</p>
-                <button class="generate-btn" id="generateBtn" onclick="showHooksSection()">🪝 <span data-i18n="config.generate_btn">Choisir mon hook</span></button>
+                <button class="generate-btn" id="generateBtn" onclick="showHooksSection()">🪝 <span data-i18n="config.generate_btn">1. Générer des accroches</span></button>
             </div>
 
             <div class="panel output-panel" id="outputPanel">
                 <!-- ==================== ÉTAPE HOOKS ==================== -->
                 <div id="hooksSection" style="display: none;">
-                    <h2 class="panel-title">🪝 <span>Avant de lancer les résultats, choisis ton accroche (hook)</span></h2>
+                    <h2 class="panel-title">🪝 <span>Étape 1 : Choisis ton accroche</span></h2>
 
                     <!-- Rappel du brief (lecture seule) -->
                     <div class="hooks-brief-recap" id="hooksBriefRecap">
@@ -5197,17 +5197,17 @@
                         </div>
                     </div>
 
-                    <!-- Bouton générer des hooks -->
-                    <div class="hooks-generate-section">
+                    <!-- Bouton générer des hooks (masqué car auto-généré, utilisé comme loader) -->
+                    <div class="hooks-generate-section" id="hooksGenerateSection">
                         <button class="generate-hooks-btn" id="generateHooksBtn" onclick="generateHooks()">
-                            ✨ <span>Générer des hooks</span>
+                            ✨ <span>Génération en cours...</span>
                         </button>
                     </div>
 
                     <!-- Zone d'affichage des hooks générés -->
                     <div class="hooks-results" id="hooksResults" style="display: none;">
                         <div class="hooks-results-header">
-                            <span class="hooks-results-title">Choisis le hook qui te parle :</span>
+                            <span class="hooks-results-title">✅ Accroches générées ! Choisis celle qui te parle :</span>
                             <button class="hooks-regenerate-btn" onclick="generateHooks()">
                                 🔄 Regénérer
                             </button>
@@ -5220,7 +5220,7 @@
                     <!-- Bouton continuer -->
                     <div class="hooks-continue-section" id="hooksContinueSection" style="display: none;">
                         <button class="hooks-continue-btn" id="hooksContinueBtn" onclick="continueWithHook()" disabled>
-                            🚀 <span>Continuer avec ce hook</span>
+                            ✨ <span>2. Générer le post complet</span>
                         </button>
                         <button class="hooks-back-btn" onclick="backToBrief()">
                             ← Modifier le brief
@@ -5230,7 +5230,7 @@
 
                 <!-- ==================== ÉTAPE CONTENU ==================== -->
                 <div id="contentSection">
-                    <h2 class="panel-title">📄 <span data-i18n="config.your_content">Ton contenu</span></h2>
+                    <h2 class="panel-title">📄 <span data-i18n="config.your_content">Étape 2 : Ton post complet</span></h2>
 
                     <!-- Hook sélectionné (affiché si un hook a été choisi) -->
                     <div class="selected-hook-display" id="selectedHookDisplay" style="display: none;">
@@ -5242,7 +5242,7 @@
                     <div class="output-content" id="outputContent">
                         <div class="output-placeholder">
                             <div class="output-placeholder-icon">✨</div>
-                            <p>Configure tes options et clique sur "Choisir mon hook" pour commencer !</p>
+                            <p>Clique sur "1. Générer des accroches" pour démarrer !</p>
                         </div>
                     </div>
                 </div>
@@ -14419,6 +14419,8 @@ Réponds UNIQUEMENT avec le JSON, sans texte avant ou après.`;
                 btn.classList.remove('loading');
                 btn.disabled = false;
                 btn.querySelector('span').textContent = 'Générer des hooks';
+                // Masquer le bouton générer après succès (on garde le bouton Regénérer)
+                document.getElementById('hooksGenerateSection').style.display = 'none';
             }
         }
 
@@ -14456,6 +14458,11 @@ Réponds UNIQUEMENT avec le JSON, sans texte avant ou après.`;
             hooksState.selectedHook = null;
             hooksState.selectedHookIndex = -1;
             document.getElementById('hooksContinueBtn').disabled = true;
+
+            // Scroll automatique vers les hooks générés avec feedback visuel
+            setTimeout(() => {
+                resultsSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
         }
 
         // Sélectionner un hook
@@ -14962,6 +14969,7 @@ Génère uniquement le contenu modifié, sans commentaires.`;
             // Reset
             document.getElementById('hooksResults').style.display = 'none';
             document.getElementById('hooksContinueSection').style.display = 'none';
+            document.getElementById('hooksGenerateSection').style.display = 'block';
             hooksState.generatedHooks = [];
             hooksState.selectedHook = null;
         }
@@ -15001,15 +15009,18 @@ Génère uniquement le contenu modifié, sans commentaires.`;
             document.getElementById('actionButtons').style.display = 'none';
             document.getElementById('visualSection').style.display = 'none';
 
-            // Scroll doux vers le haut de la page seulement sur mobile
-            if (window.innerWidth <= 900) {
-                const outputPanel = document.getElementById('outputPanel');
-                if (outputPanel) {
-                    setTimeout(() => {
-                        outputPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    }, 100);
-                }
+            // Scroll doux vers le panneau de droite (desktop et mobile)
+            const outputPanel = document.getElementById('outputPanel');
+            if (outputPanel) {
+                setTimeout(() => {
+                    outputPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
             }
+
+            // Auto-générer les hooks immédiatement
+            setTimeout(() => {
+                generateHooks();
+            }, 200);
         }
 
         // ==================== TRENDS - GÉNÉRATION DE PROMPTS ====================
