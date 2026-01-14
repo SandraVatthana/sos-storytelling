@@ -281,9 +281,16 @@ class NewsletterModule {
               <div class="type-icon">${type.icon}</div>
               <div class="type-name">${type.name}</div>
               <div class="type-description">${type.description}</div>
+              ${type.example ? `
+                <div class="type-example">
+                  <div class="example-label">📧 Exemple :</div>
+                  <div class="example-subject">${type.example.subject}</div>
+                  <div class="example-preview">${type.example.preview}</div>
+                </div>
+              ` : ''}
               ${type.bestStructures ? `
                 <div class="type-hint">
-                  Structures recommandées: ${type.bestStructures.slice(0, 2).join(', ')}
+                  💡 Structures recommandées: ${type.bestStructures.slice(0, 2).join(', ').toUpperCase()}
                 </div>
               ` : ''}
             </div>
@@ -297,7 +304,8 @@ class NewsletterModule {
                    onchange="newsletterModule.toggleSequenceMode(this.checked)">
             <span class="toggle-text">
               <strong>Mode Séquence</strong>
-              <small>Générer plusieurs emails liés (arc narratif cohérent)</small>
+              <span class="sequence-tooltip" title="Génère 3-7 emails liés racontant une histoire cohérente sur plusieurs jours (ex: séquence de nurturing sur 2 semaines, lancement en 5 emails...)">ⓘ</span>
+              <small>Génère plusieurs emails liés avec un arc narratif cohérent</small>
             </span>
           </label>
 
@@ -1804,12 +1812,72 @@ Réponds UNIQUEMENT avec ce JSON, sans texte avant ou après:
 
   getDefaultTypes() {
     return [
-      { id: 'launch', name: 'Lancement produit/service', icon: '🚀', description: 'Annonce d\'un nouveau produit ou service', bestStructures: ['aida', 'hook_story_offer'] },
-      { id: 'nurturing', name: 'Nurturing', icon: '💝', description: 'Créer la relation, apporter de la valeur', bestStructures: ['hook_story_offer', 'obi'] },
-      { id: 'reengagement', name: 'Réengagement', icon: '🔄', description: 'Réactiver les abonnés inactifs', bestStructures: ['pas', 'bab'] },
-      { id: 'promo', name: 'Promo/Vente flash', icon: '⚡', description: 'Offre limitée, promotion spéciale', bestStructures: ['aida', 'pas'] },
-      { id: 'storytelling', name: 'Storytelling personnel', icon: '📖', description: 'Coulisses, parcours, histoire personnelle', bestStructures: ['hook_story_offer', 'bab'] },
-      { id: 'event', name: 'Annonce événement', icon: '🎉', description: 'Webinar, atelier, conférence...', bestStructures: ['aida', 'pas'] }
+      {
+        id: 'launch',
+        name: 'Lancement produit/service',
+        icon: '🚀',
+        description: 'Annonce d\'un nouveau produit ou service',
+        bestStructures: ['aida', 'hook_story_offer'],
+        example: {
+          subject: '🎉 C\'est le grand jour ! [Nom produit] est enfin disponible',
+          preview: 'Après 6 mois de travail acharné, je suis fière de te présenter...'
+        }
+      },
+      {
+        id: 'nurturing',
+        name: 'Nurturing',
+        icon: '💝',
+        description: 'Créer la relation, apporter de la valeur',
+        bestStructures: ['hook_story_offer', 'obi'],
+        example: {
+          subject: 'La technique qui a changé ma façon de [domaine]',
+          preview: 'Pas de vente aujourd\'hui. Juste une pépite que j\'aurais aimé connaître plus tôt...'
+        }
+      },
+      {
+        id: 'reengagement',
+        name: 'Réengagement',
+        icon: '🔄',
+        description: 'Réactiver les abonnés inactifs',
+        bestStructures: ['pas', 'bab'],
+        example: {
+          subject: 'Tu nous manques ! (+ un cadeau pour toi)',
+          preview: 'Ça fait un moment qu\'on ne s\'est pas parlé. J\'ai pensé à toi...'
+        }
+      },
+      {
+        id: 'promo',
+        name: 'Promo/Vente flash',
+        icon: '⚡',
+        description: 'Offre limitée, promotion spéciale',
+        bestStructures: ['aida', 'pas'],
+        example: {
+          subject: '⏰ Plus que 24h : -50% sur [produit]',
+          preview: 'Cette offre se termine ce soir à minuit. Ne rate pas ça...'
+        }
+      },
+      {
+        id: 'storytelling',
+        name: 'Storytelling personnel',
+        icon: '📖',
+        description: 'Coulisses, parcours, histoire personnelle',
+        bestStructures: ['hook_story_offer', 'bab'],
+        example: {
+          subject: 'Le jour où j\'ai failli tout abandonner...',
+          preview: 'Je ne t\'ai jamais raconté cette histoire. Mais aujourd\'hui, j\'ai décidé...'
+        }
+      },
+      {
+        id: 'event',
+        name: 'Annonce événement',
+        icon: '🎉',
+        description: 'Webinar, atelier, conférence...',
+        bestStructures: ['aida', 'pas'],
+        example: {
+          subject: '🎙️ Webinar gratuit : [Thème] - Places limitées',
+          preview: 'Le [date], je t\'invite à un événement exclusif où je partagerai...'
+        }
+      }
     ];
   }
 

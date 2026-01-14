@@ -3742,6 +3742,13 @@
         .type-icon, .structure-icon { font-size: 2em; margin-bottom: 10px; }
         .type-name, .structure-name { font-weight: 700; color: #333; margin-bottom: 5px; }
         .type-description, .structure-description { font-size: 0.85em; color: #666; }
+        .type-example { margin-top: 12px; padding: 12px; background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-radius: 10px; border-left: 3px solid #667eea; }
+        .type-example .example-label { font-size: 0.75em; color: #667eea; font-weight: 600; margin-bottom: 6px; }
+        .type-example .example-subject { font-size: 0.85em; color: #333; font-weight: 600; margin-bottom: 4px; }
+        .type-example .example-preview { font-size: 0.8em; color: #666; font-style: italic; }
+        .type-hint { margin-top: 10px; font-size: 0.75em; color: #888; padding-top: 8px; border-top: 1px dashed #e0e0e0; }
+        .sequence-tooltip { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; background: #667eea; color: white; border-radius: 50%; font-size: 0.7em; margin-left: 5px; cursor: help; vertical-align: middle; }
+        .sequence-tooltip:hover { background: #5a6fd6; }
         .structure-steps { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e0e0e0; }
         .structure-step { font-size: 0.8em; color: #888; padding: 2px 0; }
         .form-group { margin-bottom: 20px; }
@@ -4547,31 +4554,32 @@
                 </div>
             </div>
 
-            <!-- Dropdown Emails -->
+            <!-- Dropdown Newsletters -->
             <div class="header-dropdown">
-                <button class="btn btn-newsletter dropdown-toggle" onclick="toggleDropdown('emailsDropdown')">
-                    📧 <span data-i18n="menu.emails">Newsletters & Prospection</span> <span class="dropdown-arrow">▼</span>
+                <button class="btn btn-newsletter dropdown-toggle" onclick="toggleDropdown('newsletterDropdown')">
+                    📬 <span data-i18n="menu.newsletters">Newsletters</span> <span class="dropdown-arrow">▼</span>
                 </button>
-                <div class="dropdown-menu dropdown-menu-sections" id="emailsDropdown">
-                    <!-- Section Newsletter -->
-                    <div class="dropdown-section">
-                        <div class="dropdown-section-title">📬 <span data-i18n="menu.newsletter_section">Newsletter (abonnés)</span></div>
-                        <a class="dropdown-item" onclick="closeDropdowns(); showNewsletterModal()">✉️ <span data-i18n="menu.create_newsletter">Créer une newsletter</span></a>
-                        <a class="dropdown-item dropdown-item-muted" onclick="closeDropdowns(); alert('Connexion Brevo/Mailchimp bientôt disponible !')" title="Pour envoyer à vos abonnés existants">🔗 <span data-i18n="menu.connect_brevo">Connecter ma liste d'abonnés</span></a>
-                    </div>
-                    <div class="dropdown-divider"></div>
-                    <!-- Section Cold Outreach -->
-                    <div class="dropdown-section">
-                        <div class="dropdown-section-title">🎯 <span data-i18n="menu.outreach_section">Cold Outreach (prospection)</span></div>
-                        <a class="dropdown-item" onclick="closeDropdowns(); showProspectsModal()">👥 <span data-i18n="menu.my_prospects">Mes prospects</span></a>
-                        <a class="dropdown-item" onclick="closeDropdowns(); showCampaignsModal()">📧 <span data-i18n="menu.create_campaign">Créer une campagne</span></a>
-                        <a class="dropdown-item menu-highlight" onclick="closeDropdowns(); showInboxModal()" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; border-radius: 8px; margin-top: 4px; position: relative;">
-                            📬 Inbox Intelligente
-                            <span class="menu-badge" id="menuInboxBadge" style="display: none;">0</span>
-                        </a>
-                        <a class="dropdown-item" onclick="closeDropdowns(); showBrevoConfigModal()">🔗 <span data-i18n="menu.config_brevo">Configurer Brevo</span></a>
-                        <a class="dropdown-item" onclick="closeDropdowns(); showReportsModal()" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 8px; margin-top: 4px;">📊 Rapports & Analytics</a>
-                    </div>
+                <div class="dropdown-menu" id="newsletterDropdown">
+                    <a class="dropdown-item" onclick="closeDropdowns(); showNewsletterModal()">✉️ <span data-i18n="menu.create_newsletter">Créer une newsletter</span></a>
+                    <a class="dropdown-item dropdown-item-muted" onclick="closeDropdowns(); alert('Connexion Brevo/Mailchimp bientôt disponible !')" title="Pour envoyer à vos abonnés existants">🔗 <span data-i18n="menu.connect_brevo">Connecter ma liste</span></a>
+                    <a class="dropdown-item" onclick="closeDropdowns(); showNewsletterHistory()">📋 <span>Mes newsletters</span></a>
+                </div>
+            </div>
+
+            <!-- Dropdown Prospection Email -->
+            <div class="header-dropdown">
+                <button class="btn btn-outreach dropdown-toggle" onclick="toggleDropdown('prospectionDropdown')" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                    🎯 <span data-i18n="menu.prospection">Prospection Email</span> <span class="dropdown-arrow">▼</span>
+                </button>
+                <div class="dropdown-menu" id="prospectionDropdown">
+                    <a class="dropdown-item" onclick="closeDropdowns(); showCampaignsModal()">📧 <span data-i18n="menu.create_campaign">Créer une campagne</span></a>
+                    <a class="dropdown-item" onclick="closeDropdowns(); showProspectsModal()">👥 <span data-i18n="menu.my_prospects">Mes prospects</span></a>
+                    <a class="dropdown-item menu-highlight" onclick="closeDropdowns(); showInboxModal()" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; border-radius: 8px; margin-top: 4px; position: relative;">
+                        📬 Inbox Intelligente
+                        <span class="menu-badge" id="menuInboxBadge" style="display: none;">0</span>
+                    </a>
+                    <a class="dropdown-item" onclick="closeDropdowns(); showBrevoConfigModal()">🔗 <span data-i18n="menu.config_brevo">Configurer Brevo</span></a>
+                    <a class="dropdown-item" onclick="closeDropdowns(); showReportsModal()" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 8px; margin-top: 4px;">📊 Rapports & Analytics</a>
                 </div>
             </div>
 
@@ -18436,6 +18444,92 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
         function closeNewsletterModal() {
             document.getElementById('newsletterModal').classList.remove('active');
             document.body.style.overflow = '';
+        }
+
+        // Afficher l'historique des newsletters
+        function showNewsletterHistory() {
+            const saved = JSON.parse(localStorage.getItem('sos_newsletters') || '[]');
+
+            const modalHTML = `
+                <div class="modal-overlay active" id="newsletterHistoryModal" onclick="if(event.target.classList.contains('modal-overlay')) this.remove()">
+                    <div class="modal" style="max-width: 700px; width: 90vw; max-height: 85vh; overflow: hidden;" onclick="event.stopPropagation()">
+                        <div class="modal-header" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
+                            <h2 style="color: white;">📋 Mes newsletters</h2>
+                            <button class="modal-close" onclick="document.getElementById('newsletterHistoryModal').remove()" style="color: white;">&times;</button>
+                        </div>
+                        <div style="padding: 20px; max-height: calc(85vh - 80px); overflow-y: auto;">
+                            ${saved.length === 0 ? `
+                                <div style="text-align: center; padding: 40px; color: #666;">
+                                    <div style="font-size: 3em; margin-bottom: 15px;">📭</div>
+                                    <p>Aucune newsletter sauvegardée pour le moment.</p>
+                                    <button onclick="document.getElementById('newsletterHistoryModal').remove(); showNewsletterModal();" class="btn" style="margin-top: 15px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 25px; border: none; border-radius: 10px; cursor: pointer;">
+                                        ✨ Créer ma première newsletter
+                                    </button>
+                                </div>
+                            ` : `
+                                <div style="display: flex; flex-direction: column; gap: 15px;">
+                                    ${saved.map((nl, i) => `
+                                        <div class="newsletter-history-card" style="background: #f8f9fa; border-radius: 12px; padding: 15px; border: 1px solid #e0e0e0;">
+                                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                                                <div>
+                                                    <span style="font-weight: 700; color: #333;">${nl.emails?.[0]?.selectedSubject || nl.emails?.[0]?.subjectLines?.[0] || 'Newsletter sans titre'}</span>
+                                                    ${nl.isSequence ? '<span style="background: #667eea; color: white; font-size: 0.7em; padding: 2px 8px; border-radius: 10px; margin-left: 8px;">Séquence ${nl.emails?.length || 0} emails</span>' : ''}
+                                                </div>
+                                                <span style="font-size: 0.8em; color: #888;">${new Date(nl.createdAt).toLocaleDateString('fr-FR')}</span>
+                                            </div>
+                                            <div style="font-size: 0.85em; color: #666; margin-bottom: 12px;">
+                                                ${nl.emails?.[0]?.previewText?.substring(0, 100) || 'Pas de preview'}...
+                                            </div>
+                                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                                <span style="background: #e0e0e0; padding: 3px 10px; border-radius: 15px; font-size: 0.75em;">${nl.newsletterType || 'Type inconnu'}</span>
+                                                <span style="background: #e0e0e0; padding: 3px 10px; border-radius: 15px; font-size: 0.75em;">${nl.structure || 'Structure inconnue'}</span>
+                                                <span style="background: #e0e0e0; padding: 3px 10px; border-radius: 15px; font-size: 0.75em;">${nl.tone || 'Ton inconnu'}</span>
+                                            </div>
+                                            <div style="display: flex; gap: 10px; margin-top: 12px;">
+                                                <button onclick="copyNewsletterFromHistory(${i})" style="flex: 1; padding: 8px; background: white; border: 1px solid #667eea; color: #667eea; border-radius: 8px; cursor: pointer; font-size: 0.85em;">📋 Copier</button>
+                                                <button onclick="deleteNewsletterFromHistory(${i})" style="padding: 8px 15px; background: white; border: 1px solid #e74c3c; color: #e74c3c; border-radius: 8px; cursor: pointer; font-size: 0.85em;">🗑️</button>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
+
+        function copyNewsletterFromHistory(index) {
+            const saved = JSON.parse(localStorage.getItem('sos_newsletters') || '[]');
+            const nl = saved[index];
+            if (!nl) return;
+
+            const email = nl.emails?.[0];
+            if (!email) return;
+
+            const text = \`Objet: \${email.selectedSubject || email.subjectLines?.[0] || ''}
+
+Preview: \${email.previewText || ''}
+
+\${email.body || ''}\`;
+
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('✅ Newsletter copiée !');
+            });
+        }
+
+        function deleteNewsletterFromHistory(index) {
+            if (!confirm('Supprimer cette newsletter ?')) return;
+
+            const saved = JSON.parse(localStorage.getItem('sos_newsletters') || '[]');
+            saved.splice(index, 1);
+            localStorage.setItem('sos_newsletters', JSON.stringify(saved));
+
+            // Refresh la modal
+            document.getElementById('newsletterHistoryModal')?.remove();
+            showNewsletterHistory();
+            showToast('✅ Newsletter supprimée');
         }
 
         // Fermer le modal en cliquant sur l'overlay
