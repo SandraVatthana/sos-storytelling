@@ -83,6 +83,7 @@ temp/
 *.temp
 *.bak
 *.backup
+tmpclaude-*
 
 # ============ API KEYS (au cas ou) ============
 *api-key*

@@ -35,8 +35,29 @@ function initSupabase() {
     return supabaseClient;
 }
 
-// Helper pour les appels API
-async function apiCall(endpoint, options = {}) {
+// Helper pour fetch avec timeout
+async function fetchWithTimeout(url, options = {}, timeout = 60000) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+    try {
+        const response = await fetch(url, {
+            ...options,
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        return response;
+    } catch (error) {
+        clearTimeout(timeoutId);
+        if (error.name === 'AbortError') {
+            throw new Error('La requête a pris trop de temps. Vérifie ta connexion et réessaie.');
+        }
+        throw error;
+    }
+}
+
+// Helper pour les appels API (avec timeout par défaut de 60s)
+async function apiCall(endpoint, options = {}, timeout = 60000) {
     const url = `${CONFIG.API_URL}${endpoint}`;
     const defaultOptions = {
         headers: {
@@ -50,13 +71,14 @@ async function apiCall(endpoint, options = {}) {
         defaultOptions.headers['Authorization'] = `Bearer ${session.data.session.access_token}`;
     }
 
-    return fetch(url, { ...defaultOptions, ...options });
+    return fetchWithTimeout(url, { ...defaultOptions, ...options }, timeout);
 }
 
 // Exporter pour utilisation globale
 window.CONFIG = CONFIG;
 window.initSupabase = initSupabase;
 window.apiCall = apiCall;
+window.fetchWithTimeout = fetchWithTimeout;
 
 // Log de chargement (si debug activé)
 if (CONFIG.FEATURES.DEBUG) {

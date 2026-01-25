@@ -887,6 +887,12 @@ class NewsletterModule {
   // ============================================================
 
   async generate() {
+    // Vérifier la limite freemium pour les newsletters
+    if (window.FreemiumSystem && !window.FreemiumSystem.canGenerateNewsletter()) {
+      window.FreemiumSystem.showPaywall('newsletters');
+      return;
+    }
+
     this.currentStep = 5;
     this.generatedContent = null;
     this.render();
@@ -952,6 +958,11 @@ class NewsletterModule {
 
       if (!newsletter?.body && !this.isSequenceMode) {
         console.warn('📧 Newsletter - Body vide après parsing!');
+      }
+
+      // Incrémenter le compteur freemium après génération réussie
+      if (window.FreemiumSystem && typeof window.FreemiumSystem.incrementNewsletters === 'function') {
+        await window.FreemiumSystem.incrementNewsletters();
       }
 
       this.render();

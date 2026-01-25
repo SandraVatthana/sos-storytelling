@@ -431,13 +431,105 @@ const AuditModule = (function() {
     }
 
     function analyzeCoherence(content, userKeywords) {
-        const contentLower = content.toLowerCase();
-        const foundKeywords = userKeywords.filter(k => contentLower.includes(k.toLowerCase()));
+        console.log('🔍 analyzeCoherence appelé avec', userKeywords.length, 'mots-clés:', userKeywords);
+
+        // Normaliser le contenu (enlever accents, mettre en minuscules)
+        const normalizeText = (text) => {
+            return text
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '') // Enlever les accents
+                .replace(/['']/g, ' ') // Remplacer apostrophes par espaces
+                .replace(/[^a-z0-9\s]/g, ' ') // Garder seulement lettres, chiffres, espaces
+                .replace(/\s+/g, ' ') // Normaliser les espaces multiples
+                .trim();
+        };
+
+        const contentNormalized = normalizeText(content);
+        const contentWords = contentNormalized.split(/\s+/).filter(w => w.length > 2);
+        console.log('📝 Contenu normalisé (premiers 200 chars):', contentNormalized.substring(0, 200));
+        console.log('📝 Mots du contenu:', contentWords.slice(0, 30), '...');
+
+        // Vérifier chaque mot-clé avec matching flexible
+        const foundKeywords = [];
+        const missingKeywords = [];
+
+        userKeywords.forEach(keyword => {
+            const keywordNormalized = normalizeText(keyword);
+            const keywordWords = keywordNormalized.split(/\s+/).filter(w => w.length > 2);
+
+            // Vérifier si le mot-clé ou ses variantes sont présents
+            let found = false;
+            let matchType = '';
+
+            // 1. Match exact
+            if (contentNormalized.includes(keywordNormalized)) {
+                found = true;
+                matchType = 'exact';
+            }
+
+            // 2. Match partiel avec radicals courts (pour gérer pluriels, conjugaisons, dérivés)
+            if (!found) {
+                for (const kw of keywordWords) {
+                    if (kw.length >= 4) {
+                        // Utiliser un radical plus court (4-5 caractères max) pour plus de flexibilité
+                        // "gamifiees" → "gamif" matchera "gamification"
+                        // "formation" → "forma" matchera "formation", "former", etc.
+                        const radical = kw.slice(0, Math.min(5, Math.max(4, Math.floor(kw.length * 0.6))));
+                        if (contentWords.some(w => w.startsWith(radical) || w.includes(radical))) {
+                            found = true;
+                            matchType = `radical:${radical}`;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // 3. Match par mot individuel (pour expressions composées)
+            if (!found && keywordWords.length > 1) {
+                const matchedWords = keywordWords.filter(kw =>
+                    kw.length >= 3 && contentWords.some(w => w.includes(kw) || kw.includes(w))
+                );
+                if (matchedWords.length >= Math.ceil(keywordWords.length / 2)) {
+                    found = true;
+                    matchType = `mots:${matchedWords.join(',')}`;
+                }
+            }
+
+            // 4. Match par sous-chaîne (si un mot du contenu contient le keyword ou vice versa)
+            if (!found) {
+                for (const kw of keywordWords) {
+                    if (kw.length >= 4) {
+                        // Vérifier si le mot-clé est contenu dans un mot du contenu ou vice versa
+                        const matchingWord = contentWords.find(w =>
+                            (w.length >= 5 && kw.length >= 5 && (w.includes(kw.slice(0, 4)) || kw.includes(w.slice(0, 4))))
+                        );
+                        if (matchingWord) {
+                            found = true;
+                            matchType = `substring:${matchingWord}`;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (found) {
+                foundKeywords.push(keyword);
+                console.log(`✅ Mot-clé trouvé: "${keyword}" (${matchType})`);
+            } else {
+                missingKeywords.push(keyword);
+                console.log(`❌ Mot-clé manquant: "${keyword}" (normalisé: "${keywordNormalized}")`);
+            }
+        });
+
         const ratio = userKeywords.length > 0 ? foundKeywords.length / userKeywords.length : 0;
+        const score = Math.round(ratio * 100);
+        console.log(`📊 Score cohérence: ${score}% (${foundKeywords.length}/${userKeywords.length})`);
+
         return {
-            score: Math.round(ratio * 100),
+            score,
             foundKeywords,
-            missingKeywords: userKeywords.filter(k => !contentLower.includes(k.toLowerCase()))
+            missingKeywords
         };
     }
 
@@ -696,7 +788,7 @@ const AuditModule = (function() {
         twitter: { username: '', bio: '', website: '' }
     };
     let userKeywords = [];
-    let posts = [{ id: 1, content: '', platform: 'linkedin', image: null, imageName: '' }];
+    let posts = [{ id: 1, content: '', platform: 'linkedin', images: [] }]; // images: [{data, name}]
     let auditResults = null;
     let postsResults = null;
 
@@ -713,7 +805,286 @@ const AuditModule = (function() {
     let videoResults = null;
     let videoPlatform = 'instagram';
 
+    // ============================================================
+    // CHARGEMENT DES MOTS-CLÉS DEPUIS L'ONBOARDING
+    // ============================================================
+
+    function loadKeywordsFromProfile() {
+        try {
+            const profileData = localStorage.getItem('voyageCreatifUserProfile');
+            console.log('🔍 Profile data found:', !!profileData);
+            if (!profileData) {
+                console.log('⚠️ Aucun profil trouvé dans localStorage');
+                return;
+            }
+
+            const profile = JSON.parse(profileData);
+            console.log('📋 Profile parsed:', {
+                domaine: profile.domaine,
+                piliers: profile.piliers,
+                tags: profile.tags,
+                specialite: profile.specialite,
+                expertise: profile.expertise
+            });
+            const keywords = [];
+
+            // Ajouter le domaine d'expertise (garder les expressions complètes)
+            if (profile.domaine) {
+                console.log('📌 Domaine trouvé:', profile.domaine);
+                // Séparer par virgules mais garder les expressions
+                profile.domaine.split(',').forEach(d => {
+                    const trimmed = d.trim();
+                    if (trimmed && trimmed.length >= 2) {
+                        keywords.push(trimmed);
+                        // Aussi ajouter les mots individuels si l'expression est longue
+                        // Séparer par espaces ET apostrophes pour extraire chaque mot
+                        const words = trimmed.split(/[\s']+/);
+                        words.forEach(word => {
+                            if (word.length >= 4) keywords.push(word);
+                        });
+                    }
+                });
+            }
+
+            // Ajouter aussi specialite et expertise si présents
+            ['specialite', 'expertise', 'metier'].forEach(field => {
+                if (profile[field]) {
+                    console.log(`📌 ${field} trouvé:`, profile[field]);
+                    profile[field].split(',').forEach(d => {
+                        const trimmed = d.trim();
+                        if (trimmed && trimmed.length >= 2) {
+                            keywords.push(trimmed);
+                            const words = trimmed.split(/[\s']+/);
+                            words.forEach(word => {
+                                if (word.length >= 4) keywords.push(word);
+                            });
+                        }
+                    });
+                }
+            });
+
+            // Ajouter les piliers de contenu
+            if (Array.isArray(profile.piliers)) {
+                console.log('📌 Piliers trouvés:', profile.piliers);
+                profile.piliers.forEach(p => {
+                    if (p && p.trim() && p.trim().length >= 2) {
+                        keywords.push(p.trim());
+                    }
+                });
+            }
+
+            // Ajouter les tags (hashtags et mots-clés)
+            if (profile.tags) {
+                console.log('📌 Tags trouvés:', profile.tags);
+                // Nettoyer les # et séparer par espaces/virgules
+                profile.tags.split(/[\s,]+/).forEach(tag => {
+                    const cleaned = tag.replace(/^#/, '').trim();
+                    if (cleaned && cleaned.length >= 2) keywords.push(cleaned);
+                });
+            }
+
+            // NE PAS extraire les mots du message unique (trop de bruit)
+
+            // Dédupliquer les mots-clés (insensible à la casse)
+            const seen = new Set();
+            userKeywords = keywords.filter(k => {
+                const lower = k.toLowerCase().trim();
+                if (seen.has(lower) || lower.length < 2) return false;
+                seen.add(lower);
+                return true;
+            });
+
+            console.log('✅ Mots-clés finaux chargés depuis onboarding:', userKeywords);
+            console.log('📊 Nombre total de mots-clés:', userKeywords.length);
+        } catch (e) {
+            console.error('❌ Erreur chargement mots-clés profil:', e);
+        }
+    }
+
+    // ============================================================
+    // HISTORIQUE DES AUDITS
+    // ============================================================
+
+    const AUDIT_HISTORY_KEY = 'tithot_audit_history';
+    const MAX_HISTORY_ITEMS = 20;
+    let showingHistory = false;
+
+    function getAuditHistory() {
+        try {
+            const history = localStorage.getItem(AUDIT_HISTORY_KEY);
+            return history ? JSON.parse(history) : [];
+        } catch (e) {
+            console.error('Erreur lecture historique:', e);
+            return [];
+        }
+    }
+
+    function saveToHistory(type, results, platform) {
+        try {
+            const history = getAuditHistory();
+
+            // Créer l'entrée d'historique
+            const entry = {
+                id: Date.now(),
+                date: new Date().toISOString(),
+                type: type, // 'profile', 'posts', 'video'
+                platform: platform,
+                score: results.globalScore || results.averageScores?.global || 0,
+                summary: type === 'profile'
+                    ? results.summary?.message
+                    : type === 'video'
+                        ? results.summary?.message
+                        : `${results.postCount || 0} post(s) analysé(s)`,
+                results: results
+            };
+
+            // Ajouter au début
+            history.unshift(entry);
+
+            // Limiter la taille
+            if (history.length > MAX_HISTORY_ITEMS) {
+                history.splice(MAX_HISTORY_ITEMS);
+            }
+
+            localStorage.setItem(AUDIT_HISTORY_KEY, JSON.stringify(history));
+            return true;
+        } catch (e) {
+            console.error('Erreur sauvegarde historique:', e);
+            return false;
+        }
+    }
+
+    function deleteFromHistory(id) {
+        try {
+            const history = getAuditHistory();
+            const newHistory = history.filter(item => item.id !== id);
+            localStorage.setItem(AUDIT_HISTORY_KEY, JSON.stringify(newHistory));
+            showHistory(); // Rafraîchir la vue
+        } catch (e) {
+            console.error('Erreur suppression historique:', e);
+        }
+    }
+
+    function loadFromHistory(id) {
+        try {
+            const history = getAuditHistory();
+            const entry = history.find(item => item.id === id);
+            if (!entry) return;
+
+            showingHistory = false;
+
+            // Restaurer les résultats selon le type
+            if (entry.type === 'profile') {
+                auditResults = entry.results;
+                selectedPlatform = entry.platform;
+                switchTab('profiles');
+            } else if (entry.type === 'posts') {
+                postsResults = entry.results;
+                switchTab('posts');
+            } else if (entry.type === 'video') {
+                videoResults = entry.results;
+                videoPlatform = entry.platform;
+                switchTab('videos');
+            }
+        } catch (e) {
+            console.error('Erreur chargement historique:', e);
+        }
+    }
+
+    function showHistory() {
+        showingHistory = true;
+        const content = document.getElementById('auditContent');
+        if (content) {
+            content.innerHTML = renderHistoryView();
+        }
+        // Désactiver l'onglet actif visuellement
+        document.querySelectorAll('.audit-tab').forEach(btn => btn.classList.remove('active'));
+    }
+
+    function hideHistory() {
+        showingHistory = false;
+        switchTab(currentTab);
+    }
+
+    function renderHistoryView() {
+        const history = getAuditHistory();
+
+        if (history.length === 0) {
+            return `
+                <div class="audit-history-empty">
+                    <div class="empty-icon">📋</div>
+                    <h3>Aucun audit sauvegardé</h3>
+                    <p>Tes audits seront automatiquement sauvegardés ici après chaque analyse.</p>
+                    <button class="audit-btn" onclick="AuditModule.hideHistory()">
+                        ← Retour aux audits
+                    </button>
+                </div>
+            `;
+        }
+
+        const typeIcons = {
+            'profile': '👤',
+            'posts': '📝',
+            'video': '🎬'
+        };
+
+        const typeLabels = {
+            'profile': 'Profil',
+            'posts': 'Posts',
+            'video': 'Vidéo'
+        };
+
+        return `
+            <div class="audit-history-view">
+                <div class="history-header">
+                    <h3>📋 Mes audits (${history.length})</h3>
+                    <button class="audit-btn-secondary" onclick="AuditModule.hideHistory()">
+                        ← Retour
+                    </button>
+                </div>
+
+                <div class="history-list">
+                    ${history.map(item => {
+                        const date = new Date(item.date);
+                        const dateStr = date.toLocaleDateString('fr-FR', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+                        });
+                        const timeStr = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                        const platformInfo = PLATFORMS[item.platform] || { emoji: '📊', name: item.platform };
+
+                        return `
+                            <div class="history-item" onclick="AuditModule.loadFromHistory(${item.id})">
+                                <div class="history-item-left">
+                                    <span class="history-type-badge">${typeIcons[item.type] || '📊'} ${typeLabels[item.type] || item.type}</span>
+                                    <span class="history-platform">${platformInfo.emoji} ${platformInfo.name}</span>
+                                </div>
+                                <div class="history-item-center">
+                                    <div class="history-score" style="color: ${getScoreColor(item.score)}">
+                                        ${item.score}/100
+                                    </div>
+                                    <div class="history-summary">${item.summary || ''}</div>
+                                </div>
+                                <div class="history-item-right">
+                                    <div class="history-date">${dateStr}</div>
+                                    <div class="history-time">${timeStr}</div>
+                                    <button class="history-delete-btn" onclick="event.stopPropagation(); AuditModule.deleteFromHistory(${item.id})" title="Supprimer">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+    }
+
     function openAuditModal() {
+        // Charger les mots-clés depuis le profil onboarding
+        loadKeywordsFromProfile();
+
         // Restaurer les derniers résultats s'ils existent
         const savedResults = localStorage.getItem('tithot_last_audit_results');
         if (savedResults) {
@@ -732,11 +1103,16 @@ const AuditModule = (function() {
         videoResults = null;
 
         const modalHTML = `
-            <div class="audit-modal-overlay" id="auditModalOverlay" onclick="AuditModule.closeModal(event)">
-                <div class="audit-modal" onclick="event.stopPropagation()">
+            <div class="audit-modal-overlay" id="auditModalOverlay" onmousedown="AuditModule.handleOverlayMouseDown(event)" onmouseup="AuditModule.handleOverlayMouseUp(event)">
+                <div class="audit-modal" onmousedown="event.stopPropagation()" onmouseup="event.stopPropagation()">
                     <div class="audit-modal-header">
                         <h2>📊 Audit Réseaux Sociaux</h2>
-                        <button class="audit-close-btn" onclick="AuditModule.closeModal()">&times;</button>
+                        <div class="audit-header-actions">
+                            <button class="audit-history-btn" onclick="AuditModule.showHistory()" title="Voir mes audits sauvegardés">
+                                📋 Mes audits
+                            </button>
+                            <button class="audit-close-btn" onclick="AuditModule.closeModal()">&times;</button>
+                        </div>
                     </div>
 
                     <div class="audit-tabs">
@@ -768,8 +1144,25 @@ const AuditModule = (function() {
         initPasteEvents();
     }
 
+    // Variable pour gérer le clic sur l'overlay (éviter fermeture lors de sélection de texte)
+    let mouseDownOnOverlay = false;
+
+    function handleOverlayMouseDown(e) {
+        // Vérifie si le mousedown est directement sur l'overlay (pas sur le contenu)
+        mouseDownOnOverlay = e.target.id === 'auditModalOverlay';
+    }
+
+    function handleOverlayMouseUp(e) {
+        // Ferme seulement si mousedown ET mouseup sont sur l'overlay
+        if (mouseDownOnOverlay && e.target.id === 'auditModalOverlay') {
+            closeModal();
+        }
+        mouseDownOnOverlay = false;
+    }
+
     function closeModal(e) {
-        if (e && e.target !== e.currentTarget) return;
+        // Si appelé avec un événement click, ignorer (on utilise mousedown/mouseup maintenant)
+        if (e && e.type === 'click' && e.target.id === 'auditModalOverlay') return;
         const overlay = document.getElementById('auditModalOverlay');
         if (overlay) {
             overlay.classList.remove('active');
@@ -1162,19 +1555,24 @@ const AuditModule = (function() {
                             <div class="post-item-footer">
                                 <span class="char-count">${post.content.length} caractères</span>
                                 <div class="image-upload-zone">
-                                    <label class="image-upload-btn" for="imageUpload-${post.id}">
-                                        ${post.imageName ? `🖼️ ${post.imageName}` : '📷 Ajouter visuel'}
+                                    <label class="image-upload-btn" for="imageUpload-${post.id}" ${(post.images?.length || 0) >= 10 ? 'style="opacity: 0.5; cursor: not-allowed;"' : ''}>
+                                        📷 Ajouter visuel${(post.images?.length || 0) > 0 ? ` (${post.images.length}/10)` : ''}
                                     </label>
-                                    <input type="file" id="imageUpload-${post.id}" accept="image/*" style="display: none;"
-                                           onchange="AuditModule.handleImageUpload(${post.id}, this)">
-                                    ${post.imageName ? `<button class="image-remove-btn" onclick="AuditModule.removeImage(${post.id})">✕</button>` : ''}
+                                    <input type="file" id="imageUpload-${post.id}" accept="image/*" multiple style="display: none;"
+                                           onchange="AuditModule.handleImageUpload(${post.id}, this)" ${(post.images?.length || 0) >= 10 ? 'disabled' : ''}>
                                 </div>
                             </div>
-                            ${post.image ? `
-                                <div class="image-preview">
-                                    <img src="${post.image}" alt="Aperçu">
-                                    <div class="image-analysis-note">🔮 Analyse visuelle bientôt disponible</div>
+                            ${post.images?.length > 0 ? `
+                                <div class="images-preview" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
+                                    ${post.images.map((img, imgIdx) => `
+                                        <div class="image-preview-item" style="position: relative; width: 80px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #e0e0e0;">
+                                            <img src="${img.data}" alt="Visuel ${imgIdx + 1}" style="width: 100%; height: 100%; object-fit: cover;">
+                                            <button onclick="AuditModule.removeImage(${post.id}, ${imgIdx})"
+                                                    style="position: absolute; top: 2px; right: 2px; background: rgba(239,68,68,0.9); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 12px; line-height: 1;">✕</button>
+                                        </div>
+                                    `).join('')}
                                 </div>
+                                <div class="image-analysis-note" style="color: #059669; font-size: 0.85em; margin-top: 5px;">🔮 ${post.images.length} visuel(s) analysé(s) par l'IA</div>
                             ` : ''}
                         </div>
                     `).join('')}
@@ -1261,34 +1659,248 @@ const AuditModule = (function() {
                     </div>
                 ` : ''}
 
+                ${postsResults.aiPatterns ? `
+                    <div class="audit-section" style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-radius: 12px; padding: 15px; margin-bottom: 20px;">
+                        <h4>🔮 Analyse IA - Patterns détectés</h4>
+                        ${postsResults.aiPatterns.strengths?.length ? `
+                            <div style="margin-bottom: 10px;">
+                                <strong style="color: #059669;">✅ Points forts :</strong>
+                                <ul style="margin: 5px 0; padding-left: 20px;">
+                                    ${postsResults.aiPatterns.strengths.map(s => `<li>${s}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                        ${postsResults.aiPatterns.weaknesses?.length ? `
+                            <div>
+                                <strong style="color: #dc2626;">🎯 À améliorer :</strong>
+                                <ul style="margin: 5px 0; padding-left: 20px;">
+                                    ${postsResults.aiPatterns.weaknesses.map(w => `<li>${w}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                    </div>
+                ` : ''}
+
                 <div class="audit-section">
-                    <h4>📋 Détail par post</h4>
+                    <h4>📋 Détail par post ${postsResults.hasAiAnalysis ? '<span style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75em; margin-left: 8px;">🔮 IA</span>' : ''}</h4>
                     ${postsResults.detailedAnalysis.map((post, idx) => `
-                        <div class="post-detail">
+                        <div class="post-detail" style="border: 1px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 15px;">
                             <div class="post-detail-header">
                                 <span class="post-score" style="background: ${getScoreColor(post.globalScore)}">${post.globalScore}</span>
-                                <span>Post ${idx + 1} - ${post.summary.text}</span>
+                                <span>Post ${idx + 1} - ${post.aiSuggestions?.summary || post.summary?.text || 'Analyse complète'}</span>
                             </div>
                             <div class="post-detail-scores">
-                                <span class="mini-score" style="color: ${getScoreColor(post.hook.score)}">🎣 ${post.hook.score}</span>
-                                <span class="mini-score" style="color: ${getScoreColor(post.structure.totalScore)}">📐 ${post.structure.totalScore}</span>
-                                <span class="mini-score" style="color: ${getScoreColor(post.cta.score)}">🎯 ${post.cta.score}</span>
-                                <span class="mini-score" style="color: ${getScoreColor(post.readability.score)}">📖 ${post.readability.score}</span>
-                                <span class="mini-score" style="color: ${getScoreColor(post.emotion.score)}">💜 ${post.emotion.score}</span>
-                                <span class="mini-score" style="color: ${getScoreColor(post.promise.score)}">💎 ${post.promise.score}</span>
+                                <span class="mini-score" style="color: ${getScoreColor(post.hook?.score || 0)}">🎣 ${post.hook?.score || 0}</span>
+                                <span class="mini-score" style="color: ${getScoreColor(post.structure?.totalScore || 0)}">📐 ${post.structure?.totalScore || 0}</span>
+                                <span class="mini-score" style="color: ${getScoreColor(post.cta?.score || 0)}">🎯 ${post.cta?.score || 0}</span>
+                                <span class="mini-score" style="color: ${getScoreColor(post.readability?.score || 0)}">📖 ${post.readability?.score || 0}</span>
+                                <span class="mini-score" style="color: ${getScoreColor(post.emotion?.score || 0)}">💜 ${post.emotion?.score || 0}</span>
+                                <span class="mini-score" style="color: ${getScoreColor(post.promise?.score || 0)}">💎 ${post.promise?.score || 0}</span>
                             </div>
-                            <div class="post-detail-content">
-                                <p><strong>Accroche :</strong> ${post.hook.emoji} ${post.hook.typeName}</p>
-                                <p><strong>CTA :</strong> ${post.cta.strength}</p>
-                                ${post.emotion.hasStorytelling ? '<p>✅ Storytelling détecté</p>' : '<p>❌ Pas de storytelling</p>'}
+
+                            ${post.aiSuggestions?.topPriority ? `
+                                <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 10px 12px; margin: 12px 0; border-radius: 0 8px 8px 0;">
+                                    <strong>🎯 Priorité :</strong> ${post.aiSuggestions.topPriority}
+                                </div>
+                            ` : ''}
+
+                            <div class="post-detail-content" style="margin-top: 12px; display: block !important;">
+                                <div style="margin-bottom: 15px; padding: 12px; background: #f9fafb; border-radius: 8px; border-left: 3px solid #667eea;">
+                                    <p style="margin: 0 0 8px 0; color: #1f2937; font-size: 0.95em; display: block;">
+                                        <strong style="color: #4f46e5;">🎣 Accroche :</strong> ${post.hook?.score || 0}/100 - ${post.hook?.emoji || '📝'} ${post.hook?.typeName || 'Standard'}
+                                    </p>
+                                    <p style="color: #6b7280; font-size: 0.9em; margin: 8px 0; display: block;">
+                                        ${post.hook?.score >= 80 ? '✅ Excellente accroche qui capte l\'attention !' :
+                                          post.hook?.score >= 60 ? '👍 Bonne accroche, mais peut être améliorée avec plus d\'impact.' :
+                                          post.hook?.score >= 40 ? '⚠️ Accroche moyenne. Elle ne se démarque pas assez dans le fil d\'actualité.' :
+                                          '❌ Accroche faible. Elle ne donne pas envie de lire la suite.'}
+                                    </p>
+                                    ${post.hook?.score < 80 && !post.aiSuggestions?.improvedHook ? `
+                                        <div style="background: #eff6ff; border-radius: 8px; padding: 10px; margin-top: 8px;">
+                                            <strong style="color: #2563eb;">💡 Exemples d'accroches efficaces :</strong>
+                                            <ul style="margin: 5px 0; padding-left: 20px; color: #1e40af; font-size: 0.9em;">
+                                                <li>"J'ai fait cette erreur pendant 3 ans..."</li>
+                                                <li>"Pourquoi 90% des entrepreneurs échouent ?"</li>
+                                                <li>"Ce matin, un client m'a dit quelque chose qui m'a choqué."</li>
+                                                <li>"3 choses que j'aurais aimé savoir avant de me lancer"</li>
+                                            </ul>
+                                        </div>
+                                    ` : ''}
+                                    ${post.aiSuggestions?.hookFeedback ? `<p style="color: #4f46e5; font-size: 0.9em; margin: 8px 0; display: block;">🔮 ${post.aiSuggestions.hookFeedback}</p>` : ''}
+                                    ${post.aiSuggestions?.improvedHook ? `
+                                        <div style="background: #ecfdf5; border-radius: 8px; padding: 10px; margin-top: 8px;">
+                                            <strong style="color: #059669;">💡 Version améliorée :</strong>
+                                            <p style="margin: 5px 0; font-style: italic; color: #065f46;">"${post.aiSuggestions.improvedHook}"</p>
+                                        </div>
+                                    ` : ''}
+                                </div>
+
+                                <div style="margin-bottom: 15px; padding: 12px; background: #f9fafb; border-radius: 8px; border-left: 3px solid #f59e0b;">
+                                    <p style="margin: 0 0 8px 0; color: #1f2937; font-size: 0.95em; display: block;">
+                                        <strong style="color: #d97706;">🎯 CTA :</strong> ${post.cta?.score || 0}/100 - ${post.cta?.strength || 'Non détecté'}
+                                    </p>
+                                    <p style="color: #6b7280; font-size: 0.9em; margin: 8px 0; display: block;">
+                                        ${post.cta?.score >= 80 ? '✅ CTA puissant qui incite à l\'action !' :
+                                          post.cta?.score >= 50 ? '👍 CTA présent mais peut être plus engageant.' :
+                                          post.cta?.score > 0 ? '⚠️ CTA faible. Il manque d\'énergie et de clarté.' :
+                                          '❌ Pas de CTA détecté. Ton lecteur ne sait pas quoi faire après avoir lu.'}
+                                    </p>
+                                    ${post.cta?.score < 80 && !post.aiSuggestions?.ctaAlternatives?.length ? `
+                                        <div style="background: #fef3c7; border-radius: 8px; padding: 10px; margin-top: 8px;">
+                                            <strong style="color: #d97706;">💡 Exemples de CTA efficaces :</strong>
+                                            <ul style="margin: 5px 0; padding-left: 20px; color: #92400e; font-size: 0.9em;">
+                                                <li>"Commente 🔥 si tu veux que je développe"</li>
+                                                <li>"Partage à quelqu'un qui a besoin de lire ça"</li>
+                                                <li>"Tu veux la suite ? Dis-le moi en commentaire"</li>
+                                                <li>"Enregistre ce post pour ne pas l'oublier 📌"</li>
+                                                <li>"Quel point te parle le plus ? 1, 2 ou 3 ?"</li>
+                                            </ul>
+                                        </div>
+                                    ` : ''}
+                                    ${post.aiSuggestions?.ctaFeedback ? `<p style="color: #d97706; font-size: 0.9em; margin: 8px 0; display: block;">🔮 ${post.aiSuggestions.ctaFeedback}</p>` : ''}
+                                    ${post.aiSuggestions?.ctaAlternatives?.length ? `
+                                        <div style="background: #eff6ff; border-radius: 8px; padding: 10px; margin-top: 8px;">
+                                            <strong style="color: #2563eb;">💡 CTA alternatifs :</strong>
+                                            <ul style="margin: 5px 0; padding-left: 20px; color: #1e40af;">
+                                                ${post.aiSuggestions.ctaAlternatives.map(cta => `<li>${cta}</li>`).join('')}
+                                            </ul>
+                                        </div>
+                                    ` : ''}
+                                </div>
+
+                                <div style="margin-bottom: 15px; padding: 12px; background: #f9fafb; border-radius: 8px; border-left: 3px solid #8b5cf6;">
+                                    <p style="margin: 0 0 8px 0; color: #1f2937; font-size: 0.95em; display: block;">
+                                        <strong style="color: #7c3aed;">💜 Émotion :</strong> ${post.emotion?.score || 0}/100 - ${post.emotion?.hasStorytelling ? 'Storytelling détecté' : 'Pas de storytelling'}
+                                    </p>
+                                    <p style="color: #6b7280; font-size: 0.9em; margin: 8px 0; display: block;">
+                                        ${post.emotion?.score >= 70 ? '✅ Ton post crée une connexion émotionnelle forte !' :
+                                          post.emotion?.score >= 50 ? '👍 Quelques éléments émotionnels, mais tu peux créer plus de connexion.' :
+                                          post.emotion?.score >= 30 ? '⚠️ Peu d\'émotion. Ton post reste en surface.' :
+                                          '❌ Post trop factuel. Il ne crée pas de lien avec ton audience.'}
+                                    </p>
+                                    ${post.emotion?.score < 70 && !post.aiSuggestions?.emotionSuggestion ? `
+                                        <div style="background: #fdf4ff; border-radius: 8px; padding: 10px; margin-top: 8px;">
+                                            <strong style="color: #a855f7;">💡 Comment ajouter de l'émotion :</strong>
+                                            <ul style="margin: 5px 0; padding-left: 20px; color: #6b21a8; font-size: 0.9em;">
+                                                <li><strong>Raconte un échec :</strong> "J'ai perdu mon premier client parce que..."</li>
+                                                <li><strong>Partage une peur :</strong> "Ce qui me terrifiait le plus, c'était..."</li>
+                                                <li><strong>Montre ta vulnérabilité :</strong> "Je n'ose pas en parler souvent, mais..."</li>
+                                                <li><strong>Célèbre une victoire :</strong> "Le jour où j'ai enfin compris que..."</li>
+                                                <li><strong>Utilise des mots forts :</strong> frustrant, bouleversant, incroyable, choqué...</li>
+                                            </ul>
+                                        </div>
+                                    ` : ''}
+                                    ${post.aiSuggestions?.emotionFeedback ? `<p style="color: #7c3aed; font-size: 0.9em; margin: 8px 0; display: block;">🔮 ${post.aiSuggestions.emotionFeedback}</p>` : ''}
+                                    ${post.aiSuggestions?.emotionSuggestion ? `
+                                        <div style="background: #fdf4ff; border-radius: 8px; padding: 10px; margin-top: 8px;">
+                                            <strong style="color: #a855f7;">💡 Conseil personnalisé :</strong>
+                                            <p style="margin: 5px 0; color: #6b21a8;">${post.aiSuggestions.emotionSuggestion}</p>
+                                        </div>
+                                    ` : ''}
+                                </div>
+
+                                <div style="margin-bottom: 15px; padding: 12px; background: #f9fafb; border-radius: 8px; border-left: 3px solid #10b981;">
+                                    <p style="margin: 0 0 8px 0; color: #1f2937; font-size: 0.95em; display: block;">
+                                        <strong style="color: #059669;">🔗 Cohérence :</strong> ${post.coherence?.score || 0}/100
+                                        ${post.coherence?.foundKeywords?.length ? `<span style="color: #059669; font-weight: 500;"> (trouvés: ${post.coherence.foundKeywords.join(', ')})</span>` : ''}
+                                    </p>
+                                    <p style="color: #6b7280; font-size: 0.9em; margin: 8px 0; display: block;">
+                                        ${post.coherence?.score >= 70 ? '✅ Excellent ! Ton post renforce bien ton positionnement.' :
+                                          post.coherence?.score >= 40 ? '👍 Quelques mots-clés présents, mais tu peux renforcer ton expertise.' :
+                                          post.coherence?.score > 0 ? '⚠️ Peu de liens avec ton domaine. Ce post ne renforce pas ton positionnement.' :
+                                          '❌ Hors sujet. Ce post ne parle pas de ton expertise.'}
+                                    </p>
+                                    ${post.coherence?.missingKeywords?.length ? `<p style="color: #dc2626; font-size: 0.9em; margin: 8px 0; display: block;">⚠️ Mots-clés à intégrer : <strong>${post.coherence.missingKeywords.join(', ')}</strong></p>` : ''}
+                                    ${post.coherence?.score < 70 ? `
+                                        <div style="background: #ecfdf5; border-radius: 8px; padding: 10px; margin-top: 8px;">
+                                            <strong style="color: #059669;">💡 Conseil :</strong>
+                                            <p style="margin: 5px 0; color: #065f46; font-size: 0.9em;">Intègre naturellement tes mots-clés d'expertise dans ton post. Exemple : "En tant que [ton domaine], je vois souvent..." ou "C'est ce que j'apprends à mes clients en [domaine]..."</p>
+                                        </div>
+                                    ` : ''}
+                                    ${post.aiSuggestions?.coherenceFeedback ? `<p style="color: #059669; font-size: 0.9em; margin: 8px 0; display: block;">🔮 ${post.aiSuggestions.coherenceFeedback}</p>` : ''}
+                                </div>
+
+                                <div style="margin-bottom: 15px; padding: 12px; background: #f9fafb; border-radius: 8px; border-left: 3px solid #eab308;">
+                                    <p style="margin: 0 0 8px 0; color: #1f2937; font-size: 0.95em; display: block;">
+                                        <strong style="color: #ca8a04;">💎 Promesse :</strong> ${post.promise?.score || 0}/100
+                                    </p>
+                                    <p style="color: #6b7280; font-size: 0.9em; margin: 8px 0; display: block;">
+                                        ${post.promise?.score >= 70 ? '✅ Le bénéfice pour le lecteur est clair !' :
+                                          post.promise?.score >= 50 ? '👍 Une promesse existe mais pourrait être plus concrète.' :
+                                          post.promise?.score >= 30 ? '⚠️ Promesse floue. Le lecteur ne sait pas ce qu\'il va apprendre.' :
+                                          '❌ Pas de promesse. Pourquoi devrait-on lire ce post ?'}
+                                    </p>
+                                    ${post.promise?.score < 70 && !post.aiSuggestions?.promiseClearer ? `
+                                        <div style="background: #fefce8; border-radius: 8px; padding: 10px; margin-top: 8px;">
+                                            <strong style="color: #ca8a04;">💡 Comment formuler une promesse claire :</strong>
+                                            <ul style="margin: 5px 0; padding-left: 20px; color: #854d0e; font-size: 0.9em;">
+                                                <li>"Après avoir lu ce post, tu sauras exactement..."</li>
+                                                <li>"Je vais te montrer comment [bénéfice concret]"</li>
+                                                <li>"3 techniques pour [résultat mesurable]"</li>
+                                                <li>"Ce qui m'a permis de [résultat] en [temps]"</li>
+                                            </ul>
+                                        </div>
+                                    ` : ''}
+                                    ${post.aiSuggestions?.promiseFeedback ? `<p style="color: #ca8a04; font-size: 0.9em; margin: 8px 0; display: block;">🔮 ${post.aiSuggestions.promiseFeedback}</p>` : ''}
+                                    ${post.aiSuggestions?.promiseClearer ? `
+                                        <div style="background: #fefce8; border-radius: 8px; padding: 10px; margin-top: 8px;">
+                                            <strong style="color: #ca8a04;">💡 Promesse clarifiée :</strong>
+                                            <p style="margin: 5px 0; color: #854d0e;">${post.aiSuggestions.promiseClearer}</p>
+                                        </div>
+                                    ` : ''}
+                                </div>
+
+                                ${post.hasImages ? `
+                                    <div style="margin-bottom: 15px; padding: 12px; background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-radius: 8px; border-left: 3px solid #0ea5e9;">
+                                        <p style="margin: 0 0 8px 0; color: #1f2937; font-size: 0.95em; display: block;">
+                                            <strong style="color: #0284c7;">🖼️ Analyse du visuel (${post.imageCount} image${post.imageCount > 1 ? 's' : ''}) :</strong>
+                                        </p>
+                                        ${post.aiSuggestions?.imageDescription ? `
+                                            <div style="background: #f8fafc; border-radius: 6px; padding: 10px; margin-bottom: 10px;">
+                                                <strong style="color: #475569;">👁️ Ce que l'IA voit :</strong>
+                                                <p style="color: #64748b; font-size: 0.9em; margin: 5px 0 0 0;">${post.aiSuggestions.imageDescription}</p>
+                                            </div>
+                                        ` : ''}
+                                        ${post.aiSuggestions?.imageCoherenceWithText ? `
+                                            <div style="background: #f0fdf4; border-radius: 6px; padding: 10px; margin-bottom: 10px;">
+                                                <strong style="color: #166534;">📝 Cohérence avec le texte :</strong>
+                                                <p style="color: #15803d; font-size: 0.9em; margin: 5px 0 0 0;">${post.aiSuggestions.imageCoherenceWithText}</p>
+                                            </div>
+                                        ` : ''}
+                                        ${post.aiSuggestions?.imageCoherenceBetweenImages && post.imageCount > 1 ? `
+                                            <div style="background: #fefce8; border-radius: 6px; padding: 10px; margin-bottom: 10px;">
+                                                <strong style="color: #854d0e;">🎠 Cohérence du carrousel :</strong>
+                                                <p style="color: #a16207; font-size: 0.9em; margin: 5px 0 0 0;">${post.aiSuggestions.imageCoherenceBetweenImages}</p>
+                                            </div>
+                                        ` : ''}
+                                        ${post.aiSuggestions?.imageFeedback ? `
+                                            <p style="color: #0369a1; font-size: 0.9em; margin: 8px 0; display: block;"><strong>📊 Analyse globale :</strong> ${post.aiSuggestions.imageFeedback}</p>
+                                            ${post.aiSuggestions.imageSuggestion ? `
+                                                <p style="margin-top: 8px; color: #0c4a6e;"><strong>💡 Suggestion :</strong> ${post.aiSuggestions.imageSuggestion}</p>
+                                            ` : ''}
+                                        ` : `
+                                            <p style="color: #64748b; font-size: 0.9em; margin: 8px 0; font-style: italic;">
+                                                L'image a été analysée mais l'IA n'a pas fourni de feedback détaillé.
+                                            </p>
+                                        `}
+                                    </div>
+                                ` : ''}
                             </div>
                         </div>
                     `).join('')}
                 </div>
 
-                <button class="audit-reset-btn" onclick="AuditModule.resetPostsAnalysis()">
-                    Analyser d'autres posts
-                </button>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px;">
+                    <button class="audit-reset-btn" onclick="AuditModule.resetPostsAnalysis()" style="flex: 1; min-width: 150px;">
+                        🔄 Analyser d'autres posts
+                    </button>
+                    <button class="audit-reset-btn" onclick="AuditModule.showHistory()" style="flex: 1; min-width: 150px; background: linear-gradient(135deg, #667eea, #764ba2);">
+                        📋 Voir mes audits sauvegardés
+                    </button>
+                </div>
+                <p style="text-align: center; color: #059669; font-size: 0.85em; margin-top: 10px;">
+                    ✅ Audit sauvegardé automatiquement dans "Mes audits"
+                </p>
             </div>
         `;
     }
@@ -1457,14 +2069,14 @@ const AuditModule = (function() {
                 postImages: profileScreenshots.posts.map(p => p.data)
             };
 
-            // Appel à l'API (worker)
-            const response = await fetch(CONFIG.API_URL + '/audit-visual', {
+            // Appel à l'API (worker) avec timeout de 90 secondes
+            const response = await (window.fetchWithTimeout || fetch)(CONFIG.API_URL + '/audit-visual', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(auditData)
-            });
+            }, 90000);
 
             if (!response.ok) {
                 throw new Error('Erreur API: ' + response.status);
@@ -1495,6 +2107,9 @@ const AuditModule = (function() {
             // Sauvegarder les résultats pour ne pas les perdre
             localStorage.setItem('tithot_last_audit_results', JSON.stringify(auditResults));
             localStorage.setItem('tithot_last_audit_date', new Date().toISOString());
+
+            // Sauvegarder dans l'historique
+            saveToHistory('profile', auditResults, selectedPlatform);
 
         } catch (error) {
             console.error('Erreur audit visuel:', error);
@@ -1535,43 +2150,61 @@ const AuditModule = (function() {
 
     function addPost() {
         const newId = Math.max(...posts.map(p => p.id), 0) + 1;
-        posts.push({ id: newId, content: '', platform: 'linkedin', image: null, imageName: '' });
+        posts.push({ id: newId, content: '', platform: 'linkedin', images: [] });
         switchTab('posts');
     }
 
     function handleImageUpload(postId, input) {
-        const file = input.files[0];
-        if (!file) return;
+        const files = Array.from(input.files);
+        if (!files.length) return;
 
-        // Vérifier le type
-        if (!file.type.startsWith('image/')) {
-            alert('Seules les images sont acceptées');
+        const post = posts.find(p => p.id === postId);
+        if (!post) return;
+
+        // Initialiser le tableau images si nécessaire
+        if (!post.images) post.images = [];
+
+        // Vérifier limite
+        const remainingSlots = 10 - post.images.length;
+        if (remainingSlots <= 0) {
+            alert('Maximum 10 images par post (carrousel)');
             return;
         }
 
-        // Vérifier la taille (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-            alert('Image trop lourde (max 5MB)');
-            return;
-        }
+        const filesToProcess = files.slice(0, remainingSlots);
 
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const post = posts.find(p => p.id === postId);
-            if (post) {
-                post.image = e.target.result;
-                post.imageName = file.name.length > 20 ? file.name.substring(0, 17) + '...' : file.name;
-                switchTab('posts');
+        filesToProcess.forEach(file => {
+            // Vérifier le type
+            if (!file.type.startsWith('image/')) {
+                console.warn('Fichier ignoré (pas une image):', file.name);
+                return;
             }
-        };
-        reader.readAsDataURL(file);
+
+            // Vérifier la taille (max 5MB par image)
+            if (file.size > 5 * 1024 * 1024) {
+                alert(`Image "${file.name}" trop lourde (max 5MB par image)`);
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                post.images.push({
+                    data: e.target.result,
+                    name: file.name.length > 15 ? file.name.substring(0, 12) + '...' : file.name
+                });
+                switchTab('posts');
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Reset input pour permettre re-sélection du même fichier
+        input.value = '';
     }
 
-    function removeImage(postId) {
+    function removeImage(postId, imageIndex) {
         const post = posts.find(p => p.id === postId);
-        if (post) {
-            post.image = null;
-            post.imageName = '';
+        if (post && post.images) {
+            post.images.splice(imageIndex, 1);
             switchTab('posts');
         }
     }
@@ -1633,7 +2266,7 @@ const AuditModule = (function() {
         switchTab('profiles');
     }
 
-    function runPostsAnalysis() {
+    async function runPostsAnalysis() {
         const validPosts = posts.filter(p => p.content.trim().length > 20);
 
         if (validPosts.length === 0) {
@@ -1647,9 +2280,24 @@ const AuditModule = (function() {
             return;
         }
 
+        // Afficher le loader
+        const content = document.getElementById('auditContent');
+        if (content) {
+            content.innerHTML = `
+                <div class="audit-loading" style="text-align: center; padding: 60px 20px;">
+                    <div class="loading-spinner" style="width: 60px; height: 60px; border: 4px solid #e0e0e0; border-top-color: #667eea; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px;"></div>
+                    <h3 style="color: #667eea; margin-bottom: 10px;">🔮 Analyse IA en cours...</h3>
+                    <p style="color: #6b7280;">L'IA analyse tes posts et génère des suggestions personnalisées</p>
+                    ${validPosts.some(p => p.image) ? '<p style="color: #059669; margin-top: 10px;">🖼️ Analyse des visuels en cours...</p>' : ''}
+                </div>
+                <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+            `;
+        }
+
+        // Analyse locale rapide
         const analyzedPosts = validPosts.map(post => analyzePost(post.content, userKeywords));
 
-        // 7 critères maintenant
+        // 7 critères
         const avgScores = {
             global: 0, hook: 0, structure: 0, cta: 0, coherence: 0,
             readability: 0, emotion: 0, promise: 0
@@ -1671,68 +2319,145 @@ const AuditModule = (function() {
             avgScores[key] = Math.round(avgScores[key] / count);
         });
 
-        // Generate recommendations (7 critères)
-        const globalRecommendations = [];
+        // Appeler l'API IA pour suggestions détaillées
+        let aiAnalysis = null;
+        try {
+            // Charger le profil utilisateur
+            let userProfile = {};
+            try {
+                const profileData = localStorage.getItem('voyageCreatifUserProfile');
+                if (profileData) userProfile = JSON.parse(profileData);
+            } catch (e) { console.error('Erreur chargement profil:', e); }
 
-        if (avgScores.hook < 60) {
-            globalRecommendations.push({
-                priority: 'high',
-                category: 'Accroches',
-                message: 'Tes accroches manquent d\'impact. Utilise des questions, histoires ou chiffres.'
+            const apiUrl = window.CONFIG?.API_URL || 'https://tithot-api.prospectwizard.workers.dev';
+
+            // Debug: afficher ce qui est envoyé
+            const postsToSend = validPosts.map(p => ({
+                content: p.content,
+                platform: p.platform,
+                images: p.images?.map(img => img.data) || [],
+                hasImages: (p.images?.length || 0) > 0,
+                imageCount: p.images?.length || 0
+            }));
+            console.log('🖼️ Posts envoyés à l\'API:', postsToSend.map(p => ({
+                platform: p.platform,
+                hasImages: p.hasImages,
+                imageCount: p.imageCount,
+                contentLength: p.content?.length
+            })));
+
+            const response = await fetch(`${apiUrl}/audit-post`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    posts: postsToSend,
+                    keywords: userKeywords,
+                    userProfile
+                })
             });
+
+            if (response.ok) {
+                const result = await response.json();
+                if (result.success) {
+                    aiAnalysis = result;
+                    console.log('✅ Analyse IA réussie:', aiAnalysis);
+                    // Debug: vérifier si l'analyse d'image est présente
+                    aiAnalysis.posts?.forEach((post, idx) => {
+                        if (post.analysis?.image) {
+                            console.log(`🖼️ Post ${idx + 1} - Analyse image:`, post.analysis.image);
+                        } else {
+                            console.log(`⚠️ Post ${idx + 1} - Pas d'analyse image dans la réponse`);
+                        }
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Erreur appel API IA:', error);
         }
 
-        if (avgScores.cta < 50) {
-            globalRecommendations.push({
-                priority: 'high',
-                category: 'CTA',
-                message: 'Ajoute un appel à l\'action clair à chaque post.'
-            });
-        }
+        // Fusionner les résultats locaux avec l'IA
+        const detailedAnalysis = analyzedPosts.map((localAnalysis, idx) => {
+            const aiPost = aiAnalysis?.posts?.find(p => p.postIndex === idx);
+            const originalPost = validPosts[idx];
+            const postHasImages = (originalPost?.images?.length || 0) > 0;
 
-        if (avgScores.emotion < 50) {
-            globalRecommendations.push({
-                priority: 'high',
-                category: 'Émotion',
-                message: 'Tes posts manquent d\'émotion. Raconte des histoires, partage ton ressenti.'
-            });
-        }
+            console.log(`📊 Post ${idx + 1}: hasImages=${postHasImages}, aiImageAnalysis=${!!aiPost?.analysis?.image}`);
 
-        if (avgScores.promise < 50) {
-            globalRecommendations.push({
-                priority: 'medium',
-                category: 'Promesse',
-                message: 'Clarifie le bénéfice pour ton lecteur. Que va-t-il gagner ?'
-            });
-        }
+            return {
+                ...localAnalysis,
+                hasImages: postHasImages,
+                imageCount: originalPost?.images?.length || 0,
+                aiSuggestions: aiPost ? {
+                    improvedHook: aiPost.analysis?.hook?.improved,
+                    hookFeedback: aiPost.analysis?.hook?.feedback,
+                    ctaAlternatives: aiPost.analysis?.cta?.alternatives,
+                    ctaFeedback: aiPost.analysis?.cta?.feedback,
+                    emotionSuggestion: aiPost.analysis?.emotion?.suggestion,
+                    emotionFeedback: aiPost.analysis?.emotion?.feedback,
+                    promiseClearer: aiPost.analysis?.promise?.clearer,
+                    promiseFeedback: aiPost.analysis?.promise?.feedback,
+                    structureSuggestion: aiPost.analysis?.structure?.suggestion,
+                    coherenceFeedback: aiPost.analysis?.coherence?.feedback,
+                    imageFeedback: aiPost.analysis?.image?.feedback,
+                    imageSuggestion: aiPost.analysis?.image?.suggestion,
+                    imageDescription: aiPost.analysis?.image?.description,
+                    imageCoherenceWithText: aiPost.analysis?.image?.coherenceWithText,
+                    imageCoherenceBetweenImages: aiPost.analysis?.image?.coherenceBetweenImages,
+                    summary: aiPost.summary,
+                    topPriority: aiPost.topPriority,
+                    scores: aiPost.scores
+                } : null
+            };
+        });
 
-        if (avgScores.readability < 60) {
-            globalRecommendations.push({
-                priority: 'medium',
-                category: 'Lisibilité',
-                message: 'Aère tes posts : phrases courtes, listes, sauts de ligne.'
-            });
-        }
+        // Recommandations - privilégier celles de l'IA
+        const globalRecommendations = aiAnalysis?.globalRecommendations?.map(rec => ({
+            priority: 'high',
+            category: 'IA',
+            message: rec
+        })) || [];
 
-        if (avgScores.coherence < 50) {
-            globalRecommendations.push({
-                priority: 'medium',
-                category: 'Cohérence',
-                message: 'Tes posts ne parlent pas assez de ton expertise. Inclus tes mots-clés.'
-            });
+        // Ajouter des recommandations locales si nécessaire
+        if (globalRecommendations.length < 3) {
+            if (avgScores.hook < 60) {
+                globalRecommendations.push({
+                    priority: 'high',
+                    category: 'Accroches',
+                    message: 'Tes accroches manquent d\'impact. Utilise des questions, histoires ou chiffres.'
+                });
+            }
+            if (avgScores.cta < 50) {
+                globalRecommendations.push({
+                    priority: 'high',
+                    category: 'CTA',
+                    message: 'Ajoute un appel à l\'action clair à chaque post.'
+                });
+            }
+            if (avgScores.emotion < 50) {
+                globalRecommendations.push({
+                    priority: 'medium',
+                    category: 'Émotion',
+                    message: 'Tes posts manquent d\'émotion. Raconte des histoires, partage ton ressenti.'
+                });
+            }
         }
 
         postsResults = {
             postCount: count,
             averageScores: avgScores,
             globalRecommendations,
-            detailedAnalysis: analyzedPosts
+            detailedAnalysis,
+            aiPatterns: aiAnalysis?.patterns || null,
+            hasAiAnalysis: !!aiAnalysis
         };
 
         // Incrémenter le compteur freemium (audit posts)
         if (window.FreemiumSystem) {
             window.FreemiumSystem.incrementAuditPosts();
         }
+
+        // Sauvegarder dans l'historique
+        saveToHistory('posts', postsResults, selectedPlatform);
 
         switchTab('posts');
     }
@@ -1747,6 +2472,24 @@ const AuditModule = (function() {
     // ============================================================
 
     function renderVideosTab() {
+        // Barre de progression pour les gros fichiers
+        const progressBar = isAnalyzing && uploadProgress > 0 && uploadProgress < 100 ? `
+            <div class="upload-progress" style="margin-top: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                    <span>📤 Upload en cours...</span>
+                    <span style="font-weight: bold;">${uploadProgress}%</span>
+                </div>
+                <div style="background: #e0e0e0; border-radius: 10px; height: 8px; overflow: hidden;">
+                    <div style="background: linear-gradient(90deg, #667eea, #764ba2); height: 100%; width: ${uploadProgress}%; transition: width 0.3s;"></div>
+                </div>
+            </div>
+        ` : '';
+
+        // Info sur le mode d'upload
+        const uploadModeInfo = videoData?.useFileAPI ? `
+            <p class="audit-hint" style="color: #059669;">✨ Fichier volumineux : upload optimisé via Gemini File API</p>
+        ` : '';
+
         return `
             <div class="audit-section">
                 <div class="audit-info-box">
@@ -1778,23 +2521,47 @@ const AuditModule = (function() {
             <div class="audit-section">
                 <h3>2️⃣ Upload ta vidéo</h3>
                 <div class="video-upload-zone ${videoData ? 'has-video' : ''}"
-                     onclick="document.getElementById('videoInput').click()">
+                     onclick="${!isCompressing ? "document.getElementById('videoInput').click()" : ''}">
                     ${videoData ? `
                         <video class="video-preview" controls>
                             <source src="${videoData.preview}" type="${videoData.mimeType}">
                         </video>
                         <div class="video-info">
-                            <strong>${videoData.name}</strong> (${(videoData.size / 1024 / 1024).toFixed(1)} MB)
-                            <button class="remove-btn" onclick="event.stopPropagation(); AuditModule.removeVideo()">✕ Supprimer</button>
+                            <strong>${videoData.name}</strong> (${(videoData.size / 1024 / 1024).toFixed(1)} Mo)
+                            ${!isCompressing ? `<button class="remove-btn" onclick="event.stopPropagation(); AuditModule.removeVideo()">✕ Supprimer</button>` : ''}
                         </div>
+                        ${videoData.needsCompression && !isCompressing ? `
+                            <div style="margin-top: 10px; padding: 12px; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;">
+                                <p style="margin: 0 0 8px 0; color: #92400e; font-size: 0.9em;">
+                                    ⚠️ <strong>Vidéo trop volumineuse</strong> (${(videoData.size / 1024 / 1024).toFixed(1)} Mo > 20 Mo max)
+                                </p>
+                                <p style="margin: 0; color: #78716c; font-size: 0.85em;">
+                                    Clique sur "Compresser" pour réduire automatiquement la taille.
+                                </p>
+                            </div>
+                        ` : ''}
+                        ${isCompressing ? `
+                            <div style="margin-top: 15px; padding: 15px; background: linear-gradient(135deg, #dbeafe, #ede9fe); border-radius: 10px;">
+                                <p style="margin: 0 0 10px 0; font-weight: 600; color: #4338ca;">
+                                    🔄 Compression en cours... <span class="compression-percent">${compressionProgress}%</span>
+                                </p>
+                                <div style="background: #e0e0e0; border-radius: 10px; height: 10px; overflow: hidden;">
+                                    <div class="compression-progress-bar" style="background: linear-gradient(90deg, #667eea, #764ba2); height: 100%; width: ${compressionProgress}%; transition: width 0.3s;"></div>
+                                </div>
+                                <p style="margin: 10px 0 0 0; color: #6366f1; font-size: 0.8em;">
+                                    ☕ Cela peut prendre 1-2 minutes selon la taille...
+                                </p>
+                            </div>
+                        ` : ''}
                     ` : `
                         <span style="font-size: 3em;">🎥</span>
                         <p>Clique ou glisse ta vidéo ici</p>
-                        <p class="audit-hint">MP4, MOV, WebM - Max 50MB, durée max 90 secondes</p>
+                        <p class="audit-hint">MP4, MOV, WebM - Max 20 Mo (compression auto disponible)</p>
                     `}
                 </div>
                 <input type="file" id="videoInput" accept="video/*" style="display: none;"
                        onchange="AuditModule.handleVideoUpload(this)">
+                ${progressBar}
             </div>
 
             <div class="audit-section">
@@ -1805,19 +2572,41 @@ const AuditModule = (function() {
                        onchange="AuditModule.updateKeywords(this.value)">
             </div>
 
-            <button class="audit-run-btn ${!videoData ? 'disabled' : ''}"
-                    onclick="AuditModule.runVideoAudit()"
-                    ${!videoData ? 'disabled' : ''}>
-                ${isAnalyzing ? '<span class="loading-spinner"></span> Analyse en cours...' : '🎬 Analyser ma vidéo'}
-            </button>
+            ${videoData?.needsCompression && !isCompressing ? `
+                <button class="audit-run-btn" onclick="AuditModule.compressVideo()" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                    🗜️ Compresser automatiquement
+                </button>
+                <p class="audit-hint" style="text-align: center; margin-top: 8px;">
+                    Ou <a href="https://clideo.com/compress-video" target="_blank" style="color: #667eea;">compresse manuellement</a> avec un outil externe
+                </p>
+            ` : isCompressing ? `
+                <button class="audit-run-btn disabled" disabled>
+                    <span class="loading-spinner"></span> Compression en cours...
+                </button>
+            ` : `
+                <button class="audit-run-btn ${!videoData || isAnalyzing ? 'disabled' : ''}"
+                        onclick="AuditModule.runVideoAudit()"
+                        ${!videoData || isAnalyzing ? 'disabled' : ''}>
+                    ${isAnalyzing ? '<span class="loading-spinner"></span> Analyse en cours...' : '🎬 Analyser ma vidéo'}
+                </button>
+            `}
 
             ${!videoData ? '<p class="audit-hint" style="text-align: center; margin-top: 10px;">Upload une vidéo pour lancer l\'analyse</p>' : ''}
 
-            <div class="audit-info-feedback" style="margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #e0f2fe, #f0f9ff); border-radius: 10px; border-left: 4px solid #0ea5e9;">
-                <p style="margin: 0; color: #0369a1; font-size: 0.9em;">
-                    ⏱️ <strong>~1-2 min</strong> • 📄 Analyse hook, rythme, CTA + score détaillé • 💾 Sauvegardé automatiquement
-                </p>
-            </div>
+            ${isAnalyzing ? `
+                <div class="audit-loading-message" style="margin-top: 20px; padding: 20px; background: linear-gradient(135deg, #fef3c7, #fef9c3); border-radius: 12px; border-left: 4px solid #f59e0b; text-align: center;">
+                    <p style="margin: 0 0 8px 0; font-size: 1.1em;">☕ <strong>L'IA analyse ta vidéo en profondeur...</strong></p>
+                    <p style="margin: 0; color: #92400e; font-size: 0.9em;">
+                        Cela peut prendre 1 à 3 minutes. C'est le bon moment pour aller chercher un café !
+                    </p>
+                </div>
+            ` : `
+                <div class="audit-info-feedback" style="margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #e0f2fe, #f0f9ff); border-radius: 10px; border-left: 4px solid #0ea5e9;">
+                    <p style="margin: 0; color: #0369a1; font-size: 0.9em;">
+                        ⏱️ <strong>~1-3 min</strong> • 📄 Analyse hook, rythme, CTA + score détaillé • 💾 Sauvegardé automatiquement
+                    </p>
+                </div>
+            `}
         `;
     }
 
@@ -1963,6 +2752,15 @@ const AuditModule = (function() {
         switchTab('videos');
     }
 
+    // Limite pour base64 : 20MB max (au-delà = trop gros pour Cloudflare)
+    const MAX_BASE64_SIZE = 20 * 1024 * 1024; // 20MB
+    const MAX_VIDEO_SIZE = 500 * 1024 * 1024; // 500MB max pour compression
+
+    // État de compression
+    let isCompressing = false;
+    let compressionProgress = 0;
+    let pendingLargeFile = null; // Fichier en attente de compression
+
     function handleVideoUpload(input) {
         const file = input.files[0];
         if (!file) return;
@@ -1973,24 +2771,212 @@ const AuditModule = (function() {
             return;
         }
 
-        // Vérifier la taille (max 50MB)
-        if (file.size > 50 * 1024 * 1024) {
-            alert('Vidéo trop lourde (max 50MB)');
+        // Vérifier la taille max absolue
+        if (file.size > MAX_VIDEO_SIZE) {
+            alert('Vidéo trop volumineuse (max 500 Mo)');
             return;
         }
 
+        // Si > 20MB, proposer la compression
+        if (file.size > MAX_BASE64_SIZE) {
+            pendingLargeFile = file;
+            videoData = {
+                file: file,
+                data: null,
+                preview: URL.createObjectURL(file),
+                name: file.name,
+                size: file.size,
+                mimeType: file.type,
+                needsCompression: true
+            };
+            switchTab('videos');
+            return;
+        }
+
+        // Pour les petits fichiers, lire en base64 directement
+        loadVideoAsBase64(file);
+    }
+
+    function loadVideoAsBase64(file) {
         const reader = new FileReader();
         reader.onload = (e) => {
             videoData = {
+                file: null,
                 data: e.target.result,
                 preview: URL.createObjectURL(file),
                 name: file.name,
                 size: file.size,
-                mimeType: file.type
+                mimeType: file.type,
+                needsCompression: false
             };
             switchTab('videos');
         };
         reader.readAsDataURL(file);
+    }
+
+    // Compression avec FFmpeg.wasm
+    async function compressVideo() {
+        if (!pendingLargeFile) return;
+
+        isCompressing = true;
+        compressionProgress = 0;
+        switchTab('videos');
+
+        try {
+            // Vérifier si SharedArrayBuffer est disponible (requis pour FFmpeg.wasm)
+            if (typeof SharedArrayBuffer === 'undefined') {
+                console.error('[Compression] SharedArrayBuffer non disponible. Headers COOP/COEP manquants.');
+                throw new Error('SharedArrayBuffer non disponible. La compression dans le navigateur nécessite des headers spéciaux. Utilise un outil externe.');
+            }
+            console.log('[Compression] SharedArrayBuffer disponible ✓');
+
+            // Charger FFmpeg.wasm dynamiquement
+            if (!window.FFmpeg) {
+                compressionProgress = 5;
+                switchTab('videos');
+                console.log('[Compression] Chargement des scripts FFmpeg...');
+
+                // Charger le script FFmpeg
+                await loadScript('https://unpkg.com/@ffmpeg/ffmpeg@0.12.7/dist/umd/ffmpeg.js');
+                await loadScript('https://unpkg.com/@ffmpeg/util@0.12.1/dist/umd/index.js');
+                console.log('[Compression] Scripts FFmpeg chargés ✓');
+            }
+
+            compressionProgress = 10;
+            switchTab('videos');
+
+            const { FFmpeg } = window.FFmpegWASM || window;
+            const { fetchFile } = window.FFmpegUtil || window;
+
+            const ffmpeg = new FFmpeg();
+
+            ffmpeg.on('progress', ({ progress }) => {
+                compressionProgress = 10 + Math.round(progress * 80); // 10-90%
+                updateCompressionUI();
+            });
+
+            compressionProgress = 15;
+            updateCompressionUI();
+
+            // Charger FFmpeg core
+            await ffmpeg.load({
+                coreURL: 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js',
+                wasmURL: 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.wasm',
+            });
+
+            compressionProgress = 20;
+            updateCompressionUI();
+
+            // Écrire le fichier en mémoire
+            const inputName = 'input' + getFileExtension(pendingLargeFile.name);
+            await ffmpeg.writeFile(inputName, await fetchFile(pendingLargeFile));
+
+            compressionProgress = 30;
+            updateCompressionUI();
+
+            // Compresser agressivement pour vidéos longues (1-2 min)
+            // CRF 32 = compression forte, 720p max, audio 96k
+            await ffmpeg.exec([
+                '-i', inputName,
+                '-c:v', 'libx264',
+                '-crf', '32',
+                '-preset', 'fast',
+                '-vf', 'scale=-2:720',  // Max 720p (suffisant pour analyse IA)
+                '-c:a', 'aac',
+                '-b:a', '96k',
+                '-movflags', '+faststart',
+                '-y',
+                'output.mp4'
+            ]);
+
+            compressionProgress = 90;
+            updateCompressionUI();
+
+            // Lire le résultat
+            const data = await ffmpeg.readFile('output.mp4');
+            const compressedBlob = new Blob([data.buffer], { type: 'video/mp4' });
+            const compressedFile = new File([compressedBlob], 'compressed_' + pendingLargeFile.name.replace(/\.[^.]+$/, '.mp4'), { type: 'video/mp4' });
+
+            compressionProgress = 95;
+            updateCompressionUI();
+
+            // Nettoyer
+            await ffmpeg.deleteFile(inputName);
+            await ffmpeg.deleteFile('output.mp4');
+
+            // Charger la vidéo compressée
+            const originalSize = pendingLargeFile.size;
+            pendingLargeFile = null;
+
+            if (compressedFile.size > MAX_BASE64_SIZE) {
+                alert(`La vidéo compressée fait encore ${(compressedFile.size / 1024 / 1024).toFixed(1)} Mo (max 20 Mo).\n\n💡 Solutions :\n• Coupe les parties inutiles de ta vidéo\n• Utilise clideo.com/compress-video pour plus de contrôle\n• Pour les vidéos très longues (>3 min), divise-les en plusieurs parties`);
+                isCompressing = false;
+                switchTab('videos');
+                return;
+            }
+
+            // Succès ! Charger en base64
+            loadVideoAsBase64(compressedFile);
+
+            const newSize = compressedFile.size;
+            const reduction = Math.round((1 - newSize / originalSize) * 100);
+            console.log(`[Compression] ${(originalSize/1024/1024).toFixed(1)} Mo → ${(newSize/1024/1024).toFixed(1)} Mo (-${reduction}%)`);
+
+        } catch (error) {
+            console.error('[Compression] Erreur:', error);
+            console.error('[Compression] Message:', error.message);
+            console.error('[Compression] Stack:', error.stack);
+
+            let errorMsg = 'Erreur lors de la compression.\n\n';
+            if (error.message?.includes('SharedArrayBuffer')) {
+                errorMsg += '⚠️ Ton navigateur ne supporte pas la compression dans le navigateur.\n\n';
+            } else {
+                errorMsg += `Détail: ${error.message || 'Erreur inconnue'}\n\n`;
+            }
+            errorMsg += '💡 Solutions :\n';
+            errorMsg += '1. Compresse ta vidéo avec clideo.com/compress-video\n';
+            errorMsg += '2. Ou utilise HandBrake (gratuit) pour compresser\n';
+            errorMsg += '3. Ou réduis la durée de ta vidéo (< 1 min idéalement)';
+
+            alert(errorMsg);
+        }
+
+        isCompressing = false;
+        compressionProgress = 0;
+        switchTab('videos');
+    }
+
+    function updateCompressionUI() {
+        const progressEl = document.querySelector('.compression-progress-bar');
+        if (progressEl) {
+            progressEl.style.width = compressionProgress + '%';
+        }
+        const percentEl = document.querySelector('.compression-percent');
+        if (percentEl) {
+            percentEl.textContent = compressionProgress + '%';
+        }
+    }
+
+    function getFileExtension(filename) {
+        return filename.slice(filename.lastIndexOf('.')).toLowerCase() || '.mp4';
+    }
+
+    function loadScript(src) {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = src;
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
+
+    function cancelCompression() {
+        pendingLargeFile = null;
+        videoData = null;
+        isCompressing = false;
+        compressionProgress = 0;
+        switchTab('videos');
     }
 
     function removeVideo() {
@@ -1998,7 +2984,141 @@ const AuditModule = (function() {
             URL.revokeObjectURL(videoData.preview);
         }
         videoData = null;
+        pendingLargeFile = null;
+        isCompressing = false;
+        compressionProgress = 0;
         switchTab('videos');
+    }
+
+    // Variable pour stocker la progression de l'upload
+    let uploadProgress = 0;
+
+    /**
+     * Met à jour uniquement l'UI de progression sans re-rendre toute la page
+     */
+    function updateUploadProgressUI(percent) {
+        uploadProgress = percent;
+
+        // Mettre à jour le texte du bouton
+        const runBtn = document.querySelector('.audit-run-btn');
+        if (runBtn) {
+            if (percent > 0 && percent < 100) {
+                runBtn.innerHTML = `<span class="loading-spinner"></span> Upload ${percent}%...`;
+            } else if (percent >= 100) {
+                runBtn.innerHTML = `<span class="loading-spinner"></span> Analyse en cours...`;
+            }
+        }
+
+        // Mettre à jour ou créer la barre de progression
+        let progressContainer = document.querySelector('.upload-progress');
+        if (percent > 0 && percent < 100) {
+            if (!progressContainer) {
+                // Créer la barre de progression si elle n'existe pas
+                const videoSection = document.querySelector('.video-upload-zone')?.parentElement;
+                if (videoSection) {
+                    progressContainer = document.createElement('div');
+                    progressContainer.className = 'upload-progress';
+                    progressContainer.style.marginTop = '10px';
+                    videoSection.appendChild(progressContainer);
+                }
+            }
+            if (progressContainer) {
+                progressContainer.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                        <span>📤 Upload en cours...</span>
+                        <span style="font-weight: bold;">${percent}%</span>
+                    </div>
+                    <div style="background: #e0e0e0; border-radius: 10px; height: 8px; overflow: hidden;">
+                        <div style="background: linear-gradient(90deg, #667eea, #764ba2); height: 100%; width: ${percent}%; transition: width 0.3s;"></div>
+                    </div>
+                `;
+            }
+        } else if (progressContainer && percent >= 100) {
+            // Upload terminé, changer le message
+            progressContainer.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span>✅ Upload terminé, analyse en cours...</span>
+                </div>
+            `;
+        }
+    }
+
+    /**
+     * Upload une vidéo vers Gemini File API avec progression
+     * @returns {Promise<string>} fileUri pour l'analyse
+     */
+    async function uploadVideoToGemini(file, onProgress) {
+        // Étape 1: Initier l'upload via le Worker
+        const initResponse = await fetch(CONFIG.API_URL + '/api/video-upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                mimeType: file.type,
+                displayName: file.name,
+                sizeBytes: file.size
+            })
+        });
+
+        if (!initResponse.ok) {
+            const error = await initResponse.json();
+            throw new Error(error.error || 'Erreur initialisation upload');
+        }
+
+        const { uploadUrl } = await initResponse.json();
+
+        // Étape 2: Upload direct vers Gemini avec progression
+        const uploadResult = await new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+
+            xhr.upload.onprogress = (e) => {
+                if (e.lengthComputable && onProgress) {
+                    const percent = Math.round((e.loaded / e.total) * 100);
+                    onProgress(percent);
+                }
+            };
+
+            xhr.onload = () => {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    try {
+                        resolve(JSON.parse(xhr.responseText));
+                    } catch {
+                        resolve({ raw: xhr.responseText });
+                    }
+                } else {
+                    reject(new Error(`Upload failed: ${xhr.status}`));
+                }
+            };
+
+            xhr.onerror = () => reject(new Error('Network error during upload'));
+
+            xhr.open('PUT', uploadUrl);
+            xhr.setRequestHeader('Content-Type', file.type);
+            xhr.setRequestHeader('X-Goog-Upload-Offset', '0');
+            xhr.setRequestHeader('X-Goog-Upload-Command', 'upload, finalize');
+            xhr.send(file);
+        });
+
+        // Extraire le fileName de la réponse
+        const fileName = uploadResult.file?.name || uploadResult.name;
+        if (!fileName) {
+            throw new Error('No file name returned from upload');
+        }
+
+        // Étape 3: Vérifier que le fichier est prêt
+        onProgress && onProgress(100);
+        const completeResponse = await fetch(CONFIG.API_URL + '/api/video-upload-complete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fileName })
+        });
+
+        if (!completeResponse.ok) {
+            const error = await completeResponse.json();
+            throw new Error(error.error || 'Erreur vérification fichier');
+        }
+
+        const fileInfo = await completeResponse.json();
+        return fileInfo.uri;
     }
 
     async function runVideoAudit() {
@@ -2014,21 +3134,45 @@ const AuditModule = (function() {
         }
 
         isAnalyzing = true;
+        uploadProgress = 0;
         switchTab('videos');
 
         try {
-            const response = await fetch(CONFIG.API_URL + '/audit-video', {
+            let analysisPayload;
+
+            console.log('[VideoAudit] videoData:', {
+                useFileAPI: videoData.useFileAPI,
+                hasFile: !!videoData.file,
+                hasData: !!videoData.data,
+                dataLength: videoData.data?.length || 0,
+                mimeType: videoData.mimeType,
+                size: videoData.size
+            });
+
+            // Envoi en base64 (vidéos < 20MB uniquement)
+            analysisPayload = {
+                platform: videoPlatform,
+                videoData: videoData.data,
+                videoMimeType: videoData.mimeType,
+                keywords: userKeywords
+            };
+
+            // Lancer l'analyse (timeout 5 min)
+            console.log('[VideoAudit] Sending request to API...', {
+                url: CONFIG.API_URL + '/audit-video',
+                payloadSize: JSON.stringify(analysisPayload).length,
+                platform: analysisPayload.platform
+            });
+
+            const response = await (window.fetchWithTimeout || fetch)(CONFIG.API_URL + '/audit-video', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    platform: videoPlatform,
-                    videoData: videoData.data,
-                    videoMimeType: videoData.mimeType,
-                    keywords: userKeywords
-                })
-            });
+                body: JSON.stringify(analysisPayload)
+            }, 300000);
+
+            console.log('[VideoAudit] Response received:', response.status);
 
             if (!response.ok) {
                 throw new Error('Erreur API: ' + response.status);
@@ -2046,21 +3190,40 @@ const AuditModule = (function() {
                 window.FreemiumSystem.incrementAuditVideo();
             }
 
+            // Sauvegarder dans l'historique
+            saveToHistory('video', videoResults, videoPlatform);
+
         } catch (error) {
             console.error('Erreur audit vidéo:', error);
+            let errorMessage = error.message || 'Erreur inconnue';
+
+            // Messages d'erreur plus clairs
+            if (error.name === 'AbortError' || errorMessage.includes('trop de temps')) {
+                errorMessage = 'L\'analyse a pris trop de temps. Réessaie ou utilise la compression automatique si ta vidéo est volumineuse.';
+            } else if (errorMessage.includes('NetworkError') || errorMessage.includes('Failed to fetch')) {
+                errorMessage = 'Erreur de connexion. Vérifie ta connexion internet et réessaie.';
+            } else if (errorMessage.includes('413') || errorMessage.includes('too large')) {
+                errorMessage = 'Vidéo trop volumineuse. Compresse-la avec un outil comme handbrake.fr ou clideo.com/compress-video';
+            }
+
             videoResults = {
                 error: true,
-                message: 'L\'analyse vidéo n\'est pas disponible. Vérifie que ta clé Gemini est configurée.'
+                message: errorMessage
             };
         }
 
         isAnalyzing = false;
+        uploadProgress = 0;
         switchTab('videos');
     }
 
     function resetVideoAudit() {
         videoResults = null;
         switchTab('videos');
+    }
+
+    function getUploadProgress() {
+        return uploadProgress;
     }
 
     // ============================================================
@@ -2070,6 +3233,8 @@ const AuditModule = (function() {
     return {
         openAuditModal,
         closeModal,
+        handleOverlayMouseDown,
+        handleOverlayMouseUp,
         switchTab,
         togglePlatform,
         selectPlatform,
@@ -2093,8 +3258,16 @@ const AuditModule = (function() {
         selectVideoPlatform,
         handleVideoUpload,
         removeVideo,
+        compressVideo,
+        cancelCompression,
         runVideoAudit,
-        resetVideoAudit
+        resetVideoAudit,
+        getUploadProgress,
+        // Historique
+        showHistory,
+        hideHistory,
+        loadFromHistory,
+        deleteFromHistory
     };
 
 })();

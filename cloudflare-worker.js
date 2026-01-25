@@ -8,10 +8,14 @@ const ALLOWED_ORIGINS = [
   'https://sos-storytelling.netlify.app',
   'https://sosstorytelling.fr',
   'https://www.sosstorytelling.fr',
+  'https://696eb5c50f18e4b602af5c7c--sos-storytelling.netlify.app',
   // Dev/test (à retirer en prod si besoin)
   'http://localhost:3000',
   'http://localhost:5173',
+  'http://localhost:8080',
+  'http://localhost:64035',
   'http://127.0.0.1:5500',
+  'http://127.0.0.1:8080',
   'null' // Pour tests locaux en file:// - À RETIRER EN PROD
 ];
 
@@ -146,6 +150,16 @@ export default {
       return handleSpintaxGenerator(request, env, corsHeaders);
     }
 
+    // ============ DEBUG ENDPOINT ============
+    if (url.pathname === '/debug-env') {
+      return jsonResponse({
+        GEMINI_API_KEY: env.GEMINI_API_KEY ? `SET (${env.GEMINI_API_KEY.length} chars)` : 'NOT SET',
+        ANTHROPIC_API_KEY: env.ANTHROPIC_API_KEY ? 'SET' : 'NOT SET',
+        SUPABASE_URL: env.SUPABASE_URL ? 'SET' : 'NOT SET',
+        timestamp: new Date().toISOString()
+      }, 200, corsHeaders);
+    }
+
     // ============ VISUAL AUDIT (Claude Vision) ============
     if (url.pathname === '/audit-visual' && request.method === 'POST') {
       return handleVisualAudit(request, env, corsHeaders);
@@ -154,6 +168,20 @@ export default {
     // ============ VIDEO AUDIT (Google Gemini) ============
     if (url.pathname === '/audit-video' && request.method === 'POST') {
       return handleVideoAudit(request, env, corsHeaders);
+    }
+
+    // ============ POST AUDIT (Claude AI) ============
+    if (url.pathname === '/audit-post' && request.method === 'POST') {
+      return handlePostAudit(request, env, corsHeaders);
+    }
+
+    // ============ VIDEO UPLOAD via Gemini File API ============
+    if (url.pathname === '/api/video-upload' && request.method === 'POST') {
+      return handleVideoUploadInit(request, env, corsHeaders);
+    }
+
+    if (url.pathname === '/api/video-upload-complete' && request.method === 'POST') {
+      return handleVideoUploadComplete(request, env, corsHeaders);
     }
 
     // ============ FRONTEND (AI calls - Claude & Perplexity) ============
@@ -2702,31 +2730,394 @@ Réponds UNIQUEMENT avec un JSON valide (sans markdown) dans ce format exact :
 }
 
 // ============================================================
-// VIDEO AUDIT - Analyse de Reels/vidéos avec Google Gemini
+// POST AUDIT - Analyse de posts avec Claude AI
 // ============================================================
 
-async function handleVideoAudit(request, env, corsHeaders) {
+async function handlePostAudit(request, env, corsHeaders) {
   try {
-    // Vérifier que la clé Gemini est configurée
+    const body = await request.json();
+    const { posts, keywords = [], userProfile = {} } = body;
+
+    if (!posts || !Array.isArray(posts) || posts.length === 0) {
+      return jsonResponse({ error: 'Posts array required' }, 400, corsHeaders);
+    }
+
+    if (!env.ANTHROPIC_API_KEY) {
+      return jsonResponse({ error: 'API key not configured' }, 500, corsHeaders);
+    }
+
+    // Construire le contexte utilisateur
+    const profileContext = [];
+    if (userProfile.domaine) profileContext.push(`Domaine d'expertise : ${userProfile.domaine}`);
+    if (userProfile.piliers?.length) profileContext.push(`Piliers de contenu : ${userProfile.piliers.join(', ')}`);
+    if (userProfile.tags) profileContext.push(`Tags/mots-clés : ${userProfile.tags}`);
+    if (userProfile.messageUnique) profileContext.push(`Message unique : ${userProfile.messageUnique}`);
+    if (userProfile.publicCible) profileContext.push(`Public cible : ${userProfile.publicCible}`);
+
+    const keywordsText = keywords.length > 0 ? `Mots-clés à vérifier : ${keywords.join(', ')}` : '';
+
+    // Construire le contenu pour Claude
+    const messageContent = [];
+
+    // Analyser chaque post
+    const postsText = posts.map((post, idx) => {
+      let postContent = `\n--- POST ${idx + 1} (${post.platform || 'linkedin'}) ---\n${post.content}`;
+      if (post.hasImages && post.imageCount > 0) {
+        postContent += `\n[${post.imageCount} image(s) attachée(s)${post.imageCount > 1 ? ' - Carrousel' : ''}]`;
+      }
+      return postContent;
+    }).join('\n');
+
+    // Ajouter les images des posts (support multi-images pour carrousels)
+    let totalImageCount = 0;
+    console.log('[audit-post] Processing images for', posts.length, 'posts');
+    for (const post of posts) {
+      const images = post.images || (post.image ? [post.image] : []);
+      console.log('[audit-post] Post has', images.length, 'images, hasImages:', post.hasImages, 'imageCount:', post.imageCount);
+      for (const imageData of images) {
+        if (totalImageCount >= 10) break; // Limite Claude à ~20 images, on en garde 10 max
+        if (typeof imageData !== 'string') {
+          console.log('[audit-post] Image data is not a string:', typeof imageData);
+          continue;
+        }
+        const imageMatch = imageData.match(/^data:(image\/\w+);base64,(.+)$/);
+        if (imageMatch) {
+          messageContent.push({
+            type: "image",
+            source: {
+              type: "base64",
+              media_type: imageMatch[1],
+              data: imageMatch[2]
+            }
+          });
+          totalImageCount++;
+          console.log('[audit-post] Added image', totalImageCount, 'type:', imageMatch[1]);
+        } else {
+          console.log('[audit-post] Image regex did not match, starts with:', imageData.substring(0, 50));
+        }
+      }
+    }
+    console.log('[audit-post] Total images added to request:', totalImageCount);
+
+    const analysisPrompt = `Tu es un expert en copywriting, personal branding et stratégie de contenu pour les réseaux sociaux.
+
+${profileContext.length > 0 ? `CONTEXTE UTILISATEUR :\n${profileContext.join('\n')}\n\n` : ''}${keywordsText ? keywordsText + '\n\n' : ''}
+
+Analyse ${posts.length > 1 ? 'ces posts' : 'ce post'} et fournis des conseils détaillés et actionnables :
+${postsText}
+
+${totalImageCount > 0 ? `\n⚠️ IMPORTANT - ANALYSE DES IMAGES ⚠️
+${totalImageCount} image(s) sont jointes à cette requête. Tu DOIS les analyser visuellement.
+Pour chaque image, tu DOIS :
+1. DÉCRIRE précisément ce que tu VOIS dans l'image (sujet, couleurs, style, texte visible, etc.)
+2. Évaluer si l'image est en COHÉRENCE avec le texte du post
+3. Signaler si les images d'un carrousel sont INCOHÉRENTES entre elles (sujets différents, styles différents)
+4. Donner un score HONNÊTE - si les images n'ont rien à voir avec le texte ou entre elles, le score doit être BAS
+
+NE PAS supposer que les images sont pertinentes. REGARDE-LES vraiment et décris ce que tu vois.` : ''}
+
+Pour chaque post, analyse :
+1. **Accroche** - Les 2-3 premières lignes captent-elles l'attention ? Propose une version améliorée.
+2. **Structure** - Le post est-il bien aéré et scannable ? Suggère des améliorations.
+3. **CTA (Call-to-Action)** - Y a-t-il un appel à l'action clair ? Propose des alternatives.
+4. **Cohérence** - Le post correspond-il aux mots-clés/domaine de l'utilisateur ?
+5. **Émotion & Storytelling** - Le post crée-t-il une connexion émotionnelle ? Comment l'améliorer ?
+6. **Promesse** - Le bénéfice pour le lecteur est-il clair ? Clarifie-le.
+${totalImageCount > 0 ? '7. **Visuels** - DÉCRIS ce que tu vois dans chaque image, puis analyse : pertinence avec le texte, cohérence entre les images du carrousel, qualité visuelle. Si les images n\'ont rien à voir entre elles ou avec le texte, DIS-LE clairement.' : ''}
+
+Réponds UNIQUEMENT avec un JSON valide (sans markdown) :
+{
+  "posts": [
+    {
+      "postIndex": 0,
+      "scores": {
+        "hook": <0-100>,
+        "structure": <0-100>,
+        "cta": <0-100>,
+        "coherence": <0-100>,
+        "emotion": <0-100>,
+        "promise": <0-100>,
+        "image": <0-100 ou null si pas d'image>,
+        "global": <moyenne pondérée>
+      },
+      "analysis": {
+        "hook": { "feedback": "<analyse>", "improved": "<version améliorée de l'accroche>" },
+        "structure": { "feedback": "<analyse>", "suggestion": "<conseil>" },
+        "cta": { "feedback": "<analyse>", "alternatives": ["<CTA 1>", "<CTA 2>"] },
+        "coherence": { "feedback": "<analyse>", "foundKeywords": ["<mot1>"], "missingKeywords": ["<mot2>"] },
+        "emotion": { "feedback": "<analyse>", "suggestion": "<conseil pour plus d'émotion>" },
+        "promise": { "feedback": "<analyse>", "clearer": "<promesse clarifiée>" }${totalImageCount > 0 ? ',\n        "image": { "description": "<DÉCRIS précisément ce que tu VOIS dans chaque image: sujet, couleurs, texte, style>", "coherenceWithText": "<les images sont-elles en rapport avec le texte du post? Explique>", "coherenceBetweenImages": "<si carrousel: les images forment-elles un ensemble cohérent ou sont-elles disparates?>", "feedback": "<ton analyse globale>", "suggestion": "<conseil d\'amélioration>" }' : ''}
+      },
+      "summary": "<résumé en 1-2 phrases>",
+      "topPriority": "<l'amélioration la plus importante à faire>"
+    }
+  ],
+  "globalRecommendations": [
+    "<recommandation générale 1>",
+    "<recommandation générale 2>",
+    "<recommandation générale 3>"
+  ],
+  "patterns": {
+    "strengths": ["<point fort récurrent>"],
+    "weaknesses": ["<point à améliorer récurrent>"]
+  }
+}`;
+
+    messageContent.push({
+      type: "text",
+      text: analysisPrompt
+    });
+
+    // Appel Claude API
+    const claudeResponse = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": env.ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01"
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 4000,
+        messages: [{
+          role: "user",
+          content: messageContent
+        }]
+      })
+    });
+
+    if (!claudeResponse.ok) {
+      const errorText = await claudeResponse.text();
+      console.error('Claude Post Audit Error:', errorText);
+      return jsonResponse({ error: 'Erreur analyse IA' }, 503, corsHeaders);
+    }
+
+    const data = await claudeResponse.json();
+    const responseText = data.content[0].text;
+
+    // Parser le JSON de la réponse
+    let auditResult;
+    try {
+      const cleanedText = responseText
+        .replace(/```json\n?/g, '')
+        .replace(/```\n?/g, '')
+        .trim();
+      auditResult = JSON.parse(cleanedText);
+    } catch (parseError) {
+      console.error('JSON Parse Error:', parseError, responseText);
+      auditResult = {
+        posts: posts.map((_, idx) => ({
+          postIndex: idx,
+          scores: { global: 70 },
+          analysis: {},
+          summary: "Analyse partielle - voir les détails",
+          topPriority: "Améliore ton accroche"
+        })),
+        globalRecommendations: ["Travaille tes accroches", "Ajoute des CTA clairs", "Inclus du storytelling"],
+        rawResponse: responseText.substring(0, 1000)
+      };
+    }
+
+    return jsonResponse({
+      success: true,
+      ...auditResult,
+      usage: {
+        input_tokens: data.usage?.input_tokens || 0,
+        output_tokens: data.usage?.output_tokens || 0
+      }
+    }, 200, corsHeaders);
+
+  } catch (error) {
+    console.error('Post Audit Error:', error);
+    return jsonResponse({ error: 'Erreur interne' }, 500, corsHeaders);
+  }
+}
+
+// ============================================================
+// VIDEO UPLOAD - Gemini File API (supports up to 2GB)
+// ============================================================
+
+/**
+ * POST /api/video-upload
+ * Initialise un upload resumable vers Gemini File API
+ * Input: { mimeType: "video/mp4", displayName: "video.mp4", sizeBytes: 12345678 }
+ * Output: { uploadUrl: "https://...", fileUri: "files/..." }
+ */
+async function handleVideoUploadInit(request, env, corsHeaders) {
+  try {
     if (!env.GEMINI_API_KEY) {
       return jsonResponse({ error: 'Gemini API key not configured' }, 500, corsHeaders);
     }
 
     const body = await request.json();
-    const { platform, videoData, videoMimeType = 'video/mp4', keywords = [] } = body;
+    const { mimeType, displayName, sizeBytes } = body;
 
-    if (!videoData) {
-      return jsonResponse({ error: 'Video data required' }, 400, corsHeaders);
+    if (!mimeType || !sizeBytes) {
+      return jsonResponse({ error: 'mimeType and sizeBytes required' }, 400, corsHeaders);
     }
 
-    // Extraire les données base64 si format data URL
-    let base64Data = videoData;
-    let mimeType = videoMimeType;
+    // Vérifier la taille max (2GB)
+    if (sizeBytes > 2 * 1024 * 1024 * 1024) {
+      return jsonResponse({ error: 'File too large (max 2GB)' }, 400, corsHeaders);
+    }
 
-    const dataUrlMatch = videoData.match(/^data:(video\/\w+);base64,(.+)$/);
-    if (dataUrlMatch) {
-      mimeType = dataUrlMatch[1];
-      base64Data = dataUrlMatch[2];
+    // Créer une session d'upload resumable via Gemini File API
+    const initResponse = await fetch(
+      `https://generativelanguage.googleapis.com/upload/v1beta/files?key=${env.GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Upload-Protocol': 'resumable',
+          'X-Goog-Upload-Command': 'start',
+          'X-Goog-Upload-Header-Content-Length': sizeBytes.toString(),
+          'X-Goog-Upload-Header-Content-Type': mimeType
+        },
+        body: JSON.stringify({
+          file: {
+            display_name: displayName || 'video-upload'
+          }
+        })
+      }
+    );
+
+    if (!initResponse.ok) {
+      const errorText = await initResponse.text();
+      console.error('Gemini Upload Init Error:', errorText);
+      return jsonResponse({ error: 'Failed to initialize upload', details: errorText }, 503, corsHeaders);
+    }
+
+    // Récupérer l'URL d'upload depuis les headers
+    const uploadUrl = initResponse.headers.get('X-Goog-Upload-URL');
+
+    if (!uploadUrl) {
+      return jsonResponse({ error: 'No upload URL returned from Gemini' }, 500, corsHeaders);
+    }
+
+    return jsonResponse({
+      uploadUrl,
+      message: 'Upload initialized. Send video data directly to uploadUrl.'
+    }, 200, corsHeaders);
+
+  } catch (error) {
+    console.error('Video Upload Init Error:', error);
+    return jsonResponse({ error: 'Internal error', details: error.message }, 500, corsHeaders);
+  }
+}
+
+/**
+ * POST /api/video-upload-complete
+ * Vérifie qu'un fichier uploadé est prêt pour l'analyse
+ * Input: { fileName: "files/abc123" }
+ * Output: { status: "ACTIVE", uri: "files/abc123", name: "files/abc123" }
+ */
+async function handleVideoUploadComplete(request, env, corsHeaders) {
+  try {
+    if (!env.GEMINI_API_KEY) {
+      return jsonResponse({ error: 'Gemini API key not configured' }, 500, corsHeaders);
+    }
+
+    const body = await request.json();
+    const { fileName } = body;
+
+    if (!fileName) {
+      return jsonResponse({ error: 'fileName required' }, 400, corsHeaders);
+    }
+
+    // Polling pour vérifier le statut du fichier
+    const maxAttempts = 30;
+    const delayMs = 2000;
+
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const statusResponse = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/${fileName}?key=${env.GEMINI_API_KEY}`,
+        { method: 'GET' }
+      );
+
+      if (!statusResponse.ok) {
+        const errorText = await statusResponse.text();
+        console.error('Gemini File Status Error:', errorText);
+        return jsonResponse({ error: 'Failed to check file status', details: errorText }, 503, corsHeaders);
+      }
+
+      const fileInfo = await statusResponse.json();
+
+      if (fileInfo.state === 'ACTIVE') {
+        return jsonResponse({
+          status: 'ACTIVE',
+          uri: fileInfo.uri,
+          name: fileInfo.name,
+          mimeType: fileInfo.mimeType,
+          sizeBytes: fileInfo.sizeBytes
+        }, 200, corsHeaders);
+      }
+
+      if (fileInfo.state === 'FAILED') {
+        return jsonResponse({ error: 'File processing failed', state: fileInfo.state }, 500, corsHeaders);
+      }
+
+      // Attendre avant le prochain check (state = PROCESSING)
+      await new Promise(resolve => setTimeout(resolve, delayMs));
+    }
+
+    return jsonResponse({ error: 'File processing timeout' }, 504, corsHeaders);
+
+  } catch (error) {
+    console.error('Video Upload Complete Error:', error);
+    return jsonResponse({ error: 'Internal error', details: error.message }, 500, corsHeaders);
+  }
+}
+
+// ============================================================
+// VIDEO AUDIT - Analyse de Reels/vidéos avec Google Gemini
+// ============================================================
+
+async function handleVideoAudit(request, env, corsHeaders) {
+  console.log('[VideoAudit] Starting video audit...');
+  try {
+    // Vérifier que la clé Gemini est configurée
+    if (!env.GEMINI_API_KEY) {
+      console.log('[VideoAudit] ERROR: Gemini API key not configured');
+      return jsonResponse({ error: 'Gemini API key not configured' }, 500, corsHeaders);
+    }
+
+    const body = await request.json();
+    const { platform, videoData, videoMimeType = 'video/mp4', keywords = [], fileUri } = body;
+    console.log(`[VideoAudit] Platform: ${platform}, Has videoData: ${!!videoData}, VideoData length: ${videoData?.length || 0}, Has fileUri: ${!!fileUri}`);
+
+    // Accepter soit fileUri (Gemini File API) soit videoData (base64)
+    if (!videoData && !fileUri) {
+      return jsonResponse({ error: 'Video data or fileUri required' }, 400, corsHeaders);
+    }
+
+    // Préparer la partie vidéo pour Gemini
+    let videoPart;
+
+    if (fileUri) {
+      // Nouveau flux : utiliser le fichier uploadé via Gemini File API
+      videoPart = {
+        file_data: {
+          mime_type: videoMimeType,
+          file_uri: fileUri
+        }
+      };
+    } else {
+      // Ancien flux : base64 (rétrocompatibilité)
+      let base64Data = videoData;
+      let mimeType = videoMimeType;
+
+      const dataUrlMatch = videoData.match(/^data:(video\/\w+);base64,(.+)$/);
+      if (dataUrlMatch) {
+        mimeType = dataUrlMatch[1];
+        base64Data = dataUrlMatch[2];
+      }
+
+      videoPart = {
+        inline_data: {
+          mime_type: mimeType,
+          data: base64Data
+        }
+      };
     }
 
     // Noms des plateformes
@@ -2781,6 +3172,7 @@ Réponds UNIQUEMENT avec un JSON valide (sans markdown) dans ce format exact :
 }`;
 
     // Appel Gemini API avec la vidéo
+    console.log('[VideoAudit] Calling Gemini API...');
     const geminiResponse = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${env.GEMINI_API_KEY}`,
       {
@@ -2791,12 +3183,7 @@ Réponds UNIQUEMENT avec un JSON valide (sans markdown) dans ce format exact :
         body: JSON.stringify({
           contents: [{
             parts: [
-              {
-                inline_data: {
-                  mime_type: mimeType,
-                  data: base64Data
-                }
-              },
+              videoPart,
               {
                 text: videoAnalysisPrompt
               }
@@ -2810,13 +3197,15 @@ Réponds UNIQUEMENT avec un JSON valide (sans markdown) dans ce format exact :
       }
     );
 
+    console.log(`[VideoAudit] Gemini responded with status: ${geminiResponse.status}`);
     if (!geminiResponse.ok) {
       const errorText = await geminiResponse.text();
-      console.error('Gemini API Error:', errorText);
+      console.error('[VideoAudit] Gemini API Error:', errorText);
       return jsonResponse({ error: 'Erreur analyse vidéo', details: errorText }, 503, corsHeaders);
     }
 
     const geminiData = await geminiResponse.json();
+    console.log('[VideoAudit] Gemini response received, parsing...');
 
     // Extraire le texte de la réponse Gemini
     const responseText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;

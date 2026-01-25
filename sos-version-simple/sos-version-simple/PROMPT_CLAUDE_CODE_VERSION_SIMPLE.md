@@ -241,7 +241,7 @@ Génère un ${contentType} pour ${platform} sur le sujet suivant :
 RÈGLES :
 - Utilise SON ton, ses expressions, son style
 - Parle directement à son audience
-- Sois concret et actionnable
+- Sois concret et actionnable : inclus toujours 1-2 pistes d'action concrètes (mini-checklist, exemple à copier, phrase prête à l'emploi)
 - Accroche qui stoppe le scroll
 - Pas de jargon marketing générique
 - Pas d'emojis excessifs (max 2-3)

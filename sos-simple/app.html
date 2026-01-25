@@ -792,6 +792,45 @@
                     };
                 }
                 this.show();
+                // Pré-remplir les champs avec les données existantes
+                this.populateForm();
+            },
+
+            populateForm: function() {
+                // Pré-remplir les textes sources (étape 2)
+                if (this.data.source_texts) {
+                    document.getElementById('sourceTexts').value = this.data.source_texts;
+                }
+                // Pré-remplir le prénom (étape 3)
+                if (this.data.user_name) {
+                    document.getElementById('userName').value = this.data.user_name;
+                }
+                // Pré-remplir le pain point (étape 3)
+                if (this.data.audience_pain_point) {
+                    document.getElementById('painPoint').value = this.data.audience_pain_point;
+                }
+                // Pré-sélectionner le type de contenu (étape 1)
+                if (this.data.primary_content_type) {
+                    const objectifCards = document.querySelectorAll('#objectifChoices .choice-card');
+                    objectifCards.forEach(card => {
+                        card.classList.remove('selected');
+                        if (card.dataset.value === this.data.primary_content_type) {
+                            card.classList.add('selected');
+                            card.querySelector('input').checked = true;
+                        }
+                    });
+                }
+                // Pré-sélectionner l'audience (étape 3)
+                if (this.data.default_audience) {
+                    const audienceCards = document.querySelectorAll('#audienceChoices .choice-card');
+                    audienceCards.forEach(card => {
+                        card.classList.remove('selected');
+                        if (card.dataset.value === this.data.default_audience) {
+                            card.classList.add('selected');
+                            card.querySelector('input').checked = true;
+                        }
+                    });
+                }
             },
 
             getHTML: function() {
@@ -1208,7 +1247,7 @@ Génère un ${contentTypeMap[currentContentType]} sur le sujet suivant :
 RÈGLES ABSOLUES :
 - Utilise SON ton, ses expressions, son style
 - Parle directement à son audience
-- Sois concret et actionnable
+- Sois concret et actionnable : inclus toujours 1-2 pistes d'action concrètes (mini-checklist, exemple à copier, phrase prête à l'emploi)
 - Accroche qui stoppe le scroll
 - Pas de jargon marketing générique
 - Pas d'emojis excessifs (max 2-3)

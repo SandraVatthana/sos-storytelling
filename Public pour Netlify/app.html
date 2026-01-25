@@ -18,8 +18,10 @@
     <script src="organization-loader.js"></script>
     <link rel="stylesheet" href="agent-styles.css?v=20241205d">
     <link rel="stylesheet" href="missions-styles.css?v=20241230">
+    <!-- DÉSACTIVÉ - Modules email (conservés pour plus tard)
     <link rel="stylesheet" href="inbox-styles.css?v=20260102b">
     <link rel="stylesheet" href="sender-emails-styles.css?v=20260109">
+    -->
     <link rel="stylesheet" href="collaboration-styles.css?v=20260107">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -293,6 +295,197 @@
         .audit-close-btn:hover {
             color: #333;
         }
+
+        /* Header actions */
+        .audit-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .audit-history-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .audit-history-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Historique des audits */
+        .audit-history-empty {
+            padding: 60px 20px;
+            text-align: center;
+            color: #666;
+        }
+        .audit-history-empty .empty-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        .audit-history-empty h3 {
+            margin: 0 0 10px;
+            color: #333;
+        }
+        .audit-history-empty p {
+            margin: 0 0 25px;
+            color: #888;
+        }
+        .audit-history-view {
+            padding: 20px;
+        }
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .history-header h3 {
+            margin: 0;
+            color: #333;
+        }
+        .audit-btn-secondary {
+            background: #f1f3f5;
+            color: #333;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .audit-btn-secondary:hover {
+            background: #e9ecef;
+        }
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .history-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .history-item:hover {
+            background: white;
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .history-item-left {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .history-type-badge {
+            font-size: 0.8em;
+            background: #e9ecef;
+            padding: 3px 8px;
+            border-radius: 6px;
+            color: #495057;
+            font-weight: 500;
+        }
+        .history-platform {
+            font-size: 0.75em;
+            color: #888;
+        }
+        .history-item-center {
+            flex: 1;
+            padding: 0 20px;
+            text-align: center;
+        }
+        .history-score {
+            font-size: 1.4em;
+            font-weight: 700;
+        }
+        .history-summary {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 3px;
+        }
+        .history-item-right {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 3px;
+        }
+        .history-date {
+            font-size: 0.8em;
+            color: #666;
+        }
+        .history-time {
+            font-size: 0.7em;
+            color: #999;
+        }
+        .history-delete-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9em;
+            opacity: 0.4;
+            transition: opacity 0.2s;
+            padding: 4px;
+        }
+        .history-delete-btn:hover {
+            opacity: 1;
+        }
+
+        /* Responsive - Historique des audits */
+        @media (max-width: 600px) {
+            .audit-header-actions {
+                gap: 8px;
+            }
+            .audit-history-btn {
+                padding: 6px 10px;
+                font-size: 0.75em;
+            }
+            .history-item {
+                flex-direction: column;
+                gap: 12px;
+                align-items: stretch;
+                text-align: center;
+            }
+            .history-item-left {
+                flex-direction: row;
+                justify-content: center;
+                gap: 10px;
+            }
+            .history-item-center {
+                padding: 0;
+            }
+            .history-item-right {
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+                gap: 15px;
+            }
+            .history-delete-btn {
+                opacity: 0.6;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .audit-modal-header h2 {
+                font-size: 1.1em;
+            }
+            .audit-history-btn {
+                padding: 5px 8px;
+                font-size: 0.7em;
+            }
+        }
+
         .audit-tabs {
             display: flex;
             border-bottom: 1px solid #eee;
@@ -1116,6 +1309,40 @@
             .screenshot-upload-zone {
                 padding: 20px;
                 min-height: 120px;
+            }
+            /* Audit Modal - Mobile */
+            .audit-modal {
+                border-radius: 15px;
+                max-height: 95vh;
+            }
+            .audit-modal-overlay {
+                padding: 10px;
+            }
+            .audit-modal-header {
+                padding: 15px;
+            }
+            .audit-modal-header h2 {
+                font-size: 1em;
+            }
+            .audit-tabs {
+                top: 50px;
+            }
+            .audit-tab {
+                padding: 10px 8px;
+                font-size: 0.8em;
+            }
+            .audit-content {
+                padding: 15px;
+            }
+            .audit-score-global {
+                padding: 20px 15px;
+            }
+            .score-circle {
+                width: 80px;
+                height: 80px;
+            }
+            .score-value {
+                font-size: 1.8em;
             }
         }
 
@@ -2544,18 +2771,69 @@
         .creation-mode-card:not(.active) .mode-card-desc {
             color: #666;
         }
-        /* Anecdote inline dans le mode 20 jours */
-        .anecdote-inline {
+        /* Template éditable dans le mode 20 jours */
+        .editable-template {
             margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px dashed #38ef7d;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8fff8, #f0fff4);
+            border: 2px solid #38ef7d;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.95em;
+            line-height: 1.8;
+            white-space: pre-wrap;
         }
-        .anecdote-inline-label {
+        .editable-template-label {
             display: block;
             font-size: 0.9em;
             font-weight: 600;
             color: #333;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
+        }
+        .editable-template-hint {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 10px 12px;
+            background: #fff3cd;
+            border-radius: 8px;
+            font-size: 0.85em;
+            color: #856404;
+        }
+        /* Placeholders éditables */
+        .template-placeholder {
+            display: inline;
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            color: #e65100;
+            padding: 2px 8px;
+            border-radius: 6px;
+            border: 1px dashed #ff9800;
+            cursor: text;
+            min-width: 100px;
+            transition: all 0.2s;
+        }
+        .template-placeholder:hover {
+            background: linear-gradient(135deg, #ffe0b2, #ffcc80);
+            border-color: #f57c00;
+        }
+        .template-placeholder:focus {
+            outline: none;
+            background: white;
+            border: 2px solid #f57c00;
+            box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.2);
+        }
+        .template-placeholder.edited {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            color: #2e7d32;
+            border-color: #4caf50;
+            border-style: solid;
+        }
+        .template-placeholder::before {
+            content: none;
+        }
+        .template-static {
+            color: #555;
         }
         @media (max-width: 500px) {
             .creation-mode-cards {
@@ -3524,6 +3802,14 @@
         .modal { background: white; border-radius: 20px; padding: 30px; max-width: 600px; width: 100%; max-height: 80vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .modal-title { font-size: 1.5em; font-weight: 700; color: #333; }
+
+        /* Modal - Responsive */
+        @media (max-width: 600px) {
+            .modal-overlay { padding: 10px; }
+            .modal { padding: 20px; border-radius: 15px; max-height: 90vh; }
+            .modal-title { font-size: 1.2em; }
+            .modal-header { margin-bottom: 15px; }
+        }
         .modal-title .info-tooltip {
             font-size: 0.6em;
             cursor: help;
@@ -3779,6 +4065,25 @@
         .newsletter-toast.fade-out { animation: toastOut 0.3s forwards; }
         @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
         @keyframes toastOut { to { opacity: 0; transform: translateX(-50%) translateY(20px); } }
+
+        /* Newsletter Module - Responsive */
+        @media (max-width: 600px) {
+            .newsletter-container { padding: 15px; }
+            .newsletter-main-title { font-size: 1.2em; }
+            .step-content { padding: 18px; }
+            .step-title { font-size: 1.1em; }
+            .progress-steps { gap: 5px; }
+            .progress-step .step-label { font-size: 0.65em; }
+            .type-grid, .structure-grid { grid-template-columns: 1fr; }
+            .type-card, .structure-card { padding: 15px; }
+            .tone-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .tone-card { padding: 12px; }
+            .newsletter-nav { flex-direction: column; gap: 10px; }
+            .newsletter-nav .btn-primary,
+            .newsletter-nav .btn-secondary { width: 100%; text-align: center; }
+            .newsletter-toast { left: 15px; right: 15px; transform: none; }
+        }
+
         .newsletter-loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center; z-index: 10000; }
         .copy-btn { padding: 5px 10px; background: #3b82f6; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.8em; }
         .copy-btn:hover { background: #2563eb; }
@@ -4529,7 +4834,9 @@
             console.log('✅ Utilisateur connecté:', window.currentUser.email, '| Trial:', trialDaysLeft, 'jours restants');
         })();
     </script>
+    <!-- DÉSACTIVÉ - Module newsletter (conservé pour plus tard)
     <link rel="stylesheet" href="newsletter-styles.css">
+    -->
 </head>
 <body>
     <!-- Logo Base64 stocké -->
@@ -4554,7 +4861,7 @@
                 </div>
             </div>
 
-            <!-- Dropdown Newsletters -->
+            <!-- DÉSACTIVÉ - Dropdown Newsletters (conservé pour plus tard)
             <div class="header-dropdown">
                 <button class="btn btn-newsletter dropdown-toggle" onclick="toggleDropdown('newsletterDropdown')">
                     📬 <span data-i18n="menu.newsletters">Newsletters</span> <span class="dropdown-arrow">▼</span>
@@ -4565,8 +4872,9 @@
                     <a class="dropdown-item" onclick="closeDropdowns(); showNewsletterHistory()">📋 <span>Mes newsletters</span></a>
                 </div>
             </div>
+            -->
 
-            <!-- Dropdown Prospection Email -->
+            <!-- DÉSACTIVÉ - Dropdown Prospection Email (conservé pour plus tard)
             <div class="header-dropdown">
                 <button class="btn btn-outreach dropdown-toggle" onclick="toggleDropdown('prospectionDropdown')" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
                     🎯 <span data-i18n="menu.prospection">Prospection Email</span> <span class="dropdown-arrow">▼</span>
@@ -4582,6 +4890,7 @@
                     <a class="dropdown-item" onclick="closeDropdowns(); showReportsModal()" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 8px; margin-top: 4px;">📊 Rapports & Analytics</a>
                 </div>
             </div>
+            -->
 
             <!-- Dropdown Dashboard -->
             <div class="header-dropdown">
@@ -4605,6 +4914,7 @@
                     <a class="dropdown-item" onclick="closeDropdowns(); Onboarding.forceShow()">👤 <span data-i18n="menu.my_profile">Mon profil</span></a>
                     <a class="dropdown-item" onclick="closeDropdowns(); showVoiceModal()">🎤 <span data-i18n="menu.my_voice">Mon Style</span></a>
                     <a class="dropdown-item" id="teamManagementBtn" onclick="closeDropdowns(); CollaborationModule.showTeamModal()" style="display: none; background: linear-gradient(135deg, #11998e, #38ef7d); color: white; margin-top: 8px; border-radius: 8px;">👥 <span data-i18n="menu.team">Mon équipe</span></a>
+                    <a class="dropdown-item" onclick="closeDropdowns(); showPromoModal()">🎁 <span data-i18n="menu.promo_code">Code promo</span></a>
                     <a class="dropdown-item" href="account.html">💎 <span data-i18n="menu.subscription">Mon abonnement</span></a>
                     <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 8px 0;"></div>
                     <a class="dropdown-item" onclick="closeDropdowns(); handleLogout()" style="color: #ff6b6b;">🚪 <span data-i18n="menu.logout">Déconnexion</span></a>
@@ -4751,7 +5061,7 @@
                     </div>
                 </div>
 
-                <!-- MODE 2 : EMAILS & NEWSLETTERS -->
+                <!-- DÉSACTIVÉ - MODE 2 : EMAILS & NEWSLETTERS (conservé pour plus tard)
                 <div class="mode-card mode-emails" onclick="handleModeClick(this, 'emails')">
                     <div class="mode-emoji">📧</div>
                     <div class="mode-main">
@@ -4766,8 +5076,9 @@
                         </svg>
                     </div>
                 </div>
+                -->
 
-                <!-- MODE 3 : AUDIT RS -->
+                <!-- MODE 2 : AUDIT RS -->
                 <div class="mode-card mode-audit" onclick="AuditModule.openAuditModal()">
                     <div class="mode-emoji">📊</div>
                     <div class="mode-main">
@@ -5869,6 +6180,39 @@
                 <p style="margin-top: 20px; font-size: 0.8em; color: #999;">
                     🔒 Paiement sécurisé • Sans engagement • Annulation à tout moment
                 </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Code Promo -->
+    <div class="modal-overlay" id="promoCodeModal">
+        <div class="modal" style="max-width: 450px; text-align: center;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #10b981, #059669); flex-direction: column; padding: 25px;">
+                <h2 style="color: white; margin: 0; font-size: 1.3em;">🎁 Code d'activation</h2>
+                <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 0.9em;">Entre ton code bêta-testeur ou partenaire</p>
+            </div>
+            <div style="padding: 30px;">
+                <div style="margin-bottom: 20px;">
+                    <input type="text"
+                           id="promoCodeInput"
+                           placeholder="Ex: BETA2024"
+                           style="width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 1.1em; text-align: center; text-transform: uppercase; font-weight: 600; letter-spacing: 2px;"
+                           onkeypress="if(event.key === 'Enter') validatePromoCode()">
+                </div>
+
+                <div id="promoCodeResult" style="margin-bottom: 20px; min-height: 50px;"></div>
+
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <button onclick="validatePromoCode()"
+                            class="btn-primary"
+                            style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 14px 30px; border: none; border-radius: 12px; font-weight: 600; font-size: 1em; cursor: pointer;">
+                        ✓ Valider le code
+                    </button>
+                    <button onclick="closePromoModal()"
+                            style="background: none; border: none; color: #999; cursor: pointer; padding: 10px; font-size: 0.9em;">
+                        Annuler
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -10366,7 +10710,14 @@ ${persona.vocabulary.join(', ')}
         // ==================== SYSTÈME AGENCE ====================
         const AgencySystem = {
             KEY: 'tithot_agency',
-            SECRET_CODE: 'AGENCY2025', // ← Code à changer quand tu veux
+            // Hash du code (pour ne pas exposer le code en clair)
+            // Pour changer le code: dans la console, faire: btoa('NOUVEAU_CODE')
+            _codeHash: 'QUdFTkNZMjAyNQ==', // base64 de 'AGENCY2025'
+
+            _validateCode(input) {
+                // Comparer le hash du input avec le hash stocké
+                return btoa(input) === this._codeHash;
+            },
             
             getDefault() {
                 return {
@@ -10450,7 +10801,7 @@ ${persona.vocabulary.join(', ')}
             
             validateCode() {
                 const input = document.getElementById('agencyCodeInput').value.trim().toUpperCase();
-                if (input === this.SECRET_CODE) {
+                if (this._validateCode(input)) {
                     this.toggleAgencyMode(true);
                     this.closeUnlockModal();
                     document.getElementById('statsModal').classList.remove('show');
@@ -11806,6 +12157,17 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
             }
         };
 
+        // ==================== SÉCURITÉ XSS ====================
+        // Fonction pour échapper les caractères HTML dangereux
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        // Exposer globalement
+        window.escapeHtml = escapeHtml;
+
         // ==================== ÉTAT DE L'APPLICATION ====================
         let currentState = { structure: 'aida', format: 'post', platform: 'linkedin', tone: 'default', idea: '', generatedContent: '', ideasContent: '', currentPillar: null, pubPlatform: 'meta', pubObjective: 'conversion', strategyMode: false, strategyDay: null, strategyType: 'vendre' };
 
@@ -11815,182 +12177,249 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
             1: {
                 title: "Dégommer une objection client",
                 objective: "Lever les freins à l'achat",
-                questions: [
-                    "Quelle objection entends-tu le plus souvent ? (\"C'est trop cher\", \"J'ai pas le temps\", \"Je peux le faire seul\"...)",
-                    "Pourquoi cette objection est-elle infondée ou mal posée ?",
-                    "Quel client a eu cette objection puis a changé d'avis ? Qu'est-ce qui l'a convaincu ?"
-                ]
+                template: `L'objection que j'entends le plus souvent : {ex: "C'est trop cher" ou "J'ai pas le temps"}
+
+Pourquoi cette objection est infondée : {explique pourquoi c'est une fausse croyance}
+
+Un client qui avait cette objection : {prénom ou description du client}
+Ce qui l'a fait changer d'avis : {le déclic, l'argument, le résultat qu'il a obtenu}
+
+Mon offre : {ton service/produit concerné}`
             },
             2: {
                 title: "Opinion impopulaire / Controverse",
                 objective: "Te positionner, créer le débat",
-                questions: [
-                    "Quelle pratique courante dans ton secteur te fait lever les yeux au ciel ?",
-                    "Quelle \"vérité\" tout le monde répète mais qui est fausse selon ton expérience ?",
-                    "Qu'est-ce que tu fais différemment et qui choque parfois ?"
-                ]
+                template: `La pratique courante qui m'énerve dans mon secteur : {ex: "les promesses de résultats en 30 jours"}
+
+La "vérité" que tout le monde répète mais qui est fausse : {le mythe à déconstruire}
+
+Ce que je fais différemment (et qui choque parfois) : {ta méthode, ton approche}
+
+Mon offre : {ton service/produit}`
             },
             3: {
                 title: "Ce que j'aurais aimé savoir avant",
                 objective: "Créer de l'identification",
-                questions: [
-                    "Quelle erreur as-tu faite au début par ignorance ?",
-                    "Quel conseil t'aurait fait gagner 6 mois ou éviter une galère ?",
-                    "Quelle croyance limitante avais-tu qui s'est révélée fausse ?"
-                ]
+                template: `L'erreur que j'ai faite au début par ignorance : {décris la situation}
+
+Le conseil qui m'aurait fait gagner du temps : {ce que tu aurais aimé qu'on te dise}
+
+La croyance limitante que j'avais : {ce que tu pensais à tort}
+Ce que j'ai découvert : {la réalité}
+
+Mon offre : {ton service/produit}`
             },
             4: {
                 title: "5 conseils à mon moi du passé",
                 objective: "Inspirer, montrer ton parcours",
-                questions: [
-                    "À quelle période de ta vie/carrière tu t'adresserais ?",
-                    "Quels conseils auraient tout changé à l'époque ?",
-                    "As-tu une photo de cette époque ? (optionnel mais puissant)"
-                ]
+                template: `La période à laquelle je m'adresse : {ex: "moi il y a 5 ans, quand je débutais"}
+
+Mes 5 conseils :
+1. {premier conseil}
+2. {deuxième conseil}
+3. {troisième conseil}
+4. {quatrième conseil}
+5. {cinquième conseil}
+
+Mon offre : {ton service/produit}`
             },
             5: {
                 title: "3 erreurs que fait ton client",
                 objective: "Éduquer, créer le \"c'est moi\"",
-                questions: [
-                    "Quelles erreurs vois-tu tout le temps chez tes prospects/clients ?",
-                    "Pourquoi font-ils ces erreurs ? (manque d'info, fausse croyance, facilité...)",
-                    "Quelles conséquences ont ces erreurs ?"
-                ]
+                template: `Les 3 erreurs que je vois tout le temps :
+
+Erreur 1 : {l'erreur}
+Pourquoi ils la font : {la raison}
+La conséquence : {ce qui se passe}
+
+Erreur 2 : {l'erreur}
+Pourquoi ils la font : {la raison}
+La conséquence : {ce qui se passe}
+
+Erreur 3 : {l'erreur}
+Pourquoi ils la font : {la raison}
+La conséquence : {ce qui se passe}
+
+Mon offre : {ton service/produit}`
             },
             6: {
                 title: "Les obstacles de mon parcours",
                 objective: "Humaniser, créer l'empathie",
-                questions: [
-                    "Quel moment difficile as-tu traversé dans ton parcours pro ?",
-                    "Comment l'as-tu surmonté ?",
-                    "Qu'est-ce que ça t'a appris ?"
-                ]
+                template: `Le moment difficile que j'ai traversé : {décris la situation, le contexte}
+
+Comment je l'ai surmonté : {les actions, les décisions, l'aide reçue}
+
+Ce que ça m'a appris : {la leçon, ce que tu en retires aujourd'hui}
+
+Mon offre : {ton service/produit}`
             },
             7: {
                 title: "Le secret des meilleurs",
                 objective: "Te positionner en expert",
-                questions: [
-                    "Qu'est-ce qui distingue tes meilleurs clients / les top performers de ton secteur ?",
-                    "Quel point commun as-tu observé chez ceux qui réussissent ?",
-                    "Qu'est-ce que les autres ne font pas ?"
-                ]
+                template: `Ce qui distingue mes meilleurs clients / les top performers : {la différence clé}
+
+Le point commun que j'observe chez ceux qui réussissent : {le pattern récurrent}
+
+Ce que les autres ne font pas : {ce qui manque chez ceux qui stagnent}
+
+Mon offre : {ton service/produit}`
             },
             8: {
                 title: "Déconstruire une idée reçue",
                 objective: "Challenger, montrer ta vision",
-                questions: [
-                    "Quelle \"vérité\" de ton secteur est en fait un mythe ?",
-                    "Pourquoi les gens y croient ?",
-                    "Quelle est la réalité selon ton expérience ?"
-                ]
+                template: `Le mythe dans mon secteur : {la "vérité" que tout le monde croit}
+
+Pourquoi les gens y croient : {l'origine de cette croyance}
+
+La réalité selon mon expérience : {ce que tu as constaté}
+
+Mon offre : {ton service/produit}`
             },
             9: {
                 title: "Fausses croyances des clients",
                 objective: "Préparer la vente",
-                questions: [
-                    "Qu'est-ce que tes clients croient avant de travailler avec toi ?",
-                    "Quelles croyances les empêchent de passer à l'action ?",
-                    "Comment tu les fais changer d'avis ?"
-                ]
+                template: `Ce que mes clients croient AVANT de travailler avec moi : {la croyance limitante}
+
+Ce qui les empêche de passer à l'action : {le frein, la peur}
+
+Comment je les fais changer d'avis : {ton argument, ta preuve}
+
+Mon offre : {ton service/produit}`
             },
             10: {
                 title: "Les pièges à éviter",
                 objective: "Protéger, guider",
-                questions: [
-                    "Dans quels pièges tombent souvent les débutants / tes clients ?",
-                    "Quels pièges as-tu toi-même évités ou dans lesquels tu es tombé ?",
-                    "Comment les reconnaître et les éviter ?"
-                ]
+                template: `Les pièges dans lesquels tombent mes clients/les débutants :
+
+Piège 1 : {le piège}
+Comment le reconnaître : {les signaux}
+
+Piège 2 : {le piège}
+Comment le reconnaître : {les signaux}
+
+Piège 3 : {le piège}
+Comment le reconnaître : {les signaux}
+
+Mon offre : {ton service/produit}`
             },
             11: {
                 title: "Se positionner en autorité",
                 objective: "Affirmer ton expertise",
-                questions: [
-                    "Quelle est ta zone de génie ? Ce sur quoi on te consulte toujours ?",
-                    "Quel parcours/expérience légitime ton expertise ?",
-                    "Quelle vision défends-tu ?"
-                ]
+                template: `Ma zone de génie (ce sur quoi on me consulte toujours) : {ta spécialité}
+
+Mon parcours qui légitime cette expertise : {tes expériences, formations, résultats}
+
+La vision que je défends : {ta conviction, ta philosophie}
+
+Mon offre : {ton service/produit}`
             },
             12: {
                 title: "3 règles d'or de ton expertise",
                 objective: "Donner de la valeur",
-                questions: [
-                    "Quels sont les 3 principes fondamentaux de ton approche ?",
-                    "Pourquoi ces règles et pas d'autres ?",
-                    "Comment les appliques-tu concrètement ?"
-                ]
+                template: `Mes 3 principes fondamentaux :
+
+Règle 1 : {le principe}
+Comment je l'applique : {exemple concret}
+
+Règle 2 : {le principe}
+Comment je l'applique : {exemple concret}
+
+Règle 3 : {le principe}
+Comment je l'applique : {exemple concret}
+
+Mon offre : {ton service/produit}`
             },
             13: {
                 title: "La rencontre qui a changé ma vie",
                 objective: "Storytelling, émotion",
-                questions: [
-                    "Qui a eu un impact décisif sur ton parcours ?",
-                    "Comment cette rencontre s'est-elle produite ?",
-                    "Qu'est-ce que cette personne t'a apporté/appris ?"
-                ]
+                template: `La personne qui a eu un impact décisif sur mon parcours : {qui est-ce}
+
+Comment cette rencontre s'est produite : {le contexte, les circonstances}
+
+Ce que cette personne m'a apporté/appris : {la transformation, la leçon}
+
+Mon offre : {ton service/produit}`
             },
             14: {
                 title: "Réponse à une question fréquente",
                 objective: "Montrer ton expertise",
-                questions: [
-                    "Quelle question te pose-t-on tout le temps ?",
-                    "Pourquoi les gens se posent cette question ?",
-                    "Quelle est ta réponse complète et honnête ?"
-                ]
+                template: `La question qu'on me pose tout le temps : "{la question exacte}"
+
+Pourquoi les gens se posent cette question : {le contexte, la douleur}
+
+Ma réponse complète et honnête : {ta réponse détaillée}
+
+Mon offre : {ton service/produit}`
             },
             15: {
                 title: "Étude de cas client",
                 objective: "Preuve sociale",
-                questions: [
-                    "Quel client a eu une transformation remarquable ?",
-                    "Quelle était sa situation avant ?",
-                    "Qu'avez-vous fait ensemble et quel résultat ?"
-                ]
+                template: `Mon client : {prénom ou description, ex: "Marie, coach sportive"}
+
+Sa situation AVANT : {le problème, la douleur, les chiffres}
+
+Ce qu'on a fait ensemble : {ton intervention, ta méthode}
+
+Le résultat : {la transformation, les chiffres, le témoignage}
+
+Mon offre : {ton service/produit}`
             },
             16: {
                 title: "Transformation avant/après",
                 objective: "Visualiser le résultat",
-                questions: [
-                    "Quel \"avant/après\" illustre le mieux ton impact ?",
-                    "Quels éléments concrets ont changé ?",
-                    "En combien de temps ?"
-                ]
+                template: `L'avant/après qui illustre le mieux mon impact :
+
+AVANT : {la situation de départ, les chiffres, la douleur}
+
+APRÈS : {les résultats concrets, les chiffres, le ressenti}
+
+En combien de temps : {la durée de la transformation}
+
+Mon offre : {ton service/produit}`
             },
             17: {
                 title: "Les paradigmes ont changé",
                 objective: "Créer l'urgence d'évoluer",
-                questions: [
-                    "Qu'est-ce qui a fondamentalement changé dans ton secteur ?",
-                    "Qu'est-ce qui marchait avant et ne marche plus ?",
-                    "Quelle est la nouvelle approche gagnante ?"
-                ]
+                template: `Ce qui a fondamentalement changé dans mon secteur : {le changement majeur}
+
+Ce qui marchait avant et ne marche plus : {les anciennes méthodes obsolètes}
+
+La nouvelle approche gagnante : {ce qu'il faut faire maintenant}
+
+Mon offre : {ton service/produit}`
             },
             18: {
                 title: "Portrait d'une personne inspirante",
                 objective: "Montrer tes valeurs",
-                questions: [
-                    "Qui t'inspire dans ton domaine ou ta vie ?",
-                    "Pourquoi cette personne ?",
-                    "Qu'est-ce que tu as appris d'elle ?"
-                ]
+                template: `La personne qui m'inspire : {qui est-ce}
+
+Pourquoi cette personne : {ce qui te touche chez elle}
+
+Ce que j'ai appris d'elle : {la leçon, l'impact sur toi}
+
+Mon offre : {ton service/produit}`
             },
             19: {
                 title: "Pratique répandue à bannir",
                 objective: "Se différencier",
-                questions: [
-                    "Quelle pratique courante te semble contre-productive ?",
-                    "Pourquoi les gens continuent de la faire ?",
-                    "Quelle alternative proposes-tu ?"
-                ]
+                template: `La pratique courante que je trouve contre-productive : {la mauvaise pratique}
+
+Pourquoi les gens continuent de la faire : {l'inertie, la facilité, l'ignorance}
+
+L'alternative que je propose : {ta méthode, ton approche}
+
+Mon offre : {ton service/produit}`
             },
             20: {
                 title: "Raconter un échec + leçon",
                 objective: "Connexion par la vulnérabilité",
-                questions: [
-                    "Quel échec as-tu vécu qui t'a fait grandir ?",
-                    "Qu'est-ce qui s'est passé concrètement ?",
-                    "Qu'est-ce que tu ferais différemment ?"
-                ]
+                template: `L'échec qui m'a fait grandir : {le contexte}
+
+Ce qui s'est passé concrètement : {les faits, la chute}
+
+Ce que j'aurais fait différemment : {la leçon apprise}
+
+Mon offre : {ton service/produit}`
             }
         };
 
@@ -12000,344 +12429,269 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
                 title: "Golden Circle — Ton POURQUOI",
                 framework: "Simon Sinek's Golden Circle",
                 objective: "Inspirer en expliquant ta mission profonde",
-                questions: [
-                    "POURQUOI fais-tu ce que tu fais ? (ta mission, ta conviction profonde)",
-                    "COMMENT le fais-tu différemment des autres ? (ta méthode unique)",
-                    "QUOI proposes-tu concrètement ? (ton offre/service)"
-                ],
-                structure: `WHY → HOW → WHAT
+                template: `Mon POURQUOI (ma mission profonde) : {ce qui me fait lever le matin, ma conviction}
 
-Commence par le POURQUOI (ta conviction)
-Puis le COMMENT (ton approche unique)
-Termine par le QUOI (ton offre)
+Mon COMMENT (ma méthode unique) : {ce qui me différencie des autres}
 
-Les gens n'achètent pas CE que tu fais, ils achètent POURQUOI tu le fais.`
+Mon QUOI (mon offre concrète) : {ce que je propose}`
             },
             2: {
                 title: "Pyramide de Minto — Argument structuré",
                 framework: "Minto's Pyramid Principle",
                 objective: "Convaincre avec une logique imparable",
-                questions: [
-                    "Quelle est ta conclusion/recommandation principale ? (dis-la en premier)",
-                    "Quels sont tes 3 arguments principaux qui soutiennent cette conclusion ?",
-                    "Quels détails/preuves viennent appuyer chaque argument ?"
-                ],
-                structure: `1. CONCLUSION D'ABORD (l'idée principale)
-2. ARGUMENTS GROUPÉS (3 max)
-3. DÉTAILS SI NÉCESSAIRE
+                template: `Ma conclusion principale : {ton message clé, dis-le en premier}
 
-Utilisé pour : pitchs, recommandations stratégiques, prises de position.`
+Argument 1 : {premier argument qui soutient ta conclusion}
+Argument 2 : {deuxième argument}
+Argument 3 : {troisième argument}
+
+Preuves/détails : {données, exemples concrets}`
             },
             3: {
                 title: "Pixar Pitch — Histoire transformationnelle",
                 framework: "The Pixar Pitch",
                 objective: "Captiver émotionnellement avec le storytelling",
-                questions: [
-                    "Il était une fois... (contexte initial de ton client/secteur)",
-                    "Tous les jours... (la routine, le statu quo)",
-                    "Un jour... (l'élément déclencheur, le problème)",
-                    "À cause de ça... (les conséquences)",
-                    "Jusqu'à ce que finalement... (la transformation, la solution)"
-                ],
-                structure: `1. Il était une fois... [contexte]
-2. Tous les jours... [routine]
-3. Un jour... [déclencheur]
-4. À cause de ça... [conséquences]
-5. Jusqu'à ce que finalement... [résolution]
+                template: `Il était une fois... {le contexte initial}
 
-Parfait pour : histoires de marque, transformations client, motivations d'équipe.`
+Tous les jours... {la routine, le statu quo}
+
+Un jour... {l'élément déclencheur, le problème}
+
+À cause de ça... {les conséquences}
+
+Jusqu'à ce que finalement... {la transformation, la solution}`
             },
             4: {
                 title: "StoryBrand — Ton client est le héros",
                 framework: "StoryBrand (Donald Miller)",
                 objective: "Clarifier ton message en faisant du client le héros",
-                questions: [
-                    "Qui est le HÉROS ? (ton client, pas toi)",
-                    "Quel PROBLÈME a-t-il ? (externe, interne, philosophique)",
-                    "Qui est le GUIDE ? (toi — avec empathie + autorité)",
-                    "Quel PLAN lui donnes-tu ? (3 étapes simples)",
-                    "Quel APPEL À L'ACTION ? (clair et direct)",
-                    "Quel SUCCÈS s'il agit ? / Quel ÉCHEC s'il n'agit pas ?"
-                ],
-                structure: `HÉROS (client) → a un PROBLÈME → rencontre un GUIDE (toi)
-→ qui lui donne un PLAN → l'appelle à l'ACTION
-→ pour éviter l'ÉCHEC → et atteindre le SUCCÈS
+                template: `Le HÉROS (ton client) : {qui est-il, que veut-il}
 
-Tu n'es pas le héros. Tu es Yoda. Ton client est Luke.`
+Son PROBLÈME : {externe, interne, philosophique}
+
+Le GUIDE (toi) : {ton empathie + ton autorité}
+
+Le PLAN en 3 étapes :
+1. {première étape}
+2. {deuxième étape}
+3. {troisième étape}
+
+L'APPEL À L'ACTION : {ce qu'il doit faire maintenant}
+
+Le SUCCÈS s'il agit : {ce qu'il va obtenir}
+L'ÉCHEC s'il n'agit pas : {ce qu'il va perdre}`
             },
             5: {
                 title: "ABT — Message persuasif rapide",
                 framework: "ABT (And, But, Therefore) — Randy Olson",
                 objective: "Créer un message concis et percutant",
-                questions: [
-                    "AND : Quel est le contexte partagé ? (ce qu'on sait tous)",
-                    "BUT : Quel est le problème/la tension ? (le retournement)",
-                    "THEREFORE : Quelle est ta solution/conclusion ? (l'action)"
-                ],
-                structure: `[Contexte partagé] AND [autre élément de contexte]
-BUT [problème/tension/contradiction]
-THEREFORE [solution/action/conclusion]
+                template: `AND (contexte partagé) : {ce qu'on sait tous, la situation}
 
-Exemple : "Tout le monde veut être visible en ligne AND les outils existent. BUT le contenu générique ne fonctionne plus. THEREFORE il faut une stratégie de thought leadership."`
+BUT (le problème) : {la tension, le retournement, ce qui coince}
+
+THEREFORE (ta solution) : {l'action, la conclusion, ce qu'il faut faire}`
             },
             6: {
                 title: "What / So What / Now What",
                 framework: "Driscoll's Reflective Model",
                 objective: "Transformer une expérience en leçon actionnable",
-                questions: [
-                    "WHAT : Que s'est-il passé ? (faits objectifs)",
-                    "SO WHAT : Pourquoi c'est important ? (impact, implications)",
-                    "NOW WHAT : Que faire maintenant ? (actions recommandées)"
-                ],
-                structure: `WHAT → Les faits
-SO WHAT → L'analyse, pourquoi ça compte
-NOW WHAT → Les prochaines étapes
+                template: `WHAT (les faits) : {que s'est-il passé, objectivement}
 
-Parfait pour : retours d'expérience, post-mortems, apprentissages.`
+SO WHAT (l'analyse) : {pourquoi c'est important, les implications}
+
+NOW WHAT (les actions) : {que faire maintenant, les prochaines étapes}`
             },
             7: {
                 title: "Contenu expert ultra-poussé",
                 framework: "Deep Expertise Content",
                 objective: "Créer du contenu que les IA vont citer",
-                questions: [
-                    "Quel sujet maîtrises-tu mieux que 95% des gens ?",
-                    "Quelles données/stats peux-tu partager ?",
-                    "Quel framework ou méthodologie as-tu développé ?",
-                    "Quelle infographie ou visuel pourrait résumer ton expertise ?"
-                ],
-                structure: `TITRE : [Chiffre] + [Sujet précis] + [Bénéfice]
-HOOK : Stat ou affirmation contre-intuitive
-CONTENU : Framework visuel ou liste ultra-détaillée
-PREUVE : Données, exemples, sources
-CTA : "Save this for later" / "Follow for more"
+                template: `Le sujet que je maîtrise mieux que 95% des gens : {ton expertise pointue}
 
-Ce contenu doit être TELLEMENT utile qu'il sera bookmarké et cité.`
+Les données/stats que je peux partager : {chiffres, études, résultats}
+
+Mon framework ou méthodologie : {ta méthode structurée}
+
+L'idée de visuel/infographie : {comment le représenter}`
             },
             8: {
                 title: "Opinion tranchée sur un sujet chaud",
                 framework: "Hot Take / Conviction Content",
                 objective: "Prendre position pour polariser et attirer ta tribu",
-                questions: [
-                    "Quelle actualité ou tendance de ton secteur te fait réagir ?",
-                    "Quelle est ton opinion NON consensuelle sur ce sujet ?",
-                    "Pourquoi cette opinion est-elle fondée sur ton expérience ?",
-                    "Qui va être d'accord ? Qui va être en désaccord ?"
-                ],
-                structure: `ACCROCHE : Position claire et tranchée
-CONTEXTE : Pourquoi ce sujet maintenant
-ARGUMENTATION : Basée sur ton expérience, pas des généralités
-NUANCE : Reconnaître les contre-arguments valides
-CONCLUSION : Réaffirmer ta position
+                template: `L'actualité/tendance qui me fait réagir : {le sujet chaud}
 
-Tu vas perdre des gens. C'est le but. Tu veux attirer TA tribu.`
+Mon opinion NON consensuelle : {ce que je pense vraiment}
+
+Pourquoi je pense ça (mon expérience) : {les faits qui fondent ton opinion}
+
+Qui sera d'accord / en désaccord : {ta tribu vs les autres}`
             },
             9: {
                 title: "Déconstruction d'un mythe",
                 framework: "Myth Busting",
                 objective: "Éduquer en cassant une idée reçue",
-                questions: [
-                    "Quel mythe persiste dans ton secteur ?",
-                    "D'où vient ce mythe ? (origine historique ou logique)",
-                    "Quelles preuves montrent qu'il est faux ?",
-                    "Quelle est la réalité que tu observes ?"
-                ],
-                structure: `LE MYTHE : "[Ce que tout le monde croit]"
-L'ORIGINE : Pourquoi on y croit
-LA RÉALITÉ : Ce que tu observes vraiment
-LES PREUVES : Données, exemples, expériences
-LA NOUVELLE VÉRITÉ : Ce qu'il faut croire à la place`
+                template: `Le mythe qui persiste : "{ce que tout le monde croit}"
+
+D'où vient ce mythe : {l'origine historique ou logique}
+
+Les preuves qu'il est faux : {données, exemples, expériences}
+
+La réalité que j'observe : {ce qui est vraiment vrai}`
             },
             10: {
                 title: "Prédiction secteur / Tendances",
                 framework: "Future Forecasting",
                 objective: "Te positionner comme visionnaire de ton domaine",
-                questions: [
-                    "Quelles tendances émergentes observes-tu ?",
-                    "Qu'est-ce qui va changer dans les 2-5 prochaines années ?",
-                    "Qu'est-ce qui va disparaître ? Qu'est-ce qui va émerger ?",
-                    "Comment se préparer dès maintenant ?"
-                ],
-                structure: `ÉTAT ACTUEL : Où en est le secteur aujourd'hui
-SIGNAUX FAIBLES : Ce que tu observes que d'autres ignorent
-PRÉDICTIONS : 3-5 changements à venir
-IMPLICATIONS : Ce que ça veut dire concrètement
-ACTIONS : Comment s'y préparer
+                template: `Les tendances émergentes que j'observe : {signaux faibles}
 
-Date ton post. Dans 2 ans, tu pourras dire "je l'avais prédit".`
+Ce qui va changer dans 2-5 ans : {tes prédictions}
+
+Ce qui va disparaître : {les pratiques obsolètes}
+Ce qui va émerger : {les nouvelles pratiques}
+
+Comment se préparer dès maintenant : {actions concrètes}`
             },
             11: {
                 title: "Framework original que tu as créé",
                 framework: "Proprietary Framework",
                 objective: "Créer un concept associé à ton nom",
-                questions: [
-                    "Quelle méthode utilises-tu systématiquement ?",
-                    "Peut-elle être résumée en acronyme ou en étapes ?",
-                    "Quel nom accrocheur pourrais-tu lui donner ?",
-                    "Quel visuel pourrait la représenter ?"
-                ],
-                structure: `NOM DU FRAMEWORK : [Acronyme ou nom mémorable]
-LE PROBLÈME qu'il résout
-LES ÉTAPES (3-5 max)
-EXEMPLE D'APPLICATION
-VISUEL/INFOGRAPHIE
+                template: `Ma méthode que j'utilise systématiquement : {décris-la}
 
-Objectif : que les gens disent "la méthode [TON NOM]" ou "le framework [NOM]".`
+Le nom accrocheur de mon framework : {acronyme ou nom mémorable}
+
+Les étapes (3-5 max) :
+1. {étape 1}
+2. {étape 2}
+3. {étape 3}
+
+Exemple d'application concrète : {un cas réel}`
             },
             12: {
                 title: "Analyse de cas public",
                 framework: "Public Case Study",
                 objective: "Montrer ton expertise via l'analyse d'un cas connu",
-                questions: [
-                    "Quelle entreprise/personnalité de ton secteur a fait quelque chose de remarquable récemment ?",
-                    "Qu'est-ce qu'ils ont bien fait ? Mal fait ?",
-                    "Qu'aurais-tu fait différemment ?",
-                    "Quelle leçon universelle en tirer ?"
-                ],
-                structure: `LE CAS : [Entreprise/personne connue] a fait [action]
-L'ANALYSE : Ce qui a marché / pas marché
-TON AVIS D'EXPERT : Ce que j'aurais fait
-LA LEÇON : Ce que ça nous apprend à tous
+                template: `L'entreprise/personnalité que j'analyse : {qui et ce qu'ils ont fait}
 
-Tu montres ton expertise sans parler de toi directement.`
+Ce qu'ils ont bien fait : {les points positifs}
+Ce qu'ils ont mal fait : {les erreurs}
+
+Ce que j'aurais fait différemment : {ton expertise}
+
+La leçon universelle à en tirer : {l'apprentissage pour tous}`
             },
             13: {
                 title: "Les coulisses de ton processus",
                 framework: "Behind The Scenes",
                 objective: "Humaniser ton expertise en montrant comment tu travailles",
-                questions: [
-                    "Comment tu réfléchis à un problème complexe ?",
-                    "Quels outils utilises-tu au quotidien ?",
-                    "Quelle est ta routine de travail ?",
-                    "Quels sont tes secrets de productivité ?"
-                ],
-                structure: `CONTEXTE : Le défi que tu devais résoudre
-PROCESSUS : Étape par étape, ce que tu as fait
-OUTILS : Ce que tu as utilisé
-RÉSULTAT : Ce que ça a donné
-APPRENTISSAGE : Ce que tu ferais différemment
+                template: `Le défi que je devais résoudre : {le contexte}
 
-Les gens adorent voir "comment" font les experts.`
+Mon processus étape par étape : {comment tu as réfléchi/agi}
+
+Les outils que j'ai utilisés : {tes outils concrets}
+
+Le résultat obtenu : {ce que ça a donné}
+
+Ce que je ferais différemment : {ton apprentissage}`
             },
             14: {
                 title: "Réponse approfondie à une question complexe",
                 framework: "Deep Dive Q&A",
                 objective: "Créer du contenu que les IA citeront comme réponse",
-                questions: [
-                    "Quelle question complexe te pose-t-on souvent ?",
-                    "Quelle est la réponse COMPLÈTE que tu donnerais ?",
-                    "Quelles nuances sont importantes ?",
-                    "Quelles ressources complémentaires recommandes-tu ?"
-                ],
-                structure: `LA QUESTION : [Question exacte qu'on te pose]
-RÉPONSE COURTE : La réponse en 2 lignes
-RÉPONSE LONGUE : Tous les détails, cas particuliers, nuances
-RESSOURCES : Pour aller plus loin
+                template: `La question qu'on me pose souvent : "{la question exacte}"
 
-Ce contenu doit être LA référence sur cette question.`
+Ma réponse courte (2 lignes) : {l'essentiel}
+
+Ma réponse complète : {tous les détails, nuances, cas particuliers}
+
+Ressources pour aller plus loin : {livres, outils, liens}`
             },
             15: {
                 title: "Comparatif expert",
                 framework: "Expert Comparison",
                 objective: "Aider à choisir en montrant ta maîtrise du sujet",
-                questions: [
-                    "Quelles options/outils/méthodes les gens hésitent à choisir dans ton domaine ?",
-                    "Quels critères utilises-tu pour comparer ?",
-                    "Dans quel cas recommandes-tu quoi ?",
-                    "Quel est ton choix personnel et pourquoi ?"
-                ],
-                structure: `LE DILEMME : [Option A] vs [Option B] vs [Option C]
-LES CRITÈRES : Comment je compare
-LE TABLEAU : Comparatif visuel
-MON VERDICT : Ce que je recommande selon les cas
-MON CHOIX PERSO : Ce que j'utilise et pourquoi`
+                template: `Le dilemme : {Option A} vs {Option B} vs {Option C}
+
+Mes critères de comparaison : {comment tu évalues}
+
+Mon verdict selon les cas :
+- Si {situation 1} → je recommande {option}
+- Si {situation 2} → je recommande {option}
+
+Mon choix personnel et pourquoi : {ce que tu utilises toi}`
             },
             16: {
                 title: "Leçons d'un échec public",
                 framework: "Public Failure Analysis",
                 objective: "Gagner en crédibilité par la vulnérabilité intelligente",
-                questions: [
-                    "Quel échec professionnel es-tu prêt à partager publiquement ?",
-                    "Qu'est-ce qui a mal tourné ? (sois factuel)",
-                    "Qu'as-tu appris ?",
-                    "Que ferais-tu différemment ?"
-                ],
-                structure: `L'ÉCHEC : Ce qui s'est passé (factuel, sans excuses)
-L'ANALYSE : Pourquoi ça a échoué
-LES LEÇONS : Ce que j'en ai tiré (numéroté)
-AUJOURD'HUI : Ce que je fais différemment
+                template: `L'échec que je partage : {ce qui s'est passé, factuel}
 
-La vulnérabilité + l'analyse = crédibilité.`
+Ce qui a mal tourné : {l'analyse honnête}
+
+Ce que j'ai appris :
+1. {leçon 1}
+2. {leçon 2}
+3. {leçon 3}
+
+Ce que je fais différemment aujourd'hui : {le changement}`
             },
             17: {
                 title: "Interview/Citation d'un expert",
                 framework: "Expert Curation",
                 objective: "Te positionner en connecteur de ton écosystème",
-                questions: [
-                    "Qui admires-tu dans ton domaine ?",
-                    "Quelle citation ou idée de cette personne t'a marqué ?",
-                    "Pourquoi cette idée est-elle importante ?",
-                    "Comment l'appliques-tu ?"
-                ],
-                structure: `LA PERSONNE : [Nom] est [qui elle est]
-LA CITATION/IDÉE : "[Citation exacte]"
-POURQUOI C'EST IMPORTANT : Mon interprétation
-COMMENT JE L'APPLIQUE : Concrètement dans mon travail
+                template: `La personne que j'admire : {nom et qui elle est}
 
-Tu montres que tu connais les références de ton domaine.`
+La citation/idée qui m'a marqué : "{citation exacte}"
+
+Pourquoi c'est important : {ton interprétation}
+
+Comment je l'applique concrètement : {dans ton travail}`
             },
             18: {
                 title: "Les erreurs que tu vois partout",
                 framework: "Common Mistakes Exposé",
                 objective: "Éduquer en pointant ce qui ne marche pas",
-                questions: [
-                    "Quelles erreurs vois-tu constamment dans ton domaine ?",
-                    "Pourquoi les gens font-ils ces erreurs ?",
-                    "Quelles sont les conséquences ?",
-                    "Quelle est la bonne approche ?"
-                ],
-                structure: `INTRO : "Après [X années/clients], je vois toujours les mêmes erreurs"
-ERREUR 1 : [Erreur] → Pourquoi c'est un problème → La solution
-ERREUR 2 : [idem]
-ERREUR 3 : [idem]
-CONCLUSION : Le point commun entre ces erreurs`
+                template: `Après {X années/clients}, je vois toujours ces erreurs :
+
+Erreur 1 : {l'erreur}
+→ Pourquoi c'est un problème : {conséquences}
+→ La solution : {la bonne approche}
+
+Erreur 2 : {l'erreur}
+→ Pourquoi c'est un problème : {conséquences}
+→ La solution : {la bonne approche}
+
+Erreur 3 : {l'erreur}
+→ Pourquoi c'est un problème : {conséquences}
+→ La solution : {la bonne approche}`
             },
             19: {
                 title: "Ressources curatées",
                 framework: "Resource Curation",
                 objective: "Devenir LA référence qui centralise les meilleures ressources",
-                questions: [
-                    "Quelles sont les meilleures ressources (livres, outils, personnes) de ton domaine ?",
-                    "Pourquoi recommandes-tu chacune ?",
-                    "Pour quel niveau/besoin ?",
-                    "Qu'est-ce qui manque sur le marché ?"
-                ],
-                structure: `THÈME : Les meilleures ressources pour [objectif]
-LISTE CATÉGORISÉE :
-- Pour débuter : [ressources]
-- Pour approfondir : [ressources]
-- Pour les experts : [ressources]
-MON TOP 3 : Mes préférées et pourquoi
-CE QUI MANQUE : Le gap que j'observe
+                template: `Thème : Les meilleures ressources pour {objectif}
 
-Ce contenu sera sauvegardé et partagé massivement.`
+Pour débuter : {ressources niveau débutant}
+
+Pour approfondir : {ressources niveau intermédiaire}
+
+Pour les experts : {ressources niveau avancé}
+
+Mon TOP 3 personnel : {tes préférées et pourquoi}
+
+Ce qui manque sur le marché : {le gap que tu observes}`
             },
             20: {
                 title: "Manifeste / Ta vision du métier",
                 framework: "Manifesto",
                 objective: "Affirmer ta vision pour attirer ceux qui pensent comme toi",
-                questions: [
-                    "En quoi crois-tu profondément concernant ton métier ?",
-                    "Contre quoi te bats-tu ?",
-                    "Quel futur veux-tu créer ?",
-                    "Quel appel à l'action pour ceux qui partagent ta vision ?"
-                ],
-                structure: `JE CROIS QUE... [tes convictions]
-JE REFUSE DE... [ce contre quoi tu te bats]
-JE M'ENGAGE À... [ce que tu fais différemment]
-JE RÊVE D'UN MONDE OÙ... [ta vision]
-SI TU PENSES COMME MOI... [appel à rejoindre]
+                template: `JE CROIS QUE... {tes convictions profondes}
 
-C'est ton "I Have A Dream". Polarisant. Inspirant. Mémorable.`
+JE REFUSE DE... {ce contre quoi tu te bats}
+
+JE M'ENGAGE À... {ce que tu fais différemment}
+
+JE RÊVE D'UN MONDE OÙ... {ta vision du futur}
+
+SI TU PENSES COMME MOI... {ton appel à rejoindre ta tribu}`
             }
         };
 
@@ -12448,14 +12802,19 @@ STYLE D'ÉCRITURE :
 LONGUEUR : Minimum 240 mots, mais peut être plus long si l'histoire le justifie.
 `;
 
-        // ==================== FONCTIONS ANECDOTE ====================
-        // Récupérer l'anecdote
+        // ==================== FONCTIONS ANECDOTE / TEMPLATE ====================
+        // Récupérer l'anecdote ou le contenu du template éditable
         function getAnecdote() {
+            // En mode 20 jours avec template éditable, utiliser le template
+            if (currentState.strategyMode && document.getElementById('editableTemplate')) {
+                return getEditableTemplateContent();
+            }
+            // Sinon, utiliser le textarea anecdote classique
             const input = document.getElementById('anecdoteInput');
             return input ? input.value.trim() : '';
         }
 
-        // Vérifier si mode Ghostwriter actif
+        // Vérifier si mode Ghostwriter actif (anecdote ou template rempli)
         function isGhostwriterMode() {
             const anecdote = getAnecdote();
             return anecdote && anecdote.length > 20;
@@ -13267,146 +13626,217 @@ ${format.rules}
             }
         };
 
-        // ==================== SYSTÈME FREEMIUM ====================
+        // ==================== SYSTÈME FREEMIUM (SUPABASE) ====================
         const FreemiumSystem = {
             LIMITS: {
                 posts: 4,
                 auditProfile: 1,
                 auditPosts: 1,
-                auditVideo: 1
-            },
-            KEYS: {
-                posts: 'tithot_free_posts_count',
-                auditProfile: 'tithot_free_audit_profile_count',
-                auditPosts: 'tithot_free_audit_posts_count',
-                auditVideo: 'tithot_free_audit_video_count',
-                subscription: 'tithot_subscription_status',
-                subscriptionChecked: 'tithot_subscription_last_check'
+                auditVideo: 1,
+                newsletters: 2
             },
 
-            // Cache de 5 minutes pour éviter trop d'appels API
-            CACHE_DURATION: 5 * 60 * 1000,
+            // Cache local des compteurs (synchronisé avec Supabase)
+            _cache: {
+                posts: 0,
+                auditProfile: 0,
+                auditPosts: 0,
+                auditVideo: 0,
+                newsletters: 0,
+                loaded: false,
+                subscriptionStatus: 'free'
+            },
 
-            // Vérifier si l'utilisateur a un abonnement actif (version cached)
+            // Clés localStorage pour le cache
+            CACHE_KEY: 'tithot_freemium_cache',
+            CACHE_DURATION: 5 * 60 * 1000, // 5 minutes
+
+            // Vérifier si l'utilisateur a un abonnement actif
             isSubscribed() {
-                const status = localStorage.getItem(this.KEYS.subscription);
-                return status === 'active';
+                return this._cache.subscriptionStatus === 'active';
             },
 
-            // Vérification côté serveur de l'abonnement
-            async checkSubscriptionFromServer() {
+            // Charger les compteurs depuis Supabase
+            async loadFromSupabase() {
                 try {
-                    // Récupérer le token d'auth Supabase
                     const { data: { session } } = await supabaseClient.auth.getSession();
                     if (!session) {
-                        this.setSubscriptionStatus('free');
-                        return 'free';
+                        console.log('[FreemiumSystem] Pas de session, mode non-connecté');
+                        this._cache.loaded = true;
+                        return;
                     }
 
-                    // Vérifier le cache
-                    const lastCheck = localStorage.getItem(this.KEYS.subscriptionChecked);
-                    if (lastCheck && (Date.now() - parseInt(lastCheck)) < this.CACHE_DURATION) {
-                        return localStorage.getItem(this.KEYS.subscription) || 'free';
+                    const userEmail = session.user.email.toLowerCase();
+                    const { data, error } = await supabaseClient
+                        .from('users')
+                        .select('free_posts_used, free_audit_profile_used, free_audit_posts_used, free_audit_video_used, free_newsletters_used, subscription_status')
+                        .eq('email', userEmail)
+                        .single();
+
+                    if (error) {
+                        console.warn('[FreemiumSystem] Erreur chargement:', error.message);
+                        return;
                     }
 
-                    // Appeler l'API de vérification
-                    const response = await fetch(`${CONFIG.API_URL}/api/subscription`, {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${session.access_token}`,
-                            'Content-Type': 'application/json'
-                        }
-                    });
+                    if (data) {
+                        this._cache.posts = data.free_posts_used || 0;
+                        this._cache.auditProfile = data.free_audit_profile_used || 0;
+                        this._cache.auditPosts = data.free_audit_posts_used || 0;
+                        this._cache.auditVideo = data.free_audit_video_used || 0;
+                        this._cache.newsletters = data.free_newsletters_used || 0;
+                        this._cache.subscriptionStatus = data.subscription_status || 'free';
+                        this._cache.loaded = true;
 
-                    if (response.ok) {
-                        const data = await response.json();
-                        this.setSubscriptionStatus(data.status);
-                        localStorage.setItem(this.KEYS.subscriptionChecked, Date.now().toString());
-                        return data.status;
-                    } else {
-                        console.warn('[FreemiumSystem] Erreur vérification abonnement:', response.status);
-                        return localStorage.getItem(this.KEYS.subscription) || 'free';
+                        // Sauvegarder en cache local
+                        this._saveLocalCache();
+                        console.log('[FreemiumSystem] Compteurs chargés depuis Supabase:', this._cache);
                     }
-                } catch (error) {
-                    console.error('[FreemiumSystem] Erreur serveur:', error);
-                    return localStorage.getItem(this.KEYS.subscription) || 'free';
+                } catch (e) {
+                    console.error('[FreemiumSystem] Erreur:', e);
+                    // Charger depuis le cache local en fallback
+                    this._loadLocalCache();
                 }
             },
 
-            // Mettre à jour le statut d'abonnement
-            setSubscriptionStatus(status) {
-                localStorage.setItem(this.KEYS.subscription, status);
+            // Sauvegarder le cache localement
+            _saveLocalCache() {
+                localStorage.setItem(this.CACHE_KEY, JSON.stringify({
+                    ...this._cache,
+                    timestamp: Date.now()
+                }));
+            },
+
+            // Charger depuis le cache local
+            _loadLocalCache() {
+                try {
+                    const cached = localStorage.getItem(this.CACHE_KEY);
+                    if (cached) {
+                        const data = JSON.parse(cached);
+                        // Vérifier si le cache n'est pas trop vieux (1 heure max)
+                        if (data.timestamp && (Date.now() - data.timestamp) < 60 * 60 * 1000) {
+                            this._cache = { ...this._cache, ...data };
+                            this._cache.loaded = true;
+                        }
+                    }
+                } catch (e) {
+                    console.warn('[FreemiumSystem] Erreur lecture cache local');
+                }
+            },
+
+            // Incrémenter un compteur dans Supabase
+            async _incrementInSupabase(field) {
+                try {
+                    const { data: { session } } = await supabaseClient.auth.getSession();
+                    if (!session) return;
+
+                    const userEmail = session.user.email.toLowerCase();
+
+                    // Utiliser une requête RPC ou update direct
+                    const { error } = await supabaseClient.rpc('increment_freemium_counter', {
+                        p_email: userEmail,
+                        p_field: field
+                    });
+
+                    // Si la fonction RPC n'existe pas, faire un update classique
+                    if (error && error.message.includes('function')) {
+                        const { data: current } = await supabaseClient
+                            .from('users')
+                            .select(field)
+                            .eq('email', userEmail)
+                            .single();
+
+                        if (current) {
+                            await supabaseClient
+                                .from('users')
+                                .update({ [field]: (current[field] || 0) + 1 })
+                                .eq('email', userEmail);
+                        }
+                    }
+                } catch (e) {
+                    console.error('[FreemiumSystem] Erreur incrémentation:', e);
+                }
             },
 
             // Initialiser le système au chargement
             async init() {
                 console.log('[FreemiumSystem] Initialisation...');
-                const status = await this.checkSubscriptionFromServer();
-                console.log('[FreemiumSystem] Statut abonnement:', status);
-                return status;
+                // D'abord charger le cache local pour un affichage rapide
+                this._loadLocalCache();
+                // Puis synchroniser avec Supabase
+                await this.loadFromSupabase();
+                console.log('[FreemiumSystem] Statut:', this._cache.subscriptionStatus, '| Posts:', this._cache.posts + '/' + this.LIMITS.posts);
+                return this._cache.subscriptionStatus;
             },
 
             // Obtenir les compteurs
-            getPostsCount() {
-                return parseInt(localStorage.getItem(this.KEYS.posts) || '0');
-            },
-            getAuditProfileCount() {
-                return parseInt(localStorage.getItem(this.KEYS.auditProfile) || '0');
-            },
-            getAuditPostsCount() {
-                return parseInt(localStorage.getItem(this.KEYS.auditPosts) || '0');
-            },
-            getAuditVideoCount() {
-                return parseInt(localStorage.getItem(this.KEYS.auditVideo) || '0');
-            },
+            getPostsCount() { return this._cache.posts; },
+            getAuditProfileCount() { return this._cache.auditProfile; },
+            getAuditPostsCount() { return this._cache.auditPosts; },
+            getAuditVideoCount() { return this._cache.auditVideo; },
+            getNewslettersCount() { return this._cache.newsletters; },
 
             // Incrémenter les compteurs
-            incrementPosts() {
-                const current = this.getPostsCount();
-                localStorage.setItem(this.KEYS.posts, current + 1);
-                return current + 1;
+            async incrementPosts() {
+                this._cache.posts++;
+                this._saveLocalCache();
+                await this._incrementInSupabase('free_posts_used');
+                return this._cache.posts;
             },
-            incrementAuditProfile() {
-                const current = this.getAuditProfileCount();
-                localStorage.setItem(this.KEYS.auditProfile, current + 1);
-                return current + 1;
+            async incrementAuditProfile() {
+                this._cache.auditProfile++;
+                this._saveLocalCache();
+                await this._incrementInSupabase('free_audit_profile_used');
+                return this._cache.auditProfile;
             },
-            incrementAuditPosts() {
-                const current = this.getAuditPostsCount();
-                localStorage.setItem(this.KEYS.auditPosts, current + 1);
-                return current + 1;
+            async incrementAuditPosts() {
+                this._cache.auditPosts++;
+                this._saveLocalCache();
+                await this._incrementInSupabase('free_audit_posts_used');
+                return this._cache.auditPosts;
             },
-            incrementAuditVideo() {
-                const current = this.getAuditVideoCount();
-                localStorage.setItem(this.KEYS.auditVideo, current + 1);
-                return current + 1;
+            async incrementAuditVideo() {
+                this._cache.auditVideo++;
+                this._saveLocalCache();
+                await this._incrementInSupabase('free_audit_video_used');
+                return this._cache.auditVideo;
+            },
+            async incrementNewsletters() {
+                this._cache.newsletters++;
+                this._saveLocalCache();
+                await this._incrementInSupabase('free_newsletters_used');
+                return this._cache.newsletters;
             },
 
             // Vérifier les limites
             canGeneratePost() {
                 if (this.isSubscribed()) return true;
-                return this.getPostsCount() < this.LIMITS.posts;
+                return this._cache.posts < this.LIMITS.posts;
             },
             canDoAuditProfile() {
                 if (this.isSubscribed()) return true;
-                return this.getAuditProfileCount() < this.LIMITS.auditProfile;
+                return this._cache.auditProfile < this.LIMITS.auditProfile;
             },
             canDoAuditPosts() {
                 if (this.isSubscribed()) return true;
-                return this.getAuditPostsCount() < this.LIMITS.auditPosts;
+                return this._cache.auditPosts < this.LIMITS.auditPosts;
             },
             canDoAuditVideo() {
                 if (this.isSubscribed()) return true;
-                return this.getAuditVideoCount() < this.LIMITS.auditVideo;
+                return this._cache.auditVideo < this.LIMITS.auditVideo;
+            },
+            canGenerateNewsletter() {
+                if (this.isSubscribed()) return true;
+                return this._cache.newsletters < this.LIMITS.newsletters;
             },
 
             // Obtenir les stats d'utilisation
             getUsageStats() {
                 return {
-                    posts: { used: this.getPostsCount(), limit: this.LIMITS.posts },
-                    auditProfile: { used: this.getAuditProfileCount(), limit: this.LIMITS.auditProfile },
-                    auditPosts: { used: this.getAuditPostsCount(), limit: this.LIMITS.auditPosts },
-                    auditVideo: { used: this.getAuditVideoCount(), limit: this.LIMITS.auditVideo },
+                    posts: { used: this._cache.posts, limit: this.LIMITS.posts },
+                    auditProfile: { used: this._cache.auditProfile, limit: this.LIMITS.auditProfile },
+                    auditPosts: { used: this._cache.auditPosts, limit: this.LIMITS.auditPosts },
+                    auditVideo: { used: this._cache.auditVideo, limit: this.LIMITS.auditVideo },
+                    newsletters: { used: this._cache.newsletters, limit: this.LIMITS.newsletters },
                     isSubscribed: this.isSubscribed()
                 };
             },
@@ -13425,7 +13855,8 @@ ${format.rules}
                     posts: { title: '🎉 Tu as utilisé tes 4 posts gratuits !', subtitle: 'Passe à la version complète pour générer du contenu illimité' },
                     auditProfile: { title: '👤 Tu as utilisé ton audit profil gratuit !', subtitle: 'Passe à la version complète pour auditer tous tes profils' },
                     auditPosts: { title: '📝 Tu as utilisé ton audit posts gratuit !', subtitle: 'Passe à la version complète pour analyser tous tes posts' },
-                    auditVideo: { title: '🎬 Tu as utilisé ton audit vidéo gratuit !', subtitle: 'Passe à la version complète pour auditer toutes tes vidéos' }
+                    auditVideo: { title: '🎬 Tu as utilisé ton audit vidéo gratuit !', subtitle: 'Passe à la version complète pour auditer toutes tes vidéos' },
+                    newsletters: { title: '📧 Tu as utilisé tes 2 newsletters gratuites !', subtitle: 'Passe à la version complète pour créer des newsletters illimitées' }
                 };
 
                 const t = titles[type] || titles.posts;
@@ -13436,6 +13867,10 @@ ${format.rules}
                     <div class="usage-item">
                         <span>📝 Posts générés</span>
                         <span class="usage-count">${stats.posts.used}/${stats.posts.limit}</span>
+                    </div>
+                    <div class="usage-item">
+                        <span>📧 Newsletters</span>
+                        <span class="usage-count">${stats.newsletters.used}/${stats.newsletters.limit}</span>
                     </div>
                     <div class="usage-item">
                         <span>👤 Audit profil</span>
@@ -13932,6 +14367,13 @@ ${format.rules}
                 if (ideaSection) {
                     ideaSection.style.display = 'block';
                 }
+
+                // Transférer le contenu du template éditable vers ideaInput si présent
+                const templateContent = getEditableTemplateContent();
+                if (templateContent && ideaInput) {
+                    ideaInput.value = templateContent;
+                }
+
                 if (ideaInput) {
                     ideaInput.placeholder = "Décris ton idée ou colle ici un texte que tu veux améliorer...";
                 }
@@ -13943,7 +14385,7 @@ ${format.rules}
             selectCreationMode(mode);
         }
 
-        // Charger les questions du jour sélectionné
+        // Charger le template du jour sélectionné
         function loadStrategyDay() {
             const day = document.getElementById('strategyDay').value;
             const profile = UserProfile.get();
@@ -13951,6 +14393,9 @@ ${format.rules}
             const daysData = objective === 'expertise' ? STRATEGY_DAYS_EXPERTISE : STRATEGY_DAYS_VENDRE;
             const data = daysData[day];
             const container = document.getElementById('extractionQuestions');
+
+            // Debug log
+            console.log('📅 20 Jours - Mode:', objective, '| Jour:', day, '| Has template:', !!data?.template);
 
             if (!data) return;
 
@@ -13971,20 +14416,103 @@ ${format.rules}
                 `;
             }
 
-            container.innerHTML = `
-                ${frameworkBadge}
-                <div class="day-objective">🎯 ${data.objective}</div>
-                <h4>📝 Questions pour toi :</h4>
-                <ul>
-                    ${data.questions.map(q => `<li>${q}</li>`).join('')}
-                </ul>
-                ${structureBlock}
-            `;
+            // Si le jour a un template éditable, l'afficher
+            if (data.template) {
+                const templateHtml = renderEditableTemplate(data.template);
+                container.innerHTML = `
+                    ${frameworkBadge}
+                    <div class="day-objective">🎯 ${data.objective}</div>
+                    <label class="editable-template-label">✍️ Remplis directement les champs ci-dessous :</label>
+                    <div class="editable-template" id="editableTemplate">${templateHtml}</div>
+                    <div class="editable-template-hint">
+                        <span>💡</span>
+                        <span>Clique sur les zones oranges pour les modifier. L'IA utilisera tes réponses pour créer le post.</span>
+                    </div>
+                    ${structureBlock}
+                `;
+                // Cacher le textarea anecdote car on utilise le template
+                const anecdoteSection = document.querySelector('.anecdote-inline');
+                if (anecdoteSection) anecdoteSection.style.display = 'none';
+            } else {
+                // Fallback: afficher les questions (pour mode Expertise qui n'a pas encore de templates)
+                container.innerHTML = `
+                    ${frameworkBadge}
+                    <div class="day-objective">🎯 ${data.objective}</div>
+                    <h4>📝 Questions pour toi :</h4>
+                    <ul>
+                        ${data.questions.map(q => `<li>${q}</li>`).join('')}
+                    </ul>
+                    ${structureBlock}
+                `;
+                // Afficher le textarea anecdote pour le mode fallback
+                const anecdoteSection = document.querySelector('.anecdote-inline');
+                if (anecdoteSection) anecdoteSection.style.display = 'block';
+            }
 
             // Stocker le jour actuel et le type pour le prompt
             currentState.strategyDay = parseInt(day);
             currentState.strategyType = objective;
         }
+
+        // Convertir le template en HTML avec placeholders éditables
+        function renderEditableTemplate(template) {
+            // Remplacer les {placeholder} par des spans éditables
+            return template.replace(/\{([^}]+)\}/g, (match, placeholder) => {
+                return `<span class="template-placeholder" contenteditable="true" data-placeholder="${placeholder}">${placeholder}</span>`;
+            });
+        }
+
+        // Récupérer le contenu du template éditable
+        function getEditableTemplateContent() {
+            const templateEl = document.getElementById('editableTemplate');
+            if (!templateEl) return '';
+
+            // Cloner pour ne pas modifier l'original
+            const clone = templateEl.cloneNode(true);
+
+            // Remplacer les placeholders par leur contenu
+            clone.querySelectorAll('.template-placeholder').forEach(placeholder => {
+                const text = placeholder.textContent.trim();
+                const originalPlaceholder = placeholder.dataset.placeholder;
+                // Si le contenu n'a pas été modifié, mettre une chaîne vide ou le placeholder entre parenthèses
+                if (text === originalPlaceholder) {
+                    placeholder.replaceWith(`(${originalPlaceholder})`);
+                } else {
+                    placeholder.replaceWith(text);
+                }
+            });
+
+            return clone.textContent.trim();
+        }
+
+        // Marquer un placeholder comme édité
+        document.addEventListener('input', function(e) {
+            if (e.target.classList.contains('template-placeholder')) {
+                const originalPlaceholder = e.target.dataset.placeholder;
+                const currentText = e.target.textContent.trim();
+                if (currentText !== originalPlaceholder && currentText !== '') {
+                    e.target.classList.add('edited');
+                } else {
+                    e.target.classList.remove('edited');
+                }
+            }
+        });
+
+        // Focus sur un placeholder: sélectionner tout le texte si c'est le placeholder original
+        document.addEventListener('focus', function(e) {
+            if (e.target.classList.contains('template-placeholder')) {
+                const originalPlaceholder = e.target.dataset.placeholder;
+                const currentText = e.target.textContent.trim();
+                if (currentText === originalPlaceholder) {
+                    // Sélectionner tout le texte pour faciliter le remplacement
+                    const range = document.createRange();
+                    range.selectNodeContents(e.target);
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                }
+            }
+        }, true);
 
         // Initialiser les click handlers pour les tone chips
         function initToneChips() {
@@ -16092,14 +16620,13 @@ CONSIGNES SPÉCIALES POUR LE THOUGHT LEADERSHIP :
 📌 THÉMATIQUE DU JOUR : ${dayData.title}
 🎯 OBJECTIF : ${dayData.objective}
 
-📝 QUESTIONS D'EXTRACTION (l'utilisateur a répondu dans son texte) :
-${dayData.questions.map((q, i) => `${i+1}. ${q}`).join('\n')}
-
 INSTRUCTIONS SPÉCIALES POUR CE TYPE DE CONTENU :
-- Utilise les réponses de l'utilisateur aux questions ci-dessus comme matière première
+- L'utilisateur a rempli un template avec ses informations personnelles
+- Utilise TOUTES les informations fournies comme matière première pour créer le post
 - Adapte la structure au type de contenu "${dayData.title}"
 - L'objectif "${dayData.objective}" doit transparaître dans le post
 - Crée un contenu authentique basé sur l'expérience réelle partagée
+- Si l'utilisateur a mentionné "Mon offre", intègre-la subtilement à la fin
 - Garde le format (${fmt.name}) et la plateforme (${plat.name}) en tête
 
 `;
@@ -16168,7 +16695,15 @@ INSTRUCTIONS SPÉCIALES POUR CE TYPE DE CONTENU :
             btn.disabled = false; btn.innerHTML = '🪝 1. Générer des accroches';
         }
 
-        function regenerateContent() { generateContent(); }
+        function regenerateContent() {
+            // Si un hook est sélectionné, regénérer avec le brief actuel + hook
+            if (currentState.selectedHook) {
+                generateContentWithHook();
+            } else {
+                // Sinon, revenir à l'étape des hooks pour regénérer depuis le début
+                showHooksSection();
+            }
+        }
         function copyContent() { navigator.clipboard.writeText(currentState.generatedContent).then(() => showToast('✅ ' + t('toasts.copied'))); }
 
         function auditGeneratedContent() {
@@ -16902,9 +17437,11 @@ Pour chaque suggestion :
 
         // ==================== API ====================
         const API_URL = 'https://sos-storytelling-api.sandra-devonssay.workers.dev/';
-        
+
         async function callAI(prompt, usePerplexity = false) {
-            const response = await fetch(API_URL, {
+            // Utiliser fetchWithTimeout avec 90 secondes de timeout
+            const fetchFn = window.fetchWithTimeout || fetch;
+            const response = await fetchFn(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -16912,7 +17449,7 @@ Pour chaque suggestion :
                     userProfile: UserProfile.get(),
                     usePerplexity: usePerplexity
                 })
-            });
+            }, 90000);
             if (!response.ok) throw new Error('Erreur connexion');
             const data = await response.json();
             if (data.content?.[0]?.text) return data.content[0].text;
@@ -18401,8 +18938,9 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
         });
     </script>
 
-    <!-- Module Newsletter -->
+    <!-- DÉSACTIVÉ - Module Newsletter (conservé pour plus tard)
     <script src="newsletter-module.js"></script>
+    -->
     <script>
         // Email Choice Modal Functions
         function showEmailChoiceModal() {
@@ -18729,8 +19267,9 @@ Preview: \${email.previewText || ''}
         });
     </script>
 
-    <!-- Module Prospects -->
+    <!-- DÉSACTIVÉ - Module Prospects (conservé pour plus tard)
     <script src="prospects-module.js?v=20251225d"></script>
+    -->
     <script>
         let prospectsModuleInitialized = false;
 
@@ -18963,9 +19502,10 @@ Preview: \${email.previewText || ''}
         }
     </script>
 
-    <!-- Module Campagnes -->
+    <!-- DÉSACTIVÉ - Module Campagnes (conservé pour plus tard)
     <script src="campaigns-module.js?v=1733400080"></script>
     <script src="sender-emails-module.js?v=20260109"></script>
+    -->
     <script src="reports-module.js?v=20260109"></script>
     <script>
         let campaignsModuleInitialized = false;
@@ -19393,8 +19933,9 @@ Preview: \${email.previewText || ''}
         document.addEventListener('DOMContentLoaded', initCookieBanner);
     </script>
 
-    <!-- Module Inbox Intelligente -->
+    <!-- DÉSACTIVÉ - Module Inbox Intelligente (conservé pour plus tard)
     <script src="inbox-module.js?v=20260102"></script>
+    -->
     <script>
         let inboxInitialized = false;
 
@@ -19438,7 +19979,7 @@ Preview: \${email.previewText || ''}
     <script src="collaboration-module.js?v=20260107"></script>
 
     <!-- Module Audit RS -->
-    <script src="audit-module.js?v=20260111"></script>
+    <script src="audit-module.js?v=20260123k"></script>
     <script>
         // Afficher/Cacher les éléments de collaboration selon le plan utilisateur
         function updateCollaborationUI() {
