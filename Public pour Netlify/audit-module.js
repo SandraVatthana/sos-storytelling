@@ -2479,13 +2479,33 @@ const AuditModule = (function() {
     function rewritePost(postIndex) {
         // Récupérer le contenu du post depuis les résultats d'audit
         const postAnalysis = postsResults?.detailedAnalysis?.[postIndex];
-        if (!postAnalysis || !postAnalysis.originalContent) {
-            console.error('Post non trouvé à l\'index', postIndex);
-            return;
+
+        // Essayer d'abord les résultats d'audit, sinon fallback sur le tableau posts
+        let postContent = postAnalysis?.originalContent;
+        let platform = postAnalysis?.platform || 'linkedin';
+
+        // Fallback: chercher dans le tableau posts original (même session)
+        if (!postContent && posts[postIndex]) {
+            postContent = posts[postIndex].content;
+            platform = posts[postIndex].platform || 'linkedin';
         }
 
-        const postContent = postAnalysis.originalContent;
-        const platform = postAnalysis.platform || 'linkedin';
+        // Dernier fallback: chercher un post valide par son index réel
+        if (!postContent) {
+            const validPosts = posts.filter(p => p.content && p.content.trim().length > 0);
+            if (validPosts[postIndex]) {
+                postContent = validPosts[postIndex].content;
+                platform = validPosts[postIndex].platform || 'linkedin';
+            }
+        }
+
+        if (!postContent) {
+            console.error('Post non trouvé à l\'index', postIndex);
+            if (typeof showToast === 'function') {
+                showToast('❌ Impossible de récupérer le post. Relance un audit.');
+            }
+            return;
+        }
 
         // Fermer le modal d'audit
         closeModal();
