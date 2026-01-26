@@ -2021,6 +2021,8 @@ const AuditModule = (function() {
                 name: file.name,
                 type: file.type
             };
+            // Réinitialiser les résultats pour afficher le formulaire avec la nouvelle capture
+            auditResults = null;
             switchTab('profiles');
         };
         reader.readAsDataURL(file);
@@ -2052,6 +2054,8 @@ const AuditModule = (function() {
                 name: file.name,
                 type: file.type
             });
+            // Réinitialiser les résultats pour afficher le formulaire
+            auditResults = null;
             switchTab('profiles');
         };
         reader.readAsDataURL(file);
@@ -2081,6 +2085,8 @@ const AuditModule = (function() {
                             name: 'capture-collee.png',
                             type: file.type
                         };
+                        // Réinitialiser les résultats pour afficher le formulaire
+                        auditResults = null;
                     }
                     // Sinon, si on a déjà un profil et moins de 3 posts, c'est un post
                     else if (currentTab === 'profiles' && profileScreenshots.posts.length < 3) {
@@ -2089,6 +2095,8 @@ const AuditModule = (function() {
                             name: 'capture-collee.png',
                             type: file.type
                         });
+                        // Réinitialiser les résultats pour afficher le formulaire
+                        auditResults = null;
                     }
                     switchTab('profiles');
                 };
