@@ -2475,9 +2475,9 @@ const AuditModule = (function() {
         switchTab('posts');
     }
 
-    // Réécrire un post audité dans le générateur
-    function rewritePost(postIndex) {
-        // Récupérer le contenu du post depuis les résultats d'audit
+    // Réécrire un post audité directement avec l'IA
+    async function rewritePost(postIndex) {
+        // Récupérer le contenu du post et son analyse
         const postAnalysis = postsResults?.detailedAnalysis?.[postIndex];
 
         // Essayer d'abord les résultats d'audit, sinon fallback sur le tableau posts
@@ -2507,42 +2507,193 @@ const AuditModule = (function() {
             return;
         }
 
-        // Fermer le modal d'audit
-        closeModal();
-
-        // Attendre que le modal soit fermé puis ouvrir le générateur
-        setTimeout(() => {
-            // Afficher le générateur en mode libre
-            if (typeof showQuickPost === 'function') {
-                showQuickPost();
+        // Construire les recommandations de l'audit
+        let auditFeedback = [];
+        if (postAnalysis) {
+            if (postAnalysis.hook?.score < 70) {
+                auditFeedback.push(`- ACCROCHE (${postAnalysis.hook.score}/100): ${postAnalysis.aiSuggestions?.hookFeedback || 'Accroche à améliorer, elle manque d\'impact'}${postAnalysis.aiSuggestions?.improvedHook ? `. Suggestion: "${postAnalysis.aiSuggestions.improvedHook}"` : ''}`);
             }
+            if (postAnalysis.cta?.score < 70) {
+                auditFeedback.push(`- CTA (${postAnalysis.cta.score}/100): ${postAnalysis.aiSuggestions?.ctaFeedback || 'CTA faible ou absent'}${postAnalysis.aiSuggestions?.ctaAlternatives?.length ? `. Suggestions: ${postAnalysis.aiSuggestions.ctaAlternatives.join(', ')}` : ''}`);
+            }
+            if (postAnalysis.emotion?.score < 70) {
+                auditFeedback.push(`- ÉMOTION (${postAnalysis.emotion.score}/100): ${postAnalysis.aiSuggestions?.emotionFeedback || postAnalysis.aiSuggestions?.emotionSuggestion || 'Manque d\'émotion et de storytelling'}`);
+            }
+            if (postAnalysis.promise?.score < 70) {
+                auditFeedback.push(`- PROMESSE (${postAnalysis.promise.score}/100): ${postAnalysis.aiSuggestions?.promiseFeedback || 'La promesse de valeur n\'est pas claire'}${postAnalysis.aiSuggestions?.promiseClearer ? `. Suggestion: ${postAnalysis.aiSuggestions.promiseClearer}` : ''}`);
+            }
+            if (postAnalysis.structure?.totalScore < 70) {
+                auditFeedback.push(`- STRUCTURE (${postAnalysis.structure.totalScore}/100): ${postAnalysis.aiSuggestions?.structureSuggestion || 'Structure à améliorer pour plus de lisibilité'}`);
+            }
+            if (postAnalysis.aiSuggestions?.topPriority) {
+                auditFeedback.unshift(`🎯 PRIORITÉ: ${postAnalysis.aiSuggestions.topPriority}`);
+            }
+        }
 
-            // Passer en mode libre
-            setTimeout(() => {
-                if (typeof switchMode === 'function') {
-                    switchMode('libre');
-                }
+        // Afficher le loader dans un modal de résultat
+        showRewriteModal(postIndex, 'loading');
 
-                // Pré-remplir le champ avec le contenu du post
-                const ideaInput = document.getElementById('ideaInput');
-                if (ideaInput) {
-                    ideaInput.value = postContent;
-                    ideaInput.focus();
-                    // Scroll vers le champ
-                    ideaInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
+        // Construire le prompt
+        const prompt = `Tu es un expert en copywriting pour ${platform === 'linkedin' ? 'LinkedIn' : platform === 'instagram' ? 'Instagram' : platform}.
 
-                // Sélectionner la plateforme si possible
-                if (typeof selectPlatform === 'function' && platform) {
-                    selectPlatform(platform);
-                }
+MISSION : Réécris ce post en améliorant les points faibles identifiés par l'audit, tout en conservant l'idée principale et le ton de l'auteur.
 
-                // Notification
+POST ORIGINAL :
+"""
+${postContent}
+"""
+
+${auditFeedback.length > 0 ? `POINTS À AMÉLIORER (audit) :
+${auditFeedback.join('\n')}` : 'Améliore globalement le post : accroche plus percutante, structure plus claire, CTA plus engageant, plus d\'émotion.'}
+
+CONSIGNES :
+- Garde le même sujet et le même message principal
+- Conserve le ton et le style de l'auteur
+- Améliore l'accroche pour qu'elle stoppe le scroll
+- Ajoute de l'émotion et du storytelling si nécessaire
+- Structure le post pour une meilleure lisibilité (sauts de ligne, phrases courtes)
+- Ajoute un CTA engageant à la fin
+- Garde une longueur similaire (+/- 20%)
+- Pas de hashtags dans le corps du texte
+- Tutoiement
+
+Génère UNIQUEMENT le post réécrit, sans commentaires ni explications.`;
+
+        try {
+            // Appeler l'API (utilise la fonction globale callAI)
+            const API_URL = window.CONFIG?.API_URL || 'https://sos-storytelling-api.sandra-devonssay.workers.dev/';
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    messages: [{ role: 'user', content: prompt }],
+                    userProfile: window.UserProfile?.get() || null
+                })
+            });
+
+            if (!response.ok) throw new Error('Erreur API');
+
+            const data = await response.json();
+            const rewrittenPost = data.choices?.[0]?.message?.content || data.content || data.text || '';
+
+            if (!rewrittenPost) throw new Error('Réponse vide');
+
+            // Afficher le résultat
+            showRewriteModal(postIndex, 'success', rewrittenPost, postContent);
+
+        } catch (error) {
+            console.error('Erreur réécriture:', error);
+            showRewriteModal(postIndex, 'error', error.message);
+        }
+    }
+
+    // Modal pour afficher le résultat de la réécriture
+    function showRewriteModal(postIndex, status, content = '', originalContent = '') {
+        // Supprimer l'ancien modal s'il existe
+        const existingModal = document.getElementById('rewriteResultModal');
+        if (existingModal) existingModal.remove();
+
+        let modalContent = '';
+
+        if (status === 'loading') {
+            modalContent = `
+                <div style="text-align: center; padding: 40px;">
+                    <div style="width: 60px; height: 60px; margin: 0 auto 20px; border: 4px solid #e0e0e0; border-top-color: #667eea; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <p style="color: #666; font-size: 1.1em;">✨ Réécriture en cours...</p>
+                    <p style="color: #999; font-size: 0.9em;">L'IA améliore ton post avec les recommandations de l'audit</p>
+                </div>
+                <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+            `;
+        } else if (status === 'error') {
+            modalContent = `
+                <div style="text-align: center; padding: 40px;">
+                    <div style="font-size: 3em; margin-bottom: 15px;">❌</div>
+                    <p style="color: #dc2626; font-size: 1.1em;">Erreur lors de la réécriture</p>
+                    <p style="color: #666;">${content}</p>
+                    <button onclick="document.getElementById('rewriteResultModal').remove()"
+                            style="margin-top: 20px; padding: 10px 25px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                        Fermer
+                    </button>
+                </div>
+            `;
+        } else {
+            modalContent = `
+                <div style="padding: 20px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                        <span style="font-size: 1.5em;">✨</span>
+                        <h3 style="margin: 0; color: #1f2937;">Post réécrit</h3>
+                        <span style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.8em;">Amélioré</span>
+                    </div>
+
+                    <div style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 2px solid #10b981; border-radius: 12px; padding: 20px; margin-bottom: 20px; white-space: pre-wrap; line-height: 1.6; font-size: 0.95em; max-height: 400px; overflow-y: auto;">
+${content}
+                    </div>
+
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button onclick="AuditModule.copyRewrittenPost()"
+                                style="flex: 1; min-width: 140px; padding: 12px 20px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            📋 Copier le post
+                        </button>
+                        <button onclick="AuditModule.rewritePost(${postIndex})"
+                                style="flex: 1; min-width: 140px; padding: 12px 20px; background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; border-radius: 8px; cursor: pointer; font-weight: 500;">
+                            🔄 Régénérer
+                        </button>
+                        <button onclick="document.getElementById('rewriteResultModal').remove()"
+                                style="padding: 12px 20px; background: transparent; color: #6b7280; border: none; cursor: pointer;">
+                            ✕ Fermer
+                        </button>
+                    </div>
+
+                    <details style="margin-top: 20px;">
+                        <summary style="cursor: pointer; color: #6b7280; font-size: 0.9em;">📄 Voir le post original</summary>
+                        <div style="background: #f9fafb; border-radius: 8px; padding: 15px; margin-top: 10px; white-space: pre-wrap; color: #6b7280; font-size: 0.9em; max-height: 200px; overflow-y: auto;">
+${originalContent}
+                        </div>
+                    </details>
+                </div>
+            `;
+            // Stocker le contenu pour la copie
+            window._lastRewrittenPost = content;
+        }
+
+        const modal = document.createElement('div');
+        modal.id = 'rewriteResultModal';
+        modal.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 16px; box-shadow: 0 25px 50px rgba(0,0,0,0.25); z-index: 10001; max-width: 600px; width: 90%; max-height: 90vh; overflow: hidden;';
+        modal.innerHTML = modalContent;
+
+        // Backdrop
+        const backdrop = document.createElement('div');
+        backdrop.id = 'rewriteResultBackdrop';
+        backdrop.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10000;';
+        backdrop.onclick = () => {
+            modal.remove();
+            backdrop.remove();
+        };
+
+        document.body.appendChild(backdrop);
+        document.body.appendChild(modal);
+    }
+
+    // Copier le post réécrit
+    function copyRewrittenPost() {
+        if (window._lastRewrittenPost) {
+            navigator.clipboard.writeText(window._lastRewrittenPost).then(() => {
                 if (typeof showToast === 'function') {
-                    showToast('✏️ Post copié ! Modifie-le et régénère.');
+                    showToast('✅ Post copié !');
                 }
-            }, 100);
-        }, 350);
+            }).catch(() => {
+                // Fallback
+                const textarea = document.createElement('textarea');
+                textarea.value = window._lastRewrittenPost;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                if (typeof showToast === 'function') {
+                    showToast('✅ Post copié !');
+                }
+            });
+        }
     }
 
     // ============================================================
@@ -3333,6 +3484,7 @@ const AuditModule = (function() {
         runPostsAnalysis,
         resetPostsAnalysis,
         rewritePost,
+        copyRewrittenPost,
         // Video audit
         selectVideoPlatform,
         handleVideoUpload,
