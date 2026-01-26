@@ -1886,6 +1886,12 @@ const AuditModule = (function() {
                                     </div>
                                 ` : ''}
                             </div>
+                            <button onclick="AuditModule.rewritePost(${idx})"
+                                    style="margin-top: 15px; width: 100%; padding: 12px 20px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95em; display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.2s, box-shadow 0.2s;"
+                                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(102,126,234,0.4)'"
+                                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                ✏️ Réécrire ce post
+                            </button>
                         </div>
                     `).join('')}
                 </div>
@@ -2465,6 +2471,56 @@ const AuditModule = (function() {
     function resetPostsAnalysis() {
         postsResults = null;
         switchTab('posts');
+    }
+
+    // Réécrire un post audité dans le générateur
+    function rewritePost(postIndex) {
+        // Récupérer le contenu du post
+        const post = posts[postIndex];
+        if (!post || !post.content) {
+            console.error('Post non trouvé à l\'index', postIndex);
+            return;
+        }
+
+        const postContent = post.content;
+        const platform = post.platform || 'linkedin';
+
+        // Fermer le modal d'audit
+        closeModal();
+
+        // Attendre que le modal soit fermé puis ouvrir le générateur
+        setTimeout(() => {
+            // Afficher le générateur en mode libre
+            if (typeof showQuickPost === 'function') {
+                showQuickPost();
+            }
+
+            // Passer en mode libre
+            setTimeout(() => {
+                if (typeof switchMode === 'function') {
+                    switchMode('libre');
+                }
+
+                // Pré-remplir le champ avec le contenu du post
+                const ideaInput = document.getElementById('ideaInput');
+                if (ideaInput) {
+                    ideaInput.value = postContent;
+                    ideaInput.focus();
+                    // Scroll vers le champ
+                    ideaInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+
+                // Sélectionner la plateforme si possible
+                if (typeof selectPlatform === 'function' && platform) {
+                    selectPlatform(platform);
+                }
+
+                // Notification
+                if (typeof showToast === 'function') {
+                    showToast('✏️ Post copié ! Modifie-le et régénère.');
+                }
+            }, 100);
+        }, 350);
     }
 
     // ============================================================
@@ -3254,6 +3310,7 @@ const AuditModule = (function() {
         runVisualAudit,
         runPostsAnalysis,
         resetPostsAnalysis,
+        rewritePost,
         // Video audit
         selectVideoPlatform,
         handleVideoUpload,
