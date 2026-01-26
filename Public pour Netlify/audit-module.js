@@ -2536,57 +2536,109 @@ const AuditModule = (function() {
         // Récupérer le profil utilisateur et sa voix
         const userProfile = window.UserProfile?.get() || null;
         const voiceProfile = userProfile?.voiceProfile || null;
-        const voiceSamples = typeof getVoiceSamples === 'function' ? getVoiceSamples() : [];
 
-        // Construire la section voix pour le prompt
+        // Construire les instructions d'amélioration SPÉCIFIQUES basées sur l'audit
+        let improvementInstructions = [];
+
+        if (postAnalysis) {
+            // Accroche
+            if (postAnalysis.hook?.score < 80) {
+                const hookSuggestion = postAnalysis.aiSuggestions?.improvedHook;
+                improvementInstructions.push(`
+🎣 ACCROCHE (score actuel: ${postAnalysis.hook?.score || 0}/100) - CRITIQUE
+Tu DOIS réécrire la première phrase pour qu'elle soit IRRÉSISTIBLE.
+Techniques à utiliser :
+- Commence par un chiffre ("J'ai perdu 3 clients en une semaine...")
+- OU une question provocante ("Tu fais aussi cette erreur ?")
+- OU une affirmation choc ("Personne ne te le dit, mais...")
+- OU une histoire personnelle ("Ce matin, un message m'a fait réaliser...")
+${hookSuggestion ? `Inspiration suggérée : "${hookSuggestion}"` : ''}`);
+            }
+
+            // CTA
+            if (postAnalysis.cta?.score < 80) {
+                const ctaSuggestions = postAnalysis.aiSuggestions?.ctaAlternatives;
+                improvementInstructions.push(`
+🎯 CTA (score actuel: ${postAnalysis.cta?.score || 0}/100) - IMPORTANT
+Tu DOIS ajouter un appel à l'action ENGAGEANT à la fin.
+Exemples efficaces :
+- "Commente 🔥 si tu veux que je développe"
+- "Tu te reconnais ? Dis-le moi en commentaire"
+- "Partage à quelqu'un qui a besoin de lire ça"
+- "Enregistre ce post, tu en auras besoin 📌"
+- "Quel point te parle le plus ? 1, 2 ou 3 ?"
+${ctaSuggestions?.length ? `Suggestions personnalisées : ${ctaSuggestions.join(' / ')}` : ''}`);
+            }
+
+            // Émotion
+            if (postAnalysis.emotion?.score < 70) {
+                improvementInstructions.push(`
+💜 ÉMOTION (score actuel: ${postAnalysis.emotion?.score || 0}/100) - IMPORTANT
+Le post est trop factuel. Tu DOIS ajouter de l'émotion :
+- Raconte un moment de vulnérabilité ou d'échec
+- Utilise des mots forts (frustrant, bouleversant, incroyable, choqué)
+- Ajoute ce que tu as RESSENTI, pas juste les faits
+- Crée une connexion personnelle avec le lecteur`);
+            }
+
+            // Promesse
+            if (postAnalysis.promise?.score < 70) {
+                improvementInstructions.push(`
+💎 PROMESSE (score actuel: ${postAnalysis.promise?.score || 0}/100)
+Le lecteur doit savoir ce qu'il va GAGNER en lisant.
+Ajoute une promesse claire : "Après avoir lu ce post, tu sauras..." ou "Je vais te montrer comment..."`);
+            }
+
+            // Structure
+            if (postAnalysis.structure?.totalScore < 70) {
+                improvementInstructions.push(`
+📐 STRUCTURE (score actuel: ${postAnalysis.structure?.totalScore || 0}/100)
+- Fais des phrases COURTES (max 15 mots)
+- Ajoute des sauts de ligne pour aérer
+- Utilise des listes à puces si pertinent
+- Une idée = un paragraphe`);
+            }
+        }
+
+        // Section voix (secondaire)
         let voiceSection = '';
         if (voiceProfile) {
             voiceSection = `
-STYLE D'ÉCRITURE DE L'AUTEUR (à respecter absolument) :
-- Ton : ${voiceProfile.ton || 'naturel'}
-- Registre : ${voiceProfile.registre || 'courant'}
-- Rythme : ${voiceProfile.rythme || 'dynamique'}
-- Signature : ${voiceProfile.signature || ''}
-${voiceProfile.expressions ? `- Expressions favorites : ${Array.isArray(voiceProfile.expressions) ? voiceProfile.expressions.join(', ') : voiceProfile.expressions}` : ''}
-${voiceProfile.tournures ? `- Tournures typiques : ${Array.isArray(voiceProfile.tournures) ? voiceProfile.tournures.join(', ') : voiceProfile.tournures}` : ''}
-${voiceProfile.conseils ? `- Conseils : ${voiceProfile.conseils}` : ''}
-`;
-        }
-
-        // Ajouter des exemples de textes si disponibles
-        let samplesSection = '';
-        if (voiceSamples.length > 0) {
-            samplesSection = `
-EXEMPLES DE TEXTES ÉCRITS PAR L'AUTEUR (imite ce style) :
-${voiceSamples.slice(0, 3).map((s, i) => `--- Exemple ${i+1} ---\n${s.text?.substring(0, 500) || s.substring(0, 500)}...`).join('\n\n')}
-`;
+STYLE DE L'AUTEUR (à respecter tout en améliorant) :
+Ton: ${voiceProfile.ton || 'naturel'} | Registre: ${voiceProfile.registre || 'courant'}
+${voiceProfile.expressions ? `Expressions à utiliser si possible: ${Array.isArray(voiceProfile.expressions) ? voiceProfile.expressions.slice(0, 5).join(', ') : voiceProfile.expressions}` : ''}`;
         }
 
         // Construire le prompt
-        const prompt = `Tu es un expert en copywriting pour ${platform === 'linkedin' ? 'LinkedIn' : platform === 'instagram' ? 'Instagram' : platform}.
+        const prompt = `Tu es un EXPERT en copywriting ${platform === 'linkedin' ? 'LinkedIn' : platform}.
 
-MISSION : Réécris ce post en améliorant les points faibles identifiés par l'audit, tout en conservant l'idée principale et EN ÉCRIVANT EXACTEMENT COMME L'AUTEUR.
-${voiceSection}${samplesSection}
-POST ORIGINAL À RÉÉCRIRE :
+🎯 OBJECTIF : Réécrire ce post pour AUGMENTER son score d'audit (actuellement ${postAnalysis?.globalScore || 'faible'}/100).
+
+POST ORIGINAL :
 """
 ${postContent}
 """
 
-${auditFeedback.length > 0 ? `POINTS À AMÉLIORER (audit) :
-${auditFeedback.join('\n')}` : 'Améliore globalement le post : accroche plus percutante, structure plus claire, CTA plus engageant, plus d\'émotion.'}
+═══════════════════════════════════════
+AMÉLIORATIONS OBLIGATOIRES (par ordre de priorité) :
+═══════════════════════════════════════
+${improvementInstructions.length > 0 ? improvementInstructions.join('\n') : `
+- Accroche plus percutante (chiffre, question, histoire)
+- Structure aérée (phrases courtes, sauts de ligne)
+- Plus d'émotion et de storytelling
+- CTA engageant à la fin`}
 
-CONSIGNES STRICTES :
-- ÉCRIS EXACTEMENT COMME L'AUTEUR (même ton, mêmes expressions, même style)
-- Garde le même sujet et le même message principal
-- Améliore l'accroche pour qu'elle stoppe le scroll
-- Ajoute de l'émotion et du storytelling si nécessaire
-- Structure le post pour une meilleure lisibilité (sauts de ligne, phrases courtes)
-- Ajoute un CTA engageant à la fin
-- Garde une longueur similaire (+/- 20%)
-- Pas de hashtags dans le corps du texte
-- Tutoiement
+═══════════════════════════════════════
+RÈGLES STRICTES :
+═══════════════════════════════════════
+✅ Garde le MÊME sujet et message principal
+✅ Garde une longueur similaire
+✅ Tutoiement obligatoire
+✅ Pas de hashtags dans le corps du texte
+✅ Pas d'emojis excessifs (max 3-4)
+${voiceSection}
 
-Génère UNIQUEMENT le post réécrit, sans commentaires ni explications.`;
+Génère UNIQUEMENT le post réécrit, sans commentaires. Le nouveau post DOIT avoir un meilleur score que l'original.`;
 
         try {
             // Utiliser la fonction globale callAI si disponible
