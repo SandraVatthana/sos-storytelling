@@ -2533,12 +2533,41 @@ const AuditModule = (function() {
         // Afficher le loader dans un modal de résultat
         showRewriteModal(postIndex, 'loading');
 
+        // Récupérer le profil utilisateur et sa voix
+        const userProfile = window.UserProfile?.get() || null;
+        const voiceProfile = userProfile?.voiceProfile || null;
+        const voiceSamples = typeof getVoiceSamples === 'function' ? getVoiceSamples() : [];
+
+        // Construire la section voix pour le prompt
+        let voiceSection = '';
+        if (voiceProfile) {
+            voiceSection = `
+STYLE D'ÉCRITURE DE L'AUTEUR (à respecter absolument) :
+- Ton : ${voiceProfile.ton || 'naturel'}
+- Registre : ${voiceProfile.registre || 'courant'}
+- Rythme : ${voiceProfile.rythme || 'dynamique'}
+- Signature : ${voiceProfile.signature || ''}
+${voiceProfile.expressions ? `- Expressions favorites : ${Array.isArray(voiceProfile.expressions) ? voiceProfile.expressions.join(', ') : voiceProfile.expressions}` : ''}
+${voiceProfile.tournures ? `- Tournures typiques : ${Array.isArray(voiceProfile.tournures) ? voiceProfile.tournures.join(', ') : voiceProfile.tournures}` : ''}
+${voiceProfile.conseils ? `- Conseils : ${voiceProfile.conseils}` : ''}
+`;
+        }
+
+        // Ajouter des exemples de textes si disponibles
+        let samplesSection = '';
+        if (voiceSamples.length > 0) {
+            samplesSection = `
+EXEMPLES DE TEXTES ÉCRITS PAR L'AUTEUR (imite ce style) :
+${voiceSamples.slice(0, 3).map((s, i) => `--- Exemple ${i+1} ---\n${s.text?.substring(0, 500) || s.substring(0, 500)}...`).join('\n\n')}
+`;
+        }
+
         // Construire le prompt
         const prompt = `Tu es un expert en copywriting pour ${platform === 'linkedin' ? 'LinkedIn' : platform === 'instagram' ? 'Instagram' : platform}.
 
-MISSION : Réécris ce post en améliorant les points faibles identifiés par l'audit, tout en conservant l'idée principale et le ton de l'auteur.
-
-POST ORIGINAL :
+MISSION : Réécris ce post en améliorant les points faibles identifiés par l'audit, tout en conservant l'idée principale et EN ÉCRIVANT EXACTEMENT COMME L'AUTEUR.
+${voiceSection}${samplesSection}
+POST ORIGINAL À RÉÉCRIRE :
 """
 ${postContent}
 """
@@ -2546,9 +2575,9 @@ ${postContent}
 ${auditFeedback.length > 0 ? `POINTS À AMÉLIORER (audit) :
 ${auditFeedback.join('\n')}` : 'Améliore globalement le post : accroche plus percutante, structure plus claire, CTA plus engageant, plus d\'émotion.'}
 
-CONSIGNES :
+CONSIGNES STRICTES :
+- ÉCRIS EXACTEMENT COMME L'AUTEUR (même ton, mêmes expressions, même style)
 - Garde le même sujet et le même message principal
-- Conserve le ton et le style de l'auteur
 - Améliore l'accroche pour qu'elle stoppe le scroll
 - Ajoute de l'émotion et du storytelling si nécessaire
 - Structure le post pour une meilleure lisibilité (sauts de ligne, phrases courtes)
@@ -2560,23 +2589,33 @@ CONSIGNES :
 Génère UNIQUEMENT le post réécrit, sans commentaires ni explications.`;
 
         try {
-            // Appeler l'API (utilise la fonction globale callAI)
-            const API_URL = window.CONFIG?.API_URL || 'https://sos-storytelling-api.sandra-devonssay.workers.dev/';
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    messages: [{ role: 'user', content: prompt }],
-                    userProfile: window.UserProfile?.get() || null
-                })
-            });
+            // Utiliser la fonction globale callAI si disponible
+            let rewrittenPost = '';
 
-            if (!response.ok) throw new Error('Erreur API');
+            if (typeof window.callAI === 'function') {
+                rewrittenPost = await window.callAI(prompt);
+            } else {
+                // Fallback: appel direct à l'API
+                const API_URL = window.CONFIG?.API_URL || 'https://sos-storytelling-api.sandra-devonssay.workers.dev/';
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        messages: [{ role: 'user', content: prompt }],
+                        userProfile: userProfile
+                    })
+                });
 
-            const data = await response.json();
-            const rewrittenPost = data.choices?.[0]?.message?.content || data.content || data.text || '';
+                if (!response.ok) throw new Error('Erreur API');
 
-            if (!rewrittenPost) throw new Error('Réponse vide');
+                const data = await response.json();
+                // Format de réponse: data.content[0].text
+                rewrittenPost = data.content?.[0]?.text || data.text || '';
+            }
+
+            if (!rewrittenPost || rewrittenPost === '[object Object]') {
+                throw new Error('Réponse vide ou invalide');
+            }
 
             // Afficher le résultat
             showRewriteModal(postIndex, 'success', rewrittenPost, postContent);
