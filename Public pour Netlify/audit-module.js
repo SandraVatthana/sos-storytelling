@@ -1037,10 +1037,21 @@ const AuditModule = (function() {
         return `
             <div class="audit-history-view">
                 <div class="history-header">
-                    <h3>📋 Mes audits (${history.length})</h3>
-                    <button class="audit-btn-secondary" onclick="AuditModule.hideHistory()">
-                        ← Retour
-                    </button>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <h3>📋 Mes audits (${history.length})</h3>
+                        <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 0.85em; color: #666;">
+                            <input type="checkbox" id="selectAllAudits" onchange="AuditModule.toggleSelectAll(this.checked)" style="width: 16px; height: 16px; cursor: pointer;">
+                            Tout sélectionner
+                        </label>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="audit-btn-danger" id="deleteSelectedBtn" onclick="AuditModule.deleteSelectedFromHistory()" style="display: none; padding: 8px 15px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85em;">
+                            🗑️ Supprimer (<span id="selectedCount">0</span>)
+                        </button>
+                        <button class="audit-btn-secondary" onclick="AuditModule.hideHistory()">
+                            ← Retour
+                        </button>
+                    </div>
                 </div>
 
                 <div class="history-list">
@@ -1055,30 +1066,90 @@ const AuditModule = (function() {
                         const platformInfo = PLATFORMS[item.platform] || { emoji: '📊', name: item.platform };
 
                         return `
-                            <div class="history-item" onclick="AuditModule.loadFromHistory(${item.id})">
-                                <div class="history-item-left">
-                                    <span class="history-type-badge">${typeIcons[item.type] || '📊'} ${typeLabels[item.type] || item.type}</span>
-                                    <span class="history-platform">${platformInfo.emoji} ${platformInfo.name}</span>
+                            <div class="history-item" data-id="${item.id}">
+                                <div class="history-item-checkbox" onclick="event.stopPropagation();">
+                                    <input type="checkbox" class="audit-checkbox" data-id="${item.id}" onchange="AuditModule.updateSelectionCount()" style="width: 18px; height: 18px; cursor: pointer;">
                                 </div>
-                                <div class="history-item-center">
-                                    <div class="history-score" style="color: ${getScoreColor(item.score)}">
-                                        ${item.score}/100
+                                <div class="history-item-content" onclick="AuditModule.loadFromHistory(${item.id})" style="display: flex; flex: 1; align-items: center; cursor: pointer;">
+                                    <div class="history-item-left">
+                                        <span class="history-type-badge">${typeIcons[item.type] || '📊'} ${typeLabels[item.type] || item.type}</span>
+                                        <span class="history-platform">${platformInfo.emoji} ${platformInfo.name}</span>
                                     </div>
-                                    <div class="history-summary">${item.summary || ''}</div>
-                                </div>
-                                <div class="history-item-right">
-                                    <div class="history-date">${dateStr}</div>
-                                    <div class="history-time">${timeStr}</div>
-                                    <button class="history-delete-btn" onclick="event.stopPropagation(); AuditModule.deleteFromHistory(${item.id})" title="Supprimer">
-                                        🗑️
-                                    </button>
+                                    <div class="history-item-center">
+                                        <div class="history-score" style="color: ${getScoreColor(item.score)}">
+                                            ${item.score}/100
+                                        </div>
+                                        <div class="history-summary">${item.summary || ''}</div>
+                                    </div>
+                                    <div class="history-item-right">
+                                        <div class="history-date">${dateStr}</div>
+                                        <div class="history-time">${timeStr}</div>
+                                    </div>
                                 </div>
                             </div>
                         `;
                     }).join('')}
                 </div>
+
+                <div style="margin-top: 15px; padding: 10px; background: #f3f4f6; border-radius: 8px; font-size: 0.85em; color: #666; text-align: center;">
+                    💡 Sélectionne les audits à supprimer pour libérer de l'espace
+                </div>
             </div>
         `;
+    }
+
+    // Sélectionner/désélectionner tous les audits
+    function toggleSelectAll(checked) {
+        const checkboxes = document.querySelectorAll('.audit-checkbox');
+        checkboxes.forEach(cb => cb.checked = checked);
+        updateSelectionCount();
+    }
+
+    // Mettre à jour le compteur de sélection
+    function updateSelectionCount() {
+        const checkboxes = document.querySelectorAll('.audit-checkbox:checked');
+        const count = checkboxes.length;
+        const deleteBtn = document.getElementById('deleteSelectedBtn');
+        const countSpan = document.getElementById('selectedCount');
+        const selectAllCheckbox = document.getElementById('selectAllAudits');
+
+        if (countSpan) countSpan.textContent = count;
+        if (deleteBtn) deleteBtn.style.display = count > 0 ? 'inline-block' : 'none';
+
+        // Mettre à jour "Tout sélectionner"
+        const allCheckboxes = document.querySelectorAll('.audit-checkbox');
+        if (selectAllCheckbox && allCheckboxes.length > 0) {
+            selectAllCheckbox.checked = count === allCheckboxes.length;
+            selectAllCheckbox.indeterminate = count > 0 && count < allCheckboxes.length;
+        }
+    }
+
+    // Supprimer les audits sélectionnés
+    function deleteSelectedFromHistory() {
+        const checkboxes = document.querySelectorAll('.audit-checkbox:checked');
+        const idsToDelete = Array.from(checkboxes).map(cb => parseInt(cb.dataset.id));
+
+        if (idsToDelete.length === 0) return;
+
+        const confirmMsg = idsToDelete.length === 1
+            ? 'Supprimer cet audit ?'
+            : `Supprimer ces ${idsToDelete.length} audits ?`;
+
+        if (!confirm(confirmMsg)) return;
+
+        try {
+            const history = getAuditHistory();
+            const newHistory = history.filter(item => !idsToDelete.includes(item.id));
+            localStorage.setItem(AUDIT_HISTORY_KEY, JSON.stringify(newHistory));
+
+            if (typeof showToast === 'function') {
+                showToast(`🗑️ ${idsToDelete.length} audit${idsToDelete.length > 1 ? 's' : ''} supprimé${idsToDelete.length > 1 ? 's' : ''}`);
+            }
+
+            showHistory(); // Rafraîchir la vue
+        } catch (e) {
+            console.error('Erreur suppression:', e);
+        }
     }
 
     function openAuditModal() {
@@ -3589,7 +3660,10 @@ ${originalContent}
         showHistory,
         hideHistory,
         loadFromHistory,
-        deleteFromHistory
+        deleteFromHistory,
+        toggleSelectAll,
+        updateSelectionCount,
+        deleteSelectedFromHistory
     };
 
 })();
