@@ -2391,6 +2391,8 @@ const AuditModule = (function() {
 
             return {
                 ...localAnalysis,
+                originalContent: originalPost?.content || '',
+                platform: originalPost?.platform || 'linkedin',
                 hasImages: postHasImages,
                 imageCount: originalPost?.images?.length || 0,
                 aiSuggestions: aiPost ? {
@@ -2475,15 +2477,15 @@ const AuditModule = (function() {
 
     // Réécrire un post audité dans le générateur
     function rewritePost(postIndex) {
-        // Récupérer le contenu du post
-        const post = posts[postIndex];
-        if (!post || !post.content) {
+        // Récupérer le contenu du post depuis les résultats d'audit
+        const postAnalysis = postsResults?.detailedAnalysis?.[postIndex];
+        if (!postAnalysis || !postAnalysis.originalContent) {
             console.error('Post non trouvé à l\'index', postIndex);
             return;
         }
 
-        const postContent = post.content;
-        const platform = post.platform || 'linkedin';
+        const postContent = postAnalysis.originalContent;
+        const platform = postAnalysis.platform || 'linkedin';
 
         // Fermer le modal d'audit
         closeModal();
