@@ -11,6 +11,18 @@ window.AgentAutopilot = (function() {
     let isRunning = false;
     let currentUserId = null;
 
+    // Multi-campagnes
+    let selectedCampaign = 'ALL';
+    let productCampaigns = [];
+    let campaignStats = [];
+
+    // Configuration des campagnes (fallback si pas chargé de Supabase)
+    const CAMPAIGNS_CONFIG = {
+        'SOS_GEO': { id: 'SOS_GEO', name: 'SOS GEO', icon: '🔵', color: '#3B82F6' },
+        'SOCIAL_PROSPECTOR': { id: 'SOCIAL_PROSPECTOR', name: 'Social Prospector', icon: '🟣', color: '#8B5CF6' },
+        'APPS_FORMATION': { id: 'APPS_FORMATION', name: 'Apps Formation', icon: '🟠', color: '#F97316' }
+    };
+
     // Fonction helper pour obtenir Supabase
     function db() {
         return window.supabaseApp;
@@ -39,6 +51,47 @@ window.AgentAutopilot = (function() {
 
         console.log('Agent Autopilot init - userId:', currentUserId);
         await loadConfig();
+        await loadProductCampaigns();
+        await loadCampaignStats();
+    }
+
+    // ==================== PRODUCT CAMPAIGNS ====================
+    async function loadProductCampaigns() {
+        try {
+            const { data, error } = await db()
+                .from('product_campaigns')
+                .select('*')
+                .eq('is_active', true);
+
+            if (data && data.length > 0) {
+                productCampaigns = data;
+            } else {
+                // Fallback avec config locale
+                productCampaigns = Object.values(CAMPAIGNS_CONFIG);
+            }
+        } catch (e) {
+            console.error('Erreur chargement campagnes:', e);
+            productCampaigns = Object.values(CAMPAIGNS_CONFIG);
+        }
+    }
+
+    async function loadCampaignStats() {
+        try {
+            const { data, error } = await db()
+                .from('product_campaign_stats')
+                .select('*');
+
+            if (data) {
+                campaignStats = data;
+            }
+        } catch (e) {
+            console.error('Erreur chargement stats campagnes:', e);
+        }
+    }
+
+    function getCampaignConfig(campaignId) {
+        const campaign = productCampaigns.find(c => c.id === campaignId);
+        return campaign || CAMPAIGNS_CONFIG[campaignId] || CAMPAIGNS_CONFIG['SOS_GEO'];
     }
 
     // ==================== CONFIG ====================
@@ -89,6 +142,69 @@ window.AgentAutopilot = (function() {
         return { data, error };
     }
 
+    // ==================== CAMPAIGN UI ====================
+    function renderCampaignCards() {
+        return Object.values(CAMPAIGNS_CONFIG).map(campaign => {
+            const stats = campaignStats.find(s => s.product_campaign === campaign.id) || {
+                total_prospects: 0,
+                contacted: 0,
+                replied: 0,
+                opened: 0
+            };
+
+            const progressPercent = stats.total_prospects > 0
+                ? Math.round((stats.contacted / stats.total_prospects) * 100)
+                : 0;
+
+            return `
+                <div class="campaign-card" onclick="AgentAutopilot.selectCampaign('${campaign.id}')">
+                    <div class="campaign-card-header">
+                        <span class="campaign-icon">${campaign.icon}</span>
+                        <div class="campaign-info">
+                            <h4>${campaign.name}</h4>
+                            <span class="campaign-prospects">${stats.total_prospects} prospects</span>
+                        </div>
+                    </div>
+                    <div class="campaign-progress">
+                        <div class="progress-header">
+                            <span>Progression</span>
+                            <span>${progressPercent}%</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" style="width: ${progressPercent}%; background: ${campaign.color};"></div>
+                        </div>
+                    </div>
+                    <div class="campaign-stats-row">
+                        <div class="mini-stat">
+                            <span class="mini-stat-value">${stats.contacted || 0}</span>
+                            <span class="mini-stat-label">Envoyés</span>
+                        </div>
+                        <div class="mini-stat">
+                            <span class="mini-stat-value">${stats.opened || 0}</span>
+                            <span class="mini-stat-label">Ouverts</span>
+                        </div>
+                        <div class="mini-stat">
+                            <span class="mini-stat-value">${stats.replied || 0}</span>
+                            <span class="mini-stat-label">Réponses</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function renderCampaignBadge(campaignId) {
+        const campaign = getCampaignConfig(campaignId);
+        return `<span class="campaign-badge" style="background: ${campaign.color}20; color: ${campaign.color};">${campaign.icon} ${campaign.name}</span>`;
+    }
+
+    function selectCampaign(campaignId) {
+        selectedCampaign = campaignId;
+        renderDashboard();
+        loadHotProspects();
+        loadRecentActions();
+    }
+
     // ==================== DASHBOARD ====================
     function renderDashboard() {
         const container = document.getElementById('agent-dashboard');
@@ -110,6 +226,32 @@ window.AgentAutopilot = (function() {
                     <button class="btn-agent-toggle ${isRunning ? 'stop' : 'start'}" onclick="AgentAutopilot.toggleAgent()">
                         ${isRunning ? '⏸️ Mettre en Pause' : '▶️ Activer l\'Agent'}
                     </button>
+                </div>
+
+                <!-- Sélecteur de campagne -->
+                <div class="campaign-selector-section">
+                    <div class="campaign-chips">
+                        <button class="campaign-chip ${selectedCampaign === 'ALL' ? 'selected' : ''}"
+                                onclick="AgentAutopilot.selectCampaign('ALL')"
+                                style="${selectedCampaign === 'ALL' ? 'background: #6B7280;' : ''}">
+                            📊 Toutes
+                        </button>
+                        ${Object.values(CAMPAIGNS_CONFIG).map(c => `
+                            <button class="campaign-chip ${selectedCampaign === c.id ? 'selected' : ''}"
+                                    onclick="AgentAutopilot.selectCampaign('${c.id}')"
+                                    style="${selectedCampaign === c.id ? 'background: ' + c.color + ';' : ''}">
+                                ${c.icon} ${c.name}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- Dashboard Multi-Campagnes -->
+                <div class="campaigns-dashboard">
+                    <h3>📊 Mes Campagnes</h3>
+                    <div class="campaigns-grid">
+                        ${renderCampaignCards()}
+                    </div>
                 </div>
 
                 <!-- Stats rapides -->
@@ -142,6 +284,19 @@ window.AgentAutopilot = (function() {
                 <!-- Ajouter des Leads -->
                 <div class="agent-section import-section">
                     <h3>📥 Ajouter des Leads</h3>
+
+                    <!-- Sélecteur de campagne pour import -->
+                    <div class="import-campaign-selector">
+                        <label>Campagne de destination :</label>
+                        <select id="import-campaign-select" class="campaign-select">
+                            ${Object.values(CAMPAIGNS_CONFIG).map(c => `
+                                <option value="${c.id}" ${selectedCampaign === c.id || (selectedCampaign === 'ALL' && c.id === 'SOS_GEO') ? 'selected' : ''}>
+                                    ${c.icon} ${c.name}
+                                </option>
+                            `).join('')}
+                        </select>
+                    </div>
+
                     <div class="import-tabs">
                         <button class="import-tab active" onclick="AgentAutopilot.switchImportTab('manual')">✏️ Ajout manuel</button>
                         <button class="import-tab" onclick="AgentAutopilot.switchImportTab('csv')">📄 Import CSV</button>
@@ -220,7 +375,7 @@ window.AgentAutopilot = (function() {
         const container = document.getElementById('hot-prospects-list');
         if (!container) return;
 
-        const { data: prospects } = await db()
+        let query = db()
             .from('prospects')
             .select('*')
             .eq('user_id', currentUserId)
@@ -228,27 +383,40 @@ window.AgentAutopilot = (function() {
             .order('updated_at', { ascending: false })
             .limit(5);
 
+        // Filtrer par campagne si une campagne spécifique est sélectionnée
+        if (selectedCampaign && selectedCampaign !== 'ALL') {
+            query = query.eq('product_campaign', selectedCampaign);
+        }
+
+        const { data: prospects } = await query;
+
         if (!prospects || prospects.length === 0) {
             container.innerHTML = '<p class="empty">Aucun prospect chaud pour le moment</p>';
             return;
         }
 
-        container.innerHTML = prospects.map(p => `
-            <div class="hot-prospect-card">
-                <div class="prospect-info">
-                    <strong>${p.name || p.email}</strong>
-                    <span class="prospect-company">${p.company || ''}</span>
+        container.innerHTML = prospects.map(p => {
+            const campaign = getCampaignConfig(p.product_campaign);
+            return `
+                <div class="hot-prospect-card">
+                    <div class="prospect-info">
+                        <strong>${p.first_name || ''} ${p.last_name || p.email}</strong>
+                        <span class="prospect-company">${p.company || ''}</span>
+                        <span class="campaign-badge" style="background: ${campaign.color}20; color: ${campaign.color}; font-size: 0.75em; padding: 2px 8px; border-radius: 10px; margin-left: 8px;">
+                            ${campaign.icon} ${campaign.name}
+                        </span>
+                    </div>
+                    <div class="prospect-signals">
+                        ${p.last_opened_at ? '<span class="signal">👀 Ouvert</span>' : ''}
+                        ${p.last_clicked_at ? '<span class="signal">🖱️ Cliqué</span>' : ''}
+                        ${p.replied_at ? '<span class="signal hot">💬 Répondu</span>' : ''}
+                    </div>
+                    <div class="prospect-actions">
+                        <button class="btn-small" onclick="AgentAutopilot.viewProspect('${p.id}')">Voir</button>
+                    </div>
                 </div>
-                <div class="prospect-signals">
-                    ${p.last_opened_at ? '<span class="signal">👀 Ouvert</span>' : ''}
-                    ${p.last_clicked_at ? '<span class="signal">🖱️ Cliqué</span>' : ''}
-                    ${p.replied_at ? '<span class="signal hot">💬 Répondu</span>' : ''}
-                </div>
-                <div class="prospect-actions">
-                    <button class="btn-small" onclick="AgentAutopilot.viewProspect('${p.id}')">Voir</button>
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     async function loadRecentActions() {
@@ -858,12 +1026,17 @@ Avez-vous des questions ? Je suis disponible pour un appel de 15 min quand ça v
                 lastName = nameParts.slice(1).join(' ') || null;
             }
 
+            // Récupérer la campagne sélectionnée
+            const campaignSelect = document.getElementById('import-campaign-select');
+            const selectedProductCampaign = campaignSelect ? campaignSelect.value : 'SOS_GEO';
+
             const insertData = {
                 user_id: currentUserId,
                 email: email,
                 first_name: firstName,
                 last_name: lastName,
-                company: company || null
+                company: company || null,
+                product_campaign: selectedProductCampaign
             };
 
             const { error } = await db()
@@ -923,6 +1096,10 @@ Avez-vous des questions ? Je suis disponible pour un appel de 15 min quand ça v
                 return;
             }
 
+            // Récupérer la campagne sélectionnée
+            const campaignSelect = document.getElementById('import-campaign-select');
+            const selectedProductCampaign = campaignSelect ? campaignSelect.value : 'SOS_GEO';
+
             // Insérer les prospects dans Supabase
             let imported = 0;
             let duplicates = 0;
@@ -940,13 +1117,14 @@ Avez-vous des questions ? Je suis disponible pour un appel de 15 min quand ça v
                     continue;
                 }
 
-                // Insérer le nouveau prospect avec first_name et last_name
+                // Insérer le nouveau prospect avec first_name et last_name et campagne
                 const insertData = {
                     user_id: currentUserId,
                     email: prospect.email,
                     first_name: prospect.first_name || null,
                     last_name: prospect.last_name || null,
-                    company: prospect.company || null
+                    company: prospect.company || null,
+                    product_campaign: selectedProductCampaign
                 };
 
                 const { error } = await db()
@@ -1506,6 +1684,10 @@ Avez-vous des questions ? Je suis disponible pour un appel de 15 min quand ça v
         previewEmail,
         approveEmail,
         rejectEmail,
-        approveAllEmails
+        approveAllEmails,
+        // Multi-campagnes
+        selectCampaign,
+        getCampaignConfig,
+        loadCampaignStats
     };
 })();
