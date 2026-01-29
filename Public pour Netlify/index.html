@@ -1177,6 +1177,149 @@
             }
         }
 
+        /* ============ COLD EMAIL B2B SECTION ============ */
+        .cold-email-section {
+            padding: 100px 40px;
+            background: linear-gradient(135deg, rgba(240, 147, 251, 0.08) 0%, rgba(245, 87, 108, 0.08) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .cold-email-section::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            left: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(240, 147, 251, 0.12) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .cold-email-section::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(245, 87, 108, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .cold-email-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .cold-email-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .cold-email-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);
+        }
+        .cold-email-header h2 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .cold-email-header .tagline {
+            font-size: 1.3em;
+            color: rgba(255,255,255,0.7);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .cold-email-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        .cold-email-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(240, 147, 251, 0.15);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+        .cold-email-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(240, 147, 251, 0.4);
+            box-shadow: 0 10px 40px rgba(240, 147, 251, 0.15);
+        }
+        .cold-email-card .card-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+        .cold-email-card h3 {
+            font-size: 1.25em;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+        .cold-email-card p {
+            font-size: 0.95em;
+            color: rgba(255,255,255,0.7);
+            line-height: 1.6;
+        }
+        .cold-email-card .highlight {
+            color: #f093fb;
+            font-weight: 600;
+        }
+        .cold-email-comparison {
+            background: linear-gradient(135deg, rgba(240, 147, 251, 0.1), rgba(245, 87, 108, 0.1));
+            border: 1px solid rgba(240, 147, 251, 0.2);
+            border-radius: 20px;
+            padding: 35px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 40px;
+        }
+        .cold-email-comparison .comparison-text {
+            flex: 1;
+        }
+        .cold-email-comparison h3 {
+            font-size: 1.4em;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+        .cold-email-comparison p {
+            color: rgba(255,255,255,0.75);
+            font-size: 1.05em;
+            line-height: 1.6;
+        }
+        .cold-email-comparison .vs-badge {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            padding: 15px 25px;
+            border-radius: 15px;
+            font-weight: 700;
+            font-size: 1.1em;
+            white-space: nowrap;
+        }
+        @media (max-width: 900px) {
+            .cold-email-grid {
+                grid-template-columns: 1fr;
+            }
+            .cold-email-header h2 {
+                font-size: 2em;
+            }
+            .cold-email-comparison {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
         /* ============ FEATURES CAROUSEL ============ */
         .features-carousel-section {
             padding: 80px 40px;
@@ -2312,6 +2455,45 @@
                         <span class="step-icon">📈</span>
                         <span class="step-text">L'IA apprend ce qui marche pour toi</span>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cold Email B2B Section -->
+        <section class="cold-email-section" id="cold-email">
+            <div class="cold-email-container">
+                <div class="cold-email-header">
+                    <span class="cold-email-badge">🎯 Cold Email B2B</span>
+                    <h2>Conçu pour les solopreneurs qui prospectent</h2>
+                    <p class="tagline">Un outil de cold email pensé pour toi, pas pour "tout le monde"</p>
+                </div>
+
+                <div class="cold-email-grid">
+                    <div class="cold-email-card">
+                        <div class="card-icon">🎛️</div>
+                        <h3>Tu gardes le contrôle total</h3>
+                        <p>Multi-sender, rotation, warm-up, règles d'envoi... <span class="highlight">Tu décides de tout.</span> Pas de logique imposée par une plateforme générique.</p>
+                    </div>
+
+                    <div class="cold-email-card">
+                        <div class="card-icon">✨</div>
+                        <h3>Personnalisation sans limites</h3>
+                        <p>L'IA écrit avec <span class="highlight">ta voix</span> grâce au Voice Profile. Des emails qui sonnent comme toi, pas comme des templates copiés-collés.</p>
+                    </div>
+
+                    <div class="cold-email-card">
+                        <div class="card-icon">🔗</div>
+                        <h3>Ta stack, ton process</h3>
+                        <p>Pharow pour cibler + vérification emails + envoi automatisé. <span class="highlight">Tu maîtrises chaque étape</span> sans dépendre d'un seul outil qui fait tout "à moitié".</p>
+                    </div>
+                </div>
+
+                <div class="cold-email-comparison">
+                    <div class="comparison-text">
+                        <h3>Pourquoi c'est différent des autres plateformes ?</h3>
+                        <p>Les outils généralistes sont pensés pour s'adapter à tout le monde, mais rarement optimisés pour ton cas précis. Ici, tu adaptes l'outil à ton ICP et à ta façon de vendre.</p>
+                    </div>
+                    <div class="vs-badge">100% adapté à toi</div>
                 </div>
             </div>
         </section>

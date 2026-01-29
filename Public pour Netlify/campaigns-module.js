@@ -1286,6 +1286,22 @@ Bonne journée !`,
                         <h4>📧 Adresses d'envoi</h4>
                         <span class="sender-selection-badge">20 emails/jour/adresse</span>
                     </div>
+                    <div class="sender-info-box" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)); border: 1px solid rgba(102, 126, 234, 0.3); border-radius: 12px; padding: 14px 16px; margin-bottom: 15px;">
+                        <div style="display: flex; align-items: flex-start; gap: 10px;">
+                            <span style="font-size: 1.2em;">💡</span>
+                            <div style="font-size: 0.9em; color: rgba(255,255,255,0.85); line-height: 1.5;">
+                                <strong style="color: #fff;">Conseil :</strong> Crée plusieurs adresses email chez ton fournisseur (ex: sandra@, contact@, hello@) pour augmenter ta capacité d'envoi. Limite recommandée : <strong>20 emails/jour/adresse</strong> pour une délivrabilité optimale.
+                            </div>
+                        </div>
+                    </div>
+                    <div id="senderQuotaAlert" style="display: none; background: linear-gradient(135deg, rgba(245, 87, 108, 0.15), rgba(240, 147, 251, 0.1)); border: 1px solid rgba(245, 87, 108, 0.4); border-radius: 12px; padding: 14px 16px; margin-bottom: 15px;">
+                        <div style="display: flex; align-items: flex-start; gap: 10px;">
+                            <span style="font-size: 1.2em;">⚠️</span>
+                            <div style="font-size: 0.9em; color: rgba(255,255,255,0.9); line-height: 1.5;">
+                                <strong style="color: #f5576c;">Quota atteint !</strong> Toutes tes adresses ont atteint leur limite quotidienne. Ajoute de nouvelles adresses ou attends demain pour continuer à envoyer.
+                            </div>
+                        </div>
+                    </div>
                     <div id="senderChipsContainer">
                         <!-- Chargé dynamiquement -->
                         <div style="text-align: center; padding: 15px; color: #888;">
@@ -1372,6 +1388,16 @@ Bonne journée !`,
                 }).join('');
 
                 container.innerHTML = `<div class="sender-chips">${chips}</div>`;
+
+                // Vérifier si toutes les adresses ont atteint leur quota
+                const quotaAlert = document.getElementById('senderQuotaAlert');
+                const allAtLimit = senders.every(sender => {
+                    const effectiveLimit = sender.warmup_enabled ? sender.warmup_current_limit : sender.daily_limit;
+                    return (sender.emails_sent_today || 0) >= effectiveLimit;
+                });
+                if (quotaAlert) {
+                    quotaAlert.style.display = allAtLimit && senders.length > 0 ? 'block' : 'none';
+                }
 
                 // Afficher les mini stats
                 if (statsContainer) {
