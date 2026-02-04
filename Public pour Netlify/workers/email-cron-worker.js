@@ -206,7 +206,7 @@ async function processCampaign(supabase, env, campaign) {
                     from: `${sender.display_name} <${sender.email}>`,
                     to: emailTask.prospect_email,
                     subject: emailTask.subject,
-                    html: formatEmailBody(emailTask.body, emailTask.prospect_email, campaign.user_id, campaign.id, emailTask.prospect_id),
+                    html: formatEmailBody(emailTask.body, emailTask.prospect_email, campaign.user_id, campaign.id, emailTask.prospect_id, emailTask.id),
                     reply_to: sender.email
                 });
 
@@ -365,12 +365,20 @@ async function sendEmail(env, emailData) {
     return await response.json();
 }
 
-function formatEmailBody(body, prospectEmail, userId, campaignId, prospectId) {
+function formatEmailBody(body, prospectEmail, userId, campaignId, prospectId, emailId) {
     // Convertir les sauts de ligne en <br>
     let htmlBody = body.replace(/\n/g, '<br>');
 
+    // URL du tracking worker
+    const TRACKING_URL = 'https://sos-email-tracking.sandra-devonssay.workers.dev';
+
     // Ajouter le lien de désinscription
     const unsubscribeUrl = `https://sosstorytelling.fr/unsubscribe.html?email=${encodeURIComponent(prospectEmail)}&uid=${userId}&cid=${campaignId || ''}&pid=${prospectId || ''}`;
+
+    // Pixel de tracking d'ouverture (image invisible 1x1)
+    const trackingPixel = emailId
+        ? `<img src="${TRACKING_URL}/open/${emailId}.gif" width="1" height="1" style="display:none;" alt="" />`
+        : '';
 
     htmlBody += `
         <br><br>
@@ -379,6 +387,7 @@ function formatEmailBody(body, prospectEmail, userId, campaignId, prospectId) {
             Si tu ne souhaites plus recevoir mes emails,
             <a href="${unsubscribeUrl}" style="color: #888;">clique ici pour te désinscrire</a>.
         </p>
+        ${trackingPixel}
     `;
 
     return htmlBody;

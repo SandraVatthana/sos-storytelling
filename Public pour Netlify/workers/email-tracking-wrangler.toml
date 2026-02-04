@@ -1,0 +1,18 @@
+# =====================================================
+# EMAIL TRACKING WORKER - Configuration Wrangler
+# =====================================================
+#
+# DÉPLOIEMENT :
+# cd workers
+# wrangler deploy -c email-tracking-wrangler.toml
+#
+# SECRET À CONFIGURER :
+# wrangler secret put SUPABASE_SERVICE_KEY -c email-tracking-wrangler.toml
+# =====================================================
+
+name = "sos-email-tracking"
+main = "email-tracking-worker.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+ENVIRONMENT = "production"
