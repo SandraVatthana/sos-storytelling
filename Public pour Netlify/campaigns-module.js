@@ -906,19 +906,40 @@ Bonne journée !`,
                 const prospect = {};
                 headers.forEach((header, idx) => {
                     const value = values[idx] || '';
-                    // Matching plus flexible
+                    // Matching amélioré pour Pharow et autres formats CSV
+                    // IMPORTANT: Les conditions spécifiques doivent être AVANT les génériques
+
+                    // Email
                     if (header.includes('mail') || header === 'e-mail' || header === 'courriel') {
                         prospect.email = value;
-                    } else if (header.includes('prenom') || header.includes('first') || header === 'firstname' || header === 'given') {
+                    }
+                    // Prénom
+                    else if (header.includes('prenom') || header.includes('first') || header === 'firstname' || header === 'given') {
                         prospect.first_name = value;
-                    } else if ((header.includes('nom') && !header.includes('prenom')) || header.includes('last') || header === 'lastname' || header === 'family' || header === 'surname') {
+                    }
+                    // Entreprise - AVANT le test 'nom' car 'nom commercial', 'nom legal' sont des entreprises
+                    else if (header === 'nom commercial' || header === 'nom legal' || header.includes('nom de la page linkedin') ||
+                             header.includes('entreprise') || header.includes('company') || header.includes('societe') ||
+                             header.includes('organisation') || header === 'raison sociale') {
+                        if (!prospect.company) prospect.company = value; // Ne pas écraser si déjà défini
+                    }
+                    // Nom de famille - seulement si c'est exactement 'nom' ou des variantes de last name
+                    else if (header === 'nom' || header === 'lastname' || header === 'family' || header === 'surname' || header === 'last name' || header === 'last_name') {
                         prospect.last_name = value;
-                    } else if (header.includes('entreprise') || header.includes('company') || header.includes('societe') || header.includes('organisation')) {
-                        prospect.company = value;
-                    } else if (header.includes('poste') || header.includes('title') || header.includes('fonction') || header.includes('job') || header.includes('role')) {
+                    }
+                    // Poste / Fonction
+                    else if (header === 'poste occupe' || header.includes('poste') || header.includes('title') ||
+                             header.includes('fonction') || header.includes('job') || header.includes('role') || header.includes('position')) {
                         prospect.job_title = value;
-                    } else if (header.includes('linkedin')) {
+                    }
+                    // LinkedIn
+                    else if (header.includes('linkedin')) {
                         prospect.linkedin_url = value;
+                    }
+                    // Téléphone
+                    else if (header.includes('tel portable') || header.includes('tel standard') || header.includes('phone') ||
+                             header.includes('telephone') || header.includes('mobile') || header.includes('portable')) {
+                        if (!prospect.phone) prospect.phone = value;
                     }
                 });
 
@@ -1039,19 +1060,40 @@ Bonne journée !`,
                 const prospect = {};
                 headers.forEach((header, idx) => {
                     const value = values[idx] || '';
-                    // Matching plus flexible
+                    // Matching amélioré pour Pharow et autres formats CSV
+                    // IMPORTANT: Les conditions spécifiques doivent être AVANT les génériques
+
+                    // Email
                     if (header.includes('mail') || header === 'e-mail' || header === 'courriel') {
                         prospect.email = value;
-                    } else if (header.includes('prenom') || header.includes('first') || header === 'firstname' || header === 'given') {
+                    }
+                    // Prénom
+                    else if (header.includes('prenom') || header.includes('first') || header === 'firstname' || header === 'given') {
                         prospect.first_name = value;
-                    } else if ((header.includes('nom') && !header.includes('prenom')) || header.includes('last') || header === 'lastname' || header === 'family' || header === 'surname') {
+                    }
+                    // Entreprise - AVANT le test 'nom' car 'nom commercial', 'nom legal' sont des entreprises
+                    else if (header === 'nom commercial' || header === 'nom legal' || header.includes('nom de la page linkedin') ||
+                             header.includes('entreprise') || header.includes('company') || header.includes('societe') ||
+                             header.includes('organisation') || header === 'raison sociale') {
+                        if (!prospect.company) prospect.company = value; // Ne pas écraser si déjà défini
+                    }
+                    // Nom de famille - seulement si c'est exactement 'nom' ou des variantes de last name
+                    else if (header === 'nom' || header === 'lastname' || header === 'family' || header === 'surname' || header === 'last name' || header === 'last_name') {
                         prospect.last_name = value;
-                    } else if (header.includes('entreprise') || header.includes('company') || header.includes('societe') || header.includes('organisation')) {
-                        prospect.company = value;
-                    } else if (header.includes('poste') || header.includes('title') || header.includes('fonction') || header.includes('job') || header.includes('role')) {
+                    }
+                    // Poste / Fonction
+                    else if (header === 'poste occupe' || header.includes('poste') || header.includes('title') ||
+                             header.includes('fonction') || header.includes('job') || header.includes('role') || header.includes('position')) {
                         prospect.job_title = value;
-                    } else if (header.includes('linkedin')) {
+                    }
+                    // LinkedIn
+                    else if (header.includes('linkedin')) {
                         prospect.linkedin_url = value;
+                    }
+                    // Téléphone
+                    else if (header.includes('tel portable') || header.includes('tel standard') || header.includes('phone') ||
+                             header.includes('telephone') || header.includes('mobile') || header.includes('portable')) {
+                        if (!prospect.phone) prospect.phone = value;
                     }
                 });
 

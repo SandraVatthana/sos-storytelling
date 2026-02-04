@@ -18,49 +18,94 @@ const ProspectsModule = {
     COLUMN_MAPPINGS: {
         first_name: [
             'prenom', 'prénom', 'first name', 'firstname', 'first_name',
-            'given name', 'givenname', 'name', 'nom complet'
+            'given name', 'givenname', 'name', 'nom complet',
+            'contact first name', 'contact firstname', 'first', 'person first name'
         ],
         last_name: [
             'nom', 'last name', 'lastname', 'last_name',
-            'family name', 'familyname', 'surname'
+            'family name', 'familyname', 'surname',
+            'contact last name', 'contact lastname', 'last', 'person last name', 'nom de famille'
         ],
         email: [
             'email', 'e-mail', 'mail', 'email address', 'emailaddress',
-            'courriel', 'adresse email', 'adresse e-mail'
+            'courriel', 'adresse email', 'adresse e-mail',
+            'contact email', 'email professionnel', 'professional email', 'work email',
+            'email pro', 'adresse mail', 'email personnel', 'personal email'
         ],
         company: [
             'entreprise', 'société', 'societe', 'company', 'organization',
-            'organisation', 'company name', 'companyname', 'nom entreprise'
+            'organisation', 'company name', 'companyname', 'nom entreprise',
+            'nom de l\'entreprise', 'nom societe', 'raison sociale',
+            'account name', 'organization name',
+            // Pharow spécifique
+            'nom commercial', 'nom legal', 'nom de la page linkedin'
         ],
         job_title: [
             'poste', 'fonction', 'titre', 'job title', 'jobtitle', 'title',
-            'position', 'role', 'job', 'intitulé poste', 'intitule poste'
+            'position', 'role', 'job', 'intitulé poste', 'intitule poste',
+            'contact job title', 'titre du poste', 'fonction actuelle',
+            'current position', 'current job', 'intitulé du poste', 'intitulé',
+            // Pharow spécifique
+            'poste occupe', 'poste occupé'
         ],
         linkedin: [
             'linkedin', 'linkedin url', 'linkedin_url', 'linkedinurl',
-            'profil linkedin', 'lien linkedin', 'linkedin profile'
+            'profil linkedin', 'lien linkedin', 'linkedin profile',
+            'contact linkedin', 'contact linkedin url', 'linkedin profil',
+            'url linkedin', 'linkedin link', 'profil linkedin url', 'person linkedin url',
+            // Pharow spécifique
+            'url linkedin du prospect'
         ],
         phone: [
             'téléphone', 'telephone', 'phone', 'phone number', 'phonenumber',
-            'mobile', 'tel', 'numéro', 'numero'
+            'mobile', 'tel', 'numéro', 'numero',
+            'contact phone', 'direct phone', 'mobile phone', 'téléphone direct',
+            'téléphone mobile', 'tel mobile', 'tel direct', 'phone direct',
+            'numéro de téléphone', 'numero telephone', 'work phone',
+            // Pharow spécifique
+            'tel portable', 'tel standard'
         ],
         website: [
-            'site web', 'siteweb', 'website', 'site', 'url', 'web',
-            'site internet', 'company website'
+            'site web', 'siteweb', 'website', 'site', 'web',
+            'site internet', 'company website',
+            'company website', 'site entreprise', 'company url', 'domain',
+            'domaine', 'website url', 'company domain',
+            // Pharow spécifique
+            'url du site internet'
         ],
         sector: [
-            'secteur', 'sector', 'industry', 'industrie', 'domaine'
+            'secteur', 'sector', 'industry', 'industrie', 'domaine',
+            'secteur d\'activité', 'secteur activité', 'business sector',
+            'industry sector', 'activité', 'activity',
+            // Pharow spécifique
+            'secteur naf', 'activite source pharow'
         ],
         city: [
-            'ville', 'city', 'location', 'localisation', 'lieu'
+            'ville', 'city', 'location', 'localisation', 'lieu',
+            'company city', 'ville entreprise', 'headquarters city',
+            'siège', 'siege', 'localité', 'locality', 'contact city',
+            // Pharow spécifique
+            'adresse du siege complete'
+        ],
+        country: [
+            'pays', 'country', 'nation',
+            'company country', 'pays entreprise', 'headquarters country'
         ],
         company_size: [
             'effectif', 'taille', 'employees', 'company size', 'size',
-            'nombre employés', 'headcount', 'nombre employes'
+            'nombre employés', 'headcount', 'nombre employes',
+            'company employees', 'employee count', 'nb employés', 'nb employees',
+            'effectif entreprise', 'taille entreprise', 'company headcount',
+            'nombre de salariés', 'nombre salaries', 'staff count',
+            // Pharow spécifique
+            'effectif reel', 'tranche d\'effectif corrigee'
         ],
         notes: [
             'notes', 'note', 'commentaire', 'commentaires', 'comment',
-            'comments', 'observation', 'observations', 'remarque', 'remarques'
+            'comments', 'observation', 'observations', 'remarque', 'remarques',
+            'description', 'bio', 'about', 'summary', 'résumé',
+            // Pharow spécifique
+            'description issue du site internet'
         ]
     },
 
@@ -103,22 +148,54 @@ const ProspectsModule = {
     },
 
     /**
+     * Normalise un nom de colonne pour le matching
+     */
+    normalizeColumnName(name) {
+        return name
+            .toLowerCase()
+            .trim()
+            .replace(/['"]/g, '')
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Supprimer accents
+            .replace(/[_\-\.]/g, ' ') // Remplacer _ - . par espace
+            .replace(/\s+/g, ' ') // Normaliser espaces multiples
+            .trim();
+    },
+
+    /**
      * Auto-detecte le mapping des colonnes CSV
      */
     autoDetectMapping(headers) {
         const mapping = {};
 
+        console.log('[CSV] Headers reçus:', headers);
+
         headers.forEach((header, index) => {
-            const normalizedHeader = header.toLowerCase().trim().replace(/['"]/g, '');
+            const normalizedHeader = this.normalizeColumnName(header);
+            console.log(`[CSV] Colonne ${index}: "${header}" -> "${normalizedHeader}"`);
 
             for (const [field, possibleNames] of Object.entries(this.COLUMN_MAPPINGS)) {
-                if (possibleNames.includes(normalizedHeader)) {
+                // Vérifier correspondance exacte
+                const normalizedPossibleNames = possibleNames.map(n => this.normalizeColumnName(n));
+                if (normalizedPossibleNames.includes(normalizedHeader)) {
                     mapping[index] = field;
+                    console.log(`[CSV] Match trouvé: "${header}" -> ${field}`);
                     break;
                 }
+                // Vérifier si le header contient un des noms possibles
+                for (const possibleName of normalizedPossibleNames) {
+                    if (normalizedHeader.includes(possibleName) || possibleName.includes(normalizedHeader)) {
+                        if (normalizedHeader.length > 2 && possibleName.length > 2) { // Éviter les faux positifs
+                            mapping[index] = field;
+                            console.log(`[CSV] Match partiel trouvé: "${header}" -> ${field}`);
+                            break;
+                        }
+                    }
+                }
+                if (mapping[index]) break;
             }
         });
 
+        console.log('[CSV] Mapping final:', mapping);
         return mapping;
     },
 
@@ -134,12 +211,27 @@ const ProspectsModule = {
      * Parse le contenu CSV
      */
     parseCSV(csvContent) {
+        // Supprimer le BOM UTF-8 si présent (Pharow, Excel)
+        if (csvContent.charCodeAt(0) === 0xFEFF) {
+            csvContent = csvContent.slice(1);
+        }
+        // Aussi gérer le BOM en tant que caractères
+        csvContent = csvContent.replace(/^\uFEFF/, '').replace(/^\xEF\xBB\xBF/, '');
+
         const lines = csvContent.split(/\r?\n/);
         if (lines.length < 2) return { headers: [], rows: [] };
 
-        // Detecter le separateur (virgule ou point-virgule)
+        // Detecter le separateur (virgule, point-virgule ou tabulation)
         const firstLine = lines[0];
-        const separator = firstLine.includes(';') ? ';' : ',';
+        let separator = ',';
+        if (firstLine.includes('\t')) {
+            separator = '\t';
+        } else if (firstLine.includes(';')) {
+            separator = ';';
+        }
+
+        console.log('[CSV] Séparateur détecté:', separator === '\t' ? 'TAB' : separator);
+        console.log('[CSV] Première ligne:', firstLine.substring(0, 100));
 
         // Parser les headers
         const headers = this.parseCSVLine(firstLine, separator);
