@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HUB CRM - Prospection Multi-Canal</title>
+    <link rel="icon" type="image/png" href="../favicon.png">
+    <link rel="apple-touch-icon" href="../favicon.png">
+    <meta name="theme-color" content="#6366F1">
+    <meta name="description" content="Centralise ta prospection Email, DM et Appels en un seul endroit.">
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="hub-styles.css">
+
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="hub-app">
+        <!-- Header -->
+        <header class="hub-header">
+            <div class="hub-header-left">
+                <a href="index.html" class="hub-logo">
+                    <span class="hub-logo-icon">🎯</span>
+                    <span>HUB CRM</span>
+                </a>
+            </div>
+            <div class="hub-header-right">
+                <button class="hub-mode-switch" id="modeSwitch" onclick="HubCRM.toggleModeMenu()">
+                    <span>👤</span> Mode Solo <span>▼</span>
+                </button>
+                <a href="../app.html" class="hub-btn hub-btn-ghost" style="color: white;" title="Retour à SOS Storytelling">
+                    ← SOS
+                </a>
+                <button class="hub-btn hub-btn-ghost" style="color: white;" onclick="logout()" title="Déconnexion">
+                    🚪
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="hub-main">
+            <!-- Stats -->
+            <div class="hub-stats-grid" id="statsContainer">
+                <div class="hub-stat-card">
+                    <div class="hub-stat-label">Chargement...</div>
+                    <div class="hub-stat-value">-</div>
+                </div>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="hub-toolbar">
+                <div class="hub-toolbar-left">
+                    <div class="hub-search" style="min-width: 250px;">
+                        <span class="hub-search-icon">🔍</span>
+                        <input type="text" class="hub-input" id="searchInput" placeholder="Rechercher un prospect...">
+                    </div>
+                    <div id="filtersContainer">
+                        <!-- Filtres générés dynamiquement -->
+                    </div>
+                </div>
+                <div class="hub-toolbar-right">
+                    <button class="hub-btn hub-btn-secondary" onclick="HubCRM.showImportModal()">
+                        📄 Import CSV
+                    </button>
+                    <button class="hub-btn hub-btn-primary" onclick="HubCRM.showAddProspectModal()">
+                        + Ajouter
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabs Navigation -->
+            <div class="hub-tabs">
+                <button class="hub-tab active" id="tabProspects" onclick="switchMainTab('prospects')">
+                    🎯 Prospects
+                </button>
+                <button class="hub-tab" id="tabTeams" onclick="switchMainTab('teams')">
+                    👥 Mon équipe
+                </button>
+            </div>
+
+            <!-- Prospects List -->
+            <div id="prospectsTab">
+                <div class="hub-prospects-list" id="prospectsList">
+                    <!-- Liste générée dynamiquement -->
+                    <div class="hub-empty-state">
+                        <div class="hub-loading hub-loading-lg"></div>
+                        <p style="margin-top: 16px;">Chargement...</p>
+                    </div>
+                </div>
+                <div id="paginationContainer"></div>
+            </div>
+
+            <!-- Teams Panel -->
+            <div id="teamsTab" style="display: none;">
+                <div id="teamsPanel">
+                    <!-- Panel équipes généré dynamiquement -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="hub-loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="hub-loading hub-loading-lg"></div>
+        <p>Chargement...</p>
+    </div>
+
+    <!-- Modal: Add/Edit Prospect -->
+    <div class="hub-modal-overlay" id="prospectModal">
+        <div class="hub-modal">
+            <div class="hub-modal-header">
+                <h2 class="hub-modal-title" id="prospectModalTitle">Ajouter un prospect</h2>
+                <button class="hub-modal-close" onclick="HubCRM.closeModal('prospectModal')">&times;</button>
+            </div>
+            <div class="hub-modal-body">
+                <form id="prospectForm">
+                    <!-- Formulaire généré dynamiquement -->
+                </form>
+            </div>
+            <div class="hub-modal-footer">
+                <button class="hub-btn hub-btn-secondary" onclick="HubCRM.closeModal('prospectModal')">Annuler</button>
+                <button class="hub-btn hub-btn-primary" onclick="HubCRM.saveProspect()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Prospect Detail -->
+    <div class="hub-modal-overlay" id="detailModal">
+        <div class="hub-modal hub-modal-lg">
+            <div class="hub-modal-header">
+                <h2 class="hub-modal-title">Détail prospect</h2>
+                <button class="hub-modal-close" onclick="HubCRM.closeModal('detailModal')">&times;</button>
+            </div>
+            <div class="hub-modal-body" id="detailContent">
+                <!-- Contenu généré dynamiquement -->
+            </div>
+            <div class="hub-modal-footer">
+                <button class="hub-btn hub-btn-secondary" onclick="HubCRM.closeModal('detailModal')">Fermer</button>
+                <button class="hub-btn hub-btn-primary" onclick="HubCRM.editProspect(HubCRM.currentProspect?.id)">Modifier</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Import CSV -->
+    <div class="hub-modal-overlay" id="importModal">
+        <div class="hub-modal hub-modal-lg">
+            <div class="hub-modal-header">
+                <h2 class="hub-modal-title">Importer des prospects</h2>
+                <button class="hub-modal-close" onclick="HubCRM.closeModal('importModal')">&times;</button>
+            </div>
+            <div class="hub-modal-body">
+                <div class="hub-dropzone" id="importDropzone" onclick="document.getElementById('csvFileInput').click()">
+                    <div class="hub-dropzone-icon">📄</div>
+                    <div class="hub-dropzone-text">Glisse ton fichier CSV ici</div>
+                    <div class="hub-dropzone-hint">ou clique pour sélectionner</div>
+                    <input type="file" id="csvFileInput" accept=".csv" style="display: none;" onchange="HubCRM.handleFileSelect(event)">
+                </div>
+                <div id="importPreview">
+                    <!-- Aperçu généré dynamiquement -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Onboarding -->
+    <div class="hub-modal-overlay" id="onboardingModal">
+        <div class="hub-modal" style="max-width: 480px;">
+            <div class="hub-modal-body" id="onboardingContent">
+                <!-- Contenu onboarding généré dynamiquement -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Create/Edit Team -->
+    <div class="hub-modal-overlay" id="teamModal">
+        <div class="hub-modal">
+            <div class="hub-modal-header">
+                <h2 class="hub-modal-title" id="teamModalTitle">Créer une équipe</h2>
+                <button class="hub-modal-close" onclick="HubCRM.closeModal('teamModal')">&times;</button>
+            </div>
+            <div class="hub-modal-body">
+                <form id="teamForm">
+                    <!-- Formulaire généré dynamiquement -->
+                </form>
+            </div>
+            <div class="hub-modal-footer">
+                <button class="hub-btn hub-btn-secondary" onclick="HubCRM.closeModal('teamModal')">Annuler</button>
+                <button class="hub-btn hub-btn-primary" onclick="HubTeams.saveTeam()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Invite Member -->
+    <div class="hub-modal-overlay" id="inviteModal">
+        <div class="hub-modal">
+            <div class="hub-modal-header">
+                <h2 class="hub-modal-title">Inviter un membre</h2>
+                <button class="hub-modal-close" onclick="HubCRM.closeModal('inviteModal')">&times;</button>
+            </div>
+            <div class="hub-modal-body">
+                <form id="inviteForm">
+                    <!-- Formulaire généré dynamiquement -->
+                </form>
+            </div>
+            <div class="hub-modal-footer">
+                <button class="hub-btn hub-btn-secondary" onclick="HubCRM.closeModal('inviteModal')">Annuler</button>
+                <button class="hub-btn hub-btn-primary" onclick="HubTeams.sendInvitation()">Envoyer l'invitation</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="hub-toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="hub-config.js"></script>
+    <script src="hub-crm-module.js"></script>
+    <script src="hub-teams-module.js"></script>
+
+    <script>
+        // ============================================
+        // INITIALISATION
+        // ============================================
+
+        // Initialiser Supabase
+        initHubSupabase();
+
+        // Variable globale pour le client
+        const hubSupabase = window.hubSupabase;
+
+        // Vérifier l'authentification et initialiser
+        async function init() {
+            try {
+                const { data: { session } } = await hubSupabase.auth.getSession();
+
+                if (!session) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Initialiser les modules
+                await HubCRM.init();
+                await HubTeams.init();
+
+                // Vérifier les invitations en attente
+                const pendingInvitations = await HubTeams.checkPendingInvitations();
+                if (pendingInvitations.length > 0) {
+                    showPendingInvitations(pendingInvitations);
+                }
+
+            } catch (error) {
+                console.error('Init error:', error);
+                HubCRM.showToast('Erreur d\'initialisation', 'error');
+            }
+        }
+
+        // ============================================
+        // NAVIGATION
+        // ============================================
+
+        function switchMainTab(tab) {
+            document.getElementById('tabProspects').classList.toggle('active', tab === 'prospects');
+            document.getElementById('tabTeams').classList.toggle('active', tab === 'teams');
+
+            document.getElementById('prospectsTab').style.display = tab === 'prospects' ? 'block' : 'none';
+            document.getElementById('teamsTab').style.display = tab === 'teams' ? 'block' : 'none';
+
+            if (tab === 'teams') {
+                HubTeams.renderTeamsPanel();
+            }
+        }
+
+        // ============================================
+        // INVITATIONS EN ATTENTE
+        // ============================================
+
+        function showPendingInvitations(invitations) {
+            invitations.forEach(inv => {
+                const teamName = inv.hub_teams?.name || 'une équipe';
+
+                const toast = document.createElement('div');
+                toast.className = 'hub-toast hub-toast-info';
+                toast.style.flexDirection = 'column';
+                toast.style.alignItems = 'flex-start';
+                toast.innerHTML = `
+                    <div style="margin-bottom: 8px;">
+                        <strong>Invitation reçue</strong><br>
+                        Tu as été invité(e) à rejoindre "${teamName}"
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="hub-btn hub-btn-primary hub-btn-sm" onclick="acceptInvitation('${inv.id}', this.closest('.hub-toast'))">
+                            Accepter
+                        </button>
+                        <button class="hub-btn hub-btn-secondary hub-btn-sm" onclick="rejectInvitation('${inv.id}', this.closest('.hub-toast'))">
+                            Refuser
+                        </button>
+                    </div>
+                `;
+
+                document.getElementById('toastContainer').appendChild(toast);
+            });
+        }
+
+        async function acceptInvitation(id, toastEl) {
+            await HubTeams.acceptInvitation(id);
+            toastEl.remove();
+            await HubTeams.loadTeams();
+        }
+
+        async function rejectInvitation(id, toastEl) {
+            await HubTeams.rejectInvitation(id);
+            toastEl.remove();
+        }
+
+        // ============================================
+        // LOGOUT
+        // ============================================
+
+        async function logout() {
+            if (confirm('Te déconnecter ?')) {
+                await hubSupabase.auth.signOut();
+                window.location.href = 'login.html';
+            }
+        }
+
+        // ============================================
+        // ÉCOUTER LES CHANGEMENTS D'AUTH
+        // ============================================
+
+        hubSupabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_OUT') {
+                window.location.href = 'login.html';
+            }
+        });
+
+        // ============================================
+        // LANCER L'APP
+        // ============================================
+
+        init();
+    </script>
+</body>
+</html>

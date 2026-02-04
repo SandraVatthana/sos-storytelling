@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - HUB CRM</title>
+    <link rel="icon" type="image/png" href="../favicon.png">
+    <link rel="apple-touch-icon" href="../favicon.png">
+    <meta name="theme-color" content="#6366F1">
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --primary: #6366F1;
+            --secondary: #8B5CF6;
+            --accent: #A855F7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 50%, var(--accent) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            color: #1e293b;
+        }
+
+        .logo p {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.95em;
+            display: none;
+        }
+
+        .message.success {
+            display: block;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+
+        .message.error {
+            display: block;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 25px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            padding: 4px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #64748b;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 0.85rem;
+            color: #9ca3af;
+        }
+
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Google Button */
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: #9ca3af;
+            font-size: 0.85em;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e5e7eb;
+        }
+
+        .divider span {
+            padding: 0 15px;
+        }
+
+        .google-btn {
+            width: 100%;
+            padding: 14px;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #374151;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.2s;
+        }
+
+        .google-btn:hover {
+            border-color: #d1d5db;
+            background: #f9fafb;
+            transform: translateY(-1px);
+        }
+
+        .google-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .google-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: white;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            opacity: 0.9;
+            transition: opacity 0.2s;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <a href="../index.html" class="back-link">← Retour à SOS Storytelling</a>
+
+        <div class="login-card">
+            <div class="logo">
+                <div class="logo-icon">🎯</div>
+                <h1>HUB CRM</h1>
+                <p>Centralise ta prospection multi-canal</p>
+            </div>
+
+            <!-- Google Sign-In -->
+            <button type="button" class="google-btn" id="googleBtn" onclick="signInWithGoogle()">
+                <svg viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Continuer avec Google
+            </button>
+
+            <div class="divider"><span>ou</span></div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <div class="tab active" id="tabLogin" onclick="switchTab('login')">Connexion</div>
+                <div class="tab" id="tabRegister" onclick="switchTab('register')">Inscription</div>
+            </div>
+
+            <!-- Form -->
+            <form id="loginForm" onsubmit="handleSubmit(event)">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="email" placeholder="ton@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Mot de passe</label>
+                    <div style="position: relative;">
+                        <input type="password" id="password" placeholder="••••••••" required minlength="6">
+                        <button type="button" onclick="togglePassword()" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1.2em; color: #9ca3af;">👁</button>
+                    </div>
+                    <p id="passwordHint" style="display: none; font-size: 0.8em; color: #9ca3af; margin-top: 5px;">Minimum 6 caractères</p>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    Connexion
+                </button>
+
+                <div id="forgotPasswordLink" style="text-align: center; margin-top: 15px;">
+                    <a href="#" onclick="resetPassword(event)" style="color: #6366F1; font-size: 0.9em; text-decoration: none;">Mot de passe oublié ?</a>
+                </div>
+            </form>
+
+            <!-- Message -->
+            <div class="message" id="message"></div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <p>Inclus avec ton abonnement SOS Storytelling</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="hub-config.js"></script>
+    <script>
+        // Initialiser Supabase
+        initHubSupabase();
+
+        // URL de redirection
+        const REDIRECT_URL = window.location.origin + '/hub/index.html';
+
+        // Mode actuel
+        let authMode = 'login';
+
+        // ============================================
+        // FONCTIONS PRINCIPALES
+        // ============================================
+
+        function switchTab(mode) {
+            authMode = mode;
+
+            document.getElementById('tabLogin').classList.toggle('active', mode === 'login');
+            document.getElementById('tabRegister').classList.toggle('active', mode === 'register');
+
+            const submitBtn = document.getElementById('submitBtn');
+            const passwordHint = document.getElementById('passwordHint');
+            const forgotLink = document.getElementById('forgotPasswordLink');
+
+            if (mode === 'login') {
+                submitBtn.textContent = 'Connexion';
+                passwordHint.style.display = 'none';
+                forgotLink.style.display = 'block';
+            } else {
+                submitBtn.textContent = 'Créer mon compte';
+                passwordHint.style.display = 'block';
+                forgotLink.style.display = 'none';
+            }
+
+            hideMessage();
+        }
+
+        function togglePassword() {
+            const input = document.getElementById('password');
+            const btn = event.target;
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                btn.textContent = '👁';
+            }
+        }
+
+        async function handleSubmit(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (password.length < 6) {
+                showMessage('Le mot de passe doit contenir au moins 6 caractères', 'error');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading"></span>';
+
+            try {
+                if (authMode === 'register') {
+                    const { data, error } = await hubSupabase.auth.signUp({
+                        email: email,
+                        password: password,
+                        options: {
+                            emailRedirectTo: REDIRECT_URL
+                        }
+                    });
+
+                    if (error) {
+                        if (error.message.includes('already registered')) {
+                            showMessage('Cet email est déjà utilisé. Essaie de te connecter.', 'error');
+                            switchTab('login');
+                        } else {
+                            showMessage('Erreur: ' + error.message, 'error');
+                        }
+                    } else if (data.user) {
+                        if (data.session) {
+                            window.location.href = 'index.html';
+                        } else {
+                            showMessage('Compte créé ! Vérifie ta boîte mail pour confirmer ton email.', 'success');
+                        }
+                    }
+                } else {
+                    const { data, error } = await hubSupabase.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
+
+                    if (error) {
+                        if (error.message.includes('Invalid login')) {
+                            showMessage('Email ou mot de passe incorrect', 'error');
+                        } else if (error.message.includes('Email not confirmed')) {
+                            showMessage('Confirme ton email avant de te connecter. Vérifie ta boîte mail.', 'error');
+                        } else {
+                            showMessage('Erreur: ' + error.message, 'error');
+                        }
+                    } else if (data.session) {
+                        window.location.href = 'index.html';
+                    }
+                }
+            } catch (err) {
+                showMessage('Erreur: ' + err.message, 'error');
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = authMode === 'login' ? 'Connexion' : 'Créer mon compte';
+        }
+
+        async function resetPassword(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            if (!email) {
+                showMessage('Entre ton email pour recevoir un lien de réinitialisation', 'error');
+                return;
+            }
+
+            const { error } = await hubSupabase.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + '/reset-password.html'
+            });
+
+            if (error) {
+                showMessage('Erreur: ' + error.message, 'error');
+            } else {
+                showMessage('Un email de réinitialisation a été envoyé à ' + email, 'success');
+            }
+        }
+
+        // ============================================
+        // GOOGLE OAUTH
+        // ============================================
+
+        async function signInWithGoogle() {
+            const googleBtn = document.getElementById('googleBtn');
+            googleBtn.disabled = true;
+            googleBtn.innerHTML = '<span class="loading" style="border-color: rgba(99,102,241,0.3); border-top-color: #6366F1;"></span>';
+
+            try {
+                const { data, error } = await hubSupabase.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: REDIRECT_URL
+                    }
+                });
+
+                if (error) {
+                    showMessage('Erreur Google: ' + error.message, 'error');
+                    resetGoogleBtn();
+                }
+            } catch (err) {
+                showMessage('Erreur: ' + err.message, 'error');
+                resetGoogleBtn();
+            }
+        }
+
+        function resetGoogleBtn() {
+            const googleBtn = document.getElementById('googleBtn');
+            googleBtn.disabled = false;
+            googleBtn.innerHTML = `
+                <svg viewBox="0 0 24 24" style="width: 20px; height: 20px;">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Continuer avec Google
+            `;
+        }
+
+        // ============================================
+        // HELPERS
+        // ============================================
+
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = 'message ' + type;
+        }
+
+        function hideMessage() {
+            const msg = document.getElementById('message');
+            msg.className = 'message';
+            msg.textContent = '';
+        }
+
+        // ============================================
+        // VERIFICATION SESSION AU CHARGEMENT
+        // ============================================
+
+        async function checkSession() {
+            try {
+                const { data: { session } } = await hubSupabase.auth.getSession();
+                if (session) {
+                    window.location.href = 'index.html';
+                }
+            } catch (err) {
+                console.log('Session check error:', err);
+            }
+        }
+
+        checkSession();
+
+        hubSupabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' && session) {
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>

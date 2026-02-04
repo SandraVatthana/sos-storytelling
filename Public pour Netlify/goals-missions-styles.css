@@ -1,0 +1,630 @@
+/* =====================================================
+   GOALS & MISSIONS STYLES
+   Widget Objectif + Missions Quotidiennes
+   SOS Storytelling 2026
+   ===================================================== */
+
+/* ==========================================
+   GOAL TRACKING WIDGET
+   ========================================== */
+
+#goalTrackingWidget {
+    display: none;
+    background: white;
+    border-radius: 20px;
+    padding: 25px 30px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    max-width: 500px;
+    width: 100%;
+}
+
+.gm-goal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.gm-goal-label {
+    font-weight: 600;
+    color: #333;
+    font-size: 1.1em;
+}
+
+.gm-goal-value {
+    font-weight: 700;
+    font-size: 1.2em;
+}
+
+.gm-current {
+    color: #667eea;
+}
+
+.gm-target {
+    color: #888;
+}
+
+.gm-progress-bar {
+    height: 14px;
+    background: linear-gradient(135deg, #e8ecff 0%, #f0e6ff 100%);
+    border-radius: 7px;
+    overflow: hidden;
+    position: relative;
+}
+
+.gm-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    border-radius: 7px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.gm-progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255,255,255,0.3) 50%,
+        transparent 100%
+    );
+    animation: gm-shimmer 2s infinite;
+}
+
+@keyframes gm-shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.gm-goal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    font-size: 0.9em;
+}
+
+.gm-percent {
+    color: #667eea;
+    font-weight: 600;
+}
+
+.gm-countdown {
+    color: #888;
+}
+
+.gm-update-btn {
+    width: 100%;
+    margin-top: 18px;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    border-radius: 12px;
+    color: #667eea;
+    font-family: inherit;
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.gm-update-btn:hover {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: transparent;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+}
+
+/* ==========================================
+   DAILY MISSIONS SECTION
+   ========================================== */
+
+#dailyMissionsSection {
+    display: none;
+    background: white;
+    border-radius: 20px;
+    padding: 25px 30px;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    max-width: 500px;
+    width: 100%;
+}
+
+.gm-missions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.gm-missions-header h3 {
+    margin: 0;
+    font-size: 1.1em;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#missionsStreak {
+    display: none;
+    background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 600;
+}
+
+/* Mission Item */
+.gm-mission-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: #f8f9ff;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+}
+
+.gm-mission-item:hover {
+    background: #f0f4ff;
+    border-color: rgba(102, 126, 234, 0.2);
+}
+
+.gm-mission-item.completed {
+    background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+    border-color: rgba(16, 185, 129, 0.2);
+}
+
+.gm-mission-item.completed .gm-mission-title {
+    text-decoration: line-through;
+    color: #888;
+}
+
+.gm-mission-checkbox {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.3s;
+}
+
+.gm-mission-checkbox svg {
+    width: 14px;
+    height: 14px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    color: white;
+}
+
+.gm-mission-item.completed .gm-mission-checkbox {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    border-color: #10B981;
+}
+
+.gm-mission-item.completed .gm-mission-checkbox svg {
+    opacity: 1;
+}
+
+.gm-mission-content {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.gm-mission-title {
+    font-weight: 500;
+    color: #333;
+    font-size: 0.95em;
+}
+
+.gm-mission-time {
+    color: #888;
+    font-size: 0.85em;
+    white-space: nowrap;
+}
+
+/* Done State */
+.gm-mission-done {
+    text-align: center;
+    padding: 25px 15px;
+    color: #10B981;
+    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.gm-done-icon {
+    font-size: 2em;
+}
+
+.gm-mission-empty {
+    text-align: center;
+    padding: 20px 15px;
+    color: #888;
+    font-size: 0.9em;
+}
+
+/* Footer */
+.gm-missions-footer {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+    text-align: center;
+}
+
+.gm-missions-footer small {
+    color: #aaa;
+    font-size: 0.8em;
+}
+
+/* ==========================================
+   UPDATE MODAL
+   ========================================== */
+
+.gm-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+.gm-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.gm-modal {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+    transform: scale(0.9);
+    transition: transform 0.3s;
+}
+
+.gm-modal-overlay.active .gm-modal {
+    transform: scale(1);
+}
+
+.gm-modal h3 {
+    margin: 0 0 25px 0;
+    text-align: center;
+    color: #333;
+}
+
+.gm-form-group {
+    margin-bottom: 25px;
+}
+
+.gm-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+}
+
+.gm-form-group input {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #eee;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 1.2em;
+    text-align: center;
+    transition: border-color 0.3s;
+}
+
+.gm-form-group input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.gm-modal-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.gm-btn-cancel,
+.gm-btn-save {
+    flex: 1;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.gm-btn-cancel {
+    background: #f5f5f5;
+    border: none;
+    color: #666;
+}
+
+.gm-btn-cancel:hover {
+    background: #eee;
+}
+
+.gm-btn-save {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+}
+
+.gm-btn-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* ==========================================
+   ONBOARDING STEPS (for new questions)
+   ========================================== */
+
+.gm-choice-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 20px 0;
+}
+
+.gm-choice-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 18px 20px;
+    background: #f8f9ff;
+    border: 2px solid transparent;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.gm-choice-card:hover {
+    background: #f0f4ff;
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+.gm-choice-card.selected {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border-color: #667eea;
+}
+
+.gm-choice-card input[type="radio"] {
+    display: none;
+}
+
+.gm-choice-icon {
+    font-size: 1.5em;
+}
+
+.gm-choice-label {
+    font-weight: 500;
+    color: #333;
+}
+
+.gm-choice-desc {
+    font-size: 0.85em;
+    color: #888;
+    margin-top: 3px;
+}
+
+/* Goal Setup Form */
+.gm-goal-setup {
+    margin: 20px 0;
+}
+
+.gm-goal-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.gm-goal-row > * {
+    flex: 1;
+}
+
+.gm-goal-preview {
+    background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 100%);
+    border-radius: 12px;
+    padding: 15px 20px;
+    text-align: center;
+    color: #667eea;
+    font-weight: 600;
+    margin-top: 15px;
+}
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+
+@media (max-width: 600px) {
+    #goalTrackingWidget,
+    #dailyMissionsSection {
+        padding: 20px;
+        border-radius: 16px;
+    }
+
+    .gm-mission-item {
+        padding: 12px;
+    }
+
+    .gm-mission-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+    .gm-goal-row {
+        flex-direction: column;
+    }
+}
+
+/* ==========================================
+   HUB ACTIVATION CTA
+   ========================================== */
+
+.hub-activation-cta {
+    background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+    border: 2px dashed rgba(102, 126, 234, 0.3);
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    max-width: 500px;
+    width: 100%;
+    transition: all 0.3s;
+}
+
+.hub-activation-cta:hover {
+    border-color: rgba(102, 126, 234, 0.5);
+    background: linear-gradient(135deg, #f0f4ff 0%, #e8ecff 100%);
+}
+
+.hub-cta-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.hub-cta-icon {
+    font-size: 1.8em;
+}
+
+.hub-cta-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.hub-cta-text strong {
+    color: #333;
+    font-size: 1em;
+}
+
+.hub-cta-text span {
+    color: #888;
+    font-size: 0.85em;
+}
+
+.hub-cta-btn {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-family: inherit;
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.hub-cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* ==========================================
+   HUB MODE TOGGLE IN SETTINGS
+   ========================================== */
+
+.hub-mode-toggle-item {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    cursor: default !important;
+}
+
+.hub-mode-toggle-item:hover {
+    background: transparent !important;
+}
+
+.hub-toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.hub-toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.hub-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.3s;
+    border-radius: 24px;
+}
+
+.hub-toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+.hub-toggle-switch input:checked + .hub-toggle-slider {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.hub-toggle-switch input:checked + .hub-toggle-slider:before {
+    transform: translateX(20px);
+}
+
+@media (max-width: 600px) {
+    .hub-cta-content {
+        flex-wrap: wrap;
+    }
+
+    .hub-cta-btn {
+        width: 100%;
+        margin-top: 10px;
+    }
+}

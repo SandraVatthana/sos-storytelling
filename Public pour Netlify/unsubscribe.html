@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Désinscription - SOS Storytelling</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="logo-sos-storytelling.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 50%, #f093fb 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            max-width: 500px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .header img {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 15px;
+        }
+
+        .header h1 {
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        /* État initial - Formulaire */
+        .form-state {
+            text-align: center;
+        }
+
+        .form-state p {
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .email-display {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            font-weight: 600;
+            color: #333;
+            word-break: break-all;
+        }
+
+        .reason-section {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .reason-section label {
+            display: block;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .reason-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .reason-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .reason-option:hover {
+            background: #e9ecef;
+        }
+
+        .reason-option input[type="radio"] {
+            accent-color: #667eea;
+        }
+
+        .reason-option span {
+            color: #444;
+            font-size: 0.95em;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .btn-unsubscribe {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-unsubscribe:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-unsubscribe:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-cancel {
+            background: #f3f4f6;
+            color: #666;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .btn-cancel:hover {
+            background: #e5e7eb;
+        }
+
+        /* État succès */
+        .success-state {
+            display: none;
+            text-align: center;
+        }
+
+        .success-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .success-state h2 {
+            color: #10b981;
+            margin-bottom: 15px;
+        }
+
+        .success-state p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* État erreur */
+        .error-state {
+            display: none;
+            text-align: center;
+        }
+
+        .error-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .error-state h2 {
+            color: #ef4444;
+            margin-bottom: 15px;
+        }
+
+        .error-state p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        /* État déjà désinscrit */
+        .already-state {
+            display: none;
+            text-align: center;
+        }
+
+        .already-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .already-state h2 {
+            color: #f59e0b;
+            margin-bottom: 15px;
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f0f0f0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Footer */
+        .footer {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            text-align: center;
+            font-size: 0.85em;
+            color: #888;
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        /* Missing params */
+        .missing-params {
+            display: none;
+            text-align: center;
+        }
+
+        .missing-params h2 {
+            color: #f59e0b;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="logo-sos-storytelling.png" alt="Logo">
+            <h1>Gestion des emails</h1>
+        </div>
+
+        <div class="content">
+            <!-- Loading -->
+            <div class="loading" id="loadingState">
+                <div class="spinner"></div>
+                <p>Traitement en cours...</p>
+            </div>
+
+            <!-- Paramètres manquants -->
+            <div class="missing-params" id="missingState">
+                <div class="error-icon">🔗</div>
+                <h2>Lien invalide</h2>
+                <p>Ce lien de désinscription semble incomplet ou invalide. Si tu as reçu un email et souhaites te désinscrire, utilise le lien complet présent dans l'email.</p>
+            </div>
+
+            <!-- Formulaire -->
+            <div class="form-state" id="formState">
+                <p>Tu souhaites ne plus recevoir d'emails de notre part ?<br>Nous respectons ton choix.</p>
+
+                <div class="email-display" id="emailDisplay">
+                    chargement...
+                </div>
+
+                <div class="reason-section">
+                    <label>Peux-tu nous dire pourquoi ? (optionnel)</label>
+                    <div class="reason-options">
+                        <label class="reason-option">
+                            <input type="radio" name="reason" value="too_many">
+                            <span>Je reçois trop d'emails</span>
+                        </label>
+                        <label class="reason-option">
+                            <input type="radio" name="reason" value="not_relevant">
+                            <span>Le contenu ne m'intéresse pas</span>
+                        </label>
+                        <label class="reason-option">
+                            <input type="radio" name="reason" value="never_subscribed">
+                            <span>Je ne me suis jamais inscrit(e)</span>
+                        </label>
+                        <label class="reason-option">
+                            <input type="radio" name="reason" value="other">
+                            <span>Autre raison</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button class="btn btn-unsubscribe" id="unsubscribeBtn" onclick="confirmUnsubscribe()">
+                    Me désinscrire
+                </button>
+
+                <button class="btn btn-cancel" onclick="window.close()">
+                    Annuler
+                </button>
+            </div>
+
+            <!-- Succès -->
+            <div class="success-state" id="successState">
+                <div class="success-icon">✅</div>
+                <h2>Désinscription confirmée</h2>
+                <p>Tu ne recevras plus d'emails de notre part.<br><br>Si tu changes d'avis, n'hésite pas à nous recontacter directement.</p>
+            </div>
+
+            <!-- Déjà désinscrit -->
+            <div class="already-state" id="alreadyState">
+                <div class="already-icon">📭</div>
+                <h2>Déjà désinscrit(e)</h2>
+                <p>Cette adresse email est déjà dans notre liste de désinscription. Tu ne recevras plus d'emails de notre part.</p>
+            </div>
+
+            <!-- Erreur -->
+            <div class="error-state" id="errorState">
+                <div class="error-icon">❌</div>
+                <h2>Une erreur est survenue</h2>
+                <p id="errorMessage">Impossible de traiter ta demande pour le moment. Réessaie plus tard ou contacte-nous directement.</p>
+                <button class="btn btn-cancel" onclick="location.reload()">Réessayer</button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Propulsé par <a href="https://sosstorytelling.fr" target="_blank">SOS Storytelling</a></p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Configuration
+        const SUPABASE_URL = 'https://pyxidmnckpnrargygwnf.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eGlkbW5ja3BucmFyZ3lnd25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyMzc4NzIsImV4cCI6MjA3OTgxMzg3Mn0.atm-LVna_TQyPuACZgA4ngJzzgIfJQJIdnLd9lCpOns';
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // États
+        const loadingState = document.getElementById('loadingState');
+        const missingState = document.getElementById('missingState');
+        const formState = document.getElementById('formState');
+        const successState = document.getElementById('successState');
+        const alreadyState = document.getElementById('alreadyState');
+        const errorState = document.getElementById('errorState');
+
+        // Paramètres URL
+        const params = new URLSearchParams(window.location.search);
+        const email = params.get('email');
+        const userId = params.get('uid');
+        const campaignId = params.get('cid');
+        const prospectId = params.get('pid');
+
+        // Afficher l'état approprié
+        function showState(state) {
+            [loadingState, missingState, formState, successState, alreadyState, errorState].forEach(s => {
+                s.style.display = 'none';
+            });
+            state.style.display = 'block';
+        }
+
+        // Initialisation
+        async function init() {
+            // Vérifier les paramètres requis
+            if (!email || !userId) {
+                showState(missingState);
+                return;
+            }
+
+            // Afficher l'email (masqué partiellement pour la sécurité)
+            const maskedEmail = maskEmail(email);
+            document.getElementById('emailDisplay').textContent = maskedEmail;
+
+            // Vérifier si déjà désinscrit
+            try {
+                const { data, error } = await supabase
+                    .from('email_unsubscribes')
+                    .select('id')
+                    .eq('user_id', userId)
+                    .ilike('email', email)
+                    .single();
+
+                if (data) {
+                    showState(alreadyState);
+                    return;
+                }
+            } catch (e) {
+                // Pas désinscrit, continuer
+            }
+
+            showState(formState);
+        }
+
+        // Masquer partiellement l'email
+        function maskEmail(email) {
+            const [local, domain] = email.split('@');
+            if (local.length <= 2) return email;
+            const masked = local[0] + '***' + local[local.length - 1];
+            return masked + '@' + domain;
+        }
+
+        // Confirmer la désinscription
+        async function confirmUnsubscribe() {
+            const btn = document.getElementById('unsubscribeBtn');
+            btn.disabled = true;
+            btn.textContent = 'Traitement...';
+
+            // Récupérer la raison
+            const reasonInput = document.querySelector('input[name="reason"]:checked');
+            const reasonMap = {
+                'too_many': 'Trop d\'emails reçus',
+                'not_relevant': 'Contenu non pertinent',
+                'never_subscribed': 'Jamais inscrit',
+                'other': 'Autre raison'
+            };
+            const reason = reasonInput ? reasonMap[reasonInput.value] : null;
+
+            try {
+                const { data, error } = await supabase
+                    .from('email_unsubscribes')
+                    .insert({
+                        user_id: userId,
+                        email: email.toLowerCase(),
+                        campaign_id: campaignId || null,
+                        prospect_id: prospectId || null,
+                        reason: reason
+                    });
+
+                if (error) {
+                    // Vérifier si c'est une erreur de doublon
+                    if (error.code === '23505') {
+                        showState(alreadyState);
+                        return;
+                    }
+                    throw error;
+                }
+
+                showState(successState);
+
+            } catch (error) {
+                console.error('Erreur:', error);
+                document.getElementById('errorMessage').textContent =
+                    'Impossible de traiter ta demande : ' + (error.message || 'Erreur inconnue');
+                showState(errorState);
+            }
+        }
+
+        // Démarrer
+        init();
+    </script>
+</body>
+</html>

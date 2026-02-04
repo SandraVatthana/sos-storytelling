@@ -93,6 +93,50 @@ CREATE POLICY "Users can delete own generated contents"
     USING (auth.uid() = user_id);
 
 
+-- 3. Table pour les posts sauvegardés (Mes Posts)
+-- IMPORTANT : Cette table permet la synchronisation entre appareils
+CREATE TABLE IF NOT EXISTS user_saved_posts (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+
+    -- Contenu du post
+    platform TEXT DEFAULT 'instagram', -- instagram, linkedin, twitter, facebook, tiktok
+    caption TEXT,
+    hashtags TEXT,
+    visual_texts TEXT, -- Textes pour les visuels (carousel)
+
+    -- État
+    done BOOLEAN DEFAULT false, -- true = post publié
+
+    -- Métadonnées
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Index pour recherche rapide
+CREATE INDEX IF NOT EXISTS idx_user_saved_posts_user_id ON user_saved_posts(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_saved_posts_created_at ON user_saved_posts(created_at DESC);
+
+-- RLS
+ALTER TABLE user_saved_posts ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own saved posts"
+    ON user_saved_posts FOR SELECT
+    USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own saved posts"
+    ON user_saved_posts FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own saved posts"
+    ON user_saved_posts FOR UPDATE
+    USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own saved posts"
+    ON user_saved_posts FOR DELETE
+    USING (auth.uid() = user_id);
+
+
 -- =====================================================
 -- NOTES D'INSTALLATION
 -- =====================================================
@@ -112,4 +156,9 @@ CREATE POLICY "Users can delete own generated contents"
 -- La table generated_contents stocke :
 -- - Tous les contenus générés
 -- - Permet d'afficher l'historique récent
+--
+-- La table user_saved_posts stocke :
+-- - Les posts sauvegardés par l'utilisateur ("Mes Posts")
+-- - Synchronisés entre tous les appareils
+-- - État de publication (done)
 -- =====================================================

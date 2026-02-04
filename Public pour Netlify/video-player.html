@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Player</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .video-container {
+            width: 100%;
+            max-width: 900px;
+            background: #0f0f23;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .video-header {
+            padding: 20px 25px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .video-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .video-subtitle {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            background: #000;
+        }
+
+        .video-wrapper video,
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .video-footer {
+            padding: 20px 25px;
+            background: #1a1a3e;
+        }
+
+        .progress-container {
+            margin-bottom: 15px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85em;
+            margin-bottom: 8px;
+            color: #aaa;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .cta-section {
+            text-align: center;
+            padding-top: 15px;
+            border-top: 1px solid #333;
+        }
+
+        .cta-text {
+            font-size: 0.95em;
+            margin-bottom: 15px;
+            color: #ccc;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 14px 35px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 1em;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .branding {
+            margin-top: 30px;
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .branding a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        /* Loading state */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 300px;
+            color: #888;
+        }
+
+        .error-message {
+            text-align: center;
+            padding: 40px;
+            color: #ff6b6b;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .video-header {
+                padding: 15px 20px;
+            }
+            .video-title {
+                font-size: 1.1em;
+            }
+            .video-footer {
+                padding: 15px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="video-container" id="videoContainer">
+        <div class="loading" id="loading">
+            Chargement de la vidéo...
+        </div>
+    </div>
+
+    <div class="branding">
+        Propulsé par <a href="https://sosstorytelling.fr" target="_blank">SOS Storytelling</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // ==================== CONFIGURATION ====================
+        const CONFIG = {
+            SUPABASE_URL: 'https://pyxidmnckpnrargygwnf.supabase.co',
+            SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eGlkbW5ja3BucmFyZ3lnd25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyMzc4NzIsImV4cCI6MjA3OTgxMzg3Mn0.atm-LVna_TQyPuACZgA4ngJzzgIfJQJIdnLd9lCpOns',
+            TRACKING_INTERVAL: 5000  // Envoyer le tracking toutes les 5 secondes
+        };
+
+        const supabase = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+
+        // ==================== STATE ====================
+        let videoData = null;
+        let viewRecord = null;
+        let trackingInterval = null;
+        let currentPercent = 0;
+        let maxPercent = 0;
+
+        // ==================== URL PARAMS ====================
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                videoId: params.get('v') || params.get('video'),
+                leadId: params.get('lead_id') || params.get('lid') || generateLeadId(),
+                email: params.get('email'),
+                name: params.get('name')
+            };
+        }
+
+        function generateLeadId() {
+            return 'anon_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // ==================== LOAD VIDEO ====================
+        async function loadVideo() {
+            const params = getUrlParams();
+
+            if (!params.videoId) {
+                showError('Aucune vidéo spécifiée. Ajoute ?v=VIDEO_ID à l\'URL.');
+                return;
+            }
+
+            try {
+                // Charger les infos de la vidéo
+                const { data: video, error } = await supabase
+                    .from('video_links')
+                    .select('*')
+                    .eq('id', params.videoId)
+                    .single();
+
+                if (error || !video) {
+                    showError('Vidéo introuvable.');
+                    return;
+                }
+
+                videoData = video;
+
+                // Créer ou récupérer l'enregistrement de vue
+                await initViewRecord(params);
+
+                // Afficher la vidéo
+                renderVideo(video);
+
+                // Démarrer le tracking
+                startTracking();
+
+            } catch (err) {
+                console.error('Erreur chargement vidéo:', err);
+                showError('Erreur lors du chargement de la vidéo.');
+            }
+        }
+
+        // ==================== VIEW RECORD ====================
+        async function initViewRecord(params) {
+            // Vérifier si une vue existe déjà pour ce lead_id
+            const { data: existingView } = await supabase
+                .from('video_views')
+                .select('*')
+                .eq('video_id', params.videoId)
+                .eq('lead_id', params.leadId)
+                .single();
+
+            if (existingView) {
+                viewRecord = existingView;
+                maxPercent = existingView.percent_watched || 0;
+                return;
+            }
+
+            // Créer une nouvelle vue
+            const { data: newView, error } = await supabase
+                .from('video_views')
+                .insert({
+                    video_id: params.videoId,
+                    lead_id: params.leadId,
+                    viewer_email: params.email,
+                    viewer_name: params.name,
+                    user_agent: navigator.userAgent,
+                    referrer: document.referrer
+                })
+                .select()
+                .single();
+
+            if (error) {
+                console.error('Erreur création vue:', error);
+            } else {
+                viewRecord = newView;
+            }
+        }
+
+        // ==================== RENDER VIDEO ====================
+        function renderVideo(video) {
+            const container = document.getElementById('videoContainer');
+
+            // Détecter le type de vidéo
+            const videoUrl = video.video_url;
+            let videoElement = '';
+
+            if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
+                const videoId = extractYouTubeId(videoUrl);
+                videoElement = `
+                    <iframe
+                        id="videoPlayer"
+                        src="https://www.youtube.com/embed/${videoId}?enablejsapi=1&origin=${window.location.origin}"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen
+                    ></iframe>
+                `;
+            } else if (videoUrl.includes('vimeo.com')) {
+                const videoId = videoUrl.split('/').pop();
+                videoElement = `
+                    <iframe
+                        id="videoPlayer"
+                        src="https://player.vimeo.com/video/${videoId}"
+                        frameborder="0"
+                        allow="autoplay; fullscreen; picture-in-picture"
+                        allowfullscreen
+                    ></iframe>
+                `;
+            } else if (videoUrl.includes('loom.com')) {
+                const videoId = videoUrl.split('/').pop();
+                videoElement = `
+                    <iframe
+                        id="videoPlayer"
+                        src="https://www.loom.com/embed/${videoId}"
+                        frameborder="0"
+                        allowfullscreen
+                    ></iframe>
+                `;
+            } else {
+                // Vidéo directe (MP4, etc.)
+                videoElement = `
+                    <video id="videoPlayer" controls>
+                        <source src="${videoUrl}" type="video/mp4">
+                        Ton navigateur ne supporte pas la lecture vidéo.
+                    </video>
+                `;
+            }
+
+            container.innerHTML = `
+                <div class="video-header">
+                    <div class="video-title">${video.title || 'Vidéo'}</div>
+                    ${video.subtitle ? `<div class="video-subtitle">${video.subtitle}</div>` : ''}
+                </div>
+
+                <div class="video-wrapper">
+                    ${videoElement}
+                </div>
+
+                <div class="video-footer">
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span>Progression</span>
+                            <span id="percentDisplay">${maxPercent}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: ${maxPercent}%"></div>
+                        </div>
+                    </div>
+
+                    ${video.cta_text || video.cta_url ? `
+                        <div class="cta-section">
+                            ${video.cta_text ? `<p class="cta-text">${video.cta_text}</p>` : ''}
+                            ${video.cta_url ? `<a href="${video.cta_url}" class="cta-button" target="_blank">${video.cta_button_text || 'En savoir plus'}</a>` : ''}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            // Setup tracking pour les vidéos HTML5
+            setupVideoTracking();
+        }
+
+        function extractYouTubeId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        // ==================== TRACKING ====================
+        function setupVideoTracking() {
+            const video = document.getElementById('videoPlayer');
+
+            if (video && video.tagName === 'VIDEO') {
+                // Vidéo HTML5 native
+                video.addEventListener('timeupdate', () => {
+                    if (video.duration) {
+                        currentPercent = Math.round((video.currentTime / video.duration) * 100);
+                        updateProgressUI(currentPercent);
+                    }
+                });
+
+                video.addEventListener('ended', () => {
+                    currentPercent = 100;
+                    updateProgressUI(100);
+                    sendTracking(100);
+                });
+            }
+        }
+
+        function startTracking() {
+            // Envoyer le tracking périodiquement
+            trackingInterval = setInterval(() => {
+                if (currentPercent > maxPercent) {
+                    maxPercent = currentPercent;
+                    sendTracking(maxPercent);
+                }
+            }, CONFIG.TRACKING_INTERVAL);
+
+            // Tracking au départ
+            setTimeout(() => sendTracking(0), 1000);
+        }
+
+        async function sendTracking(percent) {
+            if (!viewRecord) return;
+
+            try {
+                await supabase
+                    .from('video_views')
+                    .update({
+                        percent_watched: percent,
+                        last_view_at: new Date().toISOString()
+                    })
+                    .eq('id', viewRecord.id);
+
+                console.log(`[Tracking] ${percent}% envoyé`);
+            } catch (err) {
+                console.error('Erreur tracking:', err);
+            }
+        }
+
+        function updateProgressUI(percent) {
+            const display = document.getElementById('percentDisplay');
+            const fill = document.getElementById('progressFill');
+
+            if (display) display.textContent = `${percent}%`;
+            if (fill) fill.style.width = `${percent}%`;
+        }
+
+        // ==================== ERROR ====================
+        function showError(message) {
+            document.getElementById('videoContainer').innerHTML = `
+                <div class="error-message">
+                    <h2>Oops!</h2>
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+
+        // ==================== CLEANUP ====================
+        window.addEventListener('beforeunload', () => {
+            if (trackingInterval) clearInterval(trackingInterval);
+            if (currentPercent > maxPercent) {
+                sendTracking(currentPercent);
+            }
+        });
+
+        // ==================== INIT ====================
+        loadVideo();
+    </script>
+</body>
+</html>

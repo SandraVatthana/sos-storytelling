@@ -1355,6 +1355,9 @@ const AuditModule = (function() {
                     ⏱️ <strong>~30 secondes</strong> • 📄 Rapport avec score et recommandations • 💾 Sauvegardé automatiquement
                 </p>
             </div>
+            <p style="margin-top: 10px; font-size: 0.8em; color: #888; text-align: center;">
+                💡 Si le bouton ne répond pas, recharge la page et réessaie.
+            </p>
         `;
     }
 
@@ -1520,6 +1523,12 @@ const AuditModule = (function() {
                         </div>
                     ` : ''}
 
+                    <div class="audit-redo-hint" style="background: linear-gradient(135deg, #fef3c7, #fde68a); border: 1px solid #f59e0b; border-radius: 8px; padding: 12px 15px; margin-top: 20px; margin-bottom: 15px;">
+                        <p style="margin: 0; font-size: 0.85em; color: #92400e;">
+                            💡 <strong>Pour refaire un audit sur le même profil :</strong> supprime d'abord l'audit précédent dans l'historique (bouton 📋), puis recharge la page.
+                        </p>
+                    </div>
+
                     <button class="audit-reset-btn" onclick="AuditModule.resetProfilesAudit()">
                         Analyser un autre profil
                     </button>
@@ -1568,6 +1577,12 @@ const AuditModule = (function() {
                     </div>
                 `).join('') : ''}
 
+                <div class="audit-redo-hint" style="background: linear-gradient(135deg, #fef3c7, #fde68a); border: 1px solid #f59e0b; border-radius: 8px; padding: 12px 15px; margin-top: 20px; margin-bottom: 15px;">
+                    <p style="margin: 0; font-size: 0.85em; color: #92400e;">
+                        💡 <strong>Pour refaire un audit sur le même profil :</strong> supprime d'abord l'audit précédent dans l'historique (bouton 📋), puis recharge la page.
+                    </p>
+                </div>
+
                 <button class="audit-reset-btn" onclick="AuditModule.resetProfilesAudit()">
                     Recommencer l'audit
                 </button>
@@ -1603,22 +1618,19 @@ const AuditModule = (function() {
 
             <div class="audit-section">
                 <div class="audit-posts-header">
-                    <h3>📋 Tes posts <span class="posts-count-badge">${posts.length}/5 max</span></h3>
-                    <button class="audit-add-btn" onclick="AuditModule.addPost()" ${posts.length >= 5 ? 'disabled style="opacity:0.5"' : ''}>+ Ajouter</button>
+                    <h3>📋 Ton post à analyser</h3>
                 </div>
 
                 <div class="audit-posts-list">
-                    ${posts.map((post, idx) => `
+                    ${posts.slice(0, 1).map((post, idx) => `
                         <div class="audit-post-item">
                             <div class="post-item-header">
-                                <span class="post-number">${idx + 1}</span>
                                 <select class="audit-select" onchange="AuditModule.updatePost(${post.id}, 'platform', this.value)">
                                     <option value="linkedin" ${post.platform === 'linkedin' ? 'selected' : ''}>LinkedIn</option>
                                     <option value="instagram" ${post.platform === 'instagram' ? 'selected' : ''}>Instagram</option>
                                     <option value="tiktok" ${post.platform === 'tiktok' ? 'selected' : ''}>TikTok</option>
                                     <option value="twitter" ${post.platform === 'twitter' ? 'selected' : ''}>X/Twitter</option>
                                 </select>
-                                ${posts.length > 1 ? `<button class="audit-remove-btn" onclick="AuditModule.removePost(${post.id})">🗑️</button>` : ''}
                             </div>
                             <textarea class="audit-textarea post-textarea"
                                       placeholder="Colle ton post ici..."
@@ -1659,7 +1671,34 @@ const AuditModule = (function() {
                     ⏱️ <strong>~1-2 min</strong> selon le nombre de posts • 📄 Scores par critère + conseils • 💾 Sauvegardé automatiquement
                 </p>
             </div>
+            <p style="margin-top: 10px; font-size: 0.8em; color: #888; text-align: center;">
+                💡 Si le bouton ne répond pas, recharge la page et réessaie.
+            </p>
         `;
+    }
+
+    // Helper: convertir score /100 en /20
+    function convertTo20(score100) {
+        return Math.round((score100 / 100) * 20 * 10) / 10;
+    }
+
+    // Helper: générer les étoiles selon le score /20
+    function getStars(score20) {
+        if (score20 >= 16) return '⭐⭐⭐⭐⭐';
+        if (score20 >= 14) return '⭐⭐⭐⭐';
+        if (score20 >= 12) return '⭐⭐⭐';
+        if (score20 >= 10) return '⭐⭐';
+        return '⭐';
+    }
+
+    // Helper: obtenir le niveau selon le score /20
+    function getScoreLevel(score20) {
+        if (score20 >= 16) return { text: 'Excellent', color: '#10b981', bg: '#ecfdf5' };
+        if (score20 >= 14) return { text: 'Très bien', color: '#22c55e', bg: '#f0fdf4' };
+        if (score20 >= 12) return { text: 'Bien', color: '#84cc16', bg: '#fefce8' };
+        if (score20 >= 10) return { text: 'Correct', color: '#eab308', bg: '#fef9c3' };
+        if (score20 >= 8) return { text: 'À améliorer', color: '#f97316', bg: '#fff7ed' };
+        return { text: 'Faible', color: '#ef4444', bg: '#fef2f2' };
     }
 
     function renderPostsResults() {
@@ -1667,52 +1706,154 @@ const AuditModule = (function() {
 
         const avgScores = postsResults.averageScores;
 
+        // Convertir les scores en /20
+        const globalScore20 = convertTo20(avgScores.global);
+        const hookScore20 = convertTo20(avgScores.hook);
+        const structureScore20 = convertTo20(avgScores.structure);
+        const ctaScore20 = convertTo20(avgScores.cta);
+        const emotionScore20 = convertTo20(avgScores.emotion);
+        const coherenceScore20 = convertTo20(avgScores.coherence);
+        const readabilityScore20 = convertTo20(avgScores.readability);
+        const promiseScore20 = convertTo20(avgScores.promise);
+
+        const level = getScoreLevel(globalScore20);
+        const stars = getStars(globalScore20);
+
+        // Calculer les scores par catégorie (sur bases différentes comme Proinfluent)
+        // Accroche: /6, Tension: /4, Structure: /4, Psychologie: /3, CTA: /3
+        const accrocheScore = Math.round((avgScores.hook / 100) * 6 * 10) / 10;
+        const tensionScore = Math.round((avgScores.emotion / 100) * 4 * 10) / 10;
+        const structureScoreCat = Math.round((avgScores.structure / 100) * 4 * 10) / 10;
+        const psychoScore = Math.round(((avgScores.coherence + avgScores.promise) / 200) * 3 * 10) / 10;
+        const ctaScoreCat = Math.round((avgScores.cta / 100) * 3 * 10) / 10;
+
+        // Collecter les forces et faiblesses
+        const forces = [];
+        const faiblesses = [];
+
+        if (avgScores.hook >= 70) forces.push('Accroches percutantes qui captent l\'attention');
+        else if (avgScores.hook < 50) faiblesses.push('Accroches trop génériques, manque d\'impact');
+
+        if (avgScores.structure >= 70) forces.push('Structure claire et bien organisée');
+        else if (avgScores.structure < 50) faiblesses.push('Structure confuse, manque de progression');
+
+        if (avgScores.cta >= 70) forces.push('CTAs engageants qui incitent à l\'action');
+        else if (avgScores.cta < 50) faiblesses.push('CTAs absents ou trop faibles');
+
+        if (avgScores.emotion >= 70) forces.push('Storytelling et émotion bien présents');
+        else if (avgScores.emotion < 50) faiblesses.push('Contenu trop factuel, manque d\'émotion');
+
+        if (avgScores.coherence >= 70) forces.push('Bonne cohérence avec le positionnement');
+        else if (avgScores.coherence < 50) faiblesses.push('Pas assez aligné avec l\'expertise affichée');
+
+        if (avgScores.readability >= 70) forces.push('Texte fluide et facile à lire');
+        else if (avgScores.readability < 50) faiblesses.push('Lisibilité à améliorer (phrases trop longues)');
+
+        if (avgScores.promise >= 70) forces.push('Promesse de valeur claire pour le lecteur');
+        else if (avgScores.promise < 50) faiblesses.push('Bénéfice pour le lecteur pas assez explicite');
+
+        // Si pas assez de forces/faiblesses, ajouter des éléments neutres
+        if (forces.length === 0) forces.push('Effort de publication régulière');
+        if (faiblesses.length === 0) faiblesses.push('Continuer à tester de nouveaux formats');
+
         return `
             <div class="audit-results">
-                <div class="audit-score-global">
-                    <div class="score-circle" style="--score-color: ${getScoreColor(avgScores.global)}">
-                        <span class="score-value">${avgScores.global}</span>
-                        <span class="score-max">/100</span>
+                <!-- SCORE GLOBAL STYLE PROINFLUENT -->
+                <div style="background: linear-gradient(135deg, ${level.bg}, white); border: 2px solid ${level.color}; border-radius: 16px; padding: 25px; margin-bottom: 25px; text-align: center;">
+                    <div style="font-size: 0.9em; color: #666; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Score Global</div>
+                    <div style="font-size: 3.5em; font-weight: 800; color: ${level.color}; line-height: 1;">
+                        ${globalScore20}<span style="font-size: 0.4em; color: #888;">/20</span>
                     </div>
-                    <h3>Score Moyen</h3>
-                    <p>Basé sur ${postsResults.postCount} post${postsResults.postCount > 1 ? 's' : ''}</p>
+                    <div style="font-size: 1.8em; margin: 10px 0;">${stars}</div>
+                    <div style="display: inline-block; padding: 8px 20px; background: ${level.color}; color: white; border-radius: 20px; font-weight: 600; font-size: 1em;">
+                        ${level.text}
+                    </div>
+                    <p style="margin-top: 15px; color: #666; font-size: 0.9em;">Basé sur ${postsResults.postCount} post${postsResults.postCount > 1 ? 's' : ''} analysé${postsResults.postCount > 1 ? 's' : ''}</p>
                 </div>
 
-                <div class="audit-scores-grid audit-scores-7">
-                    <div class="score-item">
-                        <span class="score-emoji">🎣</span>
-                        <span class="score-label">Accroche</span>
-                        <span class="score-value" style="color: ${getScoreColor(avgScores.hook)}">${avgScores.hook}</span>
+                <!-- BARÈME -->
+                <div style="background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 25px; font-size: 0.85em; color: #64748b;">
+                    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;">
+                        <span>🏆 <strong>16-20</strong> Excellent</span>
+                        <span>✨ <strong>14-16</strong> Très bien</span>
+                        <span>👍 <strong>12-14</strong> Bien</span>
+                        <span>📝 <strong>10-12</strong> Correct</span>
+                        <span>⚠️ <strong>&lt;10</strong> À améliorer</span>
                     </div>
-                    <div class="score-item">
-                        <span class="score-emoji">📐</span>
-                        <span class="score-label">Structure</span>
-                        <span class="score-value" style="color: ${getScoreColor(avgScores.structure)}">${avgScores.structure}</span>
+                </div>
+
+                <!-- DÉTAIL PAR CATÉGORIE -->
+                <div style="background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 25px; margin-bottom: 25px;">
+                    <h4 style="margin: 0 0 20px 0; font-size: 1.1em; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+                        📊 Détail par catégorie
+                    </h4>
+
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <div style="display: flex; align-items: center; gap: 15px; padding: 12px; background: #fef3c7; border-radius: 10px;">
+                            <span style="font-size: 1.5em;">🎣</span>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: #92400e;">Accroche</div>
+                                <div style="font-size: 0.85em; color: #a16207;">Capacité à capter l'attention</div>
+                            </div>
+                            <div style="font-size: 1.3em; font-weight: 700; color: ${getScoreColor(avgScores.hook)};">${accrocheScore}/6</div>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 15px; padding: 12px; background: #fce7f3; border-radius: 10px;">
+                            <span style="font-size: 1.5em;">💜</span>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: #9d174d;">Tension & Émotion</div>
+                                <div style="font-size: 0.85em; color: #be185d;">Storytelling et connexion émotionnelle</div>
+                            </div>
+                            <div style="font-size: 1.3em; font-weight: 700; color: ${getScoreColor(avgScores.emotion)};">${tensionScore}/4</div>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 15px; padding: 12px; background: #dbeafe; border-radius: 10px;">
+                            <span style="font-size: 1.5em;">📐</span>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: #1e40af;">Structure</div>
+                                <div style="font-size: 0.85em; color: #3730a3;">Organisation et lisibilité</div>
+                            </div>
+                            <div style="font-size: 1.3em; font-weight: 700; color: ${getScoreColor(avgScores.structure)};">${structureScoreCat}/4</div>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 15px; padding: 12px; background: #d1fae5; border-radius: 10px;">
+                            <span style="font-size: 1.5em;">🧠</span>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: #065f46;">Psychologie & Cohérence</div>
+                                <div style="font-size: 0.85em; color: #047857;">Promesse de valeur et alignement</div>
+                            </div>
+                            <div style="font-size: 1.3em; font-weight: 700; color: ${getScoreColor((avgScores.coherence + avgScores.promise) / 2)};">${psychoScore}/3</div>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 15px; padding: 12px; background: #ffedd5; border-radius: 10px;">
+                            <span style="font-size: 1.5em;">🎯</span>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: #c2410c;">Call-to-Action</div>
+                                <div style="font-size: 0.85em; color: #ea580c;">Incitation à l'engagement</div>
+                            </div>
+                            <div style="font-size: 1.3em; font-weight: 700; color: ${getScoreColor(avgScores.cta)};">${ctaScoreCat}/3</div>
+                        </div>
                     </div>
-                    <div class="score-item">
-                        <span class="score-emoji">🎯</span>
-                        <span class="score-label">CTA</span>
-                        <span class="score-value" style="color: ${getScoreColor(avgScores.cta)}">${avgScores.cta}</span>
+                </div>
+
+                <!-- FORCES & FAIBLESSES -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px;">
+                    <div style="background: #ecfdf5; border: 1px solid #10b981; border-radius: 16px; padding: 20px;">
+                        <h4 style="margin: 0 0 15px 0; color: #065f46; display: flex; align-items: center; gap: 8px;">
+                            ✅ Forces
+                        </h4>
+                        <ul style="margin: 0; padding-left: 20px; color: #047857;">
+                            ${forces.map(f => `<li style="margin-bottom: 8px;">${f}</li>`).join('')}
+                        </ul>
                     </div>
-                    <div class="score-item">
-                        <span class="score-emoji">🔗</span>
-                        <span class="score-label">Cohérence</span>
-                        <span class="score-value" style="color: ${getScoreColor(avgScores.coherence)}">${avgScores.coherence}</span>
-                    </div>
-                    <div class="score-item">
-                        <span class="score-emoji">📖</span>
-                        <span class="score-label">Lisibilité</span>
-                        <span class="score-value" style="color: ${getScoreColor(avgScores.readability)}">${avgScores.readability}</span>
-                    </div>
-                    <div class="score-item">
-                        <span class="score-emoji">💜</span>
-                        <span class="score-label">Émotion</span>
-                        <span class="score-value" style="color: ${getScoreColor(avgScores.emotion)}">${avgScores.emotion}</span>
-                    </div>
-                    <div class="score-item">
-                        <span class="score-emoji">💎</span>
-                        <span class="score-label">Promesse</span>
-                        <span class="score-value" style="color: ${getScoreColor(avgScores.promise)}">${avgScores.promise}</span>
+
+                    <div style="background: #fef2f2; border: 1px solid #ef4444; border-radius: 16px; padding: 20px;">
+                        <h4 style="margin: 0 0 15px 0; color: #991b1b; display: flex; align-items: center; gap: 8px;">
+                            ❌ Faiblesses
+                        </h4>
+                        <ul style="margin: 0; padding-left: 20px; color: #dc2626;">
+                            ${faiblesses.map(f => `<li style="margin-bottom: 8px;">${f}</li>`).join('')}
+                        </ul>
                     </div>
                 </div>
 
@@ -1967,7 +2108,99 @@ const AuditModule = (function() {
                     `).join('')}
                 </div>
 
-                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px;">
+                <!-- ACCROCHES ALTERNATIVES -->
+                <div style="background: linear-gradient(135deg, #fef3c7, #fde68a); border: 1px solid #f59e0b; border-radius: 16px; padding: 25px; margin-bottom: 25px;">
+                    <h4 style="margin: 0 0 20px 0; font-size: 1.1em; color: #92400e; display: flex; align-items: center; gap: 8px;">
+                        🎣 3 Accroches alternatives pour tes prochains posts
+                    </h4>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        ${(() => {
+                            // Collecter les accroches améliorées de l'IA si disponibles
+                            const aiHooks = postsResults.detailedAnalysis
+                                .filter(p => p.aiSuggestions?.improvedHook)
+                                .map(p => p.aiSuggestions.improvedHook);
+
+                            // Accroches génériques si pas assez d'accroches IA
+                            const defaultHooks = [
+                                "J'ai fait cette erreur pendant 3 ans. Voici ce que j'aurais aimé qu'on me dise plus tôt...",
+                                "Ce matin, un client m'a envoyé un message qui m'a fait réfléchir. Il m'a dit...",
+                                "Pourquoi 90% des [ta cible] échouent à [objectif] ? La réponse va te surprendre."
+                            ];
+
+                            const hooks = aiHooks.length >= 3 ? aiHooks.slice(0, 3) : [...aiHooks, ...defaultHooks].slice(0, 3);
+
+                            return hooks.map((hook, i) => `
+                                <div style="display: flex; gap: 12px; align-items: flex-start; padding: 15px; background: white; border-radius: 10px; border-left: 4px solid #f59e0b;">
+                                    <span style="background: #f59e0b; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">${i + 1}</span>
+                                    <p style="margin: 0; color: #78350f; font-style: italic; line-height: 1.5;">"${hook}"</p>
+                                </div>
+                            `).join('');
+                        })()}
+                    </div>
+                </div>
+
+                <!-- CTAs ALTERNATIFS -->
+                <div style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); border: 1px solid #3b82f6; border-radius: 16px; padding: 25px; margin-bottom: 25px;">
+                    <h4 style="margin: 0 0 20px 0; font-size: 1.1em; color: #1e40af; display: flex; align-items: center; gap: 8px;">
+                        🎯 3 CTAs alternatifs pour booster l'engagement
+                    </h4>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        ${(() => {
+                            // Collecter les CTAs de l'IA si disponibles
+                            const aiCTAs = postsResults.detailedAnalysis
+                                .flatMap(p => p.aiSuggestions?.ctaAlternatives || [])
+                                .filter(cta => cta);
+
+                            // CTAs génériques si pas assez
+                            const defaultCTAs = [
+                                "Commente 🔥 si tu veux que je développe ce sujet dans un prochain post",
+                                "Enregistre ce post pour ne pas l'oublier et partage-le à quelqu'un qui en a besoin 📌",
+                                "Tu veux la suite ? Dis-moi en commentaire quel point tu veux que j'approfondisse"
+                            ];
+
+                            const ctas = aiCTAs.length >= 3 ? aiCTAs.slice(0, 3) : [...aiCTAs, ...defaultCTAs].slice(0, 3);
+
+                            return ctas.map((cta, i) => `
+                                <div style="display: flex; gap: 12px; align-items: flex-start; padding: 15px; background: white; border-radius: 10px; border-left: 4px solid #3b82f6;">
+                                    <span style="background: #3b82f6; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">${i + 1}</span>
+                                    <p style="margin: 0; color: #1e3a8a; line-height: 1.5;">"${cta}"</p>
+                                </div>
+                            `).join('');
+                        })()}
+                    </div>
+                </div>
+
+                <!-- CHECKLIST AVANT PUBLICATION -->
+                <div style="background: linear-gradient(135deg, #d1fae5, #a7f3d0); border: 1px solid #10b981; border-radius: 16px; padding: 25px; margin-bottom: 25px;">
+                    <h4 style="margin: 0 0 20px 0; font-size: 1.1em; color: #065f46; display: flex; align-items: center; gap: 8px;">
+                        ☑️ Checklist avant publication
+                    </h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px;">
+                        ${[
+                            { check: avgScores.hook >= 60, text: "Mon accroche donne envie de lire la suite" },
+                            { check: avgScores.structure >= 60, text: "Mon texte est aéré avec des sauts de ligne" },
+                            { check: avgScores.emotion >= 50, text: "J'ai ajouté de l'émotion ou du storytelling" },
+                            { check: avgScores.promise >= 50, text: "Le lecteur sait ce qu'il va apprendre/gagner" },
+                            { check: avgScores.cta >= 50, text: "J'ai un appel à l'action clair à la fin" },
+                            { check: avgScores.coherence >= 50, text: "Mon post est aligné avec mon expertise" },
+                            { check: avgScores.readability >= 60, text: "Mes phrases sont courtes et impactantes" },
+                            { check: true, text: "J'ai relu pour corriger les fautes" }
+                        ].map(item => `
+                            <div style="display: flex; align-items: center; gap: 10px; padding: 10px 15px; background: white; border-radius: 8px;">
+                                <span style="font-size: 1.2em;">${item.check ? '✅' : '⬜'}</span>
+                                <span style="color: ${item.check ? '#065f46' : '#6b7280'}; font-size: 0.9em;">${item.text}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div class="audit-redo-hint" style="background: linear-gradient(135deg, #fef3c7, #fde68a); border: 1px solid #f59e0b; border-radius: 8px; padding: 12px 15px; margin-top: 20px;">
+                    <p style="margin: 0; font-size: 0.85em; color: #92400e;">
+                        💡 <strong>Pour refaire un audit sur les mêmes posts :</strong> supprime d'abord l'audit précédent dans l'historique (bouton 📋), puis recharge la page.
+                    </p>
+                </div>
+
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
                     <button class="audit-reset-btn" onclick="AuditModule.resetPostsAnalysis()" style="flex: 1; min-width: 150px;">
                         🔄 Analyser d'autres posts
                     </button>
@@ -2992,6 +3225,10 @@ ${originalContent}
 
             ${!videoData ? '<p class="audit-hint" style="text-align: center; margin-top: 10px;">Upload une vidéo pour lancer l\'analyse</p>' : ''}
 
+            <p style="margin-top: 10px; font-size: 0.8em; color: #888; text-align: center;">
+                💡 Si le bouton ne répond pas, recharge la page et réessaie.
+            </p>
+
             ${isAnalyzing ? `
                 <div class="audit-loading-message" style="margin-top: 20px; padding: 20px; background: linear-gradient(135deg, #fef3c7, #fef9c3); border-radius: 12px; border-left: 4px solid #f59e0b; text-align: center;">
                     <p style="margin: 0 0 8px 0; font-size: 1.1em;">☕ <strong>L'IA analyse ta vidéo en profondeur...</strong></p>
@@ -3138,6 +3375,12 @@ ${originalContent}
                         </div>
                     </div>
                 ` : ''}
+
+                <div class="audit-redo-hint" style="background: linear-gradient(135deg, #fef3c7, #fde68a); border: 1px solid #f59e0b; border-radius: 8px; padding: 12px 15px; margin-top: 20px; margin-bottom: 15px;">
+                    <p style="margin: 0; font-size: 0.85em; color: #92400e;">
+                        💡 <strong>Pour refaire un audit sur la même vidéo :</strong> supprime d'abord l'audit précédent dans l'historique (bouton 📋), puis recharge la page.
+                    </p>
+                </div>
 
                 <button class="audit-reset-btn" onclick="AuditModule.resetVideoAudit()">
                     Analyser une autre vidéo

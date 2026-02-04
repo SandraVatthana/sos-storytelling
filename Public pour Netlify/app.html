@@ -23,6 +23,8 @@
     <link rel="stylesheet" href="sender-emails-styles.css?v=20260109">
     -->
     <link rel="stylesheet" href="collaboration-styles.css?v=20260107">
+    <link rel="stylesheet" href="posts-analysis-styles.css?v=20260130">
+    <link rel="stylesheet" href="goals-missions-styles.css?v=20260130">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Poppins', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 50%, #f093fb 100%); }
@@ -233,6 +235,11 @@
 
         .mode-audit {
             background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+            color: white;
+        }
+
+        .mode-posts-analysis {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
 
@@ -2841,6 +2848,117 @@
             }
         }
 
+        /* Framework Personnel */
+        .framework-section {
+            margin-top: 12px;
+        }
+        .framework-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9em;
+        }
+        .framework-toggle:hover {
+            background: #f0f0f0;
+            border-color: #667eea;
+        }
+        .framework-toggle-icon {
+            font-size: 0.7em;
+            transition: transform 0.2s;
+            color: #666;
+        }
+        .framework-toggle-icon.open {
+            transform: rotate(90deg);
+        }
+        .framework-toggle-text {
+            flex: 1;
+            font-weight: 500;
+            color: #444;
+        }
+        .framework-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+        .framework-input-container {
+            margin-top: 10px;
+            padding: 15px;
+            background: linear-gradient(135deg, #f8f9ff, #f0f4ff);
+            border: 2px solid #667eea;
+            border-radius: 12px;
+        }
+        .framework-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9em;
+            line-height: 1.6;
+            resize: vertical;
+            min-height: 100px;
+        }
+        .framework-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+        }
+        .framework-hint {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            font-size: 0.8em;
+            color: #666;
+        }
+        .framework-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .framework-save-btn {
+            flex: 1;
+            padding: 10px 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .framework-save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .framework-clear-btn {
+            padding: 10px 15px;
+            background: #f8f9fa;
+            color: #666;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .framework-clear-btn:hover {
+            background: #fee2e2;
+            color: #dc2626;
+            border-color: #fecaca;
+        }
+
         .quick-actions { display: flex; gap: 10px; margin-bottom: 15px; }
         .quick-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-family: inherit; font-size: 0.9em; font-weight: 600; cursor: pointer; transition: all 0.3s; }
         .quick-btn.guide { background: linear-gradient(135deg, #ffd700, #ffb347); color: #333; }
@@ -4915,6 +5033,15 @@
                     <a class="dropdown-item" onclick="closeDropdowns(); showPromoModal()">🎁 <span data-i18n="menu.promo_code">Code promo</span></a>
                     <a class="dropdown-item" href="account.html">💎 <span data-i18n="menu.subscription">Mon abonnement</span></a>
                     <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 8px 0;"></div>
+                    <!-- Toggle Mode HUB -->
+                    <div class="dropdown-item hub-mode-toggle-item">
+                        <span>🎯 Mode HUB</span>
+                        <label class="hub-toggle-switch">
+                            <input type="checkbox" id="hubModeToggle" onchange="GoalsMissionsModule.toggleHubMode()">
+                            <span class="hub-toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 8px 0;"></div>
                     <a class="dropdown-item" onclick="closeDropdowns(); handleLogout()" style="color: #ff6b6b;">🚪 <span data-i18n="menu.logout">Déconnexion</span></a>
                 </div>
             </div>
@@ -5037,6 +5164,33 @@
         <!-- Quick Actions Page -->
         <!-- Dashboard 3 MODES -->
         <div class="quick-actions-page" id="quickActionsPage">
+            <!-- CTA Activation HUB (masqué si déjà activé) -->
+            <div id="hubActivationCta" class="hub-activation-cta" style="display: none;">
+                <div class="hub-cta-content">
+                    <span class="hub-cta-icon">🎯</span>
+                    <div class="hub-cta-text">
+                        <strong>Mode HUB</strong>
+                        <span>Objectifs + missions quotidiennes</span>
+                    </div>
+                    <button class="hub-cta-btn" onclick="GoalsMissionsModule.enableHubMode()">Activer</button>
+                </div>
+            </div>
+
+            <!-- Widget Objectif (affiché si configuré) -->
+            <div id="goalTrackingWidget" style="display: none;"></div>
+
+            <!-- Missions du jour (affiché si configuré) -->
+            <div id="dailyMissionsSection" style="display: none;">
+                <div class="gm-missions-header">
+                    <h3>🎯 Tes missions du jour</h3>
+                    <span id="missionsStreak"></span>
+                </div>
+                <div id="dailyMissionsList"></div>
+                <div class="gm-missions-footer">
+                    <small>Focus sur l'essentiel (80/20)</small>
+                </div>
+            </div>
+
             <h1 class="quick-actions-title" data-i18n="home.title">Que veux-tu faire ?</h1>
             <p class="quick-actions-subtitle" data-i18n="home.subtitle">Choisis ton mode</p>
 
@@ -5059,13 +5213,13 @@
                     </div>
                 </div>
 
-                <!-- MODE 2 : EMAILS & NEWSLETTERS -->
+                <!-- MODE 2 : PROSPECTION EMAILS -->
                 <div class="mode-card mode-emails" onclick="handleModeClick(this, 'emails')">
                     <div class="mode-emoji">📧</div>
                     <div class="mode-main">
-                        <div class="mode-title">Emails & Newsletters</div>
+                        <div class="mode-title">Prospection Emails</div>
                         <div class="mode-details">
-                            <div class="mode-subtitle">Newsletters + campagnes de prospection mail</div>
+                            <div class="mode-subtitle">Campagnes de prospection mail personnalisées</div>
                         </div>
                     </div>
                     <div class="mode-arrow">
@@ -5090,6 +5244,23 @@
                         </svg>
                     </div>
                 </div>
+
+                <!-- MODE ANALYSE DE POSTS - DÉSACTIVÉ (Metricool fait mieux)
+                <div class="mode-card mode-posts-analysis" onclick="PostsAnalysisModule.openModal()">
+                    <div class="mode-emoji">📈</div>
+                    <div class="mode-main">
+                        <div class="mode-title">Analyse de Posts</div>
+                        <div class="mode-details">
+                            <div class="mode-subtitle">Mesure la performance de tes posts et découvre ce qui marche</div>
+                        </div>
+                    </div>
+                    <div class="mode-arrow">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 18l6-6-6-6"/>
+                        </svg>
+                    </div>
+                </div>
+                -->
 
             </div>
         </div>
@@ -5359,6 +5530,41 @@
                             <div class="mode-card-icon">🔥</div>
                             <div class="mode-card-title">Trends</div>
                             <div class="mode-card-desc">Sujets tendance</div>
+                        </div>
+                    </div>
+
+                    <!-- Framework Personnel (optionnel) -->
+                    <div class="framework-section">
+                        <div class="framework-toggle" onclick="toggleFrameworkInput()">
+                            <span class="framework-toggle-icon" id="frameworkToggleIcon">▶</span>
+                            <span class="framework-toggle-text">📐 Mon framework personnel</span>
+                            <span class="framework-badge" id="frameworkBadge" style="display: none;">Actif</span>
+                        </div>
+                        <div id="frameworkInputContainer" class="framework-input-container" style="display: none;">
+                            <textarea
+                                id="personalFramework"
+                                class="framework-textarea"
+                                placeholder="Décris ta méthode, ton framework ou ta structure de contenu préférée...
+
+Exemple :
+- Hook émotionnel en première ligne
+- Histoire personnelle avec conflit
+- Leçon actionnable
+- Call-to-action subtil"
+                                rows="5"
+                            ></textarea>
+                            <div class="framework-actions">
+                                <button type="button" class="framework-save-btn" onclick="savePersonalFramework(); showToast('✅ Framework sauvegardé !');">
+                                    💾 Sauvegarder mon framework
+                                </button>
+                                <button type="button" class="framework-clear-btn" onclick="clearPersonalFramework();">
+                                    🗑️ Effacer
+                                </button>
+                            </div>
+                            <div class="framework-hint">
+                                <span class="hint-icon">💡</span>
+                                <span>Ce framework sera utilisé par l'IA pour structurer tes posts</span>
+                            </div>
                         </div>
                     </div>
 
@@ -6793,8 +6999,8 @@ Solution  | Présenter votre solution</pre>
                 // Mode CRÉER : aller directement à la création de posts
                 showQuickPost();
             } else if (mode === 'emails') {
-                // Mode EMAILS : afficher le choix newsletter/prospection mail
-                showEmailsChoiceModal();
+                // Mode EMAILS : aller directement à la prospection (newsletter retirée - Substack fait mieux)
+                showCampaignsModal();
             }
         }
 
@@ -7186,7 +7392,10 @@ Solution  | Présenter votre solution</pre>
         };
 
         function showOnboarding(isEdit = false) {
-            const existingProfile = UserProfile.get();
+            const baseProfile = UserProfile.get();
+            // Charger aussi les données d'objectifs
+            const goalsData = JSON.parse(localStorage.getItem('sos_user_goals') || '{}');
+            const existingProfile = { ...baseProfile, ...goalsData };
             const modalHTML = `
                 <div id="onboardingOverlay" class="onboarding-overlay">
                     <div class="onboarding-modal">
@@ -7331,6 +7540,80 @@ Solution  | Présenter votre solution</pre>
                                 <small style="color: #888; display: block; margin-top: 10px;">
                                     💡 Crée des personas détaillés pour que l'IA génère des contenus vraiment personnalisés.
                                 </small>
+                            </div>
+                            <div class="onboarding-section">
+                                <h3>📊 Tes objectifs chiffrés</h3>
+                                <p style="color: #666; font-size: 0.9em; margin-bottom: 15px;">Active le suivi de tes objectifs et reçois des missions quotidiennes personnalisées.</p>
+                                <div class="form-group">
+                                    <label>Tu travailles avec...</label>
+                                    <div class="radio-cards radio-cards-3col">
+                                        <label class="radio-card radio-card-compact">
+                                            <input type="radio" name="sector" value="b2b" ${existingProfile?.sector === 'b2b' ? 'checked' : ''}>
+                                            <span class="radio-content"><span class="radio-icon">🏢</span><span class="radio-label">B2B (Entreprises)</span></span>
+                                        </label>
+                                        <label class="radio-card radio-card-compact">
+                                            <input type="radio" name="sector" value="b2c" ${existingProfile?.sector === 'b2c' ? 'checked' : ''}>
+                                            <span class="radio-content"><span class="radio-icon">👥</span><span class="radio-label">B2C (Particuliers)</span></span>
+                                        </label>
+                                        <label class="radio-card radio-card-compact">
+                                            <input type="radio" name="sector" value="both" ${existingProfile?.sector === 'both' ? 'checked' : ''}>
+                                            <span class="radio-content"><span class="radio-icon">🌐</span><span class="radio-label">Les deux</span></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Temps disponible par jour</label>
+                                    <div class="radio-cards radio-cards-3col">
+                                        <label class="radio-card radio-card-compact">
+                                            <input type="radio" name="dailyTime" value="15" ${existingProfile?.daily_time_minutes === 15 ? 'checked' : ''}>
+                                            <span class="radio-content"><span class="radio-icon">⚡</span><span class="radio-label">15 min</span></span>
+                                        </label>
+                                        <label class="radio-card radio-card-compact">
+                                            <input type="radio" name="dailyTime" value="30" ${existingProfile?.daily_time_minutes === 30 || !existingProfile?.daily_time_minutes ? 'checked' : ''}>
+                                            <span class="radio-content"><span class="radio-icon">⏱️</span><span class="radio-label">30 min</span></span>
+                                        </label>
+                                        <label class="radio-card radio-card-compact">
+                                            <input type="radio" name="dailyTime" value="60" ${existingProfile?.daily_time_minutes === 60 ? 'checked' : ''}>
+                                            <span class="radio-content"><span class="radio-icon">🔥</span><span class="radio-label">60 min</span></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Type d'objectif</label>
+                                    <div class="radio-cards radio-cards-2col">
+                                        <label class="radio-card radio-card-compact">
+                                            <input type="radio" name="goalType" value="followers" ${existingProfile?.goal_type === 'followers' ? 'checked' : ''}>
+                                            <span class="radio-content"><span class="radio-icon">👥</span><span class="radio-label">Abonnés</span></span>
+                                        </label>
+                                        <label class="radio-card radio-card-compact">
+                                            <input type="radio" name="goalType" value="leads" ${existingProfile?.goal_type === 'leads' ? 'checked' : ''}>
+                                            <span class="radio-content"><span class="radio-icon">🎯</span><span class="radio-label">Leads</span></span>
+                                        </label>
+                                        <label class="radio-card radio-card-compact">
+                                            <input type="radio" name="goalType" value="clients" ${existingProfile?.goal_type === 'clients' ? 'checked' : ''}>
+                                            <span class="radio-content"><span class="radio-icon">💰</span><span class="radio-label">Clients</span></span>
+                                        </label>
+                                        <label class="radio-card radio-card-compact">
+                                            <input type="radio" name="goalType" value="posts" ${existingProfile?.goal_type === 'posts' ? 'checked' : ''}>
+                                            <span class="radio-content"><span class="radio-icon">📝</span><span class="radio-label">Posts publiés</span></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="display: flex; gap: 15px;">
+                                    <div style="flex: 1;">
+                                        <label for="onb-goal-target">Objectif chiffré</label>
+                                        <input type="number" id="onb-goal-target" placeholder="Ex: 100" min="1" value="${existingProfile?.goal_target || ''}" style="width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 8px; font-family: inherit;">
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <label for="onb-goal-timeframe">En combien de jours ?</label>
+                                        <select id="onb-goal-timeframe" style="width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 8px; font-family: inherit;">
+                                            <option value="30" ${existingProfile?.goal_timeframe_days === 30 ? 'selected' : ''}>30 jours</option>
+                                            <option value="60" ${existingProfile?.goal_timeframe_days === 60 ? 'selected' : ''}>60 jours</option>
+                                            <option value="90" ${!existingProfile?.goal_timeframe_days || existingProfile?.goal_timeframe_days === 90 ? 'selected' : ''}>90 jours</option>
+                                            <option value="180" ${existingProfile?.goal_timeframe_days === 180 ? 'selected' : ''}>180 jours</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                             <div class="onboarding-section">
                                 <h3>💬 Autre chose ?</h3>
@@ -8097,6 +8380,23 @@ Description : ${audience.description}
             };
 
             UserProfile.save(profile);
+
+            // Sauvegarder les objectifs chiffrés si configurés
+            const goalTarget = document.getElementById('onb-goal-target')?.value;
+            const goalType = document.querySelector('input[name="goalType"]:checked')?.value;
+            if (goalTarget && goalType) {
+                const goalsData = {
+                    sector: document.querySelector('input[name="sector"]:checked')?.value || 'both',
+                    dailyTimeMinutes: parseInt(document.querySelector('input[name="dailyTime"]:checked')?.value) || 30,
+                    goalType: goalType,
+                    goalTarget: parseInt(goalTarget),
+                    goalTimeframeDays: parseInt(document.getElementById('onb-goal-timeframe')?.value) || 90
+                };
+                if (typeof GoalsMissionsModule !== 'undefined') {
+                    GoalsMissionsModule.saveGoalsProfile(goalsData);
+                }
+            }
+
             closeOnboarding();
             showOnboardingNotification(`✨ Profil sauvegardé, ${nom} !`);
 
@@ -13491,22 +13791,54 @@ ${format.rules}
         }
 
         // Fonction pour sauvegarder un post directement depuis l'app principale
-        function saveToMesPosts(caption, hashtags, visualTexts, platform) {
+        async function saveToMesPosts(caption, hashtags, visualTexts, platform) {
             const STORAGE_KEY = 'sos_mes_posts';
-            const posts = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-            
-            posts.unshift({
+            const postData = {
                 platform: platform || currentState.platform || 'instagram',
                 caption: caption || '',
                 hashtags: hashtags || '',
                 visualTexts: visualTexts || '',
                 done: false,
                 createdAt: new Date().toISOString()
-            });
-            
+            };
+
+            // Sauvegarder dans Supabase si connecté
+            if (window.supabaseApp && window.currentUser?.id) {
+                console.log('[SavePost] Sauvegarde pour user_id:', window.currentUser.id);
+                try {
+                    const { data, error } = await window.supabaseApp
+                        .from('user_saved_posts')
+                        .insert({
+                            user_id: window.currentUser.id,
+                            platform: postData.platform,
+                            caption: postData.caption,
+                            hashtags: postData.hashtags,
+                            visual_texts: postData.visualTexts,
+                            done: false
+                        })
+                        .select()
+                        .single();
+
+                    if (error) {
+                        console.error('[SavePost] Erreur Supabase:', error.message, error);
+                    } else if (data) {
+                        postData.id = data.id; // Ajouter l'ID Supabase
+                        console.log('[SavePost] Post sauvegardé dans Supabase avec ID:', data.id);
+                    }
+                } catch (err) {
+                    console.error('[SavePost] Erreur sync Supabase:', err);
+                }
+            } else {
+                console.log('[SavePost] Pas de connexion Supabase, sauvegarde locale uniquement');
+            }
+
+            // Toujours sauvegarder en localStorage (cache local)
+            const posts = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            posts.unshift(postData);
             localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+
             showToast('📌 ' + t('toasts.saved_to_posts'));
-            
+
             // Si la fenêtre popup est ouverte, elle se mettra à jour automatiquement
         }
 
@@ -13980,8 +14312,10 @@ ${format.rules}
             // Synchroniser le profil depuis le cloud (restaure si effacé localement)
             ProfileSync.sync().then(() => {
                 updateProfileButton();
+                loadPersonalFramework(); // Charger le framework après la sync
             }).catch(() => {
                 updateProfileButton();
+                loadPersonalFramework();
             });
 
             updatePillarSuggestion();
@@ -14381,6 +14715,113 @@ ${format.rules}
         function toggleCreationMode(mode) {
             selectCreationMode(mode);
         }
+
+        // ==================== FRAMEWORK PERSONNEL ====================
+        function toggleFrameworkInput() {
+            const container = document.getElementById('frameworkInputContainer');
+            const icon = document.getElementById('frameworkToggleIcon');
+            const isVisible = container.style.display !== 'none';
+
+            container.style.display = isVisible ? 'none' : 'block';
+            icon.classList.toggle('open', !isVisible);
+        }
+
+        function updateFrameworkBadge() {
+            const textarea = document.getElementById('personalFramework');
+            const badge = document.getElementById('frameworkBadge');
+            if (textarea && badge) {
+                const hasContent = textarea.value.trim().length > 0;
+                badge.style.display = hasContent ? 'inline-block' : 'none';
+            }
+        }
+
+        function savePersonalFramework() {
+            const textarea = document.getElementById('personalFramework');
+            if (!textarea) return;
+
+            const framework = textarea.value.trim();
+            localStorage.setItem('sos_personal_framework', framework);
+
+            // Sauvegarder aussi dans le profil utilisateur pour la sync
+            const profile = UserProfile.get();
+            if (profile) {
+                profile.personalFramework = framework;
+                UserProfile.save(profile);
+            }
+
+            updateFrameworkBadge();
+        }
+
+        function loadPersonalFramework() {
+            const textarea = document.getElementById('personalFramework');
+            if (!textarea) return;
+
+            // Charger depuis le profil ou localStorage
+            const profile = UserProfile.get();
+            const framework = profile?.personalFramework || localStorage.getItem('sos_personal_framework') || '';
+
+            textarea.value = framework;
+            updateFrameworkBadge();
+            console.log('[Framework] Chargé:', framework ? framework.substring(0, 50) + '...' : '(vide)');
+
+            // Si framework existe, ouvrir le panel
+            if (framework) {
+                const container = document.getElementById('frameworkInputContainer');
+                const icon = document.getElementById('frameworkToggleIcon');
+                if (container) container.style.display = 'block';
+                if (icon) icon.classList.add('open');
+            }
+        }
+
+        function clearPersonalFramework() {
+            const textarea = document.getElementById('personalFramework');
+            if (textarea) {
+                textarea.value = '';
+            }
+            localStorage.removeItem('sos_personal_framework');
+
+            const profile = UserProfile.get();
+            if (profile) {
+                delete profile.personalFramework;
+                UserProfile.save(profile);
+            }
+
+            updateFrameworkBadge();
+            showToast('🗑️ Framework effacé');
+        }
+
+        function getPersonalFramework() {
+            // D'abord essayer localStorage (source de vérité)
+            let framework = localStorage.getItem('sos_personal_framework') || '';
+
+            // Si vide, essayer le profil
+            if (!framework) {
+                const profile = UserProfile.get();
+                framework = profile?.personalFramework || '';
+            }
+
+            // Si vide, essayer le textarea (au cas où pas encore sauvegardé)
+            if (!framework) {
+                const textarea = document.getElementById('personalFramework');
+                framework = textarea?.value.trim() || '';
+            }
+
+            console.log('[Framework] getPersonalFramework:', framework ? `"${framework.substring(0, 80)}..."` : '(vide)');
+            return framework;
+        }
+
+        // Écouter les changements du framework
+        document.addEventListener('DOMContentLoaded', () => {
+            const frameworkTextarea = document.getElementById('personalFramework');
+            if (frameworkTextarea) {
+                frameworkTextarea.addEventListener('input', () => {
+                    updateFrameworkBadge();
+                });
+                frameworkTextarea.addEventListener('blur', () => {
+                    savePersonalFramework();
+                });
+            }
+        });
 
         // Charger le template du jour sélectionné
         function loadStrategyDay() {
@@ -15331,6 +15772,10 @@ INSTRUCTION CRITIQUE: Tu dois écrire EXACTEMENT comme cette personne. Imite son
                 // Récupérer les instructions du framework si sélectionné
                 const frameworkInstructions = FrameworkSystem.getPromptInstructions();
 
+                // Récupérer le framework personnel
+                const personalFramework = getPersonalFramework();
+                console.log('%c[Generate] Framework personnel:', 'background: #667eea; color: white; padding: 2px 8px;', personalFramework ? 'ACTIF' : 'non défini');
+
                 contentPrompt = `Tu es un ghostwriter expert qui écrit AU NOM de l'auteur, en adoptant parfaitement son style unique.
 ${profileContext}
 ═══ CONTEXTE ═══
@@ -15372,6 +15817,20 @@ ${frameworkInstructions}
 
 IMPORTANT : Applique ce framework EN UTILISANT l'histoire personnelle comme matière première.
 Chaque étape du framework doit puiser dans l'anecdote fournie.
+` : ''}
+${personalFramework ? `
+╔══════════════════════════════════════════════════════════════════════╗
+║  📐📐📐 FRAMEWORK PERSONNEL DE L'AUTEUR (PRIORITAIRE) 📐📐📐        ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+⚠️ STRUCTURE OBLIGATOIRE - Tu DOIS suivre ce framework :
+
+${personalFramework}
+
+🚨 RÈGLES ABSOLUES :
+1. CHAQUE élément ci-dessus DOIT apparaître dans le post
+2. Respecte l'ORDRE exact des éléments
+3. Ce framework a PRIORITÉ sur les autres instructions
 ` : ''}
 
 ${getPlatformRulesForPrompt(currentState.platform, currentState.format)}
@@ -16453,6 +16912,37 @@ Tout le contenu doit sonner comme si l'auteur l'avait écrit lui-même.`;
                 ? `\n\n⚠️ VOUVOIEMENT OBLIGATOIRE : Utilise "vous" pour t'adresser au lecteur. Conjugue à la 2ème personne du pluriel. Reste chaleureux mais formel.`
                 : `\n\n⚠️ TUTOIEMENT OBLIGATOIRE : Utilise "tu" pour t'adresser au lecteur. Conjugue à la 2ème personne du singulier. Ton décontracté et proche.`;
 
+            // Framework personnel (si défini)
+            const personalFramework = getPersonalFramework();
+            let frameworkInstruction = '';
+            if (personalFramework) {
+                console.log('%c[Generate] Framework personnel ACTIF', 'background: #667eea; color: white; padding: 2px 8px; border-radius: 4px;');
+                console.log('[Generate] Contenu du framework:', personalFramework);
+                frameworkInstruction = `
+
+╔══════════════════════════════════════════════════════════════════════╗
+║  📐📐📐 INSTRUCTION PRIORITAIRE : FRAMEWORK PERSONNEL 📐📐📐        ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+⚠️⚠️⚠️ ATTENTION - STRUCTURE OBLIGATOIRE ⚠️⚠️⚠️
+
+Tu DOIS structurer le contenu EXACTEMENT selon ce framework :
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${personalFramework}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚨 RÈGLES ABSOLUES :
+1. CHAQUE élément du framework ci-dessus DOIT apparaître dans le post
+2. Respecte l'ORDRE exact des éléments du framework
+3. Ne saute AUCUNE étape du framework
+4. Le framework a PRIORITÉ sur les autres instructions de structure
+
+`;
+            } else {
+                console.log('[Generate] Pas de framework personnel défini');
+            }
+
             let prompt;
 
             // Si c'est une PUB, utiliser un prompt spécial
@@ -16472,7 +16962,7 @@ Tout le contenu doit sonner comme si l'auteur l'avait écrit lui-même.`;
                 };
                 
                 prompt = `${ctx}
-
+${frameworkInstruction}
 📢 CRÉATION DE PUBLICITÉ
 
 SUJET/OFFRE : "${currentState.idea}"
@@ -16513,7 +17003,7 @@ Un prompt Midjourney adapté au format ${pubPlatformNames[currentState.pubPlatfo
             } else {
                 // Génération normale (non-pub)
                 prompt = `${ctx}
-
+${frameworkInstruction}
 SUJET : "${currentState.idea}"
 
 - Structure : ${struct.name} (${struct.prompt})
@@ -16645,6 +17135,17 @@ INSTRUCTIONS SPÉCIALES POUR CE TYPE DE CONTENU :
                 prompt += voiceFinalInstructions;
             }
 
+            // 📐 RAPPEL FINAL DU FRAMEWORK PERSONNEL
+            if (personalFramework) {
+                prompt += `
+
+╔══════════════════════════════════════════════════════════════════════╗
+║  📐 RAPPEL FINAL : RESPECTE LE FRAMEWORK PERSONNEL CI-DESSUS 📐     ║
+╚══════════════════════════════════════════════════════════════════════╝
+Avant de répondre, vérifie que ton contenu suit EXACTEMENT la structure demandée.
+`;
+            }
+
             // 🌐 Ajouter l'instruction de langue AU DÉBUT
             const currentLang = I18N?.getLanguage() || 'fr';
             if (currentLang === 'en') {
@@ -16711,16 +17212,17 @@ INSTRUCTIONS SPÉCIALES POUR CE TYPE DE CONTENU :
             // Ouvrir le module d'audit avec le contenu pré-rempli
             if (typeof AuditModule !== 'undefined') {
                 AuditModule.openAuditModal();
-                // Passer à l'onglet Posts et pré-remplir
+                // Passer à l'onglet Posts et pré-remplir le premier post existant
                 setTimeout(() => {
                     AuditModule.switchTab('posts');
-                    // Ajouter le contenu généré comme post à auditer
-                    AuditModule.addPost();
+                    // Remplir le premier post (déjà existant par défaut)
                     const posts = document.querySelectorAll('.post-textarea');
                     if (posts.length > 0) {
-                        const lastPost = posts[posts.length - 1];
-                        lastPost.value = currentState.generatedContent;
-                        lastPost.dispatchEvent(new Event('input', { bubbles: true }));
+                        const firstPost = posts[0];
+                        firstPost.value = currentState.generatedContent;
+                        firstPost.dispatchEvent(new Event('input', { bubbles: true }));
+                        // Mettre à jour aussi via le module
+                        AuditModule.updatePost(1, 'content', currentState.generatedContent);
                     }
                 }, 100);
                 showToast('🔍 Analyse ton contenu avant de publier !');
@@ -19973,6 +20475,12 @@ Preview: \${email.previewText || ''}
 
     <!-- Module Audit RS -->
     <script src="audit-module.js?v=20260126g"></script>
+
+    <!-- Module Analyse de Posts -->
+    <script src="posts-analysis-module.js?v=20260130"></script>
+
+    <!-- Module Objectifs & Missions -->
+    <script src="goals-missions-module.js?v=20260130"></script>
     <script>
         // Afficher/Cacher les éléments de collaboration selon le plan utilisateur
         function updateCollaborationUI() {

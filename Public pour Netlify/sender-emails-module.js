@@ -15,7 +15,9 @@ const SenderEmailsModule = (function() {
     async function getAuthHeaders() {
         const session = await window.supabaseClient?.auth.getSession();
         const token = session?.data?.session?.access_token;
-        if (!token) throw new Error('Non authentifié');
+        if (!token) {
+            throw new Error('Session expirée. Veuillez rafraîchir la page et vous reconnecter.');
+        }
         return {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -336,14 +338,26 @@ const SenderEmailsModule = (function() {
     }
 
     async function submitAdd() {
-        const email = document.getElementById('newSenderEmail').value.trim();
+        const emailInput = document.getElementById('newSenderEmail');
+        const email = emailInput.value.trim();
         const displayName = document.getElementById('newSenderName').value.trim();
         const dailyLimit = parseInt(document.getElementById('newSenderLimit').value) || 20;
         const warmupEnabled = document.getElementById('newSenderWarmup').checked;
 
+        // Supprimer l'ancien message d'erreur s'il existe
+        const oldError = document.getElementById('addSenderError');
+        if (oldError) oldError.remove();
+
         if (!email) {
-            showToast('Email requis', 'error');
+            showModalError('addSenderModal', 'Email requis');
             return;
+        }
+
+        // Désactiver le bouton pendant la soumission
+        const submitBtn = document.querySelector('#addSenderModal .btn-primary');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Ajout en cours...';
         }
 
         try {
@@ -352,8 +366,36 @@ const SenderEmailsModule = (function() {
             showToast('Adresse ajoutée !', 'success');
             refresh();
         } catch (error) {
-            showToast(error.message, 'error');
+            // Afficher l'erreur dans le modal sans fermer ni effacer les données
+            showModalError('addSenderModal', error.message);
+
+            // Réactiver le bouton
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Ajouter';
+            }
         }
+    }
+
+    function showModalError(modalId, message) {
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+
+        const body = modal.querySelector('.modal-body');
+        if (!body) return;
+
+        // Supprimer l'ancien message d'erreur
+        const oldError = document.getElementById('addSenderError');
+        if (oldError) oldError.remove();
+
+        // Créer le nouveau message d'erreur
+        const errorDiv = document.createElement('div');
+        errorDiv.id = 'addSenderError';
+        errorDiv.style.cssText = 'background: #fee2e2; border: 1px solid #fecaca; color: #dc2626; padding: 12px 16px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9em; display: flex; align-items: center; gap: 8px;';
+        errorDiv.innerHTML = `<span>⚠️</span><span>${escapeHtml(message)}</span>`;
+
+        // Insérer en haut du body
+        body.insertBefore(errorDiv, body.firstChild);
     }
 
     function showEditModal(senderId) {

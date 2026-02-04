@@ -1,0 +1,56 @@
+# =====================================================
+# EMAIL CRON WORKER - Configuration Wrangler
+# =====================================================
+#
+# DÉPLOIEMENT :
+# 1. cd workers
+# 2. wrangler login (si pas déjà fait)
+# 3. wrangler deploy -c email-cron-wrangler.toml
+#
+# SECRETS À CONFIGURER (via dashboard ou CLI) :
+# wrangler secret put SUPABASE_SERVICE_KEY -c email-cron-wrangler.toml
+# wrangler secret put RESEND_API_KEY -c email-cron-wrangler.toml
+# wrangler secret put CRON_SECRET -c email-cron-wrangler.toml
+# =====================================================
+
+name = "sos-email-cron"
+main = "email-cron-worker.js"
+compatibility_date = "2024-01-01"
+
+# Compte Cloudflare
+# account_id = "ton-account-id"  # Optionnel si déjà configuré
+
+# Cron triggers - Toutes les 15 minutes
+[triggers]
+crons = ["*/15 * * * *"]
+
+# Variables d'environnement (non sensibles)
+[vars]
+ENVIRONMENT = "production"
+
+# =====================================================
+# NOTES IMPORTANTES
+# =====================================================
+#
+# 1. SUPABASE_SERVICE_KEY
+#    - Va dans Supabase > Settings > API
+#    - Copie la clé "service_role" (pas anon!)
+#    - Cette clé bypass les RLS policies
+#
+# 2. RESEND_API_KEY
+#    - Crée un compte sur https://resend.com
+#    - Va dans API Keys et crée une clé
+#    - Plan gratuit: 100 emails/jour
+#
+# 3. CRON_SECRET
+#    - Génère un secret aléatoire (ex: openssl rand -hex 32)
+#    - Utilisé pour déclencher manuellement le cron
+#
+# 4. Pour tester manuellement :
+#    curl -X POST https://sos-email-cron.ton-subdomain.workers.dev/trigger \
+#      -H "Authorization: Bearer TON_CRON_SECRET"
+#
+# 5. Pour voir les logs :
+#    wrangler tail sos-email-cron
+#
+# =====================================================

@@ -1,0 +1,1569 @@
+/* =====================================================
+   ENRICHMENT STYLES - Système d'enrichissement intelligent
+   SOS Storytelling 2026
+   ===================================================== */
+
+/* ==========================================
+   ENRICHMENT CARD - Affichage dans la liste prospects
+   ========================================== */
+
+.enrichment-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 15px;
+    border: 1px solid #e8ecff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.enrichment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.enrichment-header h4 {
+    margin: 0;
+    font-size: 1em;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Personalization Level Badges */
+.personalization-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75em;
+    font-weight: 600;
+}
+
+.personalization-badge.high {
+    background: linear-gradient(135deg, #11998e, #38ef7d);
+    color: white;
+}
+
+.personalization-badge.medium {
+    background: linear-gradient(135deg, #f7971e, #ffd200);
+    color: #333;
+}
+
+.personalization-badge.low {
+    background: linear-gradient(135deg, #eb3349, #f45c43);
+    color: white;
+}
+
+.personalization-badge.none {
+    background: #e0e0e0;
+    color: #666;
+}
+
+/* Confidence Score */
+.confidence-score {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85em;
+    color: #666;
+}
+
+.confidence-bar {
+    width: 60px;
+    height: 6px;
+    background: #e8ecff;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.confidence-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.confidence-fill.high {
+    background: linear-gradient(90deg, #11998e, #38ef7d);
+}
+
+.confidence-fill.medium {
+    background: linear-gradient(90deg, #f7971e, #ffd200);
+}
+
+.confidence-fill.low {
+    background: linear-gradient(90deg, #eb3349, #f45c43);
+}
+
+/* Chosen Angle Section */
+.chosen-angle {
+    background: linear-gradient(135deg, #f8f9ff, #f0f4ff);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-left: 4px solid #667eea;
+}
+
+.chosen-angle-label {
+    font-size: 0.75em;
+    color: #667eea;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.chosen-angle-text {
+    font-size: 0.95em;
+    color: #333;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.angle-reasoning {
+    font-size: 0.8em;
+    color: #666;
+    margin-top: 8px;
+    font-style: italic;
+}
+
+/* Hook Suggestion */
+.hook-suggestion {
+    background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-left: 4px solid #4caf50;
+}
+
+.hook-label {
+    font-size: 0.75em;
+    color: #4caf50;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.hook-text {
+    font-size: 0.9em;
+    color: #333;
+    line-height: 1.5;
+}
+
+/* Relevant Info List */
+.relevant-info-section {
+    margin-bottom: 15px;
+}
+
+.relevant-info-section h5 {
+    font-size: 0.85em;
+    color: #333;
+    margin: 0 0 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.relevant-info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.relevant-info-item {
+    background: #fafbff;
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid #e8ecff;
+}
+
+.info-content {
+    font-size: 0.85em;
+    color: #333;
+    margin-bottom: 6px;
+}
+
+.info-why {
+    font-size: 0.75em;
+    color: #667eea;
+    margin-bottom: 4px;
+}
+
+.info-how {
+    font-size: 0.75em;
+    color: #4caf50;
+}
+
+/* Ignored Info (collapsible) */
+.ignored-info-section {
+    margin-top: 10px;
+}
+
+.ignored-toggle {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 0.8em;
+    cursor: pointer;
+    padding: 5px 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.ignored-toggle:hover {
+    color: #667eea;
+}
+
+.ignored-info-list {
+    display: none;
+    margin-top: 8px;
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 8px;
+}
+
+.ignored-info-list.open {
+    display: block;
+}
+
+.ignored-info-item {
+    font-size: 0.8em;
+    color: #888;
+    padding: 6px 0;
+    border-bottom: 1px dashed #e0e0e0;
+}
+
+.ignored-info-item:last-child {
+    border-bottom: none;
+}
+
+/* Enrichment Actions */
+.enrichment-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.btn-generate-email {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-generate-email:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-re-enrich {
+    background: #f5f7ff;
+    color: #667eea;
+    border: 2px solid #e8ecff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-re-enrich:hover {
+    background: #e8ecff;
+    border-color: #667eea;
+}
+
+/* ==========================================
+   BATCH ENRICHMENT PANEL
+   ========================================== */
+
+.batch-enrichment-panel {
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+}
+
+.batch-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.batch-title h3 {
+    margin: 0;
+    font-size: 1.3em;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.batch-subtitle {
+    font-size: 0.85em;
+    color: #666;
+    margin-top: 4px;
+}
+
+.btn-start-batch {
+    background: linear-gradient(135deg, #11998e, #38ef7d);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-start-batch:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(17, 153, 142, 0.3);
+}
+
+.btn-start-batch:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Batch Progress */
+.batch-progress-container {
+    margin-bottom: 20px;
+}
+
+.batch-progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.batch-progress-text {
+    font-size: 0.9em;
+    color: #333;
+}
+
+.batch-progress-count {
+    font-size: 0.85em;
+    color: #667eea;
+    font-weight: 600;
+}
+
+.batch-progress-bar {
+    height: 12px;
+    background: #e8ecff;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.batch-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    border-radius: 6px;
+    transition: width 0.3s ease;
+}
+
+/* Batch Stats Grid */
+.batch-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.batch-stat-card {
+    background: linear-gradient(135deg, #f8f9ff, #f0f4ff);
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    border: 1px solid #e8ecff;
+}
+
+.batch-stat-value {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: #667eea;
+}
+
+.batch-stat-value.success {
+    color: #11998e;
+}
+
+.batch-stat-value.warning {
+    color: #f7971e;
+}
+
+.batch-stat-value.error {
+    color: #e53935;
+}
+
+.batch-stat-label {
+    font-size: 0.75em;
+    color: #666;
+    text-transform: uppercase;
+    margin-top: 4px;
+}
+
+/* Batch Results List */
+.batch-results-list {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #e8ecff;
+    border-radius: 10px;
+}
+
+.batch-result-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.2s;
+}
+
+.batch-result-item:last-child {
+    border-bottom: none;
+}
+
+.batch-result-item:hover {
+    background: #fafbff;
+}
+
+.batch-result-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.batch-result-name {
+    font-weight: 500;
+    color: #333;
+    font-size: 0.9em;
+}
+
+.batch-result-company {
+    font-size: 0.8em;
+    color: #888;
+}
+
+.batch-result-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-icon {
+    font-size: 1.2em;
+}
+
+.status-icon.pending {
+    color: #888;
+}
+
+.status-icon.processing {
+    color: #667eea;
+    animation: spin 1s linear infinite;
+}
+
+.status-icon.success {
+    color: #11998e;
+}
+
+.status-icon.error {
+    color: #e53935;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* ==========================================
+   EMAIL VALIDATION MODAL
+   ========================================== */
+
+.email-validation-modal {
+    max-width: 700px;
+    width: 95%;
+}
+
+.email-validation-modal .modal-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 20px 25px;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.email-validation-modal .modal-header h2 {
+    margin: 0;
+    font-size: 1.2em;
+}
+
+.email-validation-modal .modal-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: all 0.2s;
+}
+
+.email-validation-modal .modal-close:hover {
+    opacity: 1;
+    transform: rotate(90deg);
+}
+
+.email-validation-modal .modal-body {
+    padding: 25px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+/* Email Preview */
+.email-preview-section {
+    margin-bottom: 25px;
+}
+
+.email-preview-section h4 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 1em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.email-preview-box {
+    background: #fafbff;
+    border: 1px solid #e8ecff;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.email-subject-line {
+    background: linear-gradient(135deg, #f8f9ff, #f0f4ff);
+    padding: 12px 15px;
+    border-bottom: 1px solid #e8ecff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.email-subject-label {
+    font-size: 0.8em;
+    color: #667eea;
+    font-weight: 600;
+}
+
+.email-subject-text {
+    font-size: 0.95em;
+    color: #333;
+    font-weight: 500;
+}
+
+.email-body-preview {
+    padding: 20px;
+    font-size: 0.9em;
+    color: #333;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+/* Editing Mode */
+.email-edit-section {
+    margin-bottom: 20px;
+}
+
+.email-edit-section label {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+}
+
+.email-edit-section input,
+.email-edit-section textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e8ecff;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.95em;
+    transition: border-color 0.2s;
+}
+
+.email-edit-section input:focus,
+.email-edit-section textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.email-edit-section textarea {
+    min-height: 200px;
+    resize: vertical;
+}
+
+/* Context Summary */
+.context-summary {
+    background: linear-gradient(135deg, #fff8e1, #fffde7);
+    border: 1px solid #ffe082;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.context-summary h5 {
+    margin: 0 0 10px 0;
+    font-size: 0.9em;
+    color: #f57c00;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.context-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.context-item {
+    background: white;
+    border-radius: 15px;
+    padding: 4px 12px;
+    font-size: 0.8em;
+    color: #666;
+    border: 1px solid #ffe082;
+}
+
+/* Modal Footer */
+.email-validation-modal .modal-footer {
+    padding: 15px 25px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.modal-footer-left {
+    display: flex;
+    gap: 10px;
+}
+
+.modal-footer-right {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-regenerate {
+    background: #f5f7ff;
+    color: #667eea;
+    border: 2px solid #e8ecff;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-regenerate:hover {
+    background: #e8ecff;
+    border-color: #667eea;
+}
+
+.btn-edit-toggle {
+    background: none;
+    border: 2px solid #e8ecff;
+    color: #666;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-edit-toggle:hover {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.btn-edit-toggle.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+.btn-validate-email {
+    background: linear-gradient(135deg, #11998e, #38ef7d);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-validate-email:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(17, 153, 142, 0.3);
+}
+
+/* ==========================================
+   ENRICHMENT STATUS INDICATORS
+   ========================================== */
+
+.enrichment-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 0.75em;
+    font-weight: 500;
+}
+
+.enrichment-status.pending {
+    background: #f5f5f5;
+    color: #888;
+}
+
+.enrichment-status.enriching {
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+    color: #1976d2;
+}
+
+.enrichment-status.enriched {
+    background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+    color: #388e3c;
+}
+
+.enrichment-status.no_data {
+    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+    color: #f57c00;
+}
+
+.enrichment-status.error {
+    background: linear-gradient(135deg, #ffebee, #ffcdd2);
+    color: #c62828;
+}
+
+/* Loading Spinner */
+.enrichment-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: #667eea;
+}
+
+.enrichment-loading .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e8ecff;
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+/* ==========================================
+   CAMPAIGN CONTEXT FORM (in wizard)
+   ========================================== */
+
+.campaign-context-section {
+    background: linear-gradient(135deg, #f8f9ff, #f0f4ff);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    border: 1px solid #e8ecff;
+}
+
+.campaign-context-section h4 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 1em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.context-form-grid {
+    display: grid;
+    gap: 15px;
+}
+
+.context-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.context-form-group label {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9em;
+}
+
+.context-form-group input,
+.context-form-group textarea {
+    padding: 12px 15px;
+    border: 2px solid #e8ecff;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.95em;
+    transition: border-color 0.2s;
+    background: white;
+}
+
+.context-form-group input:focus,
+.context-form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.context-form-group textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.context-form-group .form-hint {
+    font-size: 0.8em;
+    color: #888;
+    margin-top: 4px;
+}
+
+/* Pain Points Tags */
+.pain-points-input {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px;
+    background: white;
+    border: 2px solid #e8ecff;
+    border-radius: 10px;
+    min-height: 50px;
+}
+
+.pain-point-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 0.85em;
+}
+
+.pain-point-tag .remove-tag {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1.1em;
+    line-height: 1;
+    opacity: 0.8;
+}
+
+.pain-point-tag .remove-tag:hover {
+    opacity: 1;
+}
+
+.pain-points-input input {
+    flex: 1;
+    min-width: 150px;
+    border: none;
+    padding: 5px;
+    font-family: inherit;
+    font-size: 0.9em;
+}
+
+.pain-points-input input:focus {
+    outline: none;
+}
+
+/* ==========================================
+   RESPONSIVE ADJUSTMENTS
+   ========================================== */
+
+@media (max-width: 768px) {
+    .enrichment-card {
+        padding: 15px;
+    }
+
+    .enrichment-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .enrichment-actions {
+        flex-direction: column;
+    }
+
+    .enrichment-actions button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .batch-header {
+        flex-direction: column;
+    }
+
+    .btn-start-batch {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .batch-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .email-validation-modal {
+        width: 100%;
+        max-width: none;
+        border-radius: 12px 12px 0 0;
+        margin-top: auto;
+    }
+
+    .modal-footer-left,
+    .modal-footer-right {
+        width: 100%;
+    }
+
+    .modal-footer-left button,
+    .modal-footer-right button {
+        flex: 1;
+    }
+}
+
+@media (max-width: 480px) {
+    .batch-stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .batch-stat-value {
+        font-size: 1.4em;
+    }
+
+    .personalization-badge {
+        font-size: 0.7em;
+    }
+}
+
+/* ==========================================
+   ENRICHMENT CARD - Styles spécifiques module
+   ========================================== */
+
+.enrichment-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.prospect-info {
+    flex: 1;
+    min-width: 200px;
+}
+
+.prospect-name {
+    font-weight: 600;
+    font-size: 1em;
+    color: #333;
+}
+
+.prospect-details {
+    font-size: 0.85em;
+    color: #666;
+    margin-top: 2px;
+}
+
+/* Bouton Enrichir */
+.btn-enrich {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.85em;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-enrich:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* Badges de statut */
+.enriching-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+    color: #1976d2;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 500;
+}
+
+.enriched-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 600;
+}
+
+.no-data-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+    color: #f57c00;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 500;
+}
+
+.error-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: linear-gradient(135deg, #ffebee, #ffcdd2);
+    color: #c62828;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 500;
+}
+
+/* Spinner */
+.spinner-small {
+    width: 14px;
+    height: 14px;
+    border: 2px solid #e8ecff;
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    display: inline-block;
+}
+
+/* Contenu enrichissement */
+.enrichment-content {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.enrichment-section {
+    margin-bottom: 15px;
+}
+
+.section-title {
+    font-size: 0.85em;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.section-title.clickable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.section-title.clickable:hover {
+    color: #667eea;
+}
+
+/* Info groups */
+.info-group {
+    margin-bottom: 12px;
+}
+
+.info-label {
+    font-size: 0.75em;
+    color: #888;
+    font-weight: 500;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 6px 0;
+    font-size: 0.85em;
+    color: #444;
+}
+
+.info-item.person {
+    border-left: 3px solid #667eea;
+    padding-left: 10px;
+    margin-left: 0;
+}
+
+.info-item.company {
+    border-left: 3px solid #11998e;
+    padding-left: 10px;
+    margin-left: 0;
+}
+
+.info-dot {
+    color: #667eea;
+    font-weight: bold;
+}
+
+.info-text {
+    flex: 1;
+}
+
+.info-date {
+    color: #888;
+    font-size: 0.9em;
+    white-space: nowrap;
+}
+
+/* Angle section */
+.angle-section {
+    background: linear-gradient(135deg, #f8f9ff, #f0f4ff);
+    border-radius: 10px;
+    padding: 15px;
+    border-left: 4px solid #667eea;
+}
+
+.angle-text {
+    font-size: 0.95em;
+    color: #333;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+/* Relevant info section */
+.relevant-section {
+    background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+    border-radius: 10px;
+    padding: 15px;
+    border-left: 4px solid #4caf50;
+}
+
+.relevant-item {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #c8e6c9;
+}
+
+.relevant-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.relevant-info {
+    font-size: 0.85em;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.relevant-usage {
+    font-size: 0.8em;
+    color: #4caf50;
+    font-style: italic;
+}
+
+/* Ignored section */
+.ignored-section {
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 10px 15px;
+}
+
+.ignored-section summary {
+    list-style: none;
+}
+
+.ignored-section summary::-webkit-details-marker {
+    display: none;
+}
+
+.ignored-content {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #e0e0e0;
+}
+
+.ignored-item {
+    font-size: 0.8em;
+    color: #888;
+    padding: 4px 0;
+}
+
+.ignored-item em {
+    color: #999;
+}
+
+/* Hook section */
+.hook-section {
+    background: linear-gradient(135deg, #fff8e1, #fffde7);
+    border-radius: 10px;
+    padding: 15px;
+    border-left: 4px solid #ffc107;
+}
+
+.hook-text {
+    font-size: 0.9em;
+    color: #333;
+    font-style: italic;
+    line-height: 1.5;
+}
+
+/* No data state */
+.enrichment-no-data {
+    text-align: center;
+    padding: 25px 15px;
+    background: linear-gradient(135deg, #fafafa, #f5f5f5);
+    border-radius: 10px;
+    margin-top: 15px;
+}
+
+.no-data-icon {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+.no-data-text {
+    font-size: 0.95em;
+    color: #666;
+    font-weight: 500;
+}
+
+.no-data-hint {
+    font-size: 0.8em;
+    color: #888;
+    margin-top: 5px;
+    margin-bottom: 15px;
+}
+
+.btn-generate-generic {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.85em;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-generate-generic:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* ==========================================
+   BATCH PANEL - Styles spécifiques
+   ========================================== */
+
+.batch-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.batch-header h3 {
+    margin: 0;
+    font-size: 1.2em;
+    color: #333;
+}
+
+.batch-stats {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.batch-stats .stat {
+    font-size: 0.8em;
+    padding: 4px 10px;
+    border-radius: 15px;
+    background: #f5f5f5;
+    color: #666;
+}
+
+.batch-stats .stat.pending {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.batch-stats .stat.enriched {
+    background: #e8f5e9;
+    color: #388e3c;
+}
+
+.batch-stats .stat.no-data {
+    background: #fff3e0;
+    color: #f57c00;
+}
+
+.batch-stats .stat.error {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.batch-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.btn-batch-enrich {
+    background: linear-gradient(135deg, #11998e, #38ef7d);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-batch-enrich:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(17, 153, 142, 0.3);
+}
+
+.btn-batch-enrich:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.batch-info {
+    font-size: 0.8em;
+    color: #888;
+}
+
+.batch-progress {
+    margin-bottom: 20px;
+}
+
+.progress-bar {
+    height: 8px;
+    background: #e8ecff;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    font-size: 0.85em;
+    color: #667eea;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* Liste des cartes */
+.enrichment-cards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* ==========================================
+   EMAIL VALIDATION MODAL - Styles spécifiques
+   ========================================== */
+
+.email-context {
+    background: linear-gradient(135deg, #f8f9ff, #f0f4ff);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.context-label {
+    font-size: 0.75em;
+    color: #667eea;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.context-name {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #333;
+}
+
+.context-company {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.context-personalization {
+    margin-top: 10px;
+    font-size: 0.85em;
+    color: #4caf50;
+    font-style: italic;
+}
+
+.email-field {
+    margin-bottom: 20px;
+}
+
+.field-label {
+    font-size: 0.85em;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.email-subject-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e8ecff;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.95em;
+    transition: border-color 0.2s;
+}
+
+.email-subject-input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.email-body-textarea {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #e8ecff;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.95em;
+    line-height: 1.6;
+    resize: vertical;
+    min-height: 200px;
+    transition: border-color 0.2s;
+}
+
+.email-body-textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 15px 25px 25px;
+}
+
+.btn-reject {
+    background: #fff;
+    color: #e53935;
+    border: 2px solid #ffcdd2;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-reject:hover {
+    background: #ffebee;
+    border-color: #e53935;
+}
+
+.btn-approve {
+    background: linear-gradient(135deg, #11998e, #38ef7d);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-approve:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(17, 153, 142, 0.3);
+}

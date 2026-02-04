@@ -6,6 +6,7 @@
     <title>Mes Posts - SOS Storytelling</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -252,16 +253,142 @@
     <div class="toast" id="toast"></div>
 
     <script>
+        // ==================== CONFIGURATION SUPABASE ====================
+        const SUPABASE_URL = 'https://pyxidmnckpnrargygwnf.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eGlkbW5ja3BucmFyZ3lnd25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyMzc4NzIsImV4cCI6MjA3OTgxMzg3Mn0.atm-LVna_TQyPuACZgA4ngJzzgIfJQJIdnLd9lCpOns';
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const STORAGE_KEY = 'sos_mes_posts';
 
+        let currentUser = null;
+        let postsCache = []; // Cache local des posts
+
+        // ==================== AUTHENTIFICATION ====================
+        async function initAuth() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                currentUser = session.user;
+                await loadPosts();
+            } else {
+                // Pas connecté - utiliser localStorage en fallback
+                renderPosts();
+            }
+        }
+
+        // ==================== CHARGEMENT DES POSTS ====================
+        async function loadPosts() {
+            if (!currentUser) {
+                // Fallback localStorage si pas connecté
+                postsCache = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                renderPosts();
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('user_saved_posts')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                // Convertir format Supabase vers format local
+                postsCache = (data || []).map(post => ({
+                    id: post.id,
+                    platform: post.platform,
+                    caption: post.caption,
+                    hashtags: post.hashtags,
+                    visualTexts: post.visual_texts,
+                    done: post.done,
+                    createdAt: post.created_at
+                }));
+
+                // Mettre à jour le cache localStorage
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(postsCache));
+
+                renderPosts();
+            } catch (err) {
+                console.error('Erreur chargement posts:', err);
+                // Fallback sur localStorage
+                postsCache = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                renderPosts();
+                showToast('⚠️ Mode hors ligne');
+            }
+        }
+
         function getPosts() {
-            return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            return postsCache;
         }
 
-        function savePosts(posts) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+        // ==================== SAUVEGARDE ====================
+        async function savePostToSupabase(post) {
+            if (!currentUser) return null;
+
+            try {
+                const { data, error } = await supabase
+                    .from('user_saved_posts')
+                    .insert({
+                        user_id: currentUser.id,
+                        platform: post.platform,
+                        caption: post.caption,
+                        hashtags: post.hashtags,
+                        visual_texts: post.visualTexts,
+                        done: post.done || false
+                    })
+                    .select()
+                    .single();
+
+                if (error) throw error;
+                return data;
+            } catch (err) {
+                console.error('Erreur sauvegarde:', err);
+                return null;
+            }
         }
 
+        // ==================== MISE À JOUR ====================
+        async function updatePostInSupabase(postId, updates) {
+            if (!currentUser || !postId) return false;
+
+            try {
+                const { error } = await supabase
+                    .from('user_saved_posts')
+                    .update({
+                        done: updates.done,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', postId)
+                    .eq('user_id', currentUser.id);
+
+                if (error) throw error;
+                return true;
+            } catch (err) {
+                console.error('Erreur mise à jour:', err);
+                return false;
+            }
+        }
+
+        // ==================== SUPPRESSION ====================
+        async function deletePostFromSupabase(postId) {
+            if (!currentUser || !postId) return false;
+
+            try {
+                const { error } = await supabase
+                    .from('user_saved_posts')
+                    .delete()
+                    .eq('id', postId)
+                    .eq('user_id', currentUser.id);
+
+                if (error) throw error;
+                return true;
+            } catch (err) {
+                console.error('Erreur suppression:', err);
+                return false;
+            }
+        }
+
+        // ==================== FONCTIONS UI ====================
         function formatDate(dateStr) {
             const date = new Date(dateStr);
             return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
@@ -295,7 +422,7 @@
             }
 
             container.innerHTML = posts.map((post, index) => `
-                <div class="post-card ${post.done ? 'done' : ''}" data-index="${index}">
+                <div class="post-card ${post.done ? 'done' : ''}" data-index="${index}" data-id="${post.id || ''}">
                     <div class="post-header">
                         <span class="post-platform ${post.platform || 'instagram'}">${getPlatformLabel(post.platform)}</span>
                         <span class="post-date">${formatDate(post.createdAt)}</span>
@@ -331,17 +458,24 @@
             return div.innerHTML;
         }
 
-        function toggleDone(index) {
-            const posts = getPosts();
-            posts[index].done = !posts[index].done;
-            savePosts(posts);
+        async function toggleDone(index) {
+            const post = postsCache[index];
+            const newDoneState = !post.done;
+
+            // Mise à jour locale immédiate
+            postsCache[index].done = newDoneState;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(postsCache));
             renderPosts();
-            showToast(posts[index].done ? '✅ Marqué comme publié' : '↩️ Marqué comme non publié');
+            showToast(newDoneState ? '✅ Marqué comme publié' : '↩️ Marqué comme non publié');
+
+            // Sync avec Supabase
+            if (post.id) {
+                await updatePostInSupabase(post.id, { done: newDoneState });
+            }
         }
 
         function copyPost(index) {
-            const posts = getPosts();
-            const post = posts[index];
+            const post = postsCache[index];
             let text = post.caption || '';
             if (post.hashtags) text += '\n\n' + post.hashtags;
 
@@ -350,17 +484,37 @@
             });
         }
 
-        function deletePost(index) {
+        async function deletePost(index) {
             if (!confirm('Supprimer ce post ?')) return;
-            const posts = getPosts();
-            posts.splice(index, 1);
-            savePosts(posts);
+
+            const post = postsCache[index];
+
+            // Suppression locale immédiate
+            postsCache.splice(index, 1);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(postsCache));
             renderPosts();
             showToast('🗑️ Post supprimé');
+
+            // Sync avec Supabase
+            if (post.id) {
+                await deletePostFromSupabase(post.id);
+            }
         }
 
-        function clearAllPosts() {
+        async function clearAllPosts() {
             if (!confirm('Supprimer TOUS les posts sauvegardés ?')) return;
+
+            // Supprimer tous les posts Supabase
+            if (currentUser) {
+                for (const post of postsCache) {
+                    if (post.id) {
+                        await deletePostFromSupabase(post.id);
+                    }
+                }
+            }
+
+            // Vider le cache local
+            postsCache = [];
             localStorage.removeItem(STORAGE_KEY);
             renderPosts();
             showToast('🗑️ Tous les posts supprimés');
@@ -374,17 +528,22 @@
         }
 
         // Écouter les changements de localStorage (si modifié depuis l'app principale)
-        window.addEventListener('storage', (e) => {
+        window.addEventListener('storage', async (e) => {
             if (e.key === STORAGE_KEY) {
-                renderPosts();
+                // Recharger depuis Supabase pour avoir les IDs
+                await loadPosts();
             }
         });
 
-        // Rafraîchir périodiquement (au cas où)
-        setInterval(renderPosts, 5000);
+        // Rafraîchir périodiquement pour sync
+        setInterval(async () => {
+            if (currentUser) {
+                await loadPosts();
+            }
+        }, 30000); // Toutes les 30 secondes
 
         // Initialiser
-        renderPosts();
+        initAuth();
     </script>
 </body>
 </html>

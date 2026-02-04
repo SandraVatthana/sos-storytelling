@@ -1,0 +1,74 @@
+# =====================================================
+# CLOUDFLARE WORKERS CONFIGURATION
+# SOS Storytelling - Enrichissement Intelligent
+# =====================================================
+
+# ==========================================
+# ENRICH PROSPECT WORKER
+# ==========================================
+# Pour déployer: wrangler deploy --config wrangler.toml --name enrich-prospect
+
+[[deployments]]
+name = "enrich-prospect"
+main = "enrich-prospect-worker.js"
+compatibility_date = "2024-01-01"
+
+[deployments.vars]
+# Variables d'environnement (à configurer dans le dashboard)
+# PERPLEXITY_API_KEY = "pplx-xxx"
+
+# ==========================================
+# ANALYZE RELEVANCE WORKER
+# ==========================================
+# Pour déployer: wrangler deploy --config wrangler.toml --name analyze-relevance
+
+[[deployments]]
+name = "analyze-relevance"
+main = "analyze-relevance-worker.js"
+compatibility_date = "2024-01-01"
+
+[deployments.vars]
+# Variables d'environnement (à configurer dans le dashboard)
+# ANTHROPIC_API_KEY = "sk-ant-xxx"
+
+# ==========================================
+# GENERATE SMART EMAIL WORKER
+# ==========================================
+# Pour déployer: wrangler deploy --config wrangler.toml --name generate-smart-email
+
+[[deployments]]
+name = "generate-smart-email"
+main = "generate-smart-email-worker.js"
+compatibility_date = "2024-01-01"
+
+[deployments.vars]
+# Variables d'environnement (à configurer dans le dashboard)
+# ANTHROPIC_API_KEY = "sk-ant-xxx"
+
+# ==========================================
+# INSTRUCTIONS DE DÉPLOIEMENT
+# ==========================================
+#
+# 1. Installer Wrangler CLI:
+#    npm install -g wrangler
+#
+# 2. Se connecter à Cloudflare:
+#    wrangler login
+#
+# 3. Déployer chaque worker:
+#    cd workers
+#    wrangler deploy enrich-prospect-worker.js --name enrich-prospect
+#    wrangler deploy analyze-relevance-worker.js --name analyze-relevance
+#    wrangler deploy generate-smart-email-worker.js --name generate-smart-email
+#
+# 4. Configurer les secrets (clés API):
+#    wrangler secret put PERPLEXITY_API_KEY --name enrich-prospect
+#    wrangler secret put ANTHROPIC_API_KEY --name analyze-relevance
+#    wrangler secret put ANTHROPIC_API_KEY --name generate-smart-email
+#
+# 5. Les URLs de vos workers seront:
+#    https://enrich-prospect.<votre-subdomain>.workers.dev
+#    https://analyze-relevance.<votre-subdomain>.workers.dev
+#    https://generate-smart-email.<votre-subdomain>.workers.dev
+#
+# 6. Mettre à jour les URLs dans enrichment-module.js

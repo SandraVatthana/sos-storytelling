@@ -17,6 +17,151 @@ const CampaignsModule = {
     // API URL
     API_URL: 'https://sos-storytelling-api.sandra-devonssay.workers.dev',
 
+    // Base URL pour les liens de désinscription
+    UNSUBSCRIBE_BASE_URL: 'https://sosstorytelling.fr/unsubscribe.html',
+
+    // ==========================================
+    // GESTION DES DÉSINSCRIPTIONS
+    // ==========================================
+
+    /**
+     * Génère le lien de désinscription pour un prospect
+     */
+    generateUnsubscribeLink(prospectEmail, campaignId = null, prospectId = null) {
+        const userId = this.getCurrentUserId();
+        if (!userId || !prospectEmail) return '';
+
+        const params = new URLSearchParams({
+            email: prospectEmail,
+            uid: userId
+        });
+
+        if (campaignId) params.set('cid', campaignId);
+        if (prospectId) params.set('pid', prospectId);
+
+        return `${this.UNSUBSCRIBE_BASE_URL}?${params.toString()}`;
+    },
+
+    /**
+     * Génère le footer de désinscription HTML
+     */
+    generateUnsubscribeFooter(prospectEmail, campaignId = null, prospectId = null) {
+        const unsubscribeLink = this.generateUnsubscribeLink(prospectEmail, campaignId, prospectId);
+        if (!unsubscribeLink) return '';
+
+        return `
+
+---
+Si tu ne souhaites plus recevoir mes emails, tu peux te désinscrire ici : ${unsubscribeLink}`;
+    },
+
+    /**
+     * Ajoute le footer de désinscription à un email
+     */
+    addUnsubscribeToEmail(emailBody, prospectEmail, campaignId = null, prospectId = null) {
+        const footer = this.generateUnsubscribeFooter(prospectEmail, campaignId, prospectId);
+        return emailBody + footer;
+    },
+
+    /**
+     * Vérifie si un email est désinscrit
+     */
+    async isEmailUnsubscribed(email) {
+        const supabase = window.supabase;
+        if (!supabase) return false;
+
+        try {
+            const userId = this.getCurrentUserId();
+            if (!userId) return false;
+
+            const { data, error } = await supabase
+                .from('email_unsubscribes')
+                .select('id')
+                .eq('user_id', userId)
+                .ilike('email', email)
+                .single();
+
+            return !!data;
+        } catch (e) {
+            return false;
+        }
+    },
+
+    /**
+     * Filtre les prospects désinscrits d'une liste
+     */
+    async filterUnsubscribedProspects(prospects) {
+        const supabase = window.supabase;
+        if (!supabase || !prospects.length) return prospects;
+
+        try {
+            const userId = this.getCurrentUserId();
+            if (!userId) return prospects;
+
+            // Récupérer tous les emails désinscrits
+            const { data: unsubscribed } = await supabase
+                .from('email_unsubscribes')
+                .select('email')
+                .eq('user_id', userId);
+
+            if (!unsubscribed || !unsubscribed.length) return prospects;
+
+            const unsubscribedEmails = new Set(unsubscribed.map(u => u.email.toLowerCase()));
+
+            // Filtrer les prospects
+            const filtered = prospects.filter(p => !unsubscribedEmails.has(p.email?.toLowerCase()));
+
+            const removedCount = prospects.length - filtered.length;
+            if (removedCount > 0) {
+                console.log(`[Campaigns] ${removedCount} prospect(s) désinscrit(s) exclu(s)`);
+            }
+
+            return filtered;
+        } catch (e) {
+            console.error('[Campaigns] Erreur filtre désinscrits:', e);
+            return prospects;
+        }
+    },
+
+    /**
+     * Récupère l'ID de l'utilisateur courant (depuis le cache)
+     */
+    getCurrentUserId() {
+        return this._cachedUserId || null;
+    },
+
+    /**
+     * Récupère les stats de désinscription
+     */
+    async getUnsubscribeStats() {
+        const supabase = window.supabase;
+        if (!supabase) return { total: 0, last7Days: 0, last30Days: 0 };
+
+        try {
+            const userId = this.getCurrentUserId();
+            if (!userId) return { total: 0, last7Days: 0, last30Days: 0 };
+
+            const { data } = await supabase
+                .from('email_unsubscribes')
+                .select('unsubscribed_at')
+                .eq('user_id', userId);
+
+            if (!data) return { total: 0, last7Days: 0, last30Days: 0 };
+
+            const now = new Date();
+            const sevenDaysAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+            const thirtyDaysAgo = new Date(now - 30 * 24 * 60 * 60 * 1000);
+
+            return {
+                total: data.length,
+                last7Days: data.filter(d => new Date(d.unsubscribed_at) > sevenDaysAgo).length,
+                last30Days: data.filter(d => new Date(d.unsubscribed_at) > thirtyDaysAgo).length
+            };
+        } catch (e) {
+            return { total: 0, last7Days: 0, last30Days: 0 };
+        }
+    },
+
     // Templates de séquences pré-construits
     SEQUENCE_TEMPLATES: {
         intro: {
@@ -241,7 +386,23 @@ Bonne journée !`,
      * Initialise le module
      */
     async init() {
+        // Cacher l'ID utilisateur pour les fonctions sync
+        await this.cacheUserId();
         await this.loadCampaigns();
+    },
+
+    /**
+     * Cache l'ID utilisateur courant
+     */
+    async cacheUserId() {
+        try {
+            if (window.supabase?.auth) {
+                const { data: { user } } = await window.supabase.auth.getUser();
+                this._cachedUserId = user?.id || null;
+            }
+        } catch (e) {
+            this._cachedUserId = null;
+        }
     },
 
     /**
@@ -291,8 +452,27 @@ Bonne journée !`,
                     <p>${t('campaigns.subtitle')}</p>
                 </div>
                 <div class="campaigns-actions">
+                    <button class="btn btn-secondary" onclick="CampaignsModule.showUnsubscribeList()" style="margin-right: 10px;">
+                        📭 Désinscriptions
+                    </button>
                     <button class="btn btn-primary" onclick="CampaignsModule.openNewCampaignWizard()">
                         <span class="btn-icon">+</span> ${t('campaigns.new_campaign')}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Widget désinscriptions -->
+            <div id="unsubscribeWidget" class="unsubscribe-widget" style="display: none; background: linear-gradient(135deg, #fef2f2, #fee2e2); border: 1px solid #fecaca; border-radius: 12px; padding: 15px 20px; margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 1.5em;">📭</span>
+                        <div>
+                            <strong style="color: #991b1b;">Désinscriptions</strong>
+                            <p style="margin: 0; font-size: 0.85em; color: #b91c1c;" id="unsubscribeCount">Chargement...</p>
+                        </div>
+                    </div>
+                    <button onclick="CampaignsModule.showUnsubscribeList()" style="background: white; border: 1px solid #fecaca; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 0.85em; color: #991b1b;">
+                        Voir la liste
                     </button>
                 </div>
             </div>
@@ -300,7 +480,149 @@ Bonne journée !`,
             <div class="campaigns-list" id="campaignsList"></div>
         `;
 
+        // Charger les stats de désinscription
+        this.loadUnsubscribeWidget();
+
         return container;
+    },
+
+    /**
+     * Charge et affiche le widget de désinscriptions
+     */
+    async loadUnsubscribeWidget() {
+        const stats = await this.getUnsubscribeStats();
+
+        const widget = document.getElementById('unsubscribeWidget');
+        const countEl = document.getElementById('unsubscribeCount');
+
+        if (widget && countEl) {
+            if (stats.total > 0) {
+                widget.style.display = 'block';
+                countEl.textContent = `${stats.total} email(s) désinscrit(s) • ${stats.last30Days} ce mois`;
+            } else {
+                widget.style.display = 'none';
+            }
+        }
+    },
+
+    /**
+     * Affiche la liste des désinscriptions
+     */
+    async showUnsubscribeList() {
+        const supabase = window.supabase;
+        if (!supabase) return;
+
+        try {
+            await this.cacheUserId();
+            const userId = this.getCurrentUserId();
+            if (!userId) {
+                alert('Connectez-vous pour voir les désinscriptions');
+                return;
+            }
+
+            const { data: unsubscribes, error } = await supabase
+                .from('email_unsubscribes')
+                .select('*')
+                .eq('user_id', userId)
+                .order('unsubscribed_at', { ascending: false });
+
+            if (error) throw error;
+
+            // Créer le modal
+            const modalHTML = `
+                <div class="modal-overlay" onclick="CampaignsModule.closeUnsubscribeModal(event)">
+                    <div class="modal-content" onclick="event.stopPropagation()" style="max-width: 700px; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column;">
+                        <div class="modal-header" style="border-bottom: 1px solid #e5e7eb; padding-bottom: 15px;">
+                            <h2 style="margin: 0; display: flex; align-items: center; gap: 10px;">
+                                <span>📭</span> Emails désinscrits
+                            </h2>
+                            <button onclick="CampaignsModule.closeUnsubscribeModal()" style="background: none; border: none; font-size: 1.5em; cursor: pointer; color: #666;">&times;</button>
+                        </div>
+
+                        <div class="modal-body" style="flex: 1; overflow-y: auto; padding: 20px 0;">
+                            ${unsubscribes.length === 0 ? `
+                                <div style="text-align: center; padding: 40px; color: #888;">
+                                    <div style="font-size: 3em; margin-bottom: 15px;">🎉</div>
+                                    <p>Aucune désinscription pour le moment !</p>
+                                    <p style="font-size: 0.85em;">C'est bon signe, tes emails sont appréciés.</p>
+                                </div>
+                            ` : `
+                                <div style="margin-bottom: 15px; padding: 15px; background: #f8fafc; border-radius: 10px;">
+                                    <strong>${unsubscribes.length}</strong> personne(s) se sont désinscrites de tes emails.
+                                    <p style="margin: 5px 0 0; font-size: 0.85em; color: #666;">Ces adresses ne recevront plus aucun email de ta part.</p>
+                                </div>
+
+                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                    ${unsubscribes.map(u => `
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; background: white; border: 1px solid #e5e7eb; border-radius: 10px;">
+                                            <div>
+                                                <strong style="color: #1f2937;">${u.email}</strong>
+                                                <p style="margin: 3px 0 0; font-size: 0.8em; color: #888;">
+                                                    ${new Date(u.unsubscribed_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                                    ${u.reason ? ` • ${u.reason}` : ''}
+                                                </p>
+                                            </div>
+                                            <button onclick="CampaignsModule.removeUnsubscribe('${u.id}', '${u.email}')" style="background: #fef2f2; border: 1px solid #fecaca; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8em; color: #991b1b;" title="Retirer de la liste (la personne pourra à nouveau recevoir des emails)">
+                                                Retirer
+                                            </button>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `}
+                        </div>
+
+                        <div class="modal-footer" style="border-top: 1px solid #e5e7eb; padding-top: 15px;">
+                            <p style="margin: 0; font-size: 0.8em; color: #888;">
+                                💡 Les personnes désinscrits sont automatiquement exclues de tes campagnes.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+        } catch (error) {
+            console.error('Erreur chargement désinscriptions:', error);
+            alert('Erreur lors du chargement des désinscriptions');
+        }
+    },
+
+    /**
+     * Ferme le modal de désinscriptions
+     */
+    closeUnsubscribeModal(event) {
+        if (event && event.target !== event.currentTarget) return;
+        const modal = document.querySelector('.modal-overlay');
+        if (modal) modal.remove();
+    },
+
+    /**
+     * Retire un email de la liste des désinscriptions
+     */
+    async removeUnsubscribe(id, email) {
+        if (!confirm(`Retirer ${email} de la liste des désinscriptions ?\n\nCette personne pourra à nouveau recevoir tes emails.`)) {
+            return;
+        }
+
+        try {
+            const supabase = window.supabase;
+            const { error } = await supabase
+                .from('email_unsubscribes')
+                .delete()
+                .eq('id', id);
+
+            if (error) throw error;
+
+            // Rafraîchir la liste
+            this.closeUnsubscribeModal();
+            this.showUnsubscribeList();
+            this.loadUnsubscribeWidget();
+
+        } catch (error) {
+            console.error('Erreur suppression:', error);
+            alert('Erreur lors de la suppression');
+        }
     },
 
     renderCampaignsList() {
@@ -402,6 +724,29 @@ Bonne journée !`,
                     </button>
                 `;
         }
+    },
+
+    // ==========================================
+    // HELPER - Récupérer les infos du sender sélectionné
+    // ==========================================
+
+    getSelectedSenderInfo() {
+        // Récupérer le premier sender sélectionné
+        if (this.selectedSenders && this.selectedSenders.length > 0 && typeof SenderEmailsModule !== 'undefined') {
+            const senders = SenderEmailsModule.getSenders();
+            const firstSender = senders.find(s => s.id === this.selectedSenders[0]);
+            if (firstSender) {
+                return {
+                    email: firstSender.email,
+                    name: firstSender.display_name || firstSender.email.split('@')[0]
+                };
+            }
+        }
+        // Fallback
+        return {
+            email: 'vous@votredomaine.com',
+            name: 'Moi'
+        };
     },
 
     // ==========================================
@@ -815,25 +1160,17 @@ Bonne journée !`,
                     <p class="field-hint">L'IA utilisera cet objectif pour personnaliser les emails</p>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Email expediteur *</label>
-                        <input type="email" id="senderEmail" value="${c.sender_email || ''}"
-                               placeholder="vous@votredomaine.com">
-                    </div>
-                    <div class="form-group">
-                        <label>Nom expediteur *</label>
-                        <input type="text" id="senderName" value="${c.sender_name || ''}"
-                               placeholder="Votre prenom et nom">
-                    </div>
-                </div>
-
                 <div class="form-group">
                     <label>Langue des emails</label>
                     <select id="campaignLanguage">
                         <option value="fr" ${(c.language || window.I18N?.getLanguage() || 'fr') === 'fr' ? 'selected' : ''}>Francais</option>
                         <option value="en" ${(c.language || window.I18N?.getLanguage() || 'fr') === 'en' ? 'selected' : ''}>English</option>
                     </select>
+                </div>
+
+                <div class="info-hint" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)); border: 1px solid rgba(102, 126, 234, 0.2); border-radius: 10px; padding: 12px 15px; margin-top: 15px;">
+                    <span style="font-size: 1.1em;">💡</span>
+                    <span style="font-size: 0.9em; color: #555;">Tu configureras tes adresses d'envoi à l'étape 3 (multi-adresses avec rotation automatique).</span>
                 </div>
 
                 <div class="wizard-actions">
@@ -862,16 +1199,12 @@ Bonne journée !`,
     async saveStep1() {
         const name = document.getElementById('campaignName')?.value?.trim() || '';
         const goal = document.getElementById('campaignGoal')?.value?.trim() || '';
-        const senderEmail = document.getElementById('senderEmail')?.value?.trim() || '';
-        const senderName = document.getElementById('senderName')?.value?.trim() || '';
         const language = document.getElementById('campaignLanguage')?.value || 'fr';
 
         // Validation détaillée
         const missing = [];
         if (!name) missing.push('Nom de la campagne');
         if (!goal) missing.push('Objectif');
-        if (!senderEmail) missing.push('Email expéditeur');
-        if (!senderName) missing.push('Nom expéditeur');
 
         if (missing.length > 0) {
             alert('Champs manquants : ' + missing.join(', '));
@@ -879,9 +1212,8 @@ Bonne journée !`,
         }
 
         const campaignData = {
-            name, goal,
-            sender_email: senderEmail,
-            sender_name: senderName,
+            name,
+            goal,
             language
         };
 
@@ -1146,7 +1478,20 @@ Bonne journée !`,
                 return;
             }
 
-            this.selectedProspects = prospects;
+            // Filtrer les prospects désinscrits
+            const filteredProspects = await this.filterUnsubscribedProspects(prospects);
+
+            if (filteredProspects.length === 0) {
+                alert('Tous les prospects sélectionnés se sont désinscrits de vos emails. Sélectionnez d\'autres prospects.');
+                return;
+            }
+
+            if (filteredProspects.length < prospects.length) {
+                const removedCount = prospects.length - filteredProspects.length;
+                alert(`${removedCount} prospect(s) désinscrit(s) ont été retirés de la sélection.`);
+            }
+
+            this.selectedProspects = filteredProspects;
 
             // Mettre a jour la campagne si elle existe
             if (this.currentCampaign?.id) {
@@ -1289,8 +1634,8 @@ Bonne journée !`,
                     <div class="sender-info-box" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)); border: 1px solid rgba(102, 126, 234, 0.3); border-radius: 12px; padding: 14px 16px; margin-bottom: 15px;">
                         <div style="display: flex; align-items: flex-start; gap: 10px;">
                             <span style="font-size: 1.2em;">💡</span>
-                            <div style="font-size: 0.9em; color: rgba(255,255,255,0.85); line-height: 1.5;">
-                                <strong style="color: #fff;">Conseil :</strong> Crée plusieurs adresses email chez ton fournisseur (ex: sandra@, contact@, hello@) pour augmenter ta capacité d'envoi. Limite recommandée : <strong>20 emails/jour/adresse</strong> pour une délivrabilité optimale.
+                            <div style="font-size: 0.9em; color: #333; line-height: 1.5;">
+                                <strong style="color: #1a1a2e;">Conseil :</strong> Crée plusieurs adresses email chez ton fournisseur (ex: sandra@, contact@, hello@) pour augmenter ta capacité d'envoi. Limite recommandée : <strong style="color: #333;">20 emails/jour/adresse</strong> pour une délivrabilité optimale.
                             </div>
                         </div>
                     </div>
@@ -1662,12 +2007,36 @@ Bonne journée !`,
                     <p>💡 Les relances ne sont envoyées que si le prospect n'a pas répondu.</p>
                 </div>
 
+                <!-- Section Enrichissement Intelligent -->
+                <div class="enrichment-generation-box" style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border: 2px solid #38bdf8; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                    <h4 style="margin: 0 0 10px 0; color: #0284c7;">🔍 Enrichissement Intelligent (Optionnel)</h4>
+                    <p style="color: #64748b; font-size: 0.9em; margin-bottom: 15px;">
+                        Recherche des infos récentes sur chaque prospect (LinkedIn, actualités entreprise) pour personnaliser les emails.
+                    </p>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn btn-secondary" onclick="CampaignsModule.showEnrichmentPanel()" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none;">
+                            🔍 Enrichir les prospects
+                        </button>
+                        <span style="color: #94a3b8; font-size: 0.85em; display: flex; align-items: center;">
+                            ${this.getEnrichmentStats()}
+                        </span>
+                    </div>
+                </div>
+
                 <div class="ai-generation-box">
                     <h4>🤖 Génération IA</h4>
                     <p>L'IA va générer une séquence personnalisée basée sur tes données clés et chaque prospect.</p>
-                    <button class="btn btn-primary" onclick="CampaignsModule.generateSequenceWithAI()">
-                        ✨ Générer les emails avec l'IA
-                    </button>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="CampaignsModule.generateSequenceWithAI()">
+                            ✨ Générer les emails avec l'IA
+                        </button>
+                        <button class="btn btn-secondary" onclick="CampaignsModule.generateSmartEmails()" style="background: linear-gradient(135deg, #11998e, #38ef7d); color: white; border: none;">
+                            ✨ Générer avec enrichissement
+                        </button>
+                    </div>
+                    <p style="font-size: 0.8em; color: #888; margin-top: 10px;">
+                        💡 "Générer avec enrichissement" utilise les données trouvées sur chaque prospect pour un email hyper-personnalisé.
+                    </p>
                 </div>
 
                 <div class="wizard-actions">
@@ -2053,7 +2422,8 @@ ${isFirst ? 'Votre premier message de contact...' : 'Votre message de relance...
 
     async generateWithRealAI(config, style, tone, voiceProfile) {
         const vp = voiceProfile.voiceProfile;
-        const senderName = this.currentCampaign?.sender_name || voiceProfile.nom || 'Moi';
+        const senderInfo = this.getSelectedSenderInfo();
+        const senderName = senderInfo.name || voiceProfile.nom || 'Moi';
 
         const toneDescriptions = {
             pro: 'professionnel et direct',
@@ -2140,7 +2510,8 @@ Réponds UNIQUEMENT avec ce JSON (sans markdown, sans explication) :
     },
 
     buildEmailSequence(config, style, tone, voiceProfile) {
-        const senderName = this.currentCampaign?.sender_name || voiceProfile?.nom || 'Moi';
+        const senderInfo = this.getSelectedSenderInfo();
+        const senderName = senderInfo.name || voiceProfile?.nom || 'Moi';
 
         // Définir les variations selon le ton
         const toneVariants = {
@@ -2287,14 +2658,19 @@ ${senderName}`,
                 });
             }
 
-            // Générer les previews
+            // Générer les previews avec footer de désinscription
+            const campaignId = this.currentCampaign?.id || null;
             this.generatedPreviews = this.selectedProspects.slice(0, 5).map(prospect => ({
                 prospect,
-                emails: this.sequenceEmails.map(seq => ({
-                    subject: this.personalizeTemplate(seq.subject_template, prospect),
-                    body: this.personalizeTemplate(seq.body_template, prospect),
-                    delay_days: seq.delay_days
-                }))
+                emails: this.sequenceEmails.map(seq => {
+                    const baseBody = this.personalizeTemplate(seq.body_template, prospect);
+                    const bodyWithUnsubscribe = this.addUnsubscribeToEmail(baseBody, prospect.email, campaignId, prospect.id);
+                    return {
+                        subject: this.personalizeTemplate(seq.subject_template, prospect),
+                        body: bodyWithUnsubscribe,
+                        delay_days: seq.delay_days
+                    };
+                })
             }));
 
             this.currentStep = 5;
@@ -2334,6 +2710,7 @@ ${senderName}`,
 
         const prospect = preview.prospect;
         const c = this.currentCampaign;
+        const senderInfo = this.getSelectedSenderInfo();
 
         return `
             <div class="wizard-step-content">
@@ -2356,7 +2733,7 @@ ${senderName}`,
                             </div>
                             <div class="email-preview-header">
                                 <div class="preview-field">
-                                    <span class="label">De:</span> ${c.sender_name} &lt;${c.sender_email}&gt;
+                                    <span class="label">De:</span> ${senderInfo.name} &lt;${senderInfo.email}&gt;
                                 </div>
                                 <div class="preview-field">
                                     <span class="label">A:</span> ${prospect.first_name} &lt;${prospect.email}&gt;
@@ -2841,6 +3218,338 @@ ${senderName}`,
             console.error('Error deleting campaign:', error);
             alert('Erreur');
         }
+    },
+
+    // ==========================================
+    // ENRICHMENT INTEGRATION
+    // ==========================================
+
+    /**
+     * Obtenir les stats d'enrichissement des prospects sélectionnés
+     */
+    getEnrichmentStats() {
+        const prospects = this.selectedProspects || [];
+        if (prospects.length === 0) return 'Sélectionnez des prospects';
+
+        const enriched = prospects.filter(p => p.enrichment_status === 'enriched').length;
+        const pending = prospects.filter(p => !p.enrichment_status || p.enrichment_status === 'pending').length;
+        const noData = prospects.filter(p => p.enrichment_status === 'no_data').length;
+
+        if (enriched === prospects.length) {
+            return `✅ ${enriched}/${prospects.length} enrichis`;
+        } else if (pending > 0) {
+            return `⏳ ${pending} à enrichir · ${enriched} enrichis`;
+        } else {
+            return `${enriched} enrichis · ${noData} sans données`;
+        }
+    },
+
+    /**
+     * Afficher le panel d'enrichissement
+     */
+    showEnrichmentPanel() {
+        if (typeof EnrichmentModule === 'undefined') {
+            alert('Module d\'enrichissement non disponible');
+            return;
+        }
+
+        const prospects = this.selectedProspects || [];
+        if (prospects.length === 0) {
+            alert('Sélectionnez d\'abord des prospects');
+            return;
+        }
+
+        // Initialiser le module d'enrichissement avec la campagne courante
+        const campaignContext = {
+            product_description: this.outreachConfig?.user_offer || '',
+            value_proposition: this.outreachConfig?.user_social_proof || '',
+            target_persona: '',
+            pain_points: [],
+            email_tone: this.outreachConfig?.tone || 'pro'
+        };
+
+        EnrichmentModule.init(campaignContext, prospects);
+
+        // Créer le modal d'enrichissement
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay active';
+        modal.id = 'enrichmentPanelModal';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 900px; width: 95%; max-height: 90vh; overflow-y: auto;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                    <h2 style="margin: 0; font-size: 1.2em;">🔍 Enrichissement des Prospects</h2>
+                    <button onclick="CampaignsModule.closeEnrichmentPanel()" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer;">&times;</button>
+                </div>
+                <div class="modal-body" style="padding: 25px;">
+                    ${EnrichmentModule.renderBatchPanel(prospects, campaignContext)}
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    },
+
+    /**
+     * Fermer le panel d'enrichissement
+     */
+    closeEnrichmentPanel() {
+        const modal = document.getElementById('enrichmentPanelModal');
+        if (modal) {
+            modal.remove();
+            // Rafraîchir les stats
+            this.updateWizard();
+        }
+    },
+
+    /**
+     * Générer des emails intelligents avec enrichissement
+     */
+    async generateSmartEmails() {
+        if (typeof EnrichmentModule === 'undefined') {
+            alert('Module d\'enrichissement non disponible');
+            return;
+        }
+
+        const prospects = this.selectedProspects || [];
+        if (prospects.length === 0) {
+            alert('Sélectionnez d\'abord des prospects');
+            return;
+        }
+
+        // Vérifier si les prospects sont enrichis
+        const notEnriched = prospects.filter(p => !p.enrichment_status || p.enrichment_status === 'pending');
+
+        if (notEnriched.length > 0) {
+            const confirm = window.confirm(
+                `${notEnriched.length} prospect(s) ne sont pas encore enrichis.\n\n` +
+                `Voulez-vous les enrichir maintenant avant de générer les emails ?`
+            );
+
+            if (confirm) {
+                this.showEnrichmentPanel();
+                return;
+            }
+        }
+
+        const content = document.getElementById('wizardContent');
+        content.innerHTML = `
+            <div class="generating-state">
+                <div class="spinner"></div>
+                <p>🎤 Génération des emails personnalisés en cours...</p>
+                <p style="font-size: 0.85em; color: #888; margin-top: 10px;">
+                    Utilisation des données d'enrichissement pour chaque prospect
+                </p>
+                <div id="smartEmailProgress" style="margin-top: 20px; text-align: center;">
+                    <span class="progress-text">0 / ${prospects.length}</span>
+                </div>
+            </div>
+        `;
+
+        // Générer les emails pour chaque prospect
+        const generatedEmails = [];
+        const campaignContext = {
+            product_description: this.outreachConfig?.user_offer || '',
+            value_proposition: this.outreachConfig?.user_social_proof || '',
+            target_persona: '',
+            pain_points: [],
+            email_tone: this.outreachConfig?.tone || 'pro'
+        };
+
+        for (let i = 0; i < prospects.length; i++) {
+            const prospect = prospects[i];
+
+            try {
+                const email = await EnrichmentModule.generateEmailForProspect(prospect, campaignContext);
+                generatedEmails.push({
+                    prospect,
+                    email,
+                    personalization_level: email.personalization_level || 'none'
+                });
+            } catch (error) {
+                console.error('Erreur génération email pour', prospect.email, error);
+                generatedEmails.push({
+                    prospect,
+                    email: null,
+                    error: error.message
+                });
+            }
+
+            // Mettre à jour la progression
+            const progressEl = document.getElementById('smartEmailProgress');
+            if (progressEl) {
+                progressEl.innerHTML = `<span class="progress-text">${i + 1} / ${prospects.length}</span>`;
+            }
+        }
+
+        // Afficher les résultats
+        this.showSmartEmailResults(generatedEmails);
+    },
+
+    /**
+     * Afficher les résultats de génération d'emails intelligents
+     */
+    showSmartEmailResults(generatedEmails) {
+        const successful = generatedEmails.filter(e => e.email && !e.error);
+        const failed = generatedEmails.filter(e => e.error);
+
+        const highPersonalization = successful.filter(e => e.personalization_level === 'high').length;
+        const mediumPersonalization = successful.filter(e => e.personalization_level === 'medium').length;
+
+        const content = document.getElementById('wizardContent');
+        content.innerHTML = `
+            <div class="smart-email-results" style="padding: 20px;">
+                <h3 style="margin-bottom: 20px;">✨ Emails générés avec succès</h3>
+
+                <div class="results-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin-bottom: 25px;">
+                    <div style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-radius: 10px; padding: 15px; text-align: center;">
+                        <div style="font-size: 2em; font-weight: 700; color: #388e3c;">${successful.length}</div>
+                        <div style="font-size: 0.8em; color: #666;">Emails générés</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #e3f2fd, #bbdefb); border-radius: 10px; padding: 15px; text-align: center;">
+                        <div style="font-size: 2em; font-weight: 700; color: #1976d2;">${highPersonalization}</div>
+                        <div style="font-size: 0.8em; color: #666;">Haute perso</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #fff8e1, #ffecb3); border-radius: 10px; padding: 15px; text-align: center;">
+                        <div style="font-size: 2em; font-weight: 700; color: #f57c00;">${mediumPersonalization}</div>
+                        <div style="font-size: 0.8em; color: #666;">Moyenne perso</div>
+                    </div>
+                    ${failed.length > 0 ? `
+                        <div style="background: linear-gradient(135deg, #ffebee, #ffcdd2); border-radius: 10px; padding: 15px; text-align: center;">
+                            <div style="font-size: 2em; font-weight: 700; color: #c62828;">${failed.length}</div>
+                            <div style="font-size: 0.8em; color: #666;">Erreurs</div>
+                        </div>
+                    ` : ''}
+                </div>
+
+                <div class="emails-preview-list" style="max-height: 400px; overflow-y: auto; border: 1px solid #e8ecff; border-radius: 10px;">
+                    ${successful.map((item, index) => `
+                        <div class="email-preview-item" style="padding: 15px; border-bottom: 1px solid #f0f0f0; ${index === successful.length - 1 ? 'border-bottom: none;' : ''}">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <div>
+                                    <strong>${item.prospect.first_name || ''} ${item.prospect.last_name || ''}</strong>
+                                    <span style="color: #888; font-size: 0.85em; margin-left: 8px;">${item.prospect.company || ''}</span>
+                                </div>
+                                <span style="font-size: 0.75em; padding: 3px 8px; border-radius: 10px; background: ${
+                                    item.personalization_level === 'high' ? '#e8f5e9; color: #388e3c' :
+                                    item.personalization_level === 'medium' ? '#fff8e1; color: #f57c00' :
+                                    '#f5f5f5; color: #666'
+                                };">
+                                    ${item.personalization_level === 'high' ? '🎯 Haute' :
+                                      item.personalization_level === 'medium' ? '👍 Moyenne' :
+                                      '📝 Standard'}
+                                </span>
+                            </div>
+                            <div style="background: #fafbff; border-radius: 8px; padding: 12px;">
+                                <div style="font-weight: 500; color: #333; margin-bottom: 5px;">📧 ${item.email.subject}</div>
+                                <div style="font-size: 0.85em; color: #666; white-space: pre-line; max-height: 100px; overflow: hidden;">
+                                    ${item.email.body.substring(0, 200)}...
+                                </div>
+                            </div>
+                            <button onclick="CampaignsModule.editSmartEmail(${index})" style="margin-top: 10px; background: #f5f7ff; border: 1px solid #e8ecff; padding: 6px 12px; border-radius: 6px; font-size: 0.8em; cursor: pointer;">
+                                ✏️ Modifier
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="wizard-actions" style="margin-top: 25px; display: flex; gap: 10px; justify-content: flex-end;">
+                    <button class="btn btn-secondary" onclick="CampaignsModule.goToStep(4)">
+                        ← Retour
+                    </button>
+                    <button class="btn btn-primary" onclick="CampaignsModule.saveSmartEmails()" style="background: linear-gradient(135deg, #11998e, #38ef7d);">
+                        ✅ Valider et continuer
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // Stocker les emails générés
+        this.smartGeneratedEmails = generatedEmails;
+    },
+
+    /**
+     * Éditer un email généré
+     */
+    editSmartEmail(index) {
+        const item = this.smartGeneratedEmails[index];
+        if (!item || !item.email) return;
+
+        if (typeof EnrichmentModule !== 'undefined') {
+            EnrichmentModule.renderEmailValidationModal({
+                prospect: item.prospect,
+                subject: item.email.subject,
+                body: item.email.body,
+                personalization_used: item.email.personalization_used,
+                analysis: { confidence_score: item.email.confidence_score }
+            });
+        }
+    },
+
+    /**
+     * Sauvegarder les emails intelligents et continuer
+     */
+    async saveSmartEmails() {
+        // Utiliser le premier email comme template pour la séquence
+        const successful = (this.smartGeneratedEmails || []).filter(e => e.email);
+
+        if (successful.length > 0) {
+            // Créer une séquence à partir des emails générés
+            this.sequenceEmails = [{
+                position: 1,
+                delay_days: 0,
+                subject_template: successful[0].email.subject,
+                body_template: successful[0].email.body,
+                send_condition: 'always'
+            }];
+
+            // Ajouter les relances standard
+            if (this.sequenceEmails.length < 3) {
+                this.sequenceEmails.push({
+                    position: 2,
+                    delay_days: 3,
+                    subject_template: 'Re: ' + successful[0].email.subject,
+                    body_template: `Bonjour {first_name},
+
+Je me permets de revenir vers vous concernant mon précédent message.
+
+${successful[0].email.personalization_used ? `Je reste convaincu(e) que ce sujet est pertinent pour vous.` : ''}
+
+Seriez-vous disponible pour un bref échange ?`,
+                    send_condition: 'no_reply'
+                });
+            }
+        }
+
+        // Continuer vers l'étape 5
+        this.goToStep(5);
+    },
+
+    /**
+     * Ajouter un email approuvé (appelé depuis EnrichmentModule)
+     */
+    async addApprovedEmail(prospectId, email) {
+        // Stocker l'email approuvé pour ce prospect
+        if (!this.approvedEmails) {
+            this.approvedEmails = {};
+        }
+        this.approvedEmails[prospectId] = email;
+
+        console.log('Email approuvé pour prospect:', prospectId, email);
+    },
+
+    /**
+     * Charger les prospects (pour le module d'enrichissement)
+     */
+    async loadProspects() {
+        // Retourner les prospects sélectionnés ou tous les prospects du ProspectsModule
+        if (this.selectedProspects && this.selectedProspects.length > 0) {
+            return this.selectedProspects;
+        }
+
+        if (typeof ProspectsModule !== 'undefined' && ProspectsModule.prospects) {
+            return ProspectsModule.prospects;
+        }
+
+        return [];
     }
 };
 

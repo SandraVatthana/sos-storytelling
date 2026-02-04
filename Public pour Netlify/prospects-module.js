@@ -57,6 +57,10 @@ const ProspectsModule = {
         company_size: [
             'effectif', 'taille', 'employees', 'company size', 'size',
             'nombre employés', 'headcount', 'nombre employes'
+        ],
+        notes: [
+            'notes', 'note', 'commentaire', 'commentaires', 'comment',
+            'comments', 'observation', 'observations', 'remarque', 'remarques'
         ]
     },
 
@@ -194,6 +198,9 @@ const ProspectsModule = {
         const errors = [];
         const seenEmails = new Set();
 
+        // Emails existants dans la base
+        const existingEmails = new Set(this.prospects.map(p => p.email?.toLowerCase()));
+
         rows.forEach((values, rowIndex) => {
             const prospect = {};
 
@@ -223,16 +230,27 @@ const ProspectsModule = {
                 return;
             }
 
-            // Check doublon
+            // Check doublon dans le fichier CSV
             const emailLower = prospect.email.toLowerCase();
             if (seenEmails.has(emailLower)) {
                 errors.push({
                     line: rowIndex + 2,
-                    reason: 'duplicate',
+                    reason: 'duplicate_csv',
                     value: prospect.email
                 });
                 return;
             }
+
+            // Check doublon contre la base existante
+            if (existingEmails.has(emailLower)) {
+                errors.push({
+                    line: rowIndex + 2,
+                    reason: 'duplicate_existing',
+                    value: prospect.email
+                });
+                return;
+            }
+
             seenEmails.add(emailLower);
 
             prospects.push(prospect);
@@ -263,6 +281,7 @@ const ProspectsModule = {
             sector: p.sector || null,
             city: p.city || null,
             company_size: p.company_size || null,
+            notes: p.notes || null,
             source: source,
             status: 'new'
         }));
@@ -698,8 +717,8 @@ const ProspectsModule = {
      * Genere un template CSV basique
      */
     generateCSVTemplate() {
-        const headers = ['Prenom', 'Nom', 'Email', 'Entreprise', 'Poste', 'LinkedIn', 'Telephone', 'Site web'];
-        const example = ['Jean', 'Dupont', 'jean@example.com', 'Acme Inc', 'CEO', 'https://linkedin.com/in/jean', '+33612345678', 'https://acme.com'];
+        const headers = ['Prenom', 'Nom', 'Email', 'Entreprise', 'Poste', 'LinkedIn', 'Telephone', 'Site web', 'Notes'];
+        const example = ['Jean', 'Dupont', 'jean@example.com', 'Acme Inc', 'CEO', 'https://linkedin.com/in/jean', '+33612345678', 'https://acme.com', 'Rencontré au salon XYZ'];
 
         const csv = [
             headers.join(';'),
@@ -734,7 +753,7 @@ const ProspectsModule = {
         const data = prospects || this.prospects;
         if (data.length === 0) return;
 
-        const headers = ['Prenom', 'Nom', 'Email', 'Entreprise', 'Poste', 'LinkedIn', 'Telephone', 'Site web', 'Statut', 'Source', 'Date creation'];
+        const headers = ['Prenom', 'Nom', 'Email', 'Entreprise', 'Poste', 'LinkedIn', 'Telephone', 'Site web', 'Notes', 'Statut', 'Source', 'Date creation'];
 
         const rows = data.map(p => [
             p.first_name || '',
@@ -745,6 +764,7 @@ const ProspectsModule = {
             p.linkedin_url || '',
             p.phone || '',
             p.website || '',
+            (p.notes || '').replace(/;/g, ',').replace(/\n/g, ' '),
             p.status || '',
             p.source || '',
             p.created_at ? new Date(p.created_at).toLocaleDateString() : ''
@@ -926,9 +946,11 @@ const ProspectsModule = {
                         ${p.company ? `<span class="detail-company">@ ${p.company}</span>` : ''}
                         ${p.job_title ? `<span class="detail-job">${p.job_title}</span>` : ''}
                     </div>
+                    ${p.notes ? `<div class="prospect-notes"><span class="notes-icon">📝</span> ${p.notes.length > 80 ? p.notes.substring(0, 80) + '...' : p.notes}</div>` : ''}
                 </div>
                 <div class="prospect-actions">
                     ${p.linkedin_url ? `<a href="${p.linkedin_url}" target="_blank" class="btn-icon-small" title="LinkedIn">🔗</a>` : ''}
+                    <button class="btn-icon-small" onclick="ProspectsModule.showVideoLinkPicker('${p.id}')" title="Lien vidéo trackable">🎬</button>
                     <button class="btn-icon-small" onclick="ProspectsModule.openEditModal('${p.id}')" title="Modifier">✏️</button>
                     <button class="btn-icon-small" onclick="ProspectsModule.confirmDelete('${p.id}')" title="Supprimer">🗑️</button>
                 </div>
@@ -1013,6 +1035,73 @@ const ProspectsModule = {
             console.error('Error deleting prospects:', error);
             alert(t('status.error'));
         }
+    },
+
+    /**
+     * Affiche le picker de lien vidéo pour un prospect
+     */
+    async showVideoLinkPicker(prospectId) {
+        const prospect = this.prospects.find(p => p.id === prospectId);
+        if (!prospect) return;
+
+        // Charger les vidéos disponibles
+        const videos = await VideoTrackingModule.getVideoLinks();
+
+        if (videos.length === 0) {
+            // Pas de vidéo, proposer d'en créer une
+            if (confirm('Tu n\'as pas encore de vidéo trackable. Veux-tu en créer une ?')) {
+                VideoTrackingModule.showCreateVideoModal((video) => {
+                    VideoTrackingModule.showLinkModal(video.id, prospect);
+                });
+            }
+            return;
+        }
+
+        // Afficher le picker
+        const modalHTML = `
+            <div class="modal-overlay video-picker-overlay" onclick="ProspectsModule.closeVideoPicker(event)">
+                <div class="modal-content" onclick="event.stopPropagation()" style="max-width: 500px;">
+                    <div class="modal-header">
+                        <h2>🎬 Lien vidéo pour ${prospect.name || prospect.email}</h2>
+                        <button class="modal-close" onclick="ProspectsModule.closeVideoPicker()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p style="margin-bottom: 15px; color: #666;">Choisis une vidéo pour générer un lien trackable :</p>
+                        <div class="video-list" style="max-height: 300px; overflow-y: auto;">
+                            ${videos.map(v => `
+                                <div class="video-item" style="padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s;"
+                                     onmouseover="this.style.borderColor='#667eea'"
+                                     onmouseout="this.style.borderColor='#e0e0e0'"
+                                     onclick="ProspectsModule.selectVideoForProspect('${v.id}', '${prospectId}')">
+                                    <div style="font-weight: 600;">${v.title}</div>
+                                    <div style="font-size: 0.85em; color: #888; margin-top: 5px;">
+                                        ${v.total_views || 0} vues • Seuil: ${v.notify_threshold}%
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button class="btn btn-secondary" style="width: 100%; margin-top: 15px;"
+                                onclick="ProspectsModule.closeVideoPicker(); VideoTrackingModule.showCreateVideoModal((v) => VideoTrackingModule.showLinkModal(v.id, ${JSON.stringify(prospect).replace(/"/g, '&quot;')}))">
+                            + Créer une nouvelle vidéo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    },
+
+    selectVideoForProspect(videoId, prospectId) {
+        const prospect = this.prospects.find(p => p.id === prospectId);
+        this.closeVideoPicker();
+        VideoTrackingModule.showLinkModal(videoId, prospect);
+    },
+
+    closeVideoPicker(event) {
+        if (event && event.target !== event.currentTarget) return;
+        const modal = document.querySelector('.video-picker-overlay');
+        if (modal) modal.remove();
     },
 
     /**
@@ -1196,7 +1285,8 @@ const ProspectsModule = {
             website: t('prospects.fields.website'),
             sector: t('prospects.fields.sector'),
             city: t('prospects.fields.city'),
-            company_size: t('prospects.fields.company_size')
+            company_size: t('prospects.fields.company_size'),
+            notes: 'Notes / Observations'
         };
 
         body.innerHTML = `
@@ -1283,7 +1373,9 @@ const ProspectsModule = {
 
         const { validProspects, errors } = this.importState;
         const invalidEmails = errors.filter(e => e.reason === 'invalid_email').length;
-        const duplicates = errors.filter(e => e.reason === 'duplicate').length;
+        const missingNames = errors.filter(e => e.reason === 'missing_first_name').length;
+        const duplicatesCsv = errors.filter(e => e.reason === 'duplicate_csv').length;
+        const duplicatesExisting = errors.filter(e => e.reason === 'duplicate_existing').length;
 
         body.innerHTML = `
             <div class="import-step import-step-3">
@@ -1291,8 +1383,10 @@ const ProspectsModule = {
 
                 ${errors.length > 0 ? `
                     <div class="import-warnings">
-                        ${invalidEmails > 0 ? `<p>⚠️ ${t('prospects.import.invalid_emails', { count: invalidEmails })}</p>` : ''}
-                        ${duplicates > 0 ? `<p>⚠️ ${t('prospects.import.duplicates', { count: duplicates })}</p>` : ''}
+                        ${invalidEmails > 0 ? `<p>⚠️ <strong>${invalidEmails}</strong> email(s) invalide(s) ignoré(s)</p>` : ''}
+                        ${missingNames > 0 ? `<p>⚠️ <strong>${missingNames}</strong> ligne(s) sans prénom ignorée(s)</p>` : ''}
+                        ${duplicatesCsv > 0 ? `<p>⚠️ <strong>${duplicatesCsv}</strong> doublon(s) dans le fichier CSV</p>` : ''}
+                        ${duplicatesExisting > 0 ? `<p>🔄 <strong>${duplicatesExisting}</strong> prospect(s) déjà dans ta base (ignorés)</p>` : ''}
                     </div>
                 ` : ''}
 
@@ -1871,6 +1965,21 @@ prospectsStyles.textContent = `
     content: "•";
     margin-right: 8px;
     color: #ccc;
+}
+
+.prospect-notes {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: #fffbeb;
+    border-left: 3px solid #f59e0b;
+    border-radius: 0 8px 8px 0;
+    font-size: 0.85em;
+    color: #92400e;
+    line-height: 1.4;
+}
+
+.notes-icon {
+    margin-right: 6px;
 }
 
 .prospect-actions {
