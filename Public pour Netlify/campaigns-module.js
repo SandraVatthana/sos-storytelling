@@ -932,8 +932,8 @@ Bonne journée !`,
                              header.includes('fonction') || header.includes('job') || header.includes('role') || header.includes('position')) {
                         prospect.job_title = value;
                     }
-                    // LinkedIn
-                    else if (header.includes('linkedin')) {
+                    // LinkedIn - seulement les colonnes URL, pas les IDs
+                    else if (header.includes('url linkedin') || header === 'linkedin' || header === 'linkedin_url' || header === 'linkedin url') {
                         prospect.linkedin_url = value;
                     }
                     // Téléphone
@@ -1086,8 +1086,8 @@ Bonne journée !`,
                              header.includes('fonction') || header.includes('job') || header.includes('role') || header.includes('position')) {
                         prospect.job_title = value;
                     }
-                    // LinkedIn
-                    else if (header.includes('linkedin')) {
+                    // LinkedIn - seulement les colonnes URL, pas les IDs
+                    else if (header.includes('url linkedin') || header === 'linkedin' || header === 'linkedin_url' || header === 'linkedin url') {
                         prospect.linkedin_url = value;
                     }
                     // Téléphone
