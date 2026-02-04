@@ -987,25 +987,41 @@ Bonne journée !`,
                         throw new Error('Supabase non disponible');
                     }
                 } catch (e) {
-                    // Fallback mode local
+                    // Fallback mode local - toujours fonctionnel même sans Supabase
                     console.log('Import local (fallback):', prospects.length, 'prospects -', e.message);
                     const prospectsWithIds = prospects.map((p, i) => ({
                         ...p,
                         id: 'local_' + Date.now() + '_' + i,
-                        source: 'csv_wizard',
+                        source: 'csv_import', // Doit matcher le filtre dans renderStep2
                         status: 'new'
                     }));
-                    ProspectsModule.prospects = [...(ProspectsModule.prospects || []), ...prospectsWithIds];
+
+                    // S'assurer que ProspectsModule.prospects existe
+                    if (!ProspectsModule.prospects) {
+                        ProspectsModule.prospects = [];
+                    }
+                    ProspectsModule.prospects = [...ProspectsModule.prospects, ...prospectsWithIds];
+
+                    // Pré-sélectionner les nouveaux prospects
+                    prospectsWithIds.forEach(p => this.selectedProspectIds.add(p.id));
+
+                    console.log('ProspectsModule.prospects après import:', ProspectsModule.prospects.length);
                 }
             }
 
-            // Rafraîchir le wizard
+            // Stocker aussi localement pour persistance
+            this.importedProspects = prospects;
+            console.log('Import terminé - Total prospects:', ProspectsModule?.prospects?.length || 0);
+
+            // Rafraîchir le wizard immédiatement
+            this.updateWizard();
+
+            // Aussi afficher message de succès
             if (importZone) {
                 importZone.innerHTML = `
                     <div style="text-align: center; padding: 20px; color: #4caf50;">
                         <div style="font-size: 2em;">✅</div>
                         <p><strong>${prospects.length} prospects importés !</strong></p>
-                        <button class="btn btn-primary" onclick="CampaignsModule.updateWizard()">Continuer</button>
                     </div>
                 `;
             }
@@ -1141,25 +1157,41 @@ Bonne journée !`,
                         throw new Error('Supabase non disponible');
                     }
                 } catch (e) {
-                    // Fallback mode local
+                    // Fallback mode local - toujours fonctionnel même sans Supabase
                     console.log('Import local (fallback):', prospects.length, 'prospects -', e.message);
                     const prospectsWithIds = prospects.map((p, i) => ({
                         ...p,
                         id: 'local_' + Date.now() + '_' + i,
-                        source: 'csv_wizard',
+                        source: 'csv_import', // Doit matcher le filtre dans renderStep2
                         status: 'new'
                     }));
-                    ProspectsModule.prospects = [...(ProspectsModule.prospects || []), ...prospectsWithIds];
+
+                    // S'assurer que ProspectsModule.prospects existe
+                    if (!ProspectsModule.prospects) {
+                        ProspectsModule.prospects = [];
+                    }
+                    ProspectsModule.prospects = [...ProspectsModule.prospects, ...prospectsWithIds];
+
+                    // Pré-sélectionner les nouveaux prospects
+                    prospectsWithIds.forEach(p => this.selectedProspectIds.add(p.id));
+
+                    console.log('ProspectsModule.prospects après import:', ProspectsModule.prospects.length);
                 }
             }
 
-            // Rafraîchir le wizard
+            // Stocker aussi localement pour persistance
+            this.importedProspects = prospects;
+            console.log('Import terminé - Total prospects:', ProspectsModule?.prospects?.length || 0);
+
+            // Rafraîchir le wizard immédiatement
+            this.updateWizard();
+
+            // Aussi afficher message de succès
             if (importZone) {
                 importZone.innerHTML = `
                     <div style="text-align: center; padding: 20px; color: #4caf50;">
                         <div style="font-size: 2em;">✅</div>
                         <p><strong>${prospects.length} prospects importés !</strong></p>
-                        <button class="btn btn-primary" onclick="CampaignsModule.updateWizard()">Continuer</button>
                     </div>
                 `;
             }
