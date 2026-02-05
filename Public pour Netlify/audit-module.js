@@ -805,13 +805,8 @@ const AuditModule = (function() {
     let videoResults = null;
     let videoPlatform = 'instagram';
 
-    // URL audit
-    let profileUrlInput = '';
-    let profileUrlData = null;
-    let isUrlFetching = false;
-    let postInputMethod = 'paste'; // 'paste' ou 'url'
-    let postUrlInput = '';
-    let isPostUrlFetching = false;
+    // Texte copié-collé du profil
+    let profileTextInput = '';
 
     // ============================================================
     // CHARGEMENT DES MOTS-CLÉS DEPUIS L'ONBOARDING
@@ -1303,47 +1298,7 @@ const AuditModule = (function() {
             </div>
 
             <div class="audit-section">
-                <h3>2️⃣ Analyse par URL <span class="new-tag" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; font-size: 0.65em; padding: 2px 8px; border-radius: 10px; vertical-align: middle;">NOUVEAU</span></h3>
-                <p class="audit-hint">Colle l'URL de ton profil ${platformInfo.name} pour une pré-analyse automatique</p>
-                <div class="audit-url-input-group">
-                    <input type="url" id="profileUrlInput" class="audit-url-input"
-                           placeholder="${selectedPlatform === 'linkedin' ? 'https://www.linkedin.com/in/ton-profil' : selectedPlatform === 'instagram' ? 'https://www.instagram.com/ton-profil' : selectedPlatform === 'twitter' ? 'https://x.com/ton-profil' : 'https://www.tiktok.com/@ton-profil'}"
-                           value="${profileUrlInput}"
-                           onchange="AuditModule.updateProfileUrl(this.value)"
-                           onkeydown="if(event.key==='Enter'){event.preventDefault(); AuditModule.fetchProfileUrl();}">
-                    <button class="audit-url-fetch-btn ${isUrlFetching ? 'loading' : ''}"
-                            onclick="AuditModule.fetchProfileUrl()"
-                            ${isUrlFetching ? 'disabled' : ''}>
-                        ${isUrlFetching ? '<span class="loading-spinner-small"></span> Analyse...' : '🔗 Analyser'}
-                    </button>
-                </div>
-                ${profileUrlData && profileUrlData.success ? `
-                    <div class="audit-url-results" style="margin-top: 15px; padding: 16px; background: #f8fafc; border-radius: 12px; border-left: 4px solid ${profileUrlData.data.extractionQuality === 'high' ? '#10b981' : profileUrlData.data.extractionQuality === 'medium' ? '#f59e0b' : '#ef4444'};">
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-                            <span>${profileUrlData.data.extractionQuality === 'high' ? '✅' : profileUrlData.data.extractionQuality === 'medium' ? '⚠️' : '❌'}</span>
-                            <strong style="color: ${profileUrlData.data.extractionQuality === 'high' ? '#10b981' : profileUrlData.data.extractionQuality === 'medium' ? '#f59e0b' : '#ef4444'};">
-                                ${profileUrlData.data.extractionQuality === 'high' ? 'Extraction complète' : profileUrlData.data.extractionQuality === 'medium' ? 'Extraction partielle' : 'Données limitées'}
-                            </strong>
-                        </div>
-                        ${profileUrlData.data.name ? `<p style="margin: 4px 0;"><strong>Nom :</strong> ${profileUrlData.data.name}</p>` : ''}
-                        ${profileUrlData.data.headline ? `<p style="margin: 4px 0;"><strong>Titre :</strong> ${profileUrlData.data.headline}</p>` : ''}
-                        ${profileUrlData.data.bio ? `<p style="margin: 4px 0;"><strong>Bio :</strong> ${profileUrlData.data.bio.substring(0, 300)}${profileUrlData.data.bio.length > 300 ? '...' : ''}</p>` : ''}
-                        ${profileUrlData.data.image ? `<img src="${profileUrlData.data.image}" style="max-width: 60px; border-radius: 50%; margin-top: 8px;" onerror="this.style.display='none'">` : ''}
-                        ${profileUrlData.data.extractionQuality !== 'high' ? `
-                            <p style="margin-top: 10px; font-size: 0.85em; color: #666;">💡 Ajoute aussi un screenshot ci-dessous pour une analyse plus complète.</p>
-                        ` : ''}
-                    </div>
-                ` : ''}
-                ${profileUrlData && profileUrlData.error ? `
-                    <div style="margin-top: 10px; padding: 12px; background: #fef2f2; border-radius: 8px; color: #991b1b; font-size: 0.9em;">
-                        ❌ ${profileUrlData.error}
-                    </div>
-                ` : ''}
-                <div class="audit-url-divider"><span>ET / OU</span></div>
-            </div>
-
-            <div class="audit-section">
-                <h3>3️⃣ Capture complète de ton profil ${platformInfo.emoji}</h3>
+                <h3>2️⃣ Capture complète de ton profil ${platformInfo.emoji}</h3>
                 <p class="audit-hint">📱 <strong>Fais UNE seule capture d'écran</strong> montrant : photo, bannière ET bio visibles en même temps.</p>
                 <div class="screenshot-upload-zone" onclick="document.getElementById('profileScreenshot').click()">
                     ${profileScreenshots.profile ? `
@@ -1362,7 +1317,7 @@ const AuditModule = (function() {
             </div>
 
             <div class="audit-section">
-                <h3>4️⃣ Captures de tes posts récents <span class="optional-tag">optionnel</span></h3>
+                <h3>3️⃣ Captures de tes posts récents <span class="optional-tag">optionnel</span></h3>
                 <p class="audit-hint">2-3 captures pour analyser la cohérence visuelle (clique ou Ctrl+V)</p>
                 <div class="screenshots-grid">
                     ${profileScreenshots.posts.map((post, idx) => `
@@ -1382,6 +1337,19 @@ const AuditModule = (function() {
             </div>
 
             <div class="audit-section">
+                <h3>4️⃣ Copie-colle le contenu de ton profil <span class="optional-tag">optionnel mais recommandé</span></h3>
+                <p class="audit-hint">Copie-colle ici tout le contenu de ton profil et tes 2 derniers posts pour une analyse plus complète</p>
+                <textarea id="profileTextInput" class="audit-textarea"
+                          placeholder="Colle ici le texte de ton profil (titre, bio, à propos...) et/ou le texte de tes 2 derniers posts..."
+                          style="min-height: 150px; width: 100%; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 0.95rem; font-family: inherit; resize: vertical; transition: border-color 0.2s;"
+                          onchange="AuditModule.updateProfileText(this.value)"
+                          onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102,126,234,0.1)'"
+                          onblur="this.style.borderColor='#e0e0e0'; this.style.boxShadow='none'"
+                >${profileTextInput}</textarea>
+                <p class="audit-hint" style="margin-top: 6px;">💡 Plus tu donnes de contexte, plus l'analyse sera précise et personnalisée.</p>
+            </div>
+
+            <div class="audit-section">
                 <h3>5️⃣ Ton domaine d'expertise <span class="optional-tag">optionnel</span></h3>
                 <input type="text" id="auditKeywords" class="audit-input"
                        placeholder="Ex: coach business, marketing digital, copywriting..."
@@ -1390,13 +1358,13 @@ const AuditModule = (function() {
                 <p class="audit-hint">Aide l'IA à vérifier si ton profil reflète ton expertise</p>
             </div>
 
-            <button class="audit-run-btn ${!profileScreenshots.profile && !(profileUrlData && profileUrlData.success) ? 'disabled' : ''}"
+            <button class="audit-run-btn ${!profileScreenshots.profile ? 'disabled' : ''}"
                     onclick="AuditModule.runVisualAudit()"
-                    ${!profileScreenshots.profile && !(profileUrlData && profileUrlData.success) ? 'disabled' : ''}>
+                    ${!profileScreenshots.profile ? 'disabled' : ''}>
                 ${isAnalyzing ? '<span class="loading-spinner"></span> Analyse en cours...' : '🤖 Analyser avec l\'IA'}
             </button>
 
-            ${!profileScreenshots.profile && !(profileUrlData && profileUrlData.success) ? '<p class="audit-hint" style="text-align: center; margin-top: 10px;">Ajoute une URL ou une capture de ton profil</p>' : ''}
+            ${!profileScreenshots.profile ? '<p class="audit-hint" style="text-align: center; margin-top: 10px;">Ajoute une capture de ton profil pour lancer l\'analyse</p>' : ''}
 
             <div class="audit-info-feedback" style="margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #e0f2fe, #f0f9ff); border-radius: 10px; border-left: 4px solid #0ea5e9;">
                 <p style="margin: 0; color: #0369a1; font-size: 0.9em;">
@@ -1679,32 +1647,6 @@ const AuditModule = (function() {
                     <h3>📋 Ton post à analyser</h3>
                 </div>
 
-                <div class="audit-input-method-toggle">
-                    <button class="audit-method-btn ${postInputMethod === 'paste' ? 'active' : ''}"
-                            onclick="AuditModule.setPostInputMethod('paste')">
-                        📝 Coller le texte
-                    </button>
-                    <button class="audit-method-btn ${postInputMethod === 'url' ? 'active' : ''}"
-                            onclick="AuditModule.setPostInputMethod('url')">
-                        🔗 Depuis une URL
-                    </button>
-                </div>
-
-                ${postInputMethod === 'url' ? `
-                    <div class="audit-url-input-group" style="margin: 12px 0;">
-                        <input type="url" id="postUrlInput" class="audit-url-input"
-                               placeholder="https://www.linkedin.com/posts/..."
-                               value="${postUrlInput}"
-                               onchange="AuditModule.updatePostUrl(this.value)"
-                               onkeydown="if(event.key==='Enter'){event.preventDefault(); AuditModule.fetchPostUrl();}">
-                        <button class="audit-url-fetch-btn ${isPostUrlFetching ? 'loading' : ''}"
-                                onclick="AuditModule.fetchPostUrl()"
-                                ${isPostUrlFetching ? 'disabled' : ''}>
-                            ${isPostUrlFetching ? '<span class="loading-spinner-small"></span>' : '🔗 Récupérer'}
-                        </button>
-                    </div>
-                ` : ''}
-
                 <div class="audit-posts-list">
                     ${posts.slice(0, 1).map((post, idx) => `
                         <div class="audit-post-item">
@@ -1717,7 +1659,7 @@ const AuditModule = (function() {
                                 </select>
                             </div>
                             <textarea class="audit-textarea post-textarea"
-                                      placeholder="${postInputMethod === 'url' ? 'Le contenu du post sera récupéré ici...' : 'Colle ton post ici...'}"
+                                      placeholder="Colle ton post ici..."
                                       onchange="AuditModule.updatePost(${post.id}, 'content', this.value)">${post.content}</textarea>
                             <div class="post-item-footer">
                                 <span class="char-count">${post.content.length} caractères</span>
@@ -2552,97 +2494,11 @@ const AuditModule = (function() {
     }
 
     // ============================================================
-    // URL AUDIT FUNCTIONS
+    // PROFILE TEXT INPUT
     // ============================================================
 
-    function updateProfileUrl(value) {
-        profileUrlInput = value;
-    }
-
-    async function fetchProfileUrl() {
-        if (!profileUrlInput.trim()) {
-            alert('Colle une URL de profil');
-            return;
-        }
-
-        isUrlFetching = true;
-        switchTab('profiles');
-
-        try {
-            const apiUrl = window.CONFIG?.API_URL || 'https://tithot-api.prospectwizard.workers.dev';
-            const response = await (window.fetchWithTimeout || fetch)(apiUrl + '/audit-url', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url: profileUrlInput })
-            }, 30000);
-
-            if (!response.ok) throw new Error('Erreur API: ' + response.status);
-
-            const result = await response.json();
-            profileUrlData = result;
-
-            // Auto-détecter la plateforme depuis l'URL
-            if (result.platform && PLATFORMS[result.platform]) {
-                selectedPlatform = result.platform;
-            }
-        } catch (error) {
-            console.error('Erreur fetch URL profil:', error);
-            profileUrlData = {
-                success: false,
-                error: 'Impossible de récupérer les données. Essaie avec un screenshot.'
-            };
-        }
-
-        isUrlFetching = false;
-        switchTab('profiles');
-    }
-
-    function setPostInputMethod(method) {
-        postInputMethod = method;
-        switchTab('posts');
-    }
-
-    function updatePostUrl(value) {
-        postUrlInput = value;
-    }
-
-    async function fetchPostUrl() {
-        if (!postUrlInput.trim()) return;
-
-        isPostUrlFetching = true;
-        switchTab('posts');
-
-        try {
-            const apiUrl = window.CONFIG?.API_URL || 'https://tithot-api.prospectwizard.workers.dev';
-            const response = await (window.fetchWithTimeout || fetch)(apiUrl + '/audit-url', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url: postUrlInput, type: 'post' })
-            }, 30000);
-
-            if (!response.ok) throw new Error('Erreur');
-
-            const result = await response.json();
-
-            if (result.success && (result.data?.rawText || result.data?.description)) {
-                // Pré-remplir le premier post avec le contenu extrait
-                const content = result.data.rawText || result.data.description;
-                if (posts.length > 0) {
-                    posts[0].content = content;
-                    if (result.platform) {
-                        posts[0].platform = result.platform;
-                    }
-                }
-            } else {
-                alert('Impossible de récupérer le contenu du post. Essaie de le coller manuellement.');
-            }
-        } catch (error) {
-            console.error('Erreur fetch post URL:', error);
-            alert('Impossible de récupérer le post. Essaie de le coller manuellement.');
-        }
-
-        isPostUrlFetching = false;
-        switchTab('posts');
+    function updateProfileText(value) {
+        profileTextInput = value;
     }
 
     // ============================================================
@@ -2781,10 +2637,9 @@ const AuditModule = (function() {
 
     async function runVisualAudit() {
         const hasScreenshot = !!profileScreenshots.profile;
-        const hasUrlData = profileUrlData && profileUrlData.success;
 
-        if (!hasScreenshot && !hasUrlData) {
-            alert('Ajoute une URL ou une capture de ton profil');
+        if (!hasScreenshot) {
+            alert('Ajoute une capture de ton profil');
             return;
         }
 
@@ -2802,9 +2657,9 @@ const AuditModule = (function() {
             const auditData = {
                 platform: selectedPlatform,
                 keywords: userKeywords,
-                profileImage: hasScreenshot ? profileScreenshots.profile.data : null,
+                profileImage: profileScreenshots.profile.data,
                 postImages: profileScreenshots.posts.map(p => p.data),
-                urlData: hasUrlData ? profileUrlData.data : null
+                profileText: profileTextInput.trim() || null
             };
 
             // Appel à l'API (worker) avec timeout de 90 secondes
@@ -4316,12 +4171,8 @@ ${originalContent}
         runVisualAudit,
         // Export
         exportAuditResults,
-        // URL audit
-        updateProfileUrl,
-        fetchProfileUrl,
-        setPostInputMethod,
-        updatePostUrl,
-        fetchPostUrl,
+        // Texte profil
+        updateProfileText,
         runPostsAnalysis,
         resetPostsAnalysis,
         rewritePost,

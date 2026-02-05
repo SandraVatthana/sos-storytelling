@@ -2762,10 +2762,10 @@ function extractMetadata(html, platform) {
 async function handleVisualAudit(request, env, corsHeaders) {
   try {
     const body = await request.json();
-    const { platform, keywords = [], profileImage, postImages = [], urlData } = body;
+    const { platform, keywords = [], profileImage, postImages = [], profileText } = body;
 
-    if (!profileImage && !urlData) {
-      return jsonResponse({ error: 'Profile image or URL data required' }, 400, corsHeaders);
+    if (!profileImage) {
+      return jsonResponse({ error: 'Profile image required' }, 400, corsHeaders);
     }
 
     // Construire le contenu du message pour Claude Vision
@@ -2813,13 +2813,13 @@ async function handleVisualAudit(request, env, corsHeaders) {
       ? `\nLe domaine d'expertise déclaré : ${keywords.join(', ')}`
       : '';
 
-    // Contexte URL si disponible
-    const urlContext = urlData ? `
-DONNÉES EXTRAITES DEPUIS L'URL DU PROFIL :
-- Nom: ${urlData.name || 'Non disponible'}
-- Titre/Headline: ${urlData.headline || 'Non disponible'}
-- Bio/Résumé: ${urlData.bio || 'Non disponible'}
-Utilise ces données textuelles pour enrichir et compléter ton analyse visuelle. Compare ce qui est écrit avec ce que tu vois sur l'image.
+    // Contexte texte copié-collé si disponible
+    const textContext = profileText ? `
+CONTENU TEXTUEL DU PROFIL ET/OU DES POSTS (copié-collé par l'utilisateur) :
+---
+${profileText.substring(0, 5000)}
+---
+Utilise ce contenu textuel pour enrichir et compléter ton analyse visuelle. Analyse le texte (bio, titre, posts) en plus des captures d'écran. Compare ce qui est écrit avec ce que tu vois sur les images.
 ` : '';
 
     // Critères spécifiques selon la plateforme
@@ -2864,7 +2864,8 @@ Utilise ces données textuelles pour enrichir et compléter ton analyse visuelle
 
     const analysisPrompt = `Tu es un expert en personal branding, design visuel et storytelling sur les réseaux sociaux.
 
-Analyse cette capture d'écran d'un profil ${platformNames[platform] || platform}.${keywordsContext}${urlContext}
+Analyse cette capture d'écran d'un profil ${platformNames[platform] || platform}.${keywordsContext}
+${textContext}
 
 ${postImages.length > 0 ? `J'ai également fourni ${postImages.length} captures de posts/contenus récents.` : ''}
 
