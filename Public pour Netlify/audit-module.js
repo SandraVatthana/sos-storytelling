@@ -2378,7 +2378,7 @@ const AuditModule = (function() {
                     const cfg = catConfig[key] || { emoji: '📊', name: key, bg: '#f1f5f9', color: '#475569' };
                     categories.push({
                         ...cfg,
-                        score: Math.round(data.score / 10) / 10,
+                        score: Math.round(data.score) / 10,
                         max: 10,
                         feedback: data.feedback || ''
                     });
