@@ -1631,9 +1631,14 @@ const AuditModule = (function() {
                     </p>
                 </div>
 
-                <button class="audit-reset-btn" onclick="AuditModule.resetProfilesAudit()">
-                    Recommencer l'audit
-                </button>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="audit-reset-btn" onclick="AuditModule.exportAuditResults('profile')" style="flex: 1; min-width: 150px; background: linear-gradient(135deg, #10b981, #059669);">
+                        📤 Exporter le rapport
+                    </button>
+                    <button class="audit-reset-btn" onclick="AuditModule.resetProfilesAudit()" style="flex: 1; min-width: 150px;">
+                        🔄 Recommencer l'audit
+                    </button>
+                </div>
             </div>
         `;
     }
@@ -2275,6 +2280,9 @@ const AuditModule = (function() {
                 </div>
 
                 <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
+                    <button class="audit-reset-btn" onclick="AuditModule.exportAuditResults('posts')" style="flex: 1; min-width: 150px; background: linear-gradient(135deg, #10b981, #059669);">
+                        📤 Exporter le rapport
+                    </button>
                     <button class="audit-reset-btn" onclick="AuditModule.resetPostsAnalysis()" style="flex: 1; min-width: 150px;">
                         🔄 Analyser d'autres posts
                     </button>
@@ -2287,6 +2295,241 @@ const AuditModule = (function() {
                 </p>
             </div>
         `;
+    }
+
+    // ============================================================
+    // EXPORT DU RAPPORT
+    // ============================================================
+
+    function exportAuditResults(type) {
+        const date = new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+        const dateShort = new Date().toISOString().split('T')[0];
+        let htmlContent = '';
+
+        if (type === 'posts' && postsResults) {
+            const avgScores = postsResults.averageScores || {};
+            const globalScore100 = postsResults.globalScore || 0;
+            const globalScore20 = convertTo20(globalScore100);
+            const stars = getStars(globalScore20);
+            const level = getScoreLevel(globalScore20);
+
+            // Scores par catégorie
+            const accrocheScore = Math.round((avgScores.hook / 100) * 6 * 10) / 10;
+            const tensionScore = Math.round((avgScores.emotion / 100) * 4 * 10) / 10;
+            const structureScoreCat = Math.round((avgScores.structure / 100) * 4 * 10) / 10;
+            const psychoScore = Math.round(((avgScores.coherence + avgScores.promise) / 200) * 3 * 10) / 10;
+            const ctaScoreCat = Math.round((avgScores.cta / 100) * 3 * 10) / 10;
+
+            // Forces & faiblesses
+            const forces = [];
+            const faiblesses = [];
+            if (avgScores.hook >= 70) forces.push('Accroches percutantes'); else faiblesses.push('Accroches à travailler');
+            if (avgScores.emotion >= 70) forces.push('Storytelling bien présent'); else faiblesses.push('Plus d\'émotion et de storytelling');
+            if (avgScores.structure >= 70) forces.push('Bonne structure'); else faiblesses.push('Structure à améliorer');
+            if ((avgScores.coherence + avgScores.promise) / 2 >= 70) forces.push('Promesse claire'); else faiblesses.push('Clarifier la promesse de valeur');
+            if (avgScores.cta >= 70) forces.push('CTAs engageants'); else faiblesses.push('CTAs à renforcer');
+
+            htmlContent = buildExportHTML({
+                title: 'Audit Posts',
+                date,
+                platform: postsResults.posts?.[0]?.platform || 'linkedin',
+                globalScore20,
+                stars,
+                level,
+                postCount: postsResults.postCount || 1,
+                categories: [
+                    { emoji: '🎣', name: 'Accroche', desc: 'Capacité à capter l\'attention', score: accrocheScore, max: 6, bg: '#fef3c7', color: '#92400e' },
+                    { emoji: '💜', name: 'Tension & Émotion', desc: 'Storytelling et connexion', score: tensionScore, max: 4, bg: '#fce7f3', color: '#9d174d' },
+                    { emoji: '📐', name: 'Structure', desc: 'Organisation et lisibilité', score: structureScoreCat, max: 4, bg: '#dbeafe', color: '#1e40af' },
+                    { emoji: '🧠', name: 'Psychologie & Cohérence', desc: 'Promesse de valeur', score: psychoScore, max: 3, bg: '#d1fae5', color: '#065f46' },
+                    { emoji: '🎯', name: 'Call-to-Action', desc: 'Incitation à l\'engagement', score: ctaScoreCat, max: 3, bg: '#ffedd5', color: '#c2410c' }
+                ],
+                forces,
+                faiblesses,
+                recommendations: postsResults.globalRecommendations || [],
+                aiPatterns: postsResults.aiPatterns || null
+            });
+        } else if (type === 'profile' && auditResults) {
+            const analysis = auditResults.analysis || {};
+            const globalScore = auditResults.globalScore || 0;
+            const globalScore20 = convertTo20(globalScore);
+            const stars = getStars(globalScore20);
+            const level = getScoreLevel(globalScore20);
+
+            const categories = [];
+            const catConfig = {
+                photo: { emoji: '📸', name: 'Photo de profil', bg: '#fef3c7', color: '#92400e' },
+                banner: { emoji: '🖼️', name: 'Bannière', bg: '#dbeafe', color: '#1e40af' },
+                grid: { emoji: '📱', name: 'Grille & Highlights', bg: '#dbeafe', color: '#1e40af' },
+                bio: { emoji: '📝', name: 'Bio/Titre', bg: '#fce7f3', color: '#9d174d' },
+                colors: { emoji: '🎨', name: 'Palette de couleurs', bg: '#d1fae5', color: '#065f46' },
+                typography: { emoji: '🔤', name: 'Typographie & Design', bg: '#ffedd5', color: '#c2410c' },
+                branding: { emoji: '⭐', name: 'Branding', bg: '#e0e7ff', color: '#4338ca' },
+                storytelling: { emoji: '📖', name: 'Storytelling', bg: '#fce7f3', color: '#9d174d' }
+            };
+
+            for (const [key, data] of Object.entries(analysis)) {
+                if (data && data.score !== undefined) {
+                    const cfg = catConfig[key] || { emoji: '📊', name: key, bg: '#f1f5f9', color: '#475569' };
+                    categories.push({
+                        ...cfg,
+                        score: Math.round(data.score / 10) / 10,
+                        max: 10,
+                        feedback: data.feedback || ''
+                    });
+                }
+            }
+
+            const forces = categories.filter(c => c.score >= 7).map(c => `${c.emoji} ${c.name} (${c.score}/10)`);
+            const faiblesses = categories.filter(c => c.score < 5).map(c => `${c.emoji} ${c.name} (${c.score}/10)`);
+            if (forces.length === 0) forces.push('Profil cohérent dans l\'ensemble');
+            if (faiblesses.length === 0) faiblesses.push('Continuer à optimiser');
+
+            htmlContent = buildExportHTML({
+                title: 'Audit Profil ' + (PLATFORMS[auditResults.platform]?.name || ''),
+                date,
+                platform: auditResults.platform || 'linkedin',
+                globalScore20,
+                stars,
+                level,
+                postCount: null,
+                categories,
+                forces,
+                faiblesses,
+                recommendations: auditResults.recommendations || [],
+                summary: auditResults.summary?.message || '',
+                categoryFeedback: true
+            });
+        } else {
+            alert('Aucun résultat à exporter');
+            return;
+        }
+
+        // Ouvrir dans une nouvelle fenêtre pour imprimer/sauvegarder
+        const newWindow = window.open('', '_blank');
+        newWindow.document.write(htmlContent);
+        newWindow.document.close();
+    }
+
+    function buildExportHTML({ title, date, platform, globalScore20, stars, level, postCount, categories, forces, faiblesses, recommendations, aiPatterns, summary, categoryFeedback }) {
+        const platformEmoji = PLATFORMS[platform]?.emoji || '📊';
+
+        return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>${title} - SOS Storytelling - ${date}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: #1e293b; background: #f8fafc; padding: 40px; max-width: 800px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 2px solid #e2e8f0; }
+        .header h1 { font-size: 1.8em; color: #1a1a2e; margin-bottom: 5px; }
+        .header .subtitle { color: #64748b; font-size: 0.95em; }
+        .header .logo { font-size: 0.85em; color: #667eea; margin-top: 10px; font-weight: 600; }
+        .score-card { background: linear-gradient(135deg, ${level.bg}, white); border: 2px solid ${level.color}; border-radius: 16px; padding: 30px; text-align: center; margin-bottom: 30px; }
+        .score-card .label { font-size: 0.9em; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+        .score-card .score { font-size: 3.5em; font-weight: 800; color: ${level.color}; line-height: 1; }
+        .score-card .score span { font-size: 0.4em; color: #888; }
+        .score-card .stars { font-size: 1.8em; margin: 10px 0; }
+        .score-card .badge { display: inline-block; padding: 8px 20px; background: ${level.color}; color: white; border-radius: 20px; font-weight: 600; }
+        .score-card .info { margin-top: 12px; color: #666; font-size: 0.9em; }
+        .section { margin-bottom: 25px; }
+        .section h3 { font-size: 1.1em; color: #1e293b; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .category-row { display: flex; align-items: center; gap: 15px; padding: 12px 15px; border-radius: 10px; margin-bottom: 8px; }
+        .category-row .emoji { font-size: 1.5em; }
+        .category-row .info { flex: 1; }
+        .category-row .name { font-weight: 600; }
+        .category-row .desc { font-size: 0.85em; opacity: 0.8; }
+        .category-row .category-score { font-size: 1.3em; font-weight: 700; }
+        .category-feedback { font-size: 0.85em; margin-top: 5px; color: #475569; font-style: italic; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+        .forces-box { background: #ecfdf5; border: 1px solid #10b981; border-radius: 16px; padding: 20px; }
+        .forces-box h4 { color: #065f46; margin-bottom: 12px; }
+        .forces-box ul { padding-left: 20px; color: #047857; }
+        .forces-box ul li { margin-bottom: 6px; }
+        .faiblesses-box { background: #fef2f2; border: 1px solid #ef4444; border-radius: 16px; padding: 20px; }
+        .faiblesses-box h4 { color: #991b1b; margin-bottom: 12px; }
+        .faiblesses-box ul { padding-left: 20px; color: #dc2626; }
+        .faiblesses-box ul li { margin-bottom: 6px; }
+        .rec-item { padding: 10px 15px; background: #f1f5f9; border-radius: 10px; margin-bottom: 8px; }
+        .rec-item .rec-cat { font-size: 0.8em; color: #667eea; font-weight: 600; text-transform: uppercase; }
+        .rec-item p { margin-top: 4px; font-size: 0.9em; color: #334155; }
+        .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 0.85em; }
+        .print-btn { display: block; margin: 0 auto 30px; padding: 12px 30px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 12px; font-size: 1em; font-weight: 600; cursor: pointer; font-family: inherit; }
+        .print-btn:hover { opacity: 0.9; }
+        @media print { .print-btn { display: none !important; } body { padding: 20px; } }
+    </style>
+</head>
+<body>
+    <button class="print-btn" onclick="window.print()">🖨️ Imprimer / Sauvegarder en PDF</button>
+
+    <div class="header">
+        <h1>${platformEmoji} ${title}</h1>
+        <div class="subtitle">${date}</div>
+        <div class="logo">SOS Storytelling</div>
+    </div>
+
+    <div class="score-card">
+        <div class="label">Score Global</div>
+        <div class="score">${globalScore20}<span>/20</span></div>
+        <div class="stars">${stars}</div>
+        <div class="badge">${level.text}</div>
+        ${postCount ? `<div class="info">Basé sur ${postCount} post${postCount > 1 ? 's' : ''} analysé${postCount > 1 ? 's' : ''}</div>` : ''}
+        ${summary ? `<div class="info" style="margin-top: 10px;">${summary}</div>` : ''}
+    </div>
+
+    <div class="section">
+        <h3>📊 Détail par catégorie</h3>
+        ${categories.map(c => `
+            <div class="category-row" style="background: ${c.bg};">
+                <span class="emoji">${c.emoji}</span>
+                <div class="info">
+                    <div class="name" style="color: ${c.color};">${c.name}</div>
+                    ${c.desc ? `<div class="desc" style="color: ${c.color};">${c.desc}</div>` : ''}
+                    ${categoryFeedback && c.feedback ? `<div class="category-feedback">${c.feedback}</div>` : ''}
+                </div>
+                <div class="category-score" style="color: ${c.color};">${c.score}/${c.max}</div>
+            </div>
+        `).join('')}
+    </div>
+
+    <div class="grid-2">
+        <div class="forces-box">
+            <h4>✅ Forces</h4>
+            <ul>${forces.map(f => `<li>${f}</li>`).join('')}</ul>
+        </div>
+        <div class="faiblesses-box">
+            <h4>❌ Faiblesses</h4>
+            <ul>${faiblesses.map(f => `<li>${f}</li>`).join('')}</ul>
+        </div>
+    </div>
+
+    ${recommendations.length > 0 ? `
+    <div class="section">
+        <h3>🎯 Recommandations prioritaires</h3>
+        ${recommendations.map(rec => `
+            <div class="rec-item">
+                ${typeof rec === 'object' ? `<div class="rec-cat">${rec.category || ''}</div><p>${rec.message || rec}</p>` : `<p>${rec}</p>`}
+            </div>
+        `).join('')}
+    </div>
+    ` : ''}
+
+    ${aiPatterns ? `
+    <div class="section">
+        <h3>🔮 Patterns détectés par l'IA</h3>
+        ${aiPatterns.strengths ? `<p style="margin-bottom:8px"><strong>Points forts :</strong> ${aiPatterns.strengths}</p>` : ''}
+        ${aiPatterns.weaknesses ? `<p style="margin-bottom:8px"><strong>À améliorer :</strong> ${aiPatterns.weaknesses}</p>` : ''}
+        ${aiPatterns.suggestion ? `<p><strong>Suggestion :</strong> ${aiPatterns.suggestion}</p>` : ''}
+    </div>
+    ` : ''}
+
+    <div class="footer">
+        <p>Rapport généré par SOS Storytelling - ${date}</p>
+    </div>
+</body>
+</html>`;
     }
 
     // ============================================================
@@ -4066,6 +4309,8 @@ ${originalContent}
         runProfilesAudit,
         resetProfilesAudit,
         runVisualAudit,
+        // Export
+        exportAuditResults,
         // URL audit
         updateProfileUrl,
         fetchProfileUrl,
