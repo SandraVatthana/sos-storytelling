@@ -2538,37 +2538,96 @@ async function handleUrlAudit(request, env, corsHeaders) {
       if (path.includes('/video/')) urlType = 'post';
     }
 
-    // Fetch la page
+    // Fetch la page - essayer plusieurs User-Agents
     let html = '';
-    try {
-      const response = await fetch(targetUrl, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-          'Accept-Language': 'fr-FR,fr;q=0.9,en;q=0.8'
-        },
-        redirect: 'follow'
-      });
+    const userAgents = [
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+      'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)'
+    ];
 
-      if (!response.ok) {
-        return jsonResponse({
-          success: false,
-          platform,
-          urlType,
-          error: `La page a retourné HTTP ${response.status}`,
-          data: { extractionQuality: 'none' }
-        }, 200, corsHeaders);
+    let fetchSuccess = false;
+    for (const ua of userAgents) {
+      try {
+        const response = await fetch(targetUrl, {
+          headers: {
+            'User-Agent': ua,
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language': 'fr-FR,fr;q=0.9,en;q=0.8',
+            'Cache-Control': 'no-cache'
+          },
+          redirect: 'follow'
+        });
+
+        if (response.ok) {
+          html = await response.text();
+          html = html.substring(0, 100000);
+          fetchSuccess = true;
+          break;
+        }
+        // LinkedIn retourne 999 pour bloquer les bots - essayer le User-Agent suivant
+        if (response.status === 999 || response.status === 403) {
+          continue;
+        }
+      } catch (e) {
+        continue;
       }
+    }
 
-      html = await response.text();
-      // Limiter à 100KB pour le parsing
-      html = html.substring(0, 100000);
-    } catch (fetchError) {
+    // Si tous les User-Agents ont échoué, essayer l'endpoint oEmbed (LinkedIn/Twitter)
+    if (!fetchSuccess) {
+      try {
+        let oembedUrl = null;
+        if (platform === 'linkedin') {
+          // LinkedIn expose un peu de données via l'API de partage
+          oembedUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(targetUrl)}`;
+        } else if (platform === 'twitter') {
+          oembedUrl = `https://publish.twitter.com/oembed?url=${encodeURIComponent(targetUrl)}`;
+        }
+
+        if (oembedUrl) {
+          const oembedResp = await fetch(oembedUrl, {
+            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
+            redirect: 'follow'
+          });
+          if (oembedResp.ok) {
+            const contentType = oembedResp.headers.get('content-type') || '';
+            if (contentType.includes('json')) {
+              const oembedData = await oembedResp.json();
+              // oEmbed peut contenir author_name, html, etc.
+              html = oembedData.html || '';
+              if (oembedData.author_name) {
+                // Construire un HTML minimal avec les données oEmbed
+                html = `<meta property="og:title" content="${oembedData.author_name}">
+                        <meta property="og:description" content="${oembedData.html?.replace(/<[^>]+>/g, '').substring(0, 500) || ''}">`;
+              }
+              fetchSuccess = true;
+            } else {
+              html = await oembedResp.text();
+              html = html.substring(0, 100000);
+              if (html.includes('<meta') || html.includes('og:')) {
+                fetchSuccess = true;
+              }
+            }
+          }
+        }
+      } catch (e) {
+        // oEmbed aussi échoué
+      }
+    }
+
+    if (!fetchSuccess || !html) {
+      const platformTips = {
+        linkedin: 'LinkedIn bloque les extractions automatiques. Utilise plutôt un screenshot de ton profil.',
+        instagram: 'Instagram bloque les extractions automatiques. Utilise un screenshot ou copie-colle ton post.',
+        tiktok: 'TikTok bloque les extractions automatiques. Utilise un screenshot.',
+        twitter: 'Impossible de récupérer cette page. Essaie de copier-coller le contenu.'
+      };
       return jsonResponse({
         success: false,
         platform,
         urlType,
-        error: 'Impossible de récupérer la page: ' + fetchError.message,
+        error: platformTips[platform] || 'Impossible de récupérer la page.',
         data: { extractionQuality: 'none' }
       }, 200, corsHeaders);
     }
