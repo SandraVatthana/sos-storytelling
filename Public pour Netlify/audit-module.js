@@ -2251,6 +2251,7 @@ const AuditModule = (function() {
     function exportAuditResults(type) {
         const date = new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
         const dateShort = new Date().toISOString().split('T')[0];
+        const userName = window.currentUser?.name || '';
         let htmlContent = '';
 
         if (type === 'posts' && postsResults) {
@@ -2279,6 +2280,7 @@ const AuditModule = (function() {
             htmlContent = buildExportHTML({
                 title: 'Audit Posts',
                 date,
+                userName,
                 platform: postsResults.posts?.[0]?.platform || 'linkedin',
                 globalScore20,
                 stars,
@@ -2335,6 +2337,7 @@ const AuditModule = (function() {
             htmlContent = buildExportHTML({
                 title: 'Audit Profil ' + (PLATFORMS[auditResults.platform]?.name || ''),
                 date,
+                userName,
                 platform: auditResults.platform || 'linkedin',
                 globalScore20,
                 stars,
@@ -2358,7 +2361,7 @@ const AuditModule = (function() {
         newWindow.document.close();
     }
 
-    function buildExportHTML({ title, date, platform, globalScore20, stars, level, postCount, categories, forces, faiblesses, recommendations, aiPatterns, summary, categoryFeedback }) {
+    function buildExportHTML({ title, date, platform, globalScore20, stars, level, postCount, categories, forces, faiblesses, recommendations, aiPatterns, summary, categoryFeedback, userName }) {
         const platformEmoji = PLATFORMS[platform]?.emoji || '📊';
 
         return `<!DOCTYPE html>
@@ -2413,6 +2416,7 @@ const AuditModule = (function() {
 
     <div class="header">
         <h1>${platformEmoji} ${title}</h1>
+        ${userName ? `<div class="subtitle" style="font-size: 1.1em; font-weight: 600; color: #1a1a2e; margin-bottom: 5px;">👤 ${userName}</div>` : ''}
         <div class="subtitle">${date}</div>
         <div class="logo">SOS Storytelling</div>
     </div>
