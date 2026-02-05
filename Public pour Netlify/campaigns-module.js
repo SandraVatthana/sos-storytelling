@@ -1853,7 +1853,6 @@ Bonne journée !`,
                 if (!this.selectedSenders) {
                     this.selectedSenders = senders.filter(s => s.is_active && !((s.warmup_enabled ? s.warmup_current_limit : s.daily_limit) - (s.emails_sent_today || 0) <= 0)).map(s => s.id);
                 }
-            }
         } catch (error) {
             console.error('Erreur chargement senders:', error);
             // En cas d'erreur, permettre la saisie manuelle
