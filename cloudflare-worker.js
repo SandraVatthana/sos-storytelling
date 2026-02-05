@@ -2989,6 +2989,16 @@ Réponds UNIQUEMENT avec un JSON valide (sans markdown) dans ce format exact :
         .replace(/```\n?/g, '')
         .trim();
       auditResult = JSON.parse(cleanedText);
+
+      // Recalculer le globalScore comme moyenne réelle des scores par catégorie
+      if (auditResult.analysis) {
+        const scores = Object.values(auditResult.analysis)
+          .filter(cat => cat && typeof cat.score === 'number')
+          .map(cat => cat.score);
+        if (scores.length > 0) {
+          auditResult.globalScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+        }
+      }
     } catch (parseError) {
       console.error('JSON Parse Error:', parseError, responseText);
       // Fallback si le parsing échoue

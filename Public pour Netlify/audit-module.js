@@ -808,6 +808,9 @@ const AuditModule = (function() {
     // Texte copié-collé du profil
     let profileTextInput = '';
 
+    // Nom de la personne auditée (pour l'export)
+    let auditedPersonName = '';
+
     // ============================================================
     // CHARGEMENT DES MOTS-CLÉS DEPUIS L'ONBOARDING
     // ============================================================
@@ -1298,7 +1301,16 @@ const AuditModule = (function() {
             </div>
 
             <div class="audit-section">
-                <h3>2️⃣ Capture complète de ton profil ${platformInfo.emoji}</h3>
+                <h3>2️⃣ Nom de la personne auditée</h3>
+                <input type="text" id="auditedPersonName" class="audit-input"
+                       placeholder="Ex: Marie Dupont"
+                       value="${auditedPersonName}"
+                       onchange="AuditModule.updateAuditedPersonName(this.value)">
+                <p class="audit-hint">Ce nom apparaîtra sur le rapport d'audit exporté</p>
+            </div>
+
+            <div class="audit-section">
+                <h3>3️⃣ Capture complète de ton profil ${platformInfo.emoji}</h3>
                 <p class="audit-hint">📱 <strong>Fais UNE seule capture d'écran</strong> montrant : photo, bannière ET bio visibles en même temps.</p>
                 <div class="screenshot-upload-zone" onclick="document.getElementById('profileScreenshot').click()">
                     ${profileScreenshots.profile ? `
@@ -1317,7 +1329,7 @@ const AuditModule = (function() {
             </div>
 
             <div class="audit-section">
-                <h3>3️⃣ Captures de tes posts récents <span class="optional-tag">optionnel</span></h3>
+                <h3>4️⃣ Captures de tes posts récents <span class="optional-tag">optionnel</span></h3>
                 <p class="audit-hint">2-3 captures pour analyser la cohérence visuelle (clique ou Ctrl+V)</p>
                 <div class="screenshots-grid">
                     ${profileScreenshots.posts.map((post, idx) => `
@@ -1337,7 +1349,7 @@ const AuditModule = (function() {
             </div>
 
             <div class="audit-section">
-                <h3>4️⃣ Copie-colle le contenu de ton profil <span class="optional-tag">optionnel mais recommandé</span></h3>
+                <h3>5️⃣ Copie-colle le contenu de ton profil <span class="optional-tag">optionnel mais recommandé</span></h3>
                 <p class="audit-hint">Copie-colle ici tout le contenu de ton profil et tes 2 derniers posts pour une analyse plus complète</p>
                 <textarea id="profileTextInput" class="audit-textarea"
                           placeholder="Colle ici le texte de ton profil (titre, bio, à propos...) et/ou le texte de tes 2 derniers posts..."
@@ -1350,7 +1362,7 @@ const AuditModule = (function() {
             </div>
 
             <div class="audit-section">
-                <h3>5️⃣ Ton domaine d'expertise <span class="optional-tag">optionnel</span></h3>
+                <h3>6️⃣ Ton domaine d'expertise <span class="optional-tag">optionnel</span></h3>
                 <input type="text" id="auditKeywords" class="audit-input"
                        placeholder="Ex: coach business, marketing digital, copywriting..."
                        value="${userKeywords.join(', ')}"
@@ -2251,7 +2263,7 @@ const AuditModule = (function() {
     function exportAuditResults(type) {
         const date = new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
         const dateShort = new Date().toISOString().split('T')[0];
-        const userName = window.currentUser?.name || '';
+        const userName = auditedPersonName || '';
         let htmlContent = '';
 
         if (type === 'posts' && postsResults) {
@@ -2498,11 +2510,15 @@ const AuditModule = (function() {
     }
 
     // ============================================================
-    // PROFILE TEXT INPUT
+    // PROFILE TEXT INPUT & AUDITED PERSON NAME
     // ============================================================
 
     function updateProfileText(value) {
         profileTextInput = value;
+    }
+
+    function updateAuditedPersonName(value) {
+        auditedPersonName = value;
     }
 
     // ============================================================
@@ -4175,8 +4191,9 @@ ${originalContent}
         runVisualAudit,
         // Export
         exportAuditResults,
-        // Texte profil
+        // Texte profil & nom audité
         updateProfileText,
+        updateAuditedPersonName,
         runPostsAnalysis,
         resetPostsAnalysis,
         rewritePost,
