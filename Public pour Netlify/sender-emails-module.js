@@ -13,7 +13,12 @@ const SenderEmailsModule = (function() {
     // ==================== API CALLS ====================
 
     async function getAuthHeaders() {
-        const session = await window.supabaseClient?.auth.getSession();
+        // Essayer plusieurs noms de variable pour le client Supabase
+        const supabase = window.supabaseClient || window.supabaseApp || window.supabase;
+        if (!supabase?.auth) {
+            throw new Error('Supabase non initialisé. Veuillez rafraîchir la page.');
+        }
+        const session = await supabase.auth.getSession();
         const token = session?.data?.session?.access_token;
         if (!token) {
             throw new Error('Session expirée. Veuillez rafraîchir la page et vous reconnecter.');

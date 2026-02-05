@@ -1770,23 +1770,45 @@ Bonne journée !`,
         if (!container) return;
 
         try {
-            // Initialiser le module si pas fait
-            if (typeof SenderEmailsModule !== 'undefined') {
-                await SenderEmailsModule.init();
-                const senders = SenderEmailsModule.getSenders();
-                const stats = SenderEmailsModule.getStatsData();
+            // Essayer d'initialiser le module sender emails
+            let senders = [];
+            let stats = {};
 
-                if (senders.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-senders-inline">
-                            <p>Aucune adresse email configurée</p>
-                            <button class="btn btn-primary btn-small" onclick="CampaignsModule.openSenderManager()">
-                                + Ajouter une adresse
-                            </button>
-                        </div>
-                    `;
-                    return;
+            if (typeof SenderEmailsModule !== 'undefined') {
+                try {
+                    await SenderEmailsModule.init();
+                    senders = SenderEmailsModule.getSenders() || [];
+                    stats = SenderEmailsModule.getStatsData() || {};
+                } catch (e) {
+                    console.warn('SenderEmailsModule non disponible:', e.message);
+                    // Continuer avec le fallback
                 }
+            }
+
+            if (senders.length === 0) {
+                // Permettre de saisir manuellement une adresse email
+                container.innerHTML = `
+                    <div class="empty-senders-inline" style="padding: 20px; background: rgba(102, 126, 234, 0.1); border-radius: 12px;">
+                        <p style="margin-bottom: 15px; color: #333;">📧 Entrez votre adresse email d'envoi :</p>
+                        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                            <input type="email" id="manualSenderEmail"
+                                   placeholder="votre@email.com"
+                                   value="${this.manualSenderEmail || ''}"
+                                   style="flex: 1; min-width: 200px; padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;"
+                                   onchange="CampaignsModule.manualSenderEmail = this.value">
+                            <input type="text" id="manualSenderName"
+                                   placeholder="Votre nom (optionnel)"
+                                   value="${this.manualSenderName || ''}"
+                                   style="flex: 1; min-width: 150px; padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;"
+                                   onchange="CampaignsModule.manualSenderName = this.value">
+                        </div>
+                        <p style="margin-top: 10px; font-size: 0.85em; color: #666;">
+                            💡 Cette adresse sera utilisée pour envoyer vos emails de prospection.
+                        </p>
+                    </div>
+                `;
+                return;
+            }
 
                 // Générer les chips
                 const chips = senders.map(sender => {
@@ -1834,9 +1856,22 @@ Bonne journée !`,
             }
         } catch (error) {
             console.error('Erreur chargement senders:', error);
+            // En cas d'erreur, permettre la saisie manuelle
             container.innerHTML = `
-                <div style="text-align: center; padding: 15px; color: #888;">
-                    <small>Erreur de chargement des adresses</small>
+                <div class="empty-senders-inline" style="padding: 20px; background: rgba(102, 126, 234, 0.1); border-radius: 12px;">
+                    <p style="margin-bottom: 15px; color: #333;">📧 Entrez votre adresse email d'envoi :</p>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <input type="email" id="manualSenderEmail"
+                               placeholder="votre@email.com"
+                               value="${this.manualSenderEmail || ''}"
+                               style="flex: 1; min-width: 200px; padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;"
+                               onchange="CampaignsModule.manualSenderEmail = this.value">
+                        <input type="text" id="manualSenderName"
+                               placeholder="Votre nom (optionnel)"
+                               value="${this.manualSenderName || ''}"
+                               style="flex: 1; min-width: 150px; padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;"
+                               onchange="CampaignsModule.manualSenderName = this.value">
+                    </div>
                 </div>
             `;
         }
