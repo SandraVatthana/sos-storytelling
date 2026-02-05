@@ -5021,15 +5021,6 @@
                     <a class="dropdown-item" onclick="closeDropdowns(); showPromoModal()">🎁 <span data-i18n="menu.promo_code">Code promo</span></a>
                     <a class="dropdown-item" href="account.html">💎 <span data-i18n="menu.subscription">Mon abonnement</span></a>
                     <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 8px 0;"></div>
-                    <!-- Toggle Mode HUB -->
-                    <div class="dropdown-item hub-mode-toggle-item">
-                        <span>🎯 Mode HUB</span>
-                        <label class="hub-toggle-switch">
-                            <input type="checkbox" id="hubModeToggle" onchange="GoalsMissionsModule.toggleHubMode()">
-                            <span class="hub-toggle-slider"></span>
-                        </label>
-                    </div>
-                    <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 8px 0;"></div>
                     <a class="dropdown-item" onclick="closeDropdowns(); handleLogout()" style="color: #ff6b6b;">🚪 <span data-i18n="menu.logout">Déconnexion</span></a>
                 </div>
             </div>
@@ -5152,32 +5143,8 @@
         <!-- Quick Actions Page -->
         <!-- Dashboard 3 MODES -->
         <div class="quick-actions-page" id="quickActionsPage">
-            <!-- CTA Activation HUB (masqué si déjà activé) -->
-            <div id="hubActivationCta" class="hub-activation-cta" style="display: none;">
-                <div class="hub-cta-content">
-                    <span class="hub-cta-icon">🎯</span>
-                    <div class="hub-cta-text">
-                        <strong>Mode HUB</strong>
-                        <span>Objectifs + missions quotidiennes</span>
-                    </div>
-                    <button class="hub-cta-btn" onclick="GoalsMissionsModule.enableHubMode()">Activer</button>
-                </div>
-            </div>
-
             <!-- Widget Objectif (affiché si configuré) -->
             <div id="goalTrackingWidget" style="display: none;"></div>
-
-            <!-- Missions du jour (affiché si configuré) -->
-            <div id="dailyMissionsSection" style="display: none;">
-                <div class="gm-missions-header">
-                    <h3>🎯 Tes missions du jour</h3>
-                    <span id="missionsStreak"></span>
-                </div>
-                <div id="dailyMissionsList"></div>
-                <div class="gm-missions-footer">
-                    <small>Focus sur l'essentiel (80/20)</small>
-                </div>
-            </div>
 
             <h1 class="quick-actions-title" data-i18n="home.title">Que veux-tu faire ?</h1>
             <p class="quick-actions-subtitle" data-i18n="home.subtitle">Choisis ton mode</p>
