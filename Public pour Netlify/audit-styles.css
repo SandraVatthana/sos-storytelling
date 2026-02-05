@@ -697,3 +697,138 @@
         flex-direction: column;
     }
 }
+
+/* ==================== URL AUDIT INPUT ==================== */
+
+.audit-url-input-group {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+}
+
+.audit-url-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: white;
+    min-width: 0;
+}
+
+.audit-url-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.audit-url-fetch-btn {
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+}
+
+.audit-url-fetch-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+}
+
+.audit-url-fetch-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.audit-url-divider {
+    display: flex;
+    align-items: center;
+    margin: 20px 0 5px;
+    gap: 12px;
+}
+
+.audit-url-divider::before,
+.audit-url-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e0e0e0;
+}
+
+.audit-url-divider span {
+    font-size: 0.8em;
+    color: #999;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Method toggle for Posts tab */
+.audit-input-method-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.audit-method-btn {
+    padding: 8px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 20px;
+    background: #f8fafc;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.audit-method-btn:hover {
+    border-color: #c0c0c0;
+    background: #f0f0f0;
+}
+
+.audit-method-btn.active {
+    border-color: #667eea;
+    background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+    color: #4338ca;
+    font-weight: 600;
+}
+
+/* Small loading spinner for URL fetch buttons */
+.loading-spinner-small {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Mobile responsive for URL input */
+@media (max-width: 600px) {
+    .audit-url-input-group {
+        flex-direction: column;
+    }
+
+    .audit-url-fetch-btn {
+        justify-content: center;
+    }
+
+    .audit-input-method-toggle {
+        flex-direction: column;
+    }
+}

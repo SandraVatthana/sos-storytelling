@@ -175,6 +175,11 @@ export default {
       return handlePostAudit(request, env, corsHeaders);
     }
 
+    // ============ URL AUDIT (fetch + extract OG/meta) ============
+    if (url.pathname === '/audit-url' && request.method === 'POST') {
+      return handleUrlAudit(request, env, corsHeaders);
+    }
+
     // ============ VIDEO UPLOAD via Gemini File API ============
     if (url.pathname === '/api/video-upload' && request.method === 'POST') {
       return handleVideoUploadInit(request, env, corsHeaders);
@@ -2486,36 +2491,241 @@ async function handleSpintaxGenerator(request, env, corsHeaders) {
 // VISUAL AUDIT - Analyse de profil avec Claude Vision
 // ============================================================
 
+// ============================================================
+// URL AUDIT - Fetch et extraction OG/meta tags
+// ============================================================
+
+async function handleUrlAudit(request, env, corsHeaders) {
+  try {
+    const body = await request.json();
+    const { url: targetUrl } = body;
+
+    if (!targetUrl) {
+      return jsonResponse({ error: 'URL requise' }, 400, corsHeaders);
+    }
+
+    // Valider l'URL
+    let parsedUrl;
+    try {
+      parsedUrl = new URL(targetUrl);
+    } catch {
+      return jsonResponse({ error: 'URL invalide' }, 400, corsHeaders);
+    }
+
+    // Détecter la plateforme
+    const host = parsedUrl.hostname.toLowerCase();
+    let platform = null;
+    if (host.includes('linkedin.com')) platform = 'linkedin';
+    else if (host.includes('instagram.com')) platform = 'instagram';
+    else if (host.includes('tiktok.com')) platform = 'tiktok';
+    else if (host.includes('twitter.com') || host.includes('x.com')) platform = 'twitter';
+
+    if (!platform) {
+      return jsonResponse({ error: 'Plateforme non reconnue. Supporte: LinkedIn, Instagram, TikTok, X/Twitter' }, 400, corsHeaders);
+    }
+
+    // Détecter le type (profil vs post)
+    const path = parsedUrl.pathname;
+    let urlType = 'profile';
+    if (platform === 'linkedin') {
+      if (path.includes('/posts/') || path.includes('/pulse/') || path.includes('/feed/update/') || path.includes('/activity/')) urlType = 'post';
+      else if (path.startsWith('/in/') || path.startsWith('/company/')) urlType = 'profile';
+    } else if (platform === 'twitter') {
+      if (path.match(/\/status\//)) urlType = 'post';
+    } else if (platform === 'instagram') {
+      if (path.match(/^\/p\//) || path.match(/^\/reel\//)) urlType = 'post';
+    } else if (platform === 'tiktok') {
+      if (path.includes('/video/')) urlType = 'post';
+    }
+
+    // Fetch la page
+    let html = '';
+    try {
+      const response = await fetch(targetUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Language': 'fr-FR,fr;q=0.9,en;q=0.8'
+        },
+        redirect: 'follow'
+      });
+
+      if (!response.ok) {
+        return jsonResponse({
+          success: false,
+          platform,
+          urlType,
+          error: `La page a retourné HTTP ${response.status}`,
+          data: { extractionQuality: 'none' }
+        }, 200, corsHeaders);
+      }
+
+      html = await response.text();
+      // Limiter à 100KB pour le parsing
+      html = html.substring(0, 100000);
+    } catch (fetchError) {
+      return jsonResponse({
+        success: false,
+        platform,
+        urlType,
+        error: 'Impossible de récupérer la page: ' + fetchError.message,
+        data: { extractionQuality: 'none' }
+      }, 200, corsHeaders);
+    }
+
+    // Extraire les métadonnées
+    const data = extractMetadata(html, platform);
+
+    // Évaluer la qualité de l'extraction
+    const filledFields = [data.title, data.description, data.image].filter(f => f && f.length > 0).length;
+    data.extractionQuality = filledFields >= 3 ? 'high' : filledFields >= 2 ? 'medium' : 'low';
+
+    return jsonResponse({
+      success: true,
+      platform,
+      urlType,
+      data,
+      metadata: {
+        fetchedAt: new Date().toISOString(),
+        extractionQuality: data.extractionQuality,
+        requiresManualInput: data.extractionQuality === 'low'
+      }
+    }, 200, corsHeaders);
+
+  } catch (error) {
+    console.error('URL Audit Error:', error);
+    return jsonResponse({ error: 'Erreur interne: ' + error.message }, 500, corsHeaders);
+  }
+}
+
+function extractMetadata(html, platform) {
+  const result = {
+    title: '',
+    description: '',
+    image: '',
+    name: '',
+    headline: '',
+    bio: '',
+    rawText: '',
+    author: ''
+  };
+
+  // Helper pour extraire les balises meta
+  function getMetaContent(property, isName = false) {
+    const attr = isName ? 'name' : 'property';
+    // Essayer les deux ordres d'attributs
+    const regex1 = new RegExp(`<meta[^>]*${attr}=["']${property}["'][^>]*content=["']([^"']*)["']`, 'i');
+    const regex2 = new RegExp(`<meta[^>]*content=["']([^"']*)["'][^>]*${attr}=["']${property}["']`, 'i');
+    const match = html.match(regex1) || html.match(regex2);
+    return match ? match[1].replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#39;/g, "'").replace(/&quot;/g, '"') : '';
+  }
+
+  // Extraire OG tags
+  result.title = getMetaContent('og:title') || '';
+  result.description = getMetaContent('og:description') || getMetaContent('description', true) || '';
+  result.image = getMetaContent('og:image') || '';
+
+  // Extraire le titre HTML
+  const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+  if (!result.title && titleMatch) {
+    result.title = titleMatch[1].trim();
+  }
+
+  // Extraire JSON-LD
+  const jsonLdRegex = /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+  let jsonLdMatch;
+  while ((jsonLdMatch = jsonLdRegex.exec(html)) !== null) {
+    try {
+      const parsed = JSON.parse(jsonLdMatch[1]);
+      const items = parsed['@graph'] || [parsed];
+      for (const item of items) {
+        if (item['@type'] === 'Person') {
+          result.name = item.name || result.name;
+          result.headline = item.jobTitle || result.headline;
+          result.bio = item.description || result.bio;
+        }
+        if (item['@type'] === 'Article' || item['@type'] === 'SocialMediaPosting') {
+          result.rawText = item.articleBody || item.text || result.rawText;
+          result.author = item.author?.name || result.author;
+        }
+      }
+    } catch {}
+  }
+
+  // Parsing spécifique par plateforme
+  if (platform === 'linkedin') {
+    // og:title LinkedIn = "Nom - Titre | LinkedIn"
+    if (result.title) {
+      const cleanTitle = result.title.replace(/\s*[\|·-]\s*LinkedIn\s*$/i, '').trim();
+      const dashIdx = cleanTitle.indexOf(' - ');
+      if (dashIdx > 0) {
+        result.name = cleanTitle.substring(0, dashIdx).trim();
+        result.headline = cleanTitle.substring(dashIdx + 3).trim();
+      } else {
+        result.name = cleanTitle;
+      }
+    }
+    result.bio = result.description || '';
+  }
+
+  if (platform === 'twitter') {
+    // Twitter meta tags
+    const twitterDesc = getMetaContent('twitter:description', true) || getMetaContent('og:description');
+    const twitterTitle = getMetaContent('twitter:title', true) || getMetaContent('og:title');
+
+    if (twitterTitle) {
+      result.author = twitterTitle.replace(/\s*on\s+[Xx]\s*$/, '').replace(/\s*on\s+Twitter\s*$/, '').trim();
+    }
+    if (twitterDesc && twitterDesc.length > (result.description || '').length) {
+      result.description = twitterDesc;
+    }
+    result.rawText = result.description;
+  }
+
+  if (platform === 'instagram') {
+    // Instagram met souvent la légende dans og:description
+    result.rawText = result.description || '';
+    if (result.title) {
+      result.author = result.title.replace(/\s*on\s+Instagram.*$/i, '').replace(/\s*[\|·-]\s*Instagram\s*$/i, '').trim();
+    }
+  }
+
+  if (platform === 'tiktok') {
+    result.rawText = result.description || '';
+    if (result.title) {
+      result.author = result.title.replace(/\s*[\|·-]\s*TikTok\s*$/i, '').trim();
+    }
+  }
+
+  return result;
+}
+
 async function handleVisualAudit(request, env, corsHeaders) {
   try {
     const body = await request.json();
-    const { platform, keywords = [], profileImage, postImages = [] } = body;
+    const { platform, keywords = [], profileImage, postImages = [], urlData } = body;
 
-    if (!profileImage) {
-      return jsonResponse({ error: 'Profile image required' }, 400, corsHeaders);
+    if (!profileImage && !urlData) {
+      return jsonResponse({ error: 'Profile image or URL data required' }, 400, corsHeaders);
     }
-
-    // Extraire le type d'image et les données base64
-    const profileMatch = profileImage.match(/^data:(image\/\w+);base64,(.+)$/);
-    if (!profileMatch) {
-      return jsonResponse({ error: 'Invalid image format' }, 400, corsHeaders);
-    }
-
-    const profileMediaType = profileMatch[1];
-    const profileData = profileMatch[2];
 
     // Construire le contenu du message pour Claude Vision
     const messageContent = [];
 
-    // Image du profil
-    messageContent.push({
-      type: "image",
-      source: {
-        type: "base64",
-        media_type: profileMediaType,
-        data: profileData
+    // Image du profil (si disponible)
+    if (profileImage) {
+      const profileMatch = profileImage.match(/^data:(image\/\w+);base64,(.+)$/);
+      if (profileMatch) {
+        messageContent.push({
+          type: "image",
+          source: {
+            type: "base64",
+            media_type: profileMatch[1],
+            data: profileMatch[2]
+          }
+        });
       }
-    });
+    }
 
     // Images des posts (si présentes)
     for (const postImage of postImages.slice(0, 3)) {
@@ -2543,6 +2753,15 @@ async function handleVisualAudit(request, env, corsHeaders) {
     const keywordsContext = keywords.length > 0
       ? `\nLe domaine d'expertise déclaré : ${keywords.join(', ')}`
       : '';
+
+    // Contexte URL si disponible
+    const urlContext = urlData ? `
+DONNÉES EXTRAITES DEPUIS L'URL DU PROFIL :
+- Nom: ${urlData.name || 'Non disponible'}
+- Titre/Headline: ${urlData.headline || 'Non disponible'}
+- Bio/Résumé: ${urlData.bio || 'Non disponible'}
+Utilise ces données textuelles pour enrichir et compléter ton analyse visuelle. Compare ce qui est écrit avec ce que tu vois sur l'image.
+` : '';
 
     // Critères spécifiques selon la plateforme
     const hasBanner = platform === 'linkedin' || platform === 'twitter';
@@ -2586,7 +2805,7 @@ async function handleVisualAudit(request, env, corsHeaders) {
 
     const analysisPrompt = `Tu es un expert en personal branding, design visuel et storytelling sur les réseaux sociaux.
 
-Analyse cette capture d'écran d'un profil ${platformNames[platform] || platform}.${keywordsContext}
+Analyse cette capture d'écran d'un profil ${platformNames[platform] || platform}.${keywordsContext}${urlContext}
 
 ${postImages.length > 0 ? `J'ai également fourni ${postImages.length} captures de posts/contenus récents.` : ''}
 
