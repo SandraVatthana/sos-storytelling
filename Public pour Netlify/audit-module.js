@@ -1577,9 +1577,14 @@ const AuditModule = (function() {
                         </p>
                     </div>
 
-                    <button class="audit-reset-btn" onclick="AuditModule.resetProfilesAudit()">
-                        Analyser un autre profil
-                    </button>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="audit-reset-btn" onclick="AuditModule.exportAuditResults('profile')" style="flex: 1; min-width: 150px; background: linear-gradient(135deg, #10b981, #059669);">
+                            📤 Exporter le rapport
+                        </button>
+                        <button class="audit-reset-btn" onclick="AuditModule.resetProfilesAudit()" style="flex: 1; min-width: 150px;">
+                            🔄 Analyser un autre profil
+                        </button>
+                    </div>
                 </div>
             `;
         }
