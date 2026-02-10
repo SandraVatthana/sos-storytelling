@@ -7452,31 +7452,6 @@ Solution  | Présenter votre solution</pre>
                                 </div>
                             </div>
                             <div class="onboarding-section">
-                                <h3>🎯 Ton audience</h3>
-                                <div class="form-group">
-                                    <label>Public cible</label>
-                                    <div class="checkbox-grid checkbox-grid-compact">
-                                        ${ONBOARDING_OPTIONS.publicCible.map(p => `
-                                            <label class="checkbox-card">
-                                                <input type="checkbox" name="publicCible" value="${p.value}" ${existingProfile?.publicCible?.includes(p.value) ? 'checked' : ''}>
-                                                <span class="checkbox-content"><span class="checkbox-icon">${p.icon}</span><span class="checkbox-label">${p.label}</span></span>
-                                            </label>
-                                        `).join('')}
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label>Tranches d'âge ciblées</label>
-                                    <div class="checkbox-grid checkbox-grid-compact">
-                                        ${ONBOARDING_OPTIONS.trancheAge.map(t => `
-                                            <label class="checkbox-card">
-                                                <input type="checkbox" name="trancheAge" value="${t.value}" ${existingProfile?.trancheAge?.includes(t.value) ? 'checked' : ''}>
-                                                <span class="checkbox-content"><span class="checkbox-label">${t.label}</span></span>
-                                            </label>
-                                        `).join('')}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="onboarding-section">
                                 <h3>📝 Ton contenu</h3>
                                 <div class="form-group">
                                     <label for="onb-piliers">Tes piliers de contenu (2-4 thématiques)</label>
@@ -7532,8 +7507,31 @@ Solution  | Présenter votre solution</pre>
                                 </div>
                             </div>
                             <div class="onboarding-section personas-section">
-                                <div class="personas-header">
-                                    <h3>👥 Mes audiences</h3>
+                                <h3>🎯 Ton audience</h3>
+                                <div class="form-group">
+                                    <label>Public cible</label>
+                                    <div class="checkbox-grid checkbox-grid-compact">
+                                        ${ONBOARDING_OPTIONS.publicCible.map(p => `
+                                            <label class="checkbox-card">
+                                                <input type="checkbox" name="publicCible" value="${p.value}" ${existingProfile?.publicCible?.includes(p.value) ? 'checked' : ''}>
+                                                <span class="checkbox-content"><span class="checkbox-icon">${p.icon}</span><span class="checkbox-label">${p.label}</span></span>
+                                            </label>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Tranches d'âge ciblées</label>
+                                    <div class="checkbox-grid checkbox-grid-compact">
+                                        ${ONBOARDING_OPTIONS.trancheAge.map(t => `
+                                            <label class="checkbox-card">
+                                                <input type="checkbox" name="trancheAge" value="${t.value}" ${existingProfile?.trancheAge?.includes(t.value) ? 'checked' : ''}>
+                                                <span class="checkbox-content"><span class="checkbox-label">${t.label}</span></span>
+                                            </label>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                                <div class="personas-header" style="margin-top: 20px;">
+                                    <h4>👥 Mes audiences détaillées</h4>
                                     <button type="button" class="btn-add-persona" onclick="openPersonaEditor()">
                                         <span>+</span> Nouvelle audience
                                     </button>
