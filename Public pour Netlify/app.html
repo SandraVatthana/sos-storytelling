@@ -4949,15 +4949,25 @@
             // Exposer globalement pour les modules
             window.supabaseApp = supabase;
 
+            console.log('🔐 [AUTH] initSupabase() =', !!supabase);
+            console.log('🔐 [AUTH] URL:', window.location.href);
+
             // Récupérer la session
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data, error } = await supabase.auth.getSession();
+            const session = data?.session;
+
+            console.log('🔐 [AUTH] getSession() error:', error);
+            console.log('🔐 [AUTH] session:', session ? `✅ ${session.user.email}` : '❌ null');
+            console.log('🔐 [AUTH] localStorage keys:', Object.keys(localStorage).filter(k => k.includes('supabase') || k.includes('sb-')));
 
             // Nettoyer l'URL si callback OAuth (Google, etc.)
             if (window.location.hash.includes('access_token') || window.location.search.includes('code=')) {
+                console.log('🔐 [AUTH] OAuth callback détecté, nettoyage URL');
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
 
             if (!session) {
+                console.log('🔐 [AUTH] ❌ Pas de session → redirection login.html');
                 // Pas connecté → rediriger vers login
                 window.location.href = 'login.html';
                 return;
