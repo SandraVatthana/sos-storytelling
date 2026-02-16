@@ -3,6 +3,23 @@
 // Variables d'environnement requises:
 // - ANTHROPIC_API_KEY, PERPLEXITY_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_KEY, BREVO_API_KEY
 
+// ============ FETCH WITH TIMEOUT ============
+async function fetchWithAbortTimeout(url, options = {}, timeoutMs = 25000) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, { ...options, signal: controller.signal });
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new Error(`Timeout: l'API n'a pas répondu en ${timeoutMs / 1000}s`);
+    }
+    throw error;
+  }
+}
+
 // ============ CORS CONFIGURATION ============
 const ALLOWED_ORIGINS = [
   'https://sos-storytelling.netlify.app',
@@ -173,6 +190,11 @@ export default {
     // ============ POST AUDIT (Claude AI) ============
     if (url.pathname === '/audit-post' && request.method === 'POST') {
       return handlePostAudit(request, env, corsHeaders);
+    }
+
+    // ============ SUGGEST PAIN POINTS (Claude Haiku) ============
+    if (url.pathname === '/api/suggest-pain-points' && request.method === 'POST') {
+      return handleSuggestPainPoints(request, env, corsHeaders);
     }
 
     // ============ URL AUDIT (fetch + extract OG/meta) ============
@@ -596,7 +618,7 @@ async function handleGenerateSequenceEmails(campaignId, request, env, user, cors
       language: campaign.language || 'fr'
     });
 
-    const claudeResponse = await fetch("https://api.anthropic.com/v1/messages", {
+    const claudeResponse = await fetchWithAbortTimeout("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -604,36 +626,40 @@ async function handleGenerateSequenceEmails(campaignId, request, env, user, cors
         "anthropic-version": "2023-06-01"
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: "claude-sonnet-4-5-20250929",
         max_tokens: 1000,
         temperature: 0.7,
         messages: [{ role: "user", content: prompt }]
       })
     });
 
-    if (claudeResponse.ok) {
-      const data = await claudeResponse.json();
-      const content = data.content[0].text;
-      try {
-        const parsed = JSON.parse(content.match(/\{[\s\S]*\}/)?.[0] || '{}');
-        emails.push({
-          position,
-          delay_days: delays[i] || i * 3,
-          send_condition: 'no_reply',
-          subject_template: parsed.subject || `Email ${position}`,
-          body_template: parsed.body || content,
-          use_ai_generation: false
-        });
-      } catch (e) {
-        emails.push({
-          position,
-          delay_days: delays[i] || i * 3,
-          send_condition: 'no_reply',
-          subject_template: `Email ${position}`,
-          body_template: content,
-          use_ai_generation: false
-        });
-      }
+    if (!claudeResponse.ok) {
+      const errorText = await claudeResponse.text();
+      console.error(`Sequence email error (position ${position}):`, claudeResponse.status, errorText);
+      return jsonResponse({ error: `Erreur génération email ${position}`, status: claudeResponse.status, details: errorText }, 500, corsHeaders);
+    }
+
+    const data = await claudeResponse.json();
+    const content = data.content[0].text;
+    try {
+      const parsed = JSON.parse(content.match(/\{[\s\S]*\}/)?.[0] || '{}');
+      emails.push({
+        position,
+        delay_days: delays[i] || i * 3,
+        send_condition: 'no_reply',
+        subject_template: parsed.subject || `Email ${position}`,
+        body_template: parsed.body || content,
+        use_ai_generation: false
+      });
+    } catch (e) {
+      emails.push({
+        position,
+        delay_days: delays[i] || i * 3,
+        send_condition: 'no_reply',
+        subject_template: `Email ${position}`,
+        body_template: content,
+        use_ai_generation: false
+      });
     }
   }
 
@@ -1728,7 +1754,7 @@ REGLES:
 FORMAT JSON:
 {"subject": "...", "body": "..."}`;
 
-  const claudeResponse = await fetch("https://api.anthropic.com/v1/messages", {
+  const claudeResponse = await fetchWithAbortTimeout("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -1736,7 +1762,7 @@ FORMAT JSON:
       "anthropic-version": "2023-06-01"
     },
     body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
+      model: "claude-sonnet-4-5-20250929",
       max_tokens: 500,
       temperature: 0.7,
       messages: [{ role: "user", content: prompt }]
@@ -1744,7 +1770,9 @@ FORMAT JSON:
   });
 
   if (!claudeResponse.ok) {
-    return jsonResponse({ error: 'Generation failed' }, 500, corsHeaders);
+    const errorText = await claudeResponse.text();
+    console.error("Prospect email error:", claudeResponse.status, errorText);
+    return jsonResponse({ error: `Erreur génération email (${claudeResponse.status})`, details: errorText }, 500, corsHeaders);
   }
 
   const data = await claudeResponse.json();
@@ -1868,7 +1896,7 @@ async function handleFrontendRequest(request, env, corsHeaders) {
 ${profileContext}
 Utilise les informations du web en temps reel pour proposer des tendances actuelles.`;
 
-      const response = await fetch("https://api.perplexity.ai/chat/completions", {
+      const response = await fetchWithAbortTimeout("https://api.perplexity.ai/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -1883,7 +1911,7 @@ Utilise les informations du web en temps reel pour proposer des tendances actuel
           temperature: 0.7,
           max_tokens: 2000
         })
-      });
+      }, 60000);
 
       if (!response.ok) {
         console.error("Perplexity error:", await response.text());
@@ -1911,28 +1939,39 @@ Utilise les informations du web en temps reel pour proposer des tendances actuel
 }
 
 async function callClaude(body, profileContext, env, corsHeaders) {
+  if (!env.ANTHROPIC_API_KEY) {
+    return jsonResponse({ error: "Clé API Anthropic non configurée" }, 500, corsHeaders);
+  }
+
   const systemPrompt = `Tu es Tithot, une coach creative specialisee en personal branding.
 ${profileContext}
 STYLE: Energique, bienveillante, utilise des emojis. Maximum 400 mots.`;
 
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": env.ANTHROPIC_API_KEY,
-      "anthropic-version": "2023-06-01"
-    },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 2000,
-      system: systemPrompt,
-      messages: body.messages
-    })
-  });
+  let response;
+  try {
+    response = await fetchWithAbortTimeout("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": env.ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01"
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-5-20250929",
+        max_tokens: 2000,
+        system: systemPrompt,
+        messages: body.messages
+      })
+    }, 60000);
+  } catch (error) {
+    console.error("callClaude fetch error:", error.message);
+    return jsonResponse({ error: "Timeout ou erreur réseau avec l'API IA", details: error.message }, 504, corsHeaders);
+  }
 
   if (!response.ok) {
     const errorData = await response.text();
-    return jsonResponse({ error: `Erreur API: ${response.status}`, details: errorData }, response.status, corsHeaders);
+    console.error("Claude API error:", response.status, errorData);
+    return jsonResponse({ error: `Erreur API Claude: ${response.status}`, details: errorData }, response.status, corsHeaders);
   }
 
   const data = await response.json();
@@ -2183,7 +2222,7 @@ Structure:
 3. Corps avec 2-3 points cles
 4. Conclusion avec call-to-action`;
 
-  const claudeResponse = await fetch("https://api.anthropic.com/v1/messages", {
+  const claudeResponse = await fetchWithAbortTimeout("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -2191,7 +2230,7 @@ Structure:
       "anthropic-version": "2023-06-01"
     },
     body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
+      model: "claude-sonnet-4-5-20250929",
       max_tokens: 2000,
       messages: [{ role: "user", content: prompt }]
     })
@@ -2333,7 +2372,7 @@ async function handleChatAssistant(request, env, corsHeaders) {
     messages.push({ role: 'user', content: message });
 
     // Appel Claude API avec Haiku pour le chat (plus rapide et moins cher)
-    const claudeResponse = await fetch("https://api.anthropic.com/v1/messages", {
+    const claudeResponse = await fetchWithAbortTimeout("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -2341,7 +2380,7 @@ async function handleChatAssistant(request, env, corsHeaders) {
         "anthropic-version": "2023-06-01"
       },
       body: JSON.stringify({
-        model: "claude-3-5-haiku-20241022",
+        model: "claude-haiku-4-5-20251001",
         max_tokens: 500,
         temperature: 0.7,
         system: CHAT_SYSTEM_PROMPT,
@@ -2443,7 +2482,7 @@ async function handleSpintaxGenerator(request, env, corsHeaders) {
       : `Transforme cet email en format spintax avec ${variations} variations par section :\n\n${email}`;
 
     // Appel Claude API
-    const claudeResponse = await fetch("https://api.anthropic.com/v1/messages", {
+    const claudeResponse = await fetchWithAbortTimeout("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -2451,7 +2490,7 @@ async function handleSpintaxGenerator(request, env, corsHeaders) {
         "anthropic-version": "2023-06-01"
       },
       body: JSON.stringify({
-        model: "claude-3-5-haiku-20241022",
+        model: "claude-haiku-4-5-20251001",
         max_tokens: 2000,
         temperature: 0.8,
         system: SPINTAX_SYSTEM_PROMPT,
@@ -2954,7 +2993,7 @@ Réponds UNIQUEMENT avec un JSON valide (sans markdown) dans ce format exact :
     });
 
     // Appel Claude Vision API
-    const claudeResponse = await fetch("https://api.anthropic.com/v1/messages", {
+    const claudeResponse = await fetchWithAbortTimeout("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -2962,7 +3001,7 @@ Réponds UNIQUEMENT avec un JSON valide (sans markdown) dans ce format exact :
         "anthropic-version": "2023-06-01"
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: "claude-sonnet-4-5-20250929",
         max_tokens: 2000,
         messages: [{
           role: "user",
@@ -3158,7 +3197,7 @@ Réponds UNIQUEMENT avec un JSON valide (sans markdown) :
     });
 
     // Appel Claude API
-    const claudeResponse = await fetch("https://api.anthropic.com/v1/messages", {
+    const claudeResponse = await fetchWithAbortTimeout("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -3166,7 +3205,7 @@ Réponds UNIQUEMENT avec un JSON valide (sans markdown) :
         "anthropic-version": "2023-06-01"
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: "claude-sonnet-4-5-20250929",
         max_tokens: 4000,
         messages: [{
           role: "user",
@@ -3218,6 +3257,96 @@ Réponds UNIQUEMENT avec un JSON valide (sans markdown) :
 
   } catch (error) {
     console.error('Post Audit Error:', error);
+    return jsonResponse({ error: 'Erreur interne' }, 500, corsHeaders);
+  }
+}
+
+// ============================================================
+// SUGGEST PAIN POINTS - Claude Haiku
+// ============================================================
+
+async function handleSuggestPainPoints(request, env, corsHeaders) {
+  try {
+    const body = await request.json();
+    const { personaName, description, age_range, location } = body;
+
+    if (!personaName) {
+      return jsonResponse({ error: 'personaName is required' }, 400, corsHeaders);
+    }
+
+    if (!env.ANTHROPIC_API_KEY) {
+      return jsonResponse({ error: 'API key not configured' }, 500, corsHeaders);
+    }
+
+    let contextParts = [`Persona : "${personaName}"`];
+    if (description) contextParts.push(`Description : ${description}`);
+    if (age_range) contextParts.push(`Tranche d'âge : ${age_range}`);
+    if (location) contextParts.push(`Localisation : ${location}`);
+
+    const prompt = `Tu es un expert en copywriting et psychologie du consommateur.
+
+${contextParts.join('\n')}
+
+Pour cette audience cible, génère :
+1. Exactement 5 "problèmes DUR" (ce qui les empêche de dormir la nuit, leurs frustrations majeures, ce qui bloque leur progression)
+2. Exactement 5 "problèmes secondaires" (irritants quotidiens, petits agacements récurrents, inconvénients mineurs)
+
+Les problèmes doivent être spécifiques, concrets et formulés du point de vue de la cible (comme si elle les exprimait elle-même).
+
+Réponds UNIQUEMENT avec un JSON valide (sans markdown, sans backticks) :
+{
+  "hard": ["problème dur 1", "problème dur 2", "problème dur 3", "problème dur 4", "problème dur 5"],
+  "soft": ["problème secondaire 1", "problème secondaire 2", "problème secondaire 3", "problème secondaire 4", "problème secondaire 5"]
+}`;
+
+    const claudeResponse = await fetchWithAbortTimeout("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": env.ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01"
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 1024,
+        messages: [{
+          role: "user",
+          content: prompt
+        }]
+      })
+    });
+
+    if (!claudeResponse.ok) {
+      const errorText = await claudeResponse.text();
+      console.error('Claude Suggest Pain Points Error:', errorText);
+      return jsonResponse({ error: 'Erreur IA' }, 503, corsHeaders);
+    }
+
+    const data = await claudeResponse.json();
+    const responseText = data.content[0].text;
+
+    let suggestions;
+    try {
+      const cleanedText = responseText
+        .replace(/```json\n?/g, '')
+        .replace(/```\n?/g, '')
+        .trim();
+      suggestions = JSON.parse(cleanedText);
+    } catch (parseError) {
+      console.error('JSON Parse Error:', parseError, responseText);
+      return jsonResponse({ error: 'Erreur parsing réponse IA' }, 500, corsHeaders);
+    }
+
+    return jsonResponse({
+      success: true,
+      suggestions: {
+        hard: suggestions.hard || [],
+        soft: suggestions.soft || []
+      }
+    }, 200, corsHeaders);
+
+  } catch (error) {
+    console.error('Suggest Pain Points Error:', error);
     return jsonResponse({ error: 'Erreur interne' }, 500, corsHeaders);
   }
 }
