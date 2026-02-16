@@ -4949,20 +4949,40 @@
             // Exposer globalement pour les modules
             window.supabaseApp = supabase;
 
-            // INITIAL_SESSION se déclenche une seule fois quand le SDK a déterminé
-            // l'état auth (y compris après traitement d'un callback OAuth Google)
-            const session = await new Promise((resolve) => {
-                const { data: { subscription } } = supabase.auth.onAuthStateChange((event, sess) => {
-                    if (event === 'INITIAL_SESSION') {
-                        subscription.unsubscribe();
-                        resolve(sess);
-                    }
-                });
-            });
+            // Détecter si on revient d'un callback OAuth (Google, etc.)
+            const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            const urlParams = new URLSearchParams(window.location.search);
+            const isOAuthCallback = hashParams.has('access_token') || urlParams.has('code');
 
-            // Nettoyer l'URL si callback OAuth (hash ou query params)
-            if (window.location.hash.includes('access_token') || window.location.search.includes('code=')) {
-                window.history.replaceState({}, document.title, window.location.pathname);
+            let session;
+
+            if (isOAuthCallback) {
+                // Callback OAuth : d'abord essayer getSession (le SDK traite les tokens à l'init)
+                const { data } = await supabase.auth.getSession();
+                session = data.session;
+
+                // Si pas encore prêt, attendre l'événement SIGNED_IN
+                if (!session) {
+                    session = await new Promise((resolve) => {
+                        const timeout = setTimeout(() => resolve(null), 15000);
+                        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, sess) => {
+                            if (event === 'SIGNED_IN' && sess) {
+                                clearTimeout(timeout);
+                                subscription.unsubscribe();
+                                resolve(sess);
+                            }
+                        });
+                    });
+                }
+
+                // Nettoyer l'URL après le callback OAuth
+                if (session) {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            } else {
+                // Visite normale : vérifier la session stockée
+                const { data } = await supabase.auth.getSession();
+                session = data.session;
             }
 
             if (!session) {
