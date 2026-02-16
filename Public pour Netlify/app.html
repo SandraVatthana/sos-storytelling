@@ -4949,25 +4949,15 @@
             // Exposer globalement pour les modules
             window.supabaseApp = supabase;
 
-            console.log('🔐 [AUTH] initSupabase() =', !!supabase);
-            console.log('🔐 [AUTH] URL:', window.location.href);
-
             // Récupérer la session
-            const { data, error } = await supabase.auth.getSession();
-            const session = data?.session;
-
-            console.log('🔐 [AUTH] getSession() error:', error);
-            console.log('🔐 [AUTH] session:', session ? `✅ ${session.user.email}` : '❌ null');
-            console.log('🔐 [AUTH] localStorage keys:', Object.keys(localStorage).filter(k => k.includes('supabase') || k.includes('sb-')));
+            const { data: { session } } = await supabase.auth.getSession();
 
             // Nettoyer l'URL si callback OAuth (Google, etc.)
             if (window.location.hash.includes('access_token') || window.location.search.includes('code=')) {
-                console.log('🔐 [AUTH] OAuth callback détecté, nettoyage URL');
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
 
             if (!session) {
-                console.log('🔐 [AUTH] ❌ Pas de session → redirection login.html');
                 // Pas connecté → rediriger vers login
                 window.location.href = 'login.html';
                 return;
@@ -14487,9 +14477,9 @@ ${format.rules}
 
             // Vérifier si l'utilisateur est admin/coach pour afficher le bouton Dashboard
             try {
-                const { data: { user } } = await window.supabase.auth.getUser();
+                const { data: { user } } = await window.supabaseApp.auth.getUser();
                 if (user) {
-                    const { data: orgUser } = await window.supabase
+                    const { data: orgUser } = await window.supabaseApp
                         .from('org_users')
                         .select('role')
                         .eq('user_id', user.id)
@@ -19753,11 +19743,11 @@ Analyse précisément et réponds UNIQUEMENT avec ce JSON valide :
             const email = nl.emails?.[0];
             if (!email) return;
 
-            const text = \`Objet: \${email.selectedSubject || email.subjectLines?.[0] || ''}
+            const text = `Objet: ${email.selectedSubject || email.subjectLines?.[0] || ''}
 
-Preview: \${email.previewText || ''}
+Preview: ${email.previewText || ''}
 
-\${email.body || ''}\`;
+${email.body || ''}`;
 
             navigator.clipboard.writeText(text).then(() => {
                 showToast('✅ Newsletter copiée !');
