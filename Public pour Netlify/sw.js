@@ -3,7 +3,7 @@
 // PWA + Push Notifications
 // ============================================
 
-const CACHE_NAME = 'sos-b2b-v1';
+const CACHE_NAME = 'sos-b2b-v3';
 const OFFLINE_URL = '/offline.html';
 
 // Files to cache for offline use
