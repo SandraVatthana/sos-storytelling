@@ -4949,40 +4949,12 @@
             // Exposer globalement pour les modules
             window.supabaseApp = supabase;
 
-            // Détecter si on revient d'un callback OAuth (Google, etc.)
-            const hashParams = new URLSearchParams(window.location.hash.substring(1));
-            const urlParams = new URLSearchParams(window.location.search);
-            const isOAuthCallback = hashParams.has('access_token') || urlParams.has('code');
+            // Récupérer la session
+            const { data: { session } } = await supabase.auth.getSession();
 
-            let session;
-
-            if (isOAuthCallback) {
-                // Callback OAuth : d'abord essayer getSession (le SDK traite les tokens à l'init)
-                const { data } = await supabase.auth.getSession();
-                session = data.session;
-
-                // Si pas encore prêt, attendre l'événement SIGNED_IN
-                if (!session) {
-                    session = await new Promise((resolve) => {
-                        const timeout = setTimeout(() => resolve(null), 15000);
-                        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, sess) => {
-                            if (event === 'SIGNED_IN' && sess) {
-                                clearTimeout(timeout);
-                                subscription.unsubscribe();
-                                resolve(sess);
-                            }
-                        });
-                    });
-                }
-
-                // Nettoyer l'URL après le callback OAuth
-                if (session) {
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                }
-            } else {
-                // Visite normale : vérifier la session stockée
-                const { data } = await supabase.auth.getSession();
-                session = data.session;
+            // Nettoyer l'URL si callback OAuth (Google, etc.)
+            if (window.location.hash.includes('access_token') || window.location.search.includes('code=')) {
+                window.history.replaceState({}, document.title, window.location.pathname);
             }
 
             if (!session) {
