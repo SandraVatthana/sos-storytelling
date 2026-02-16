@@ -4949,8 +4949,39 @@
             // Exposer globalement pour les modules
             window.supabaseApp = supabase;
 
-            // Récupérer la session
-            const { data: { session } } = await supabase.auth.getSession();
+            // Détecter si on revient d'un callback OAuth (Google, etc.)
+            const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            const urlParams = new URLSearchParams(window.location.search);
+            const isOAuthCallback = hashParams.has('access_token') || urlParams.has('code');
+
+            let session;
+
+            // getSession() attend l'initialisation du SDK (y compris le traitement OAuth)
+            const { data: { session: initialSession } } = await supabase.auth.getSession();
+            session = initialSession;
+
+            // Si callback OAuth et pas encore de session, attendre que le SDK finisse
+            if (!session && isOAuthCallback) {
+                session = await new Promise((resolve) => {
+                    const timeout = setTimeout(async () => {
+                        // Dernier recours : re-vérifier la session
+                        const { data } = await supabase.auth.getSession();
+                        resolve(data.session);
+                    }, 10000);
+                    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, sess) => {
+                        if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') && sess) {
+                            clearTimeout(timeout);
+                            subscription.unsubscribe();
+                            resolve(sess);
+                        }
+                    });
+                });
+            }
+
+            // Nettoyer l'URL après le callback OAuth
+            if (isOAuthCallback && session) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
 
             if (!session) {
                 // Pas connecté → rediriger vers login
@@ -7649,6 +7680,16 @@ Solution  | Présenter votre solution</pre>
 
         let editingPersonaId = null;
 
+        // Helper : garantir un array (Supabase peut retourner une string)
+        function toArray(v) {
+            if (Array.isArray(v)) return v;
+            if (typeof v === 'string' && v.trim()) {
+                try { const parsed = JSON.parse(v); if (Array.isArray(parsed)) return parsed; } catch(e) {}
+                return v.split('\n').map(s => s.trim()).filter(Boolean);
+            }
+            return [];
+        }
+
         // Rendre la liste des personas
         async function renderPersonasList() {
             const container = document.getElementById('personasList');
@@ -7685,10 +7726,10 @@ Solution  | Présenter votre solution</pre>
                     </div>
                     <div class="persona-card-desc">${p.description || 'Pas de description'}</div>
                     <div class="persona-card-meta">
-                        ${p.pain_points_hard?.length > 0 ? `<span class="persona-meta-tag">🔴 ${p.pain_points_hard.length} durs</span>` : ''}
-                        ${p.pain_points_soft?.length > 0 ? `<span class="persona-meta-tag">🟡 ${p.pain_points_soft.length} secondaires</span>` : ''}
-                        ${!p.pain_points_hard?.length && !p.pain_points_soft?.length && p.pain_points?.length > 0 ? `<span class="persona-meta-tag">😓 ${p.pain_points.length} douleurs</span>` : ''}
-                        ${p.desires?.length > 0 ? `<span class="persona-meta-tag">✨ ${p.desires.length} désirs</span>` : ''}
+                        ${toArray(p.pain_points_hard).length > 0 ? `<span class="persona-meta-tag">🔴 ${toArray(p.pain_points_hard).length} durs</span>` : ''}
+                        ${toArray(p.pain_points_soft).length > 0 ? `<span class="persona-meta-tag">🟡 ${toArray(p.pain_points_soft).length} secondaires</span>` : ''}
+                        ${!toArray(p.pain_points_hard).length && !toArray(p.pain_points_soft).length && toArray(p.pain_points).length > 0 ? `<span class="persona-meta-tag">😓 ${toArray(p.pain_points).length} douleurs</span>` : ''}
+                        ${toArray(p.desires).length > 0 ? `<span class="persona-meta-tag">✨ ${toArray(p.desires).length} désirs</span>` : ''}
                     </div>
                     <div class="persona-card-actions">
                         <button type="button" class="persona-action-btn" onclick="openPersonaEditor('${p.id}')">✏️ Modifier</button>
@@ -7760,7 +7801,7 @@ Solution  | Présenter votre solution</pre>
                                     <div id="suggestions-hard" class="suggestion-chips"></div>
                                     <textarea id="persona-pains-hard" placeholder="Ex:
 Pas assez de visibilité pour vivre de leur activité
-N'arrivent pas à se démarquer de la concurrence">${(persona?.pain_points_hard?.length > 0 ? persona.pain_points_hard : persona?.pain_points)?.join('\n') || ''}</textarea>
+N'arrivent pas à se démarquer de la concurrence">${toArray(persona?.pain_points_hard?.length > 0 ? persona.pain_points_hard : persona?.pain_points).join('\n')}</textarea>
                                 </div>
 
                                 <div class="pain-points-section">
@@ -7768,7 +7809,7 @@ N'arrivent pas à se démarquer de la concurrence">${(persona?.pain_points_hard?
                                     <div id="suggestions-soft" class="suggestion-chips"></div>
                                     <textarea id="persona-pains-soft" placeholder="Ex:
 Passent trop de temps sur les tâches administratives
-Se sentent seuls face à leurs difficultés">${persona?.pain_points_soft?.join('\n') || ''}</textarea>
+Se sentent seuls face à leurs difficultés">${toArray(persona?.pain_points_soft).join('\n')}</textarea>
                                 </div>
 
                                 <small>Ces problèmes seront adressés dans tes contenus (DUR = priorité haute dans les posts)</small>
@@ -7779,12 +7820,12 @@ Se sentent seuls face à leurs difficultés">${persona?.pain_points_soft?.join('
                                 <textarea id="persona-desires" placeholder="Ex:
 Vivre de leur art
 Être reconnus pour leur travail
-Trouver des clients sans prospecter">${persona?.desires?.join('\n') || ''}</textarea>
+Trouver des clients sans prospecter">${toArray(persona?.desires).join('\n')}</textarea>
                             </div>
 
                             <div class="persona-form-group">
                                 <label>Mots-clés / vocabulaire à utiliser (séparés par des virgules)</label>
-                                <input type="text" id="persona-vocabulary" placeholder="Ex: création, œuvre, processus créatif, galerie" value="${persona?.vocabulary?.join(', ') || ''}">
+                                <input type="text" id="persona-vocabulary" placeholder="Ex: création, œuvre, processus créatif, galerie" value="${toArray(persona?.vocabulary).join(', ')}">
                             </div>
 
                             <div class="persona-form-group">
@@ -8155,14 +8196,14 @@ Trouver des clients sans prospecter">${persona?.desires?.join('\n') || ''}</text
             // Tags pour les personas personnalisés
             if (tagsEl) {
                 if (selectedAudienceType === 'persona') {
-                    const hardTags = (audience.pain_points_hard || []).slice(0, 2).map(p =>
+                    const hardTags = toArray(audience.pain_points_hard).slice(0, 2).map(p =>
                         `<span class="audience-preview-tag">🔴 ${p}</span>`
                     );
-                    const softTags = (audience.pain_points_soft || []).slice(0, 2).map(p =>
+                    const softTags = toArray(audience.pain_points_soft).slice(0, 2).map(p =>
                         `<span class="audience-preview-tag">🟡 ${p}</span>`
                     );
-                    const fallbackTags = (!audience.pain_points_hard?.length && !audience.pain_points_soft?.length && audience.pain_points?.length > 0)
-                        ? audience.pain_points.slice(0, 3).map(p => `<span class="audience-preview-tag">😓 ${p}</span>`)
+                    const fallbackTags = (!toArray(audience.pain_points_hard).length && !toArray(audience.pain_points_soft).length && toArray(audience.pain_points).length > 0)
+                        ? toArray(audience.pain_points).slice(0, 3).map(p => `<span class="audience-preview-tag">😓 ${p}</span>`)
                         : [];
                     const allTags = hardTags.length || softTags.length ? [...hardTags, ...softTags] : fallbackTags;
                     tagsEl.innerHTML = allTags.join('');
@@ -9015,31 +9056,36 @@ ${persona.location ? `- Localisation : ${persona.location}` : ''}
 `;
                 }
 
-                if (persona.pain_points_hard?.length > 0) {
+                const hardPains = toArray(persona.pain_points_hard);
+                const softPains = toArray(persona.pain_points_soft);
+
+                if (hardPains.length > 0) {
                     context += `
 PROBLEMES MAJEURS (à adresser en priorité) :
-${persona.pain_points_hard.map(p => `- ${p}`).join('\n')}
+${hardPains.map(p => `- ${p}`).join('\n')}
 `;
                 }
 
-                if (persona.pain_points_soft?.length > 0) {
+                if (softPains.length > 0) {
                     context += `
 IRRITANTS QUOTIDIENS (pour créer de l'identification) :
-${persona.pain_points_soft.map(p => `- ${p}`).join('\n')}
+${softPains.map(p => `- ${p}`).join('\n')}
 `;
                 }
 
-                if (!persona.pain_points_hard?.length && !persona.pain_points_soft?.length && persona.pain_points?.length > 0) {
+                const allPains = toArray(persona.pain_points);
+                if (!hardPains.length && !softPains.length && allPains.length > 0) {
                     context += `
 LEURS PROBLEMES (à adresser dans le contenu) :
-${persona.pain_points.map(p => `- ${p}`).join('\n')}
+${allPains.map(p => `- ${p}`).join('\n')}
 `;
                 }
 
-                if (persona.desires?.length > 0) {
+                const desiresList = toArray(persona.desires);
+                if (desiresList.length > 0) {
                     context += `
 CE QU'ILS VEULENT (promesse implicite) :
-${persona.desires.map(d => `- ${d}`).join('\n')}
+${desiresList.map(d => `- ${d}`).join('\n')}
 `;
                 }
 
@@ -9050,10 +9096,11 @@ ${persona.tone_preferences}
 `;
                 }
 
-                if (persona.vocabulary?.length > 0) {
+                const vocabList = toArray(persona.vocabulary);
+                if (vocabList.length > 0) {
                     context += `
 VOCABULAIRE A PRIVILEGIER :
-${persona.vocabulary.join(', ')}
+${vocabList.join(', ')}
 `;
                 }
 
@@ -9785,8 +9832,9 @@ ${persona.vocabulary.join(', ')}
         // ==================== SYSTÈME FRAMEWORKS ====================
         const FrameworkSystem = {
             KEY: 'tithot_frameworks',
+            SELECTED_KEY: 'tithot_selected_framework',
             currentTab: 'my',
-            selectedFramework: null,
+            selectedFramework: localStorage.getItem('tithot_selected_framework') || null,
             editingSteps: [],
 
             // Méthodes de copywriting classiques (onglet "Par défaut")
@@ -10744,14 +10792,21 @@ ${persona.vocabulary.join(', ')}
                     frameworks.unshift(framework);
                     this.saveUserFrameworks(frameworks);
 
+                    // Auto-sélectionner le framework importé
+                    this.selectedFramework = framework.id;
+
                     resultEl.className = 'import-result success';
-                    resultEl.innerHTML = `✅ Framework "${framework.name}" importé avec succès ! (${framework.steps.length} étapes)`;
+                    resultEl.innerHTML = `✅ Framework "${framework.name}" importé et sélectionné ! (${framework.steps.length} étapes)`;
                     resultEl.style.display = 'block';
 
                     setTimeout(() => {
                         this.closeImport();
                         this.showTab('my');
                         this.renderLibrary();
+                        this.updateQuickSelector();
+                        // Rendre la section frameworks visible
+                        const frameworkSection = document.getElementById('frameworkSection');
+                        if (frameworkSection) frameworkSection.style.display = 'block';
                     }, 1500);
 
                 } catch (error) {
@@ -11114,6 +11169,11 @@ ${persona.vocabulary.join(', ')}
 
             quickSelect(id) {
                 this.selectedFramework = id;
+                if (id) {
+                    localStorage.setItem(this.SELECTED_KEY, id);
+                } else {
+                    localStorage.removeItem(this.SELECTED_KEY);
+                }
                 this.updateQuickSelector();
             },
 
@@ -12208,9 +12268,12 @@ Si une info n'est pas présente, mets une chaîne vide ou un array vide.`;
                 if (clientSection) clientSection.style.display = isAgency ? 'block' : 'none';
                 if (agencyBtn) agencyBtn.style.display = isAgency ? 'inline-flex' : 'none';
 
-                // Section Frameworks (visible uniquement en mode agence)
+                // Section Frameworks (visible en mode agence OU si l'utilisateur a des frameworks)
                 const frameworkSection = document.getElementById('frameworkSection');
-                if (frameworkSection) frameworkSection.style.display = isAgency ? 'block' : 'none';
+                if (frameworkSection) {
+                    const hasFrameworks = FrameworkSystem.getUserFrameworks().length > 0;
+                    frameworkSection.style.display = (isAgency || hasFrameworks) ? 'block' : 'none';
+                }
                 
                 // Toggle dans la configuration
                 if (agencyToggleBtn) {
@@ -14472,6 +14535,11 @@ ${format.rules}
             updateMemoryIndicator();
             AgencySystem.updateUI();
             FrameworkSystem.updateQuickSelector();
+            // Afficher la section frameworks si l'utilisateur a des frameworks importés
+            if (FrameworkSystem.getUserFrameworks().length > 0 || FrameworkSystem.selectedFramework) {
+                const fwSection = document.getElementById('frameworkSection');
+                if (fwSection) fwSection.style.display = 'block';
+            }
             initAnecdoteListeners(); // Listeners pour le champ anecdote
             ProgressionSystem.updateMiniStats(); // Mise à jour des mini-stats
             LastContentManager.updateButton(); // Afficher le bouton Reprendre si contenu existant
@@ -18088,7 +18156,6 @@ Pour chaque suggestion :
         const API_URL = 'https://sos-storytelling-api.sandra-devonssay.workers.dev/';
 
         async function callAI(prompt, usePerplexity = false) {
-            // Utiliser fetchWithTimeout avec 90 secondes de timeout
             const fetchFn = window.fetchWithTimeout || fetch;
             const response = await fetchFn(API_URL, {
                 method: 'POST',
@@ -18099,10 +18166,18 @@ Pour chaque suggestion :
                     usePerplexity: usePerplexity
                 })
             }, 90000);
-            if (!response.ok) throw new Error('Erreur connexion');
+            if (!response.ok) {
+                let errorMsg = `Erreur serveur (${response.status})`;
+                try {
+                    const errData = await response.json();
+                    errorMsg = errData.error || errData.message || errorMsg;
+                } catch (e) { /* réponse non-JSON */ }
+                throw new Error(errorMsg);
+            }
             const data = await response.json();
             if (data.content?.[0]?.text) return data.content[0].text;
-            throw new Error('Format réponse invalide');
+            if (data.error) throw new Error(data.error);
+            throw new Error('Format de réponse inattendu — réessaie');
         }
         // Exposer callAI globalement pour les modules externes (newsletter, etc.)
         window.callAI = callAI;
