@@ -424,6 +424,9 @@
                             showMessage('Erreur: ' + error.message, 'error');
                         }
                     } else if (data.session) {
+                        console.log('🔑 [LOGIN] Session reçue:', data.session.user.email);
+                        console.log('🔑 [LOGIN] Origin:', window.location.origin);
+                        console.log('🔑 [LOGIN] localStorage sb keys:', Object.keys(localStorage).filter(k => k.includes('sb-')));
                         window.location.href = 'app.html';
                     }
                 }
