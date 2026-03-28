@@ -323,6 +323,13 @@ class NewsletterModule {
 
         <!-- Historique -->
         ${this.savedAnalyses.length > 0 ? this.renderAnalysisHistory() : ''}
+
+        <!-- Bouton Fermer -->
+        <div class="curation-close-section">
+          <button class="btn-close-modal" onclick="closeNewsletterModal()">
+            ✕ Fermer
+          </button>
+        </div>
       </div>
     `;
   }
