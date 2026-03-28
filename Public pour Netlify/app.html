@@ -14614,9 +14614,10 @@ ${format.rules}
             }
 
             // Gestionnaire global : fermer les modaux en cliquant à l'extérieur
+            // (sauf newsletterModal qui a son propre bouton fermer)
             document.querySelectorAll('.modal-overlay').forEach(overlay => {
                 overlay.addEventListener('click', function(e) {
-                    if (e.target === this) {
+                    if (e.target === this && this.id !== 'newsletterModal') {
                         this.classList.remove('show');
                         this.classList.remove('active');
                     }
