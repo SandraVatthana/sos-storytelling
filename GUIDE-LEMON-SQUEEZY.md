@@ -34,7 +34,7 @@
    - **Description** : Création de contenu IA illimitée pour créateurs individuels
    - **Price** : 39€/mois (sélectionne "Subscription")
    - **Billing interval** : Monthly
-   - **Free trial** : 14 days ✅
+   - **Free trial** : 7 days ✅
 3. Dans **Variants**, laisse par défaut
 4. **Save**
 
@@ -46,7 +46,7 @@
    - **Description** : Jusqu'à 10 clients, voix par client, dashboard analytics
    - **Price** : 99€/mois
    - **Billing interval** : Monthly
-   - **Free trial** : 14 days ✅
+   - **Free trial** : 7 days ✅
 3. **Save**
 
 ### Produit 3 : Agence Scale
@@ -57,7 +57,7 @@
    - **Description** : Jusqu'à 30 clients, analytics avancées, exports bulk
    - **Price** : 199€/mois
    - **Billing interval** : Monthly
-   - **Free trial** : 14 days ✅
+   - **Free trial** : 7 days ✅
 3. **Save**
 
 ### Produit 4 : Enterprise (optionnel)
@@ -88,7 +88,7 @@ Agence Scale :   https://myinnerquest.lemonsqueezy.com/checkout/buy/ghi789
 
 Dans `landing-sos-storytelling-v2.html`, remplace les liens suivants :
 
-### Boutons "Essayer 14 jours"
+### Boutons "Essayer 7 jours"
 
 Cherche : `href="sos-storytelling.html"` 
 Remplace par tes liens Lemon Squeezy selon le plan.
@@ -97,12 +97,12 @@ Remplace par tes liens Lemon Squeezy selon le plan.
 
 **Avant :**
 ```html
-<a href="sos-storytelling.html" class="pricing-btn secondary">Essayer 14 jours</a>
+<a href="sos-storytelling.html" class="pricing-btn secondary">Essayer 7 jours</a>
 ```
 
 **Après :**
 ```html
-<a href="https://myinnerquest.lemonsqueezy.com/checkout/buy/SOLO_ID" class="pricing-btn secondary">Essayer 14 jours</a>
+<a href="https://myinnerquest.lemonsqueezy.com/checkout/buy/SOLO_ID" class="pricing-btn secondary">Essayer 7 jours</a>
 ```
 
 ### Liste des remplacements à faire :
@@ -202,7 +202,7 @@ Pour créer des offres spéciales :
 
 - [ ] Compte Lemon Squeezy créé
 - [ ] Paiements configurés (Stripe ou LS Payments)
-- [ ] 3-4 produits créés avec essai 14j
+- [ ] 3-4 produits créés avec essai 7j
 - [ ] Liens récupérés
 - [ ] Landing page mise à jour
 - [ ] Test d'achat effectué

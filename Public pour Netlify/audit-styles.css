@@ -212,6 +212,112 @@
     text-align: left;
 }
 
+/* LinkedIn notice */
+.linkedin-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, #e8f4fd, #dbeafe);
+    border: 1px solid #93c5fd;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+}
+
+.linkedin-notice-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.linkedin-notice-text {
+    flex: 1;
+}
+
+.linkedin-notice-text strong {
+    display: block;
+    color: #1e40af;
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+}
+
+.linkedin-notice-text p {
+    margin: 0;
+    color: #3b82f6;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+/* Profile info section */
+.audit-profile-info-section {
+    margin-bottom: 1.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.audit-info-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1.25rem;
+    background: #f9fafb;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.audit-info-toggle:hover {
+    background: #f3f4f6;
+}
+
+.audit-info-toggle span:first-child {
+    font-weight: 600;
+    color: #374151;
+}
+
+.toggle-hint {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    font-weight: 400 !important;
+}
+
+.toggle-arrow {
+    margin-left: auto;
+    color: #9ca3af;
+    font-size: 0.75rem;
+}
+
+.audit-profile-fields {
+    padding: 1.25rem;
+    background: white;
+    border-top: 1px solid #e5e7eb;
+}
+
+.audit-input-group textarea {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.audit-input-group textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.audit-input-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.audit-input-row .audit-input-group {
+    flex: 1;
+}
+
 /* ==================== PROGRESS SCREEN ==================== */
 .audit-progress-container {
     padding: 3rem;
@@ -647,6 +753,167 @@
 
 .audit-preview-actions button {
     flex: 1;
+}
+
+/* ==================== GEO SECTION ==================== */
+.audit-geo {
+    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+}
+
+.section-header-geo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.section-header-geo h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #0369a1;
+}
+
+.geo-score-badge {
+    background: #0369a1;
+    color: white;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.geo-intro {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.geo-criteria-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.geo-criterion {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: white;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.criterion-label {
+    flex: 1;
+    color: #334155;
+}
+
+.criterion-status {
+    margin-right: 1rem;
+    font-weight: 500;
+}
+
+.criterion-score {
+    color: #64748b;
+    font-size: 0.85rem;
+    min-width: 45px;
+    text-align: right;
+}
+
+.geo-criterion.good .criterion-status {
+    color: #16a34a;
+}
+
+.geo-criterion.bad .criterion-status {
+    color: #dc2626;
+}
+
+.geo-criterion.neutral .criterion-status {
+    color: #9ca3af;
+}
+
+.geo-explanation {
+    margin-top: 1.25rem;
+    padding: 1.25rem;
+    background: white;
+    border-radius: 10px;
+    border-left: 4px solid #0369a1;
+}
+
+.geo-explanation-title {
+    margin: 0 0 0.75rem 0;
+    font-weight: 600;
+    color: #0369a1;
+    font-size: 1rem;
+}
+
+.geo-explanation-text {
+    margin: 0 0 1rem 0;
+    color: #475569;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.geo-explanation-subtitle {
+    margin: 0 0 0.5rem 0;
+    font-weight: 600;
+    color: #334155;
+    font-size: 0.9rem;
+}
+
+.geo-explanation-list {
+    margin: 0;
+    padding-left: 1.25rem;
+    color: #475569;
+    font-size: 0.9rem;
+    line-height: 1.7;
+}
+
+.geo-explanation-list li {
+    padding: 0.15rem 0;
+    border-bottom: none;
+}
+
+.geo-tip {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #fef3c7;
+    border-radius: 8px;
+    border-left: 3px solid #f59e0b;
+}
+
+.tip-icon {
+    font-size: 1.25rem;
+}
+
+.tip-text {
+    margin: 0;
+    color: #92400e;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* Strategy pillars */
+.strategy-pillars {
+    margin: 1rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.pillar-tag {
+    background: #dbeafe;
+    color: #1d4ed8;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
 }
 
 /* ==================== RESPONSIVE ==================== */

@@ -74,8 +74,8 @@
   bottom: 90px;
   right: 24px;
   z-index: 9998;
-  width: 340px;
-  max-height: 500px;
+  width: 380px;
+  max-height: 650px;
   background: white;
   border-radius: 16px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
@@ -132,6 +132,8 @@
 
 .sos-panel-content {
   padding: 20px;
+  max-height: 580px;
+  overflow-y: auto;
 }
 
 /* Auth Required State */
@@ -320,14 +322,19 @@
   top: 50%;
   transform: translateY(-50%);
   z-index: 100;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
 }
 
 .sos-checkbox-input {
   position: absolute;
   opacity: 0;
   cursor: pointer;
-  height: 0;
-  width: 0;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  z-index: 2;
 }
 
 .sos-checkbox-mark {
@@ -339,9 +346,11 @@
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s;
+  position: relative;
+  pointer-events: none;
 }
 
-.sos-checkbox-mark:hover {
+.sos-checkbox:hover .sos-checkbox-mark {
   border-color: #f5576c;
 }
 
@@ -353,8 +362,8 @@
 .sos-checkbox-input:checked + .sos-checkbox-mark::after {
   content: '';
   position: absolute;
-  left: 6px;
-  top: 2px;
+  left: 5px;
+  top: 1px;
   width: 5px;
   height: 10px;
   border: solid white;
@@ -402,6 +411,371 @@
 .sos-notification-info {
   background: #e0e7ff;
   color: #4f46e5;
+}
+
+/* ============================================
+   POSTS SECTION (Profile Page)
+   ============================================ */
+.sos-posts-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.sos-posts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.sos-posts-header h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.sos-posts-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.sos-btn-scrape-posts,
+.sos-btn-activity-page {
+  padding: 6px 12px;
+  background: #f3f4f6;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sos-btn-scrape-posts:hover,
+.sos-btn-activity-page:hover {
+  background: #e5e7eb;
+}
+
+.sos-btn-activity-page {
+  padding: 6px 10px;
+}
+
+.sos-posts-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.sos-post-item {
+  padding: 10px;
+  background: #f9fafb;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.sos-post-item:last-child {
+  margin-bottom: 0;
+}
+
+.sos-post-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.sos-post-date {
+  font-weight: 500;
+}
+
+.sos-post-engagement {
+  color: #f5576c;
+}
+
+.sos-post-text {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: #374151;
+  line-height: 1.4;
+}
+
+.sos-post-link {
+  font-size: 11px;
+  color: #f5576c;
+  text-decoration: none;
+}
+
+.sos-post-link:hover {
+  text-decoration: underline;
+}
+
+/* ============================================
+   SEARCH RESULTS (Content Search)
+   ============================================ */
+.sos-search-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sos-search-info {
+  padding: 12px;
+  background: #e0e7ff;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 14px;
+  color: #4f46e5;
+}
+
+.sos-search-count {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.sos-search-results-list {
+  max-height: 250px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.sos-search-result-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #f3f4f6;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.sos-search-result-item:last-child {
+  border-bottom: none;
+}
+
+.sos-search-result-item:hover {
+  background: #f9fafb;
+}
+
+.sos-search-result-item.selected {
+  background: #fef3c7;
+}
+
+.sos-result-checkbox {
+  margin-top: 4px;
+  cursor: pointer;
+  accent-color: #f5576c;
+}
+
+.sos-result-content {
+  flex: 1;
+  overflow: hidden;
+}
+
+.sos-result-author {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 6px;
+}
+
+.sos-result-author strong {
+  font-size: 13px;
+  color: #1a1a2e;
+}
+
+.sos-result-title {
+  font-size: 11px;
+  color: #6b7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sos-result-post {
+  margin: 0 0 6px;
+  font-size: 11px;
+  color: #374151;
+  line-height: 1.4;
+}
+
+.sos-result-meta {
+  display: flex;
+  gap: 10px;
+  font-size: 10px;
+  color: #9ca3af;
+}
+
+.sos-export-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.sos-selected-count {
+  flex: 1;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.sos-btn-export-csv,
+.sos-btn-add-prospects {
+  flex: 0 0 auto;
+  padding: 10px 14px;
+  font-size: 12px;
+}
+
+.sos-btn-add-prospects {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.sos-btn-add-prospects:hover:not(:disabled) {
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* ============================================
+   CONTENT SEARCH CHECKBOXES (on LinkedIn page)
+   ============================================ */
+.sos-content-checkbox {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-right: 10px;
+  flex-shrink: 0;
+  z-index: 1000;
+  cursor: pointer;
+}
+
+.sos-content-checkbox-input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  z-index: 2;
+}
+
+.sos-content-checkbox-mark {
+  display: block;
+  width: 22px;
+  height: 22px;
+  background: white;
+  border: 2px solid #0a66c2;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  pointer-events: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sos-content-checkbox:hover .sos-content-checkbox-mark {
+  border-color: #f5576c;
+  transform: scale(1.1);
+}
+
+.sos-content-checkbox-input:checked + .sos-content-checkbox-mark {
+  background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+  border-color: transparent;
+}
+
+.sos-content-checkbox-input:checked + .sos-content-checkbox-mark::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 6px;
+  height: 12px;
+  border: solid white;
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg);
+}
+
+/* Note: Les checkboxes sont positionnées en absolu à l'intérieur du container actor */
+/* Pas besoin de margin-left global qui casse l'affichage sur d'autres pages */
+
+/* ============================================
+   ENRICHMENT OPTIONS (Campaign + Apollo)
+   ============================================ */
+.sos-enrichment-options {
+  margin-bottom: 12px;
+  padding: 12px;
+  background: #f0f4ff;
+  border-radius: 8px;
+  border: 1px solid #e0e5ff;
+}
+
+.sos-option-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.sos-option-row:last-child {
+  margin-bottom: 0;
+}
+
+.sos-option-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.sos-campaign-select {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: inherit;
+  background: white;
+  color: #374151;
+}
+
+.sos-campaign-select:focus {
+  outline: none;
+  border-color: #f5576c;
+}
+
+.sos-btn-refresh-campaigns {
+  padding: 4px 8px;
+  background: none;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #6b7280;
+  transition: all 0.2s;
+}
+
+.sos-btn-refresh-campaigns:hover {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.sos-checkbox-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #374151;
+  cursor: pointer;
+}
+
+.sos-checkbox-option input[type="checkbox"] {
+  accent-color: #f5576c;
+  width: 16px;
+  height: 16px;
 }
 
 /* ============================================

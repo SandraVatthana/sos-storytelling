@@ -992,9 +992,8 @@
                     <select id="editPlan">
                         <option value="free" ${user.plan === 'free' ? 'selected' : ''}>Free</option>
                         <option value="trial" ${user.plan === 'trial' ? 'selected' : ''}>Trial</option>
-                        <option value="solo" ${user.plan === 'solo' ? 'selected' : ''}>Solo</option>
-                        <option value="agency_starter" ${user.plan === 'agency_starter' ? 'selected' : ''}>Agence Starter</option>
-                        <option value="agency_scale" ${user.plan === 'agency_scale' ? 'selected' : ''}>Agence Scale</option>
+                        <option value="solo" ${user.plan === 'solo' ? 'selected' : ''}>Solo (97€/mois)</option>
+                        <option value="white_label" ${user.plan === 'white_label' ? 'selected' : ''}>White Label</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -1145,10 +1144,8 @@
             // Breakdown
             const breakdown = revenue.breakdown;
             const plans = {
-                solo: { name: 'Solo', price: 39 },
-                agency_starter: { name: 'Agence Starter', price: 99 },
-                agency_scale: { name: 'Agence Scale', price: 199 },
-                enterprise: { name: 'Enterprise', price: 499 }
+                solo: { name: 'Solo', price: 97 },
+                white_label: { name: 'White Label', price: 60 }
             };
 
             let breakdownHtml = '<table><thead><tr><th>Plan</th><th>Abonnes</th><th>MRR</th></tr></thead><tbody>';

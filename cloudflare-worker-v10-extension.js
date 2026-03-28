@@ -1,7 +1,7 @@
 // cloudflare-worker-v10-extension.js
-// Version avec Sequences Email + Extension Chrome LinkedIn Sales Navigator
+// Version avec Sequences Email + Extension Chrome LinkedIn Sales Navigator + Apollo Enrichment
 // Variables d'environnement requises:
-// - ANTHROPIC_API_KEY, PERPLEXITY_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_KEY, BREVO_API_KEY
+// - ANTHROPIC_API_KEY, PERPLEXITY_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_KEY, BREVO_API_KEY, APOLLO_API_KEY
 
 export default {
   async fetch(request, env) {
@@ -18,14 +18,23 @@ export default {
 
     const url = new URL(request.url);
 
+    // ============ ENRICHMENT API (Apollo) ============
+    if (url.pathname.startsWith('/api/enrichment')) {
+      return handleEnrichmentAPI(request, env, corsHeaders);
+    }
+
     // ============ EXTENSION API (NEW - v10) ============
     if (url.pathname.startsWith('/api/extension')) {
       return handleExtensionAPI(request, env, corsHeaders);
     }
 
-    // ============ CRON ENDPOINT (appele toutes les 15 min) ============
+    // ============ CRON ENDPOINTS ============
     if (url.pathname === '/cron/process-sequences' && request.method === 'POST') {
       return handleProcessSequences(request, env, corsHeaders);
+    }
+
+    if (url.pathname === '/cron/process-enrichments' && request.method === 'POST') {
+      return handleCronProcessEnrichments(request, env, corsHeaders);
     }
 
     // ============ WEBHOOKS ============
@@ -64,8 +73,596 @@ export default {
   // Scheduled trigger pour Cloudflare Workers
   async scheduled(event, env, ctx) {
     ctx.waitUntil(processSequenceEmails(env));
+    ctx.waitUntil(processEnrichmentQueue(env, null, 10));
   }
 };
+
+// ============================================================
+// APOLLO ENRICHMENT API
+// ============================================================
+
+async function enrichWithApollo(env, prospect) {
+  if (!env.APOLLO_API_KEY) {
+    return { success: false, error: 'APOLLO_API_KEY not configured' };
+  }
+
+  try {
+    const response = await fetch('https://api.apollo.io/api/v1/people/match', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': env.APOLLO_API_KEY
+      },
+      body: JSON.stringify({
+        first_name: prospect.first_name || undefined,
+        last_name: prospect.last_name || undefined,
+        organization_name: prospect.company || undefined,
+        linkedin_url: prospect.linkedin_url || undefined
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Apollo API error:', response.status, errorText);
+      return { success: false, error: `Apollo API ${response.status}` };
+    }
+
+    const data = await response.json();
+    const person = data.person;
+
+    if (person && person.email) {
+      return {
+        success: true,
+        email: person.email,
+        data: {
+          email: person.email,
+          phone: person.phone_numbers?.[0]?.sanitized_number || null,
+          title: person.title || null,
+          headline: person.headline || null,
+          organization: person.organization?.name || null,
+          city: person.city || null,
+          state: person.state || null,
+          country: person.country || null,
+          linkedin_url: person.linkedin_url || null,
+          twitter_url: person.twitter_url || null,
+          employment_history: person.employment_history?.slice(0, 3) || []
+        }
+      };
+    }
+
+    return { success: false, error: 'No email found' };
+  } catch (error) {
+    console.error('Apollo enrichment error:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+async function handleEnrichmentAPI(request, env, corsHeaders) {
+  const url = new URL(request.url);
+  const path = url.pathname.replace('/api/enrichment', '');
+
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return jsonResponse({ error: 'Authorization required' }, 401, corsHeaders);
+  }
+
+  const token = authHeader.replace('Bearer ', '');
+  const user = await verifySupabaseToken(token, env);
+  if (!user) return jsonResponse({ error: 'Invalid token' }, 401, corsHeaders);
+
+  try {
+    switch (true) {
+      case path === '/single' && request.method === 'POST':
+        return await handleEnrichSingle(request, env, user, corsHeaders);
+
+      case path === '/batch' && request.method === 'POST':
+        return await handleEnrichBatch(request, env, user, corsHeaders);
+
+      case path === '/process' && request.method === 'POST':
+        return await handleEnrichProcess(env, user, corsHeaders);
+
+      case path === '/queue' && request.method === 'GET':
+        return await handleEnrichQueueStatus(url, env, user, corsHeaders);
+
+      case path === '/enrich-and-campaign' && request.method === 'POST':
+        return await handleEnrichAndCampaign(request, env, user, corsHeaders);
+
+      default:
+        return jsonResponse({ error: 'Endpoint not found' }, 404, corsHeaders);
+    }
+  } catch (error) {
+    console.error('Enrichment API Error:', error);
+    return jsonResponse({ error: error.message }, 500, corsHeaders);
+  }
+}
+
+// POST /api/enrichment/single — Enrich a single prospect synchronously
+async function handleEnrichSingle(request, env, user, corsHeaders) {
+  const body = await request.json();
+  const { prospect_id } = body;
+
+  if (!prospect_id) {
+    return jsonResponse({ error: 'Missing prospect_id' }, 400, corsHeaders);
+  }
+
+  // Fetch the prospect
+  const prospectRes = await fetch(
+    `${env.SUPABASE_URL}/rest/v1/prospects?id=eq.${prospect_id}&user_id=eq.${user.id}`,
+    { headers: supabaseHeaders(env) }
+  );
+  const prospects = await prospectRes.json();
+  const prospect = prospects[0];
+
+  if (!prospect) {
+    return jsonResponse({ error: 'Prospect not found' }, 404, corsHeaders);
+  }
+
+  // Mark as pending
+  await fetch(
+    `${env.SUPABASE_URL}/rest/v1/prospects?id=eq.${prospect_id}`,
+    {
+      method: 'PATCH',
+      headers: supabaseHeaders(env),
+      body: JSON.stringify({ apollo_enrichment_status: 'pending' })
+    }
+  );
+
+  // Call Apollo
+  const result = await enrichWithApollo(env, prospect);
+
+  if (result.success) {
+    // Update prospect with real email + Apollo data
+    const updates = {
+      apollo_email: result.email,
+      apollo_enrichment_status: 'found',
+      apollo_enriched_at: new Date().toISOString(),
+      apollo_data: result.data
+    };
+
+    // Replace placeholder email with real email
+    if (prospect.email.includes('.placeholder') || prospect.email.includes('enrichment.pending')) {
+      updates.email = result.email.toLowerCase();
+    }
+
+    await fetch(
+      `${env.SUPABASE_URL}/rest/v1/prospects?id=eq.${prospect_id}`,
+      {
+        method: 'PATCH',
+        headers: supabaseHeaders(env),
+        body: JSON.stringify(updates)
+      }
+    );
+
+    return jsonResponse({
+      success: true,
+      email: result.email,
+      status: 'found',
+      apollo_data: result.data
+    }, 200, corsHeaders);
+  } else {
+    await fetch(
+      `${env.SUPABASE_URL}/rest/v1/prospects?id=eq.${prospect_id}`,
+      {
+        method: 'PATCH',
+        headers: supabaseHeaders(env),
+        body: JSON.stringify({
+          apollo_enrichment_status: 'not_found',
+          apollo_enriched_at: new Date().toISOString()
+        })
+      }
+    );
+
+    return jsonResponse({
+      success: false,
+      status: 'not_found',
+      error: result.error
+    }, 200, corsHeaders);
+  }
+}
+
+// POST /api/enrichment/batch — Queue N prospects for enrichment
+async function handleEnrichBatch(request, env, user, corsHeaders) {
+  const body = await request.json();
+  const { prospect_ids, campaign_id, filter } = body;
+
+  let ids = prospect_ids;
+
+  // If no explicit IDs, build query from filter
+  if (!ids || ids.length === 0) {
+    let query = `${env.SUPABASE_URL}/rest/v1/prospects?user_id=eq.${user.id}&select=id`;
+
+    if (filter === 'no_email') {
+      // Only prospects with placeholder emails
+      query += `&or=(email.like.*placeholder*,email.like.*enrichment.pending*)`;
+    } else if (filter === 'not_enriched') {
+      query += `&apollo_enrichment_status=in.(none)`;
+    }
+
+    query += '&limit=500';
+
+    const res = await fetch(query, { headers: supabaseHeaders(env) });
+    const prospects = await res.json();
+    ids = prospects.map(p => p.id);
+  }
+
+  if (!ids || ids.length === 0) {
+    return jsonResponse({ error: 'No prospects to enrich' }, 400, corsHeaders);
+  }
+
+  // Insert into queue
+  const queueItems = ids.map(id => ({
+    prospect_id: id,
+    campaign_id: campaign_id || null,
+    user_id: user.id,
+    status: 'pending'
+  }));
+
+  const insertRes = await fetch(
+    `${env.SUPABASE_URL}/rest/v1/apollo_enrichment_queue`,
+    {
+      method: 'POST',
+      headers: {
+        ...supabaseHeaders(env),
+        'Prefer': 'return=representation,resolution=ignore-duplicates'
+      },
+      body: JSON.stringify(queueItems)
+    }
+  );
+
+  const inserted = await insertRes.json();
+
+  // Mark prospects as pending
+  if (ids.length > 0) {
+    await fetch(
+      `${env.SUPABASE_URL}/rest/v1/prospects?id=in.(${ids.join(',')})`,
+      {
+        method: 'PATCH',
+        headers: supabaseHeaders(env),
+        body: JSON.stringify({ apollo_enrichment_status: 'pending' })
+      }
+    );
+  }
+
+  return jsonResponse({
+    success: true,
+    queued: inserted.length || ids.length,
+    message: `${ids.length} prospect(s) en file d'attente pour enrichissement`
+  }, 200, corsHeaders);
+}
+
+// POST /api/enrichment/process — Process the queue (batch of 10)
+async function handleEnrichProcess(env, user, corsHeaders) {
+  const result = await processEnrichmentQueue(env, user.id, 10);
+  return jsonResponse(result, 200, corsHeaders);
+}
+
+// Process enrichment queue items
+async function processEnrichmentQueue(env, userId, limit = 10) {
+  let query = `${env.SUPABASE_URL}/rest/v1/apollo_enrichment_queue?status=eq.pending&order=created_at.asc&limit=${limit}`;
+  if (userId) {
+    query += `&user_id=eq.${userId}`;
+  }
+  query += '&select=*,prospects(*)';
+
+  const res = await fetch(query, { headers: supabaseHeaders(env) });
+  const queueItems = await res.json();
+
+  if (!queueItems || queueItems.length === 0) {
+    return { success: true, processed: 0, message: 'Queue vide' };
+  }
+
+  let enriched = 0, failed = 0;
+
+  for (const item of queueItems) {
+    const prospect = item.prospects;
+    if (!prospect) {
+      // Mark as failed if prospect was deleted
+      await fetch(
+        `${env.SUPABASE_URL}/rest/v1/apollo_enrichment_queue?id=eq.${item.id}`,
+        {
+          method: 'PATCH',
+          headers: supabaseHeaders(env),
+          body: JSON.stringify({ status: 'failed', error_message: 'Prospect not found', processed_at: new Date().toISOString() })
+        }
+      );
+      failed++;
+      continue;
+    }
+
+    // Mark queue item as processing
+    await fetch(
+      `${env.SUPABASE_URL}/rest/v1/apollo_enrichment_queue?id=eq.${item.id}`,
+      {
+        method: 'PATCH',
+        headers: supabaseHeaders(env),
+        body: JSON.stringify({ status: 'processing', attempts: (item.attempts || 0) + 1 })
+      }
+    );
+
+    // Call Apollo
+    const result = await enrichWithApollo(env, prospect);
+
+    if (result.success) {
+      // Update prospect
+      const updates = {
+        apollo_email: result.email,
+        apollo_enrichment_status: 'found',
+        apollo_enriched_at: new Date().toISOString(),
+        apollo_data: result.data
+      };
+
+      if (prospect.email.includes('.placeholder') || prospect.email.includes('enrichment.pending')) {
+        updates.email = result.email.toLowerCase();
+      }
+
+      await fetch(
+        `${env.SUPABASE_URL}/rest/v1/prospects?id=eq.${prospect.id}`,
+        {
+          method: 'PATCH',
+          headers: supabaseHeaders(env),
+          body: JSON.stringify(updates)
+        }
+      );
+
+      // If campaign_id provided, add to campaign
+      if (item.campaign_id) {
+        await fetch(
+          `${env.SUPABASE_URL}/rest/v1/campaign_prospect_status`,
+          {
+            method: 'POST',
+            headers: {
+              ...supabaseHeaders(env),
+              'Prefer': 'return=minimal,resolution=ignore-duplicates'
+            },
+            body: JSON.stringify({
+              campaign_id: item.campaign_id,
+              prospect_id: prospect.id,
+              user_id: item.user_id,
+              current_step: 0,
+              status: 'pending',
+              next_email_at: new Date().toISOString(),
+              emails_history: []
+            })
+          }
+        );
+      }
+
+      // Mark queue item as completed
+      await fetch(
+        `${env.SUPABASE_URL}/rest/v1/apollo_enrichment_queue?id=eq.${item.id}`,
+        {
+          method: 'PATCH',
+          headers: supabaseHeaders(env),
+          body: JSON.stringify({ status: 'completed', processed_at: new Date().toISOString() })
+        }
+      );
+
+      enriched++;
+    } else {
+      // Update prospect status
+      await fetch(
+        `${env.SUPABASE_URL}/rest/v1/prospects?id=eq.${prospect.id}`,
+        {
+          method: 'PATCH',
+          headers: supabaseHeaders(env),
+          body: JSON.stringify({
+            apollo_enrichment_status: 'not_found',
+            apollo_enriched_at: new Date().toISOString()
+          })
+        }
+      );
+
+      const newAttempts = (item.attempts || 0) + 1;
+      const maxReached = newAttempts >= (item.max_attempts || 3);
+
+      await fetch(
+        `${env.SUPABASE_URL}/rest/v1/apollo_enrichment_queue?id=eq.${item.id}`,
+        {
+          method: 'PATCH',
+          headers: supabaseHeaders(env),
+          body: JSON.stringify({
+            status: maxReached ? 'failed' : 'pending',
+            error_message: result.error,
+            processed_at: new Date().toISOString()
+          })
+        }
+      );
+
+      failed++;
+    }
+
+    // Rate limit: small delay between Apollo calls
+    await new Promise(r => setTimeout(r, 200));
+  }
+
+  return { success: true, processed: queueItems.length, enriched, failed };
+}
+
+// GET /api/enrichment/queue — Queue status
+async function handleEnrichQueueStatus(url, env, user, corsHeaders) {
+  const status = url.searchParams.get('status');
+  let query = `${env.SUPABASE_URL}/rest/v1/apollo_enrichment_queue?user_id=eq.${user.id}&select=id,prospect_id,campaign_id,status,error_message,attempts,created_at,processed_at&order=created_at.desc&limit=100`;
+  if (status) query += `&status=eq.${status}`;
+
+  const res = await fetch(query, { headers: { ...supabaseHeaders(env), 'Prefer': 'count=exact' } });
+  const total = res.headers.get('Content-Range')?.split('/')[1] || 0;
+  const items = await res.json();
+
+  // Count by status
+  const statsRes = await fetch(
+    `${env.SUPABASE_URL}/rest/v1/apollo_enrichment_queue?user_id=eq.${user.id}&select=status`,
+    { headers: supabaseHeaders(env) }
+  );
+  const allItems = await statsRes.json();
+  const stats = { pending: 0, processing: 0, completed: 0, failed: 0 };
+  allItems.forEach(i => { if (stats[i.status] !== undefined) stats[i.status]++; });
+
+  return jsonResponse({ success: true, items, total: parseInt(total), stats }, 200, corsHeaders);
+}
+
+// POST /api/enrichment/enrich-and-campaign — Combined flow: import + enrich + campaign
+async function handleEnrichAndCampaign(request, env, user, corsHeaders) {
+  const body = await request.json();
+  const { leads, campaign_id, source = 'linkedin_extension', enrich = true } = body;
+
+  if (!leads || !Array.isArray(leads) || leads.length === 0) {
+    return jsonResponse({ error: 'Missing or empty leads array' }, 400, corsHeaders);
+  }
+
+  if (leads.length > 100) {
+    return jsonResponse({ error: 'Maximum 100 leads per import' }, 400, corsHeaders);
+  }
+
+  // Step 1: Import leads (reuse existing logic from handleExtensionImport)
+  // Check for duplicates by linkedin_url
+  const linkedinUrls = leads
+    .filter(l => l.linkedin_url)
+    .map(l => l.linkedin_url.toLowerCase());
+
+  let existingUrls = new Set();
+  let existingProspects = [];
+  if (linkedinUrls.length > 0) {
+    const existingRes = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/prospects?user_id=eq.${user.id}&linkedin_url=in.(${linkedinUrls.map(u => `"${u}"`).join(',')})&select=id,linkedin_url`,
+      { headers: supabaseHeaders(env) }
+    );
+    existingProspects = await existingRes.json();
+    existingUrls = new Set(existingProspects.map(p => p.linkedin_url?.toLowerCase()));
+  }
+
+  const newLeads = [];
+  const duplicateIds = existingProspects.map(p => p.id);
+
+  for (const lead of leads) {
+    if (lead.linkedin_url && existingUrls.has(lead.linkedin_url.toLowerCase())) {
+      continue; // Skip duplicate, but we'll still enrich existing
+    }
+
+    if (!lead.first_name && !lead.last_name && !lead.linkedin_url) continue;
+
+    let email = lead.email;
+    if (!email || email.includes('.placeholder') || email.includes('enrichment.pending')) {
+      email = generateUniqueEmail(lead, user.id);
+    }
+
+    newLeads.push({
+      user_id: user.id,
+      email: email.toLowerCase(),
+      first_name: lead.first_name || null,
+      last_name: lead.last_name || null,
+      company: lead.company || null,
+      job_title: lead.job_title || null,
+      linkedin_url: lead.linkedin_url || null,
+      city: lead.location || lead.city || null,
+      source: source,
+      status: 'new',
+      tags: ['linkedin', 'extension'],
+      apollo_enrichment_status: enrich ? 'pending' : 'none',
+      notes: `Importe via extension le ${new Date().toLocaleDateString('fr-FR')}`
+    });
+  }
+
+  let imported = 0;
+  let importedIds = [];
+
+  if (newLeads.length > 0) {
+    const insertRes = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/prospects`,
+      {
+        method: 'POST',
+        headers: {
+          ...supabaseHeaders(env),
+          'Prefer': 'return=representation,resolution=ignore-duplicates'
+        },
+        body: JSON.stringify(newLeads)
+      }
+    );
+
+    if (!insertRes.ok) {
+      const errorText = await insertRes.text();
+      console.error('Insert error:', errorText);
+      return jsonResponse({ error: 'Failed to insert prospects' }, 500, corsHeaders);
+    }
+
+    const insertedProspects = await insertRes.json();
+    imported = insertedProspects.length;
+    importedIds = insertedProspects.map(p => p.id);
+  }
+
+  // Step 2: Queue all IDs (new + existing duplicates) for enrichment
+  const allIdsToEnrich = [...importedIds, ...duplicateIds];
+  let queued = 0;
+
+  if (enrich && allIdsToEnrich.length > 0) {
+    const queueItems = allIdsToEnrich.map(id => ({
+      prospect_id: id,
+      campaign_id: campaign_id || null,
+      user_id: user.id,
+      status: 'pending'
+    }));
+
+    const queueRes = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/apollo_enrichment_queue`,
+      {
+        method: 'POST',
+        headers: {
+          ...supabaseHeaders(env),
+          'Prefer': 'return=representation,resolution=ignore-duplicates'
+        },
+        body: JSON.stringify(queueItems)
+      }
+    );
+    const queuedItems = await queueRes.json();
+    queued = queuedItems.length || allIdsToEnrich.length;
+
+    // Step 3: If small batch (< 10), process synchronously
+    if (allIdsToEnrich.length <= 10) {
+      await processEnrichmentQueue(env, user.id, 10);
+    }
+  }
+
+  // Step 4: If campaign_id but no enrichment, add directly to campaign
+  if (campaign_id && !enrich && importedIds.length > 0) {
+    const statusRecords = importedIds.map(id => ({
+      campaign_id: campaign_id,
+      prospect_id: id,
+      user_id: user.id,
+      current_step: 0,
+      status: 'pending',
+      next_email_at: new Date().toISOString(),
+      emails_history: []
+    }));
+
+    await fetch(
+      `${env.SUPABASE_URL}/rest/v1/campaign_prospect_status`,
+      {
+        method: 'POST',
+        headers: { ...supabaseHeaders(env), 'Prefer': 'return=minimal,resolution=ignore-duplicates' },
+        body: JSON.stringify(statusRecords)
+      }
+    );
+  }
+
+  return jsonResponse({
+    success: true,
+    imported,
+    duplicates: duplicateIds.length,
+    queued_for_enrichment: queued,
+    campaign_id: campaign_id || null,
+    message: `${imported} importe(s), ${queued} en file pour enrichissement Apollo`
+  }, 200, corsHeaders);
+}
+
+// CRON: Process enrichment queue (called every 5 min)
+async function handleCronProcessEnrichments(request, env, corsHeaders) {
+  const secret = request.headers.get('X-Cron-Secret');
+  if (env.CRON_SECRET && secret !== env.CRON_SECRET) {
+    return jsonResponse({ error: 'Unauthorized' }, 401, corsHeaders);
+  }
+
+  const result = await processEnrichmentQueue(env, null, 10);
+  return jsonResponse(result, 200, corsHeaders);
+}
 
 // ============================================================
 // EXTENSION API - Import depuis LinkedIn Sales Navigator (NEW v10)

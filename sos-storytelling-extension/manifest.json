@@ -1,21 +1,23 @@
 {
   "manifest_version": 3,
-  "name": "SOS Storytelling - LinkedIn Leads Exporter",
-  "version": "1.0.0",
-  "description": "Exportez vos leads LinkedIn Sales Navigator directement vers SOS Storytelling",
+  "name": "SOS Tools - Admin Only",
+  "version": "2.2.3",
+  "description": "Outils d'administration SOS Storytelling - Scraping profils & posts LinkedIn",
   "author": "SOS Storytelling",
 
   "permissions": [
     "storage",
     "activeTab",
     "tabs",
-    "alarms"
+    "alarms",
+    "downloads"
   ],
 
   "host_permissions": [
     "https://www.linkedin.com/*",
     "https://sos-storytelling-api.sandra-devonssay.workers.dev/*",
-    "https://cuwkbxleeapxeyzdzqdr.supabase.co/*"
+    "https://pyxidmnckpnrargygwnf.supabase.co/*",
+    "https://sosstorytelling.fr/*"
   ],
 
   "background": {
@@ -25,10 +27,22 @@
   "content_scripts": [
     {
       "matches": [
-        "https://www.linkedin.com/sales/*"
+        "https://www.linkedin.com/sales/*",
+        "https://www.linkedin.com/in/*",
+        "https://www.linkedin.com/search/*",
+        "https://www.linkedin.com/search/results/people/*",
+        "https://www.linkedin.com/search/results/all/*",
+        "https://www.linkedin.com/feed/*"
       ],
       "js": ["content/content.js"],
       "css": ["styles/injected.css"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://sosstorytelling.fr/*"
+      ],
+      "js": ["content/sos-app-import.js"],
       "run_at": "document_idle"
     }
   ],

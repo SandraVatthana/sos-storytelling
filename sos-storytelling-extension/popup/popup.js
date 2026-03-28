@@ -1,8 +1,11 @@
-// popup.js - SOS Storytelling Chrome Extension
+// popup.js - SOS Tools Admin Extension
 
 const API_BASE = 'https://sos-storytelling-api.sandra-devonssay.workers.dev';
-const SUPABASE_URL = 'https://cuwkbxleeapxeyzdzqdr.supabase.co';
-const APP_URL = 'https://sos-storytelling.netlify.app';
+// Projet Supabase B2B (sosstorytelling.fr)
+const SUPABASE_URL = 'https://pyxidmnckpnrargygwnf.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eGlkbW5ja3BucmFyZ3lnd25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyMzc4NzIsImV4cCI6MjA3OTgxMzg3Mn0.atm-LVna_TQyPuACZgA4ngJzzgIfJQJIdnLd9lCpOns';
+const APP_URL = 'https://sosstorytelling.fr';
+const ADMIN_EMAIL = 'sandra.devonssay@gmail.com';
 
 // DOM Elements
 const loginView = document.getElementById('login-view');
@@ -64,16 +67,14 @@ async function checkAuthStatus() {
   }
 }
 
-// Verify token with Supabase
+// Verify token via background script (avoids CORS issues)
 async function verifyToken(token) {
   try {
-    const response = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN1d2tieGxlZWFweGV5emR6cWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzEyNTEyNDAsImV4cCI6MjA0NjgyNzI0MH0.XYXMxXcLgvEd6DcS8Dxz5c_V9K3g4YqW5L0E4X8GRXE'
-      }
+    const response = await chrome.runtime.sendMessage({
+      action: 'verifyToken',
+      token: token
     });
-    return response.ok;
+    return response.valid;
   } catch {
     return false;
   }
@@ -88,6 +89,134 @@ function setupEventListeners() {
   openDashboardBtn.addEventListener('click', () => chrome.tabs.create({ url: `${APP_URL}/prospects.html` }));
   logoutBtn.addEventListener('click', handleLogout);
   campaignSelect.addEventListener('change', updateExportButton);
+
+  // Bouton nouvelle campagne
+  const newCampaignBtn = document.getElementById('new-campaign-btn');
+  if (newCampaignBtn) {
+    newCampaignBtn.addEventListener('click', () => {
+      chrome.tabs.create({ url: `${APP_URL}/prospects.html?action=new_campaign` });
+    });
+  }
+
+  // Tab switching
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      // Remove active from all tabs and contents
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+      // Add active to clicked tab and corresponding content
+      tab.classList.add('active');
+      const tabId = tab.dataset.tab;
+      document.getElementById(`tab-${tabId}`)?.classList.add('active');
+    });
+  });
+
+  // Search button
+  const searchBtn = document.getElementById('search-posts-btn');
+  if (searchBtn) {
+    searchBtn.addEventListener('click', handlePostSearch);
+  }
+
+  // Keyword suggestions
+  document.querySelectorAll('.keyword-tag').forEach(tag => {
+    tag.addEventListener('click', () => {
+      const keywordsInput = document.getElementById('search-keywords');
+      const keyword = tag.dataset.keyword;
+
+      if (keywordsInput) {
+        const current = keywordsInput.value.trim();
+        if (current) {
+          // Ajouter à la liste existante si pas déjà présent
+          const keywords = current.split(',').map(k => k.trim());
+          if (!keywords.includes(keyword)) {
+            keywordsInput.value = current + ', ' + keyword;
+          }
+        } else {
+          keywordsInput.value = keyword;
+        }
+      }
+    });
+  });
+}
+
+// Handle post search - opens LinkedIn with search query
+function handlePostSearch() {
+  const keywordsInput = document.getElementById('search-keywords');
+  const periodSelect = document.getElementById('search-period');
+  const locationSelect = document.getElementById('search-location');
+
+  const keywords = keywordsInput?.value?.trim();
+  const period = periodSelect?.value || 'past-month';
+  const location = locationSelect?.value || 'france';
+
+  if (!keywords) {
+    showStatus('Entrez des mots-cles pour rechercher', 'error');
+    return;
+  }
+
+  // Build LinkedIn search URL
+  const searchUrl = buildLinkedInSearchUrl(keywords, period, location);
+
+  // Open in new tab
+  chrome.tabs.create({ url: searchUrl });
+}
+
+// Build LinkedIn content search URL
+function buildLinkedInSearchUrl(keywords, period, location) {
+  const baseUrl = 'https://www.linkedin.com/search/results/content/';
+
+  // LinkedIn uses specific format for date filters
+  let dateFilter = '';
+  switch (period) {
+    case 'past-24h':
+      dateFilter = 'past-24h';
+      break;
+    case 'past-week':
+      dateFilter = 'past-week';
+      break;
+    case 'past-month':
+      dateFilter = 'past-month';
+      break;
+  }
+
+  // Geographic filters (geoUrn IDs pour LinkedIn)
+  // France: 105015875, Belgium: 100565514, Switzerland: 106693272, Canada: 101174742
+  let geoIds = [];
+  switch (location) {
+    case 'france':
+      geoIds = ['105015875'];
+      break;
+    case 'francophone':
+      geoIds = ['105015875', '100565514', '106693272', '101174742'];
+      break;
+    case 'all':
+      geoIds = [];
+      break;
+  }
+
+  const encodedKeywords = encodeURIComponent(keywords);
+
+  // Construire l'URL avec le bon format LinkedIn
+  let url = `${baseUrl}?keywords=${encodedKeywords}&origin=FACETED_SEARCH&sid=REPLACEME`;
+
+  // Ajouter le filtre de date
+  if (dateFilter) {
+    url += `&datePosted="${dateFilter}"`;
+  }
+
+  // Ajouter le filtre géographique
+  if (geoIds.length > 0) {
+    const geoParam = geoIds.map(id => `"${id}"`).join(',');
+    url += `&postedBy=["first"]&authorGeoRegion=[${geoParam}]`;
+  }
+
+  // Encoder correctement l'URL
+  // Note: Les guillemets et crochets doivent être encodés
+  url = url.replace(/"/g, '%22').replace(/\[/g, '%5B').replace(/\]/g, '%5D');
+
+  console.log('[SOS Popup] Search URL:', url);
+  return url;
 }
 
 // Handle login
@@ -106,31 +235,34 @@ async function handleLogin(e) {
   hideError();
 
   try {
-    // Authenticate with Supabase
-    const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN1d2tieGxlZWFweGV5emR6cWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzEyNTEyNDAsImV4cCI6MjA0NjgyNzI0MH0.XYXMxXcLgvEd6DcS8Dxz5c_V9K3g4YqW5L0E4X8GRXE'
-      },
-      body: JSON.stringify({ email, password })
-    });
+    console.log('[SOS Popup] Tentative de connexion pour:', email);
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error_description || data.msg || 'Erreur de connexion');
+    // Passer par le background script pour éviter les problèmes CORS
+    let response;
+    try {
+      response = await chrome.runtime.sendMessage({
+        action: 'login',
+        email: email,
+        password: password
+      });
+      console.log('[SOS Popup] Réponse du background:', response);
+    } catch (msgError) {
+      console.error('[SOS Popup] Erreur sendMessage:', msgError);
+      throw new Error('Extension non chargée. Rechargez l\'extension dans chrome://extensions');
     }
 
-    // Store auth data
-    authToken = data.access_token;
-    currentUser = data.user;
+    if (!response) {
+      throw new Error('Pas de réponse du background script. Rechargez l\'extension.');
+    }
 
-    await chrome.storage.local.set({
-      authToken: data.access_token,
-      refreshToken: data.refresh_token,
-      user: data.user
-    });
+    if (!response.success) {
+      throw new Error(response.error || 'Erreur de connexion');
+    }
+
+    // Récupérer les données stockées par le background
+    const storage = await chrome.storage.local.get(['authToken', 'user']);
+    authToken = storage.authToken;
+    currentUser = storage.user;
 
     showConnectedView();
     await loadCampaigns();
@@ -171,9 +303,16 @@ async function handleLogout() {
 
 // Load campaigns
 async function loadCampaigns() {
-  if (!authToken) return;
+  if (!authToken) {
+    console.log('[SOS Popup] No auth token, skipping campaign load');
+    return;
+  }
 
   setButtonLoading(refreshCampaignsBtn, true);
+  console.log('[SOS Popup] Loading campaigns...');
+
+  // Toujours afficher l'option par défaut et "nouvelle campagne"
+  campaignSelect.innerHTML = '<option value="">-- Selectionner une campagne --</option>';
 
   try {
     const response = await fetch(`${API_BASE}/api/campaigns?status=draft&limit=50`, {
@@ -182,42 +321,34 @@ async function loadCampaigns() {
       }
     });
 
-    if (!response.ok) {
-      throw new Error('Erreur chargement campagnes');
+    console.log('[SOS Popup] Campaigns API response:', response.status);
+
+    if (response.ok) {
+      const data = await response.json();
+      const campaigns = data.campaigns || [];
+      console.log('[SOS Popup] Found', campaigns.length, 'campaigns');
+
+      campaigns.forEach(campaign => {
+        const option = document.createElement('option');
+        option.value = campaign.id;
+        option.textContent = campaign.name;
+        campaignSelect.appendChild(option);
+      });
     }
-
-    const data = await response.json();
-    const campaigns = data.campaigns || [];
-
-    // Populate select
-    campaignSelect.innerHTML = '<option value="">-- Selectionner une campagne --</option>';
-
-    campaigns.forEach(campaign => {
-      const option = document.createElement('option');
-      option.value = campaign.id;
-      option.textContent = campaign.name;
-      campaignSelect.appendChild(option);
-    });
-
-    // Add option to create new campaign
-    const newOption = document.createElement('option');
-    newOption.value = 'new';
-    newOption.textContent = '+ Creer une nouvelle campagne';
-    campaignSelect.appendChild(newOption);
-
   } catch (error) {
-    console.error('Load campaigns error:', error);
-  } finally {
-    setButtonLoading(refreshCampaignsBtn, false);
+    console.error('[SOS Popup] Load campaigns error:', error);
   }
+
+  setButtonLoading(refreshCampaignsBtn, false);
 }
 
-// Get selected leads from Sales Navigator page
+// Get selected leads from LinkedIn page (Sales Navigator, profiles, or search)
 async function getSelectedLeadsFromPage() {
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-    if (!tab?.url?.includes('linkedin.com/sales')) {
+    // Supporter Sales Navigator, profils et recherches LinkedIn
+    if (!tab?.url?.includes('linkedin.com')) {
       leadsCountEl.textContent = '-';
       return;
     }
@@ -261,9 +392,14 @@ async function handleExport() {
   try {
     // If "new campaign", redirect to app
     if (campaignId === 'new') {
-      // Store leads temporarily and open app
-      await chrome.storage.local.set({ pendingLeads: selectedLeads });
-      chrome.tabs.create({ url: `${APP_URL}/prospects.html?import=extension` });
+      // Stocker les leads dans chrome.storage (evite erreur 414 URL trop longue)
+      await chrome.storage.local.set({
+        pendingLeadsImport: {
+          leads: selectedLeads,
+          timestamp: Date.now()
+        }
+      });
+      chrome.tabs.create({ url: `${APP_URL}/prospects.html?import_leads=pending` });
       return;
     }
 

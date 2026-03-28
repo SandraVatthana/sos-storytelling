@@ -1121,20 +1121,7 @@ const I18N = {
         localStorage.setItem('sos_language', lang);
         document.documentElement.lang = lang;
 
-        // Sauvegarder en BDD si connecte
-        if (window.supabaseApp) {
-            try {
-                const { data: { user } } = await window.supabaseApp.auth.getUser();
-                if (user) {
-                    await window.supabaseApp
-                        .from('users')
-                        .update({ language: lang })
-                        .eq('id', user.id);
-                }
-            } catch (e) {
-                console.log('Could not save language to profile');
-            }
-        }
+        // La langue est sauvegardée dans localStorage uniquement
 
         // Declencher un evenement pour mettre a jour l'UI
         window.dispatchEvent(new CustomEvent('languageChanged', { detail: { language: lang } }));

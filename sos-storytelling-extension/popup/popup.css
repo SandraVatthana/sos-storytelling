@@ -264,18 +264,33 @@ body {
 /* Section */
 .section {
   margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
 }
 
-.section label {
-  width: 100%;
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.section-header label {
   font-size: 12px;
   font-weight: 600;
   color: #374151;
-  margin-bottom: 4px;
+}
+
+.section label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.select-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
 .section select {
@@ -291,6 +306,25 @@ body {
 .section select:focus {
   outline: none;
   border-color: #f5576c;
+}
+
+.btn-new {
+  font-size: 11px;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+  color: white;
+}
+
+.btn-new:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(245, 87, 108, 0.3);
+}
+
+.hint {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 8px;
+  text-align: center;
 }
 
 /* Leads Count */
@@ -371,4 +405,100 @@ body {
 
 .footer a:hover {
   text-decoration: underline;
+}
+
+/* ============================================
+   TABS
+   ============================================ */
+.tabs {
+  display: flex !important;
+  gap: 4px;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+  border-radius: 10px;
+  padding: 5px;
+  box-shadow: 0 2px 8px rgba(245, 87, 108, 0.2);
+}
+
+.tab {
+  flex: 1;
+  padding: 10px 14px;
+  border: none;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.tab.active {
+  background: white;
+  color: #f5576c;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.tab-content {
+  display: none !important;
+}
+
+.tab-content.active {
+  display: block !important;
+}
+
+/* ============================================
+   SEARCH TAB
+   ============================================ */
+.suggested-keywords {
+  margin-top: 16px;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+.suggested-keywords p {
+  font-size: 11px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.keyword-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.keyword-tag {
+  padding: 4px 10px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  font-size: 11px;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.keyword-tag:hover {
+  border-color: #f5576c;
+  color: #f5576c;
+}
+
+#search-keywords {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+#search-keywords:focus {
+  outline: none;
+  border-color: #f5576c;
+  box-shadow: 0 0 0 3px rgba(245, 87, 108, 0.1);
 }

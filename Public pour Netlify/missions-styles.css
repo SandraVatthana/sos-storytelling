@@ -216,6 +216,42 @@
     color: var(--gray-700);
 }
 
+/* Simplified template cards */
+.template-cards-simple {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.template-card-simple {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px;
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.template-card-simple:hover {
+    background: white;
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+.template-card-simple .template-icon {
+    font-size: 20px;
+}
+
+.template-card-simple .template-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gray-800);
+}
+
 /* ==================== PROGRESS SCREEN ==================== */
 .mission-progress-screen {
     max-width: 600px;

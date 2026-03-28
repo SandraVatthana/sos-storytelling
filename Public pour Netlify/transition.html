@@ -302,14 +302,16 @@
 
             <!-- Offer Card -->
             <div class="offer-card">
-                <div class="offer-badge">OFFRE SPECIALE ALUMNI</div>
+                <div class="offer-badge" style="background: linear-gradient(135deg, #ef4444, #dc2626);">⏰ EARLY ADOPTER - Jusqu'au 20 fevrier</div>
                 <div class="offer-title">Continue avec SOS Storytelling</div>
 
                 <div class="offer-price">
-                    <span class="price-current" id="priceCurrent">19€</span>
-                    <span class="price-original">29€</span>
+                    <span style="text-decoration: line-through; color: #999; font-size: 1.5em; margin-right: 10px;">97€</span>
+                    <span class="price-current" id="priceCurrent">67€</span>
                     <span class="price-period">/mois</span>
                 </div>
+
+                <div style="color: #f093fb; font-size: 0.9em; margin-bottom: 15px;">Prix bloque 6 mois, puis 97€/mois</div>
 
                 <div class="promo-code" id="promoCodeBadge" style="display: none;">
                     <span>🎁</span>
@@ -331,12 +333,16 @@
                     </div>
                     <div class="benefit-item">
                         <span class="benefit-icon">✓</span>
-                        <span>Acces illimite a toutes les fonctionnalites</span>
+                        <span>Acces illimite + prospection automatisee</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Garantie 14 jours satisfaite ou remboursee</span>
                     </div>
                 </div>
 
                 <button class="cta-button" id="ctaButton" onclick="startCheckout()">
-                    Continuer a 19€/mois
+                    Continuer a 67€/mois →
                 </button>
             </div>
 
@@ -382,7 +388,7 @@
         let currentUser = null;
         let currentOrgUser = null;
         let promoCode = null;
-        let finalPrice = 1900; // 19€ en centimes
+        let finalPrice = 6700; // 67€ en centimes
 
         // ============================================
         // INITIALIZATION
