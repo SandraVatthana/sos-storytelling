@@ -355,6 +355,14 @@
                     return;
                 }
 
+                // Admin gate
+                const ADMIN_EMAIL = 'sandra.devonssay@gmail.com';
+                if (user.email !== ADMIN_EMAIL) {
+                    await window.supabase.auth.signOut();
+                    document.body.innerHTML = '<div style="text-align:center;padding:100px;font-family:system-ui,sans-serif;"><h2>Acces restreint</h2><p>Cette application est reservee a l\'administrateur.</p><a href="login.html" style="color:#667eea;">Retour</a></div>';
+                    return;
+                }
+
                 // User is authenticated
                 authCheck.style.display = 'none';
                 mainApp.style.display = 'block';

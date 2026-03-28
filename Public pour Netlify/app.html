@@ -5004,6 +5004,18 @@
             };
 
             console.log('✅ Utilisateur connecté:', window.currentUser.email, '| Trial:', trialDaysLeft, 'jours restants');
+
+            // === ADMIN GATE ===
+            const ADMIN_EMAIL = 'sandra.devonssay@gmail.com';
+            if (session.user.email !== ADMIN_EMAIL) {
+                await supabase.auth.signOut();
+                document.body.innerHTML = '<div style="text-align:center;padding:100px;font-family:system-ui,sans-serif;"><h2>Acces restreint</h2><p>Cette application est reservee a l\'administrateur.</p><a href="login.html" style="color:#667eea;">Retour</a></div>';
+                return;
+            }
+
+            // Show extension download link for admin
+            const extLink = document.getElementById('extensionDownloadLink');
+            if (extLink) extLink.style.display = '';
         })();
     </script>
     <!-- DÉSACTIVÉ - Module newsletter (conservé pour plus tard)
@@ -5074,6 +5086,7 @@
                     <a class="dropdown-item" id="teamManagementBtn" onclick="closeDropdowns(); CollaborationModule.showTeamModal()" style="display: none; background: linear-gradient(135deg, #11998e, #38ef7d); color: white; margin-top: 8px; border-radius: 8px;">👥 <span data-i18n="menu.team">Mon équipe</span></a>
                     <a class="dropdown-item" onclick="closeDropdowns(); showPromoModal()">🎁 <span data-i18n="menu.promo_code">Code promo</span></a>
                     <a class="dropdown-item" href="account.html">💎 <span data-i18n="menu.subscription">Mon abonnement</span></a>
+                    <a id="extensionDownloadLink" class="dropdown-item" href="sos-extension.zip" download style="display:none;">🧩 Extension Chrome</a>
                     <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 8px 0;"></div>
                     <a class="dropdown-item" onclick="closeDropdowns(); handleLogout()" style="color: #ff6b6b;">🚪 <span data-i18n="menu.logout">Déconnexion</span></a>
                 </div>
