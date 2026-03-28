@@ -2162,6 +2162,8 @@ async function handleNewslettersAPI(request, env, corsHeaders) {
         return await handleCreateNewsletter(request, env, user, corsHeaders);
       case path === '/generate' && request.method === 'POST':
         return await handleGenerateNewsletter(request, env, user, corsHeaders);
+      case path === '/analyze' && request.method === 'POST':
+        return await handleAnalyzeNewsletter(request, env, user, corsHeaders);
       case path.match(/^\/[a-f0-9-]+$/) && request.method === 'GET':
         return await handleGetNewsletter(path.slice(1), env, user, corsHeaders);
       case path.match(/^\/[a-f0-9-]+$/) && request.method === 'PUT':
@@ -2244,6 +2246,95 @@ Structure:
   const content = data.content[0].text;
 
   return jsonResponse({ success: true, content }, 200, corsHeaders);
+}
+
+async function handleAnalyzeNewsletter(request, env, user, corsHeaders) {
+  const body = await request.json();
+  const { content, source, subject } = body;
+
+  if (!content || content.trim().length < 50) {
+    return jsonResponse({ error: 'Le contenu de la newsletter est trop court (min 50 caractères)' }, 400, corsHeaders);
+  }
+
+  const prompt = `Tu es un expert en email marketing et copywriting. Analyse en profondeur cette newsletter.
+
+${source ? `Source / Auteur : ${source}` : ''}
+${subject ? `Objet de l'email : ${subject}` : ''}
+
+## NEWSLETTER A ANALYSER :
+---
+${content}
+---
+
+Fais un décorticage complet et réponds UNIQUEMENT avec ce JSON, sans texte avant ou après :
+{
+  "structure": {
+    "summary": "Description de la structure globale (hook, corps, transitions, CTA)",
+    "sections": ["Liste des sections identifiées dans l'ordre"]
+  },
+  "hook": {
+    "subject_analysis": "Analyse de l'objet de l'email (si fourni)",
+    "opening_analysis": "Analyse de la première phrase / accroche",
+    "score": "Fort / Moyen / Faible",
+    "why": "Pourquoi ça fonctionne ou pas"
+  },
+  "tone": {
+    "register": "Registre identifié (familier, courant, soutenu)",
+    "personality": "Traits de personnalité perçus",
+    "proximity": "Niveau de proximité avec le lecteur (distant, neutre, proche, intime)",
+    "details": "Analyse détaillée du ton et de la voix"
+  },
+  "copywriting": {
+    "techniques": ["Liste des techniques identifiées (AIDA, PAS, storytelling, urgence, preuve sociale, etc.)"],
+    "details": "Explication de comment chaque technique est utilisée"
+  },
+  "cta": {
+    "type": "Type de CTA (lien, réponse, achat, inscription...)",
+    "placement": "Où est placé le CTA dans la newsletter",
+    "formulation": "Texte exact du CTA",
+    "effectiveness": "Analyse de l'efficacité du CTA"
+  },
+  "strengths": ["Liste des points forts de cette newsletter"],
+  "improvements": ["Liste des points d'amélioration avec suggestions concrètes"],
+  "actionable_rules": [
+    {
+      "category": "algorithme|format|timing|engagement|erreurs|copywriting|strategie",
+      "rule": "Règle actionnable extraite de cette newsletter",
+      "example": "Exemple concret tiré du texte"
+    }
+  ]
+}`;
+
+  const claudeResponse = await fetchWithAbortTimeout("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": env.ANTHROPIC_API_KEY,
+      "anthropic-version": "2023-06-01"
+    },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-5-20250929",
+      max_tokens: 3000,
+      messages: [{ role: "user", content: prompt }]
+    })
+  });
+
+  if (!claudeResponse.ok) {
+    return jsonResponse({ error: 'Analysis failed' }, 500, corsHeaders);
+  }
+
+  const data = await claudeResponse.json();
+  const rawContent = data.content[0].text;
+
+  let analysis;
+  try {
+    const cleaned = rawContent.replace(/^```json\s*\n?/i, '').replace(/\n?\s*```\s*$/g, '').trim();
+    analysis = JSON.parse(cleaned);
+  } catch (e) {
+    analysis = { raw: rawContent };
+  }
+
+  return jsonResponse({ success: true, analysis }, 200, corsHeaders);
 }
 
 async function handleGetNewsletter(id, env, user, corsHeaders) {

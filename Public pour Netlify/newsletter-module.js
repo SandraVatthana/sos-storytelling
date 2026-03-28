@@ -18,6 +18,10 @@ class NewsletterModule {
     this.selectedVoice = null;
     this.templates = [];
     this.isAgencyMode = false;
+    this.activeTab = 'curation';
+    this.analysisResult = null;
+    this.analysisLoading = false;
+    this.savedAnalyses = this.loadSavedAnalyses();
 
     this.types = [];
     this.structures = [];
@@ -169,6 +173,25 @@ class NewsletterModule {
 
     container.innerHTML = `
       <div class="newsletter-container">
+        <!-- Onglets principaux -->
+        <div class="newsletter-tabs-bar">
+          <button class="newsletter-tab ${this.activeTab === 'curation' ? 'active' : ''}"
+                  onclick="newsletterModule.switchTab('curation')">
+            🔍 Curation
+          </button>
+          <button class="newsletter-tab ${this.activeTab === 'redaction' ? 'active' : ''}"
+                  onclick="newsletterModule.switchTab('redaction')">
+            ✍️ Rédaction
+          </button>
+        </div>
+
+        ${this.activeTab === 'curation' ? this.renderCurationTab() : this.renderRedactionTab()}
+      </div>
+    `;
+  }
+
+  renderRedactionTab() {
+    return `
         <!-- Header avec mode Agency -->
         <div class="newsletter-header">
           <div class="newsletter-title-row">
@@ -232,8 +255,404 @@ class NewsletterModule {
 
         <!-- Templates rapides -->
         ${this.currentStep === 1 && this.templates.length > 0 ? this.renderQuickTemplates() : ''}
+    `;
+  }
+
+  switchTab(tab) {
+    this.activeTab = tab;
+    this.render();
+  }
+
+  // ============================================================
+  // ONGLET CURATION (ANALYSE)
+  // ============================================================
+
+  loadSavedAnalyses() {
+    try {
+      const saved = localStorage.getItem('sos_newsletter_analyses');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  saveAnalysis(analysis, source, subject) {
+    const entry = {
+      id: Date.now().toString(),
+      analysis,
+      source: source || '',
+      subject: subject || '',
+      createdAt: new Date().toISOString()
+    };
+    this.savedAnalyses.unshift(entry);
+    this.savedAnalyses = this.savedAnalyses.slice(0, 20);
+    localStorage.setItem('sos_newsletter_analyses', JSON.stringify(this.savedAnalyses));
+  }
+
+  renderCurationTab() {
+    return `
+      <div class="curation-container">
+        <h3 class="step-title">🔍 Analyse une newsletter</h3>
+        <p class="step-description">Colle une newsletter pour la décortiquer : structure, hook, ton, CTA, ce qui fonctionne...</p>
+
+        <!-- Zone de saisie -->
+        <div class="curation-input-section">
+          <textarea class="analysis-textarea" id="analysis-content"
+                    placeholder="Colle ici le contenu complet d'une newsletter que tu veux analyser...&#10;&#10;Inclus tout : objet, corps du texte, CTA, etc.">${this._analysisContent || ''}</textarea>
+
+          <div class="curation-meta-fields">
+            <div class="form-group">
+              <label>📝 Source (optionnel)</label>
+              <input type="text" id="analysis-source" placeholder="Ex: Newsletter de Mathilde Langevin"
+                     value="${this._analysisSource || ''}">
+            </div>
+            <div class="form-group">
+              <label>📬 Objet de l'email (optionnel)</label>
+              <input type="text" id="analysis-subject" placeholder="Ex: 3 erreurs qui tuent ton engagement"
+                     value="${this._analysisSubject || ''}">
+            </div>
+          </div>
+
+          <button class="btn-generate" onclick="newsletterModule.analyzeNewsletter()" ${this.analysisLoading ? 'disabled' : ''}>
+            ${this.analysisLoading ? '⏳ Analyse en cours...' : '🔍 Analyser cette newsletter'}
+          </button>
+        </div>
+
+        <!-- Résultats -->
+        ${this.analysisResult ? this.renderAnalysisResults(this.analysisResult) : ''}
+
+        <!-- Historique -->
+        ${this.savedAnalyses.length > 0 ? this.renderAnalysisHistory() : ''}
       </div>
     `;
+  }
+
+  async analyzeNewsletter() {
+    const content = document.getElementById('analysis-content')?.value?.trim();
+    const source = document.getElementById('analysis-source')?.value?.trim();
+    const subject = document.getElementById('analysis-subject')?.value?.trim();
+
+    if (!content || content.length < 50) {
+      this.showError('Colle au moins 50 caractères de newsletter pour une analyse pertinente.');
+      return;
+    }
+
+    // Sauvegarder les valeurs du formulaire pour le re-render
+    this._analysisContent = content;
+    this._analysisSource = source;
+    this._analysisSubject = subject;
+
+    this.analysisLoading = true;
+    this.analysisResult = null;
+    this.render();
+
+    try {
+      if (typeof window.callAI !== 'function') {
+        throw new Error('La fonction callAI n\'est pas disponible. Recharge la page.');
+      }
+
+      const prompt = `Tu es un expert en email marketing et copywriting. Analyse en profondeur cette newsletter.
+
+${source ? `Source / Auteur : ${source}` : ''}
+${subject ? `Objet de l'email : ${subject}` : ''}
+
+## NEWSLETTER A ANALYSER :
+---
+${content}
+---
+
+Fais un décorticage complet et réponds UNIQUEMENT avec ce JSON, sans texte avant ou après :
+{
+  "structure": {
+    "summary": "Description de la structure globale (hook, corps, transitions, CTA)",
+    "sections": ["Liste des sections identifiées dans l'ordre"]
+  },
+  "hook": {
+    "subject_analysis": "Analyse de l'objet de l'email (si fourni)",
+    "opening_analysis": "Analyse de la première phrase / accroche",
+    "score": "Fort / Moyen / Faible",
+    "why": "Pourquoi ça fonctionne ou pas"
+  },
+  "tone": {
+    "register": "Registre identifié (familier, courant, soutenu)",
+    "personality": "Traits de personnalité perçus",
+    "proximity": "Niveau de proximité avec le lecteur (distant, neutre, proche, intime)",
+    "details": "Analyse détaillée du ton et de la voix"
+  },
+  "copywriting": {
+    "techniques": ["Liste des techniques identifiées"],
+    "details": "Explication de comment chaque technique est utilisée"
+  },
+  "cta": {
+    "type": "Type de CTA",
+    "placement": "Où est placé le CTA",
+    "formulation": "Texte exact du CTA",
+    "effectiveness": "Analyse de l'efficacité"
+  },
+  "strengths": ["Liste des points forts"],
+  "improvements": ["Liste des points d'amélioration avec suggestions"],
+  "actionable_rules": [
+    {
+      "category": "algorithme|format|timing|engagement|erreurs|copywriting|strategie",
+      "rule": "Règle actionnable",
+      "example": "Exemple concret tiré du texte"
+    }
+  ]
+}`;
+
+      const response = await window.callAI(prompt);
+
+      let analysis;
+      try {
+        let cleaned = String(response).trim()
+          .replace(/^```json\s*\n?/i, '')
+          .replace(/^```\s*\n?/, '')
+          .replace(/\n?\s*```\s*$/g, '');
+        analysis = JSON.parse(cleaned);
+      } catch (e) {
+        // Essayer de trouver le JSON dans la réponse
+        const match = String(response).match(/\{[\s\S]*\}/);
+        if (match) {
+          try { analysis = JSON.parse(match[0]); } catch (e2) {
+            analysis = { raw: String(response) };
+          }
+        } else {
+          analysis = { raw: String(response) };
+        }
+      }
+
+      this.analysisResult = analysis;
+      this.saveAnalysis(analysis, source, subject);
+      this.analysisLoading = false;
+      this.render();
+      this.showSuccess('Analyse terminée !');
+
+    } catch (error) {
+      console.error('📧 Newsletter - Erreur analyse:', error);
+      this.analysisLoading = false;
+      this.render();
+      this.showError('Erreur lors de l\'analyse: ' + error.message);
+    }
+  }
+
+  renderAnalysisResults(data) {
+    if (data.raw) {
+      return `
+        <div class="analysis-results">
+          <h4 class="analysis-results-title">📊 Résultats de l'analyse</h4>
+          <div class="analysis-card">
+            <h4>📄 Analyse brute</h4>
+            <div class="analysis-card-content">${this.escapeHtml(data.raw).replace(/\n/g, '<br>')}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    const categoryColors = {
+      algorithme: '#667eea',
+      format: '#f093fb',
+      timing: '#4facfe',
+      engagement: '#38ef7d',
+      erreurs: '#f5576c',
+      copywriting: '#ff9800',
+      strategie: '#764ba2'
+    };
+
+    return `
+      <div class="analysis-results">
+        <div class="analysis-results-header">
+          <h4 class="analysis-results-title">📊 Résultats de l'analyse</h4>
+          <button class="btn-small" onclick="newsletterModule.copyAnalysis()">
+            📋 Copier l'analyse
+          </button>
+        </div>
+
+        ${data.structure ? `
+          <div class="analysis-card">
+            <h4>🏗️ Structure</h4>
+            <div class="analysis-card-content">
+              <p>${this.escapeHtml(data.structure.summary || '')}</p>
+              ${data.structure.sections?.length ? `
+                <div class="analysis-sections-list">
+                  ${data.structure.sections.map(s => `<span class="analysis-section-tag">${this.escapeHtml(s)}</span>`).join('')}
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        ` : ''}
+
+        ${data.hook ? `
+          <div class="analysis-card">
+            <h4>🪝 Hook / Accroche</h4>
+            <div class="analysis-card-content">
+              ${data.hook.subject_analysis ? `<p><strong>Objet :</strong> ${this.escapeHtml(data.hook.subject_analysis)}</p>` : ''}
+              ${data.hook.opening_analysis ? `<p><strong>Accroche :</strong> ${this.escapeHtml(data.hook.opening_analysis)}</p>` : ''}
+              ${data.hook.score ? `<p><strong>Score :</strong> <span class="analysis-score analysis-score-${(data.hook.score || '').toLowerCase().replace(/[^a-z]/g, '')}">${this.escapeHtml(data.hook.score)}</span></p>` : ''}
+              ${data.hook.why ? `<p>${this.escapeHtml(data.hook.why)}</p>` : ''}
+            </div>
+          </div>
+        ` : ''}
+
+        ${data.tone ? `
+          <div class="analysis-card">
+            <h4>🎤 Ton & Voix</h4>
+            <div class="analysis-card-content">
+              <div class="analysis-tone-tags">
+                ${data.tone.register ? `<span class="analysis-tone-tag">📚 ${this.escapeHtml(data.tone.register)}</span>` : ''}
+                ${data.tone.proximity ? `<span class="analysis-tone-tag">🤝 ${this.escapeHtml(data.tone.proximity)}</span>` : ''}
+                ${data.tone.personality ? `<span class="analysis-tone-tag">🎭 ${this.escapeHtml(data.tone.personality)}</span>` : ''}
+              </div>
+              ${data.tone.details ? `<p>${this.escapeHtml(data.tone.details)}</p>` : ''}
+            </div>
+          </div>
+        ` : ''}
+
+        ${data.copywriting ? `
+          <div class="analysis-card">
+            <h4>✍️ Copywriting</h4>
+            <div class="analysis-card-content">
+              ${data.copywriting.techniques?.length ? `
+                <div class="analysis-techniques">
+                  ${data.copywriting.techniques.map(t => `<span class="analysis-technique-tag">${this.escapeHtml(t)}</span>`).join('')}
+                </div>
+              ` : ''}
+              ${data.copywriting.details ? `<p>${this.escapeHtml(data.copywriting.details)}</p>` : ''}
+            </div>
+          </div>
+        ` : ''}
+
+        ${data.cta ? `
+          <div class="analysis-card">
+            <h4>🎯 CTA</h4>
+            <div class="analysis-card-content">
+              ${data.cta.formulation ? `<p><strong>Texte :</strong> "${this.escapeHtml(data.cta.formulation)}"</p>` : ''}
+              ${data.cta.type ? `<p><strong>Type :</strong> ${this.escapeHtml(data.cta.type)}</p>` : ''}
+              ${data.cta.placement ? `<p><strong>Placement :</strong> ${this.escapeHtml(data.cta.placement)}</p>` : ''}
+              ${data.cta.effectiveness ? `<p><strong>Efficacité :</strong> ${this.escapeHtml(data.cta.effectiveness)}</p>` : ''}
+            </div>
+          </div>
+        ` : ''}
+
+        ${data.strengths?.length ? `
+          <div class="analysis-card analysis-card-success">
+            <h4>✅ Points forts</h4>
+            <div class="analysis-card-content">
+              <ul class="analysis-list">${data.strengths.map(s => `<li>${this.escapeHtml(s)}</li>`).join('')}</ul>
+            </div>
+          </div>
+        ` : ''}
+
+        ${data.improvements?.length ? `
+          <div class="analysis-card analysis-card-warning">
+            <h4>⚠️ Améliorations</h4>
+            <div class="analysis-card-content">
+              <ul class="analysis-list">${data.improvements.map(s => `<li>${this.escapeHtml(s)}</li>`).join('')}</ul>
+            </div>
+          </div>
+        ` : ''}
+
+        ${data.actionable_rules?.length ? `
+          <div class="analysis-card">
+            <h4>💡 Règles actionnables</h4>
+            <div class="analysis-card-content">
+              ${data.actionable_rules.map(r => `
+                <div class="actionable-rule">
+                  <span class="rule-badge" style="background: ${categoryColors[r.category] || '#667eea'}22; color: ${categoryColors[r.category] || '#667eea'}">${this.escapeHtml(r.category || '')}</span>
+                  <div class="rule-text">
+                    <strong>${this.escapeHtml(r.rule || '')}</strong>
+                    ${r.example ? `<div class="rule-example">"${this.escapeHtml(r.example)}"</div>` : ''}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }
+
+  renderAnalysisHistory() {
+    return `
+      <div class="analysis-history">
+        <h4 class="analysis-history-title">📂 Analyses précédentes</h4>
+        <div class="analysis-history-list">
+          ${this.savedAnalyses.slice(0, 5).map(entry => `
+            <div class="analysis-history-item" onclick="newsletterModule.loadAnalysis('${entry.id}')">
+              <div class="analysis-history-info">
+                <span class="analysis-history-source">${this.escapeHtml(entry.source || 'Sans source')}</span>
+                <span class="analysis-history-date">${new Date(entry.createdAt).toLocaleDateString('fr-FR')}</span>
+              </div>
+              ${entry.subject ? `<div class="analysis-history-subject">${this.escapeHtml(entry.subject)}</div>` : ''}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  loadAnalysis(id) {
+    const entry = this.savedAnalyses.find(a => a.id === id);
+    if (entry) {
+      this.analysisResult = entry.analysis;
+      this._analysisSource = entry.source || '';
+      this._analysisSubject = entry.subject || '';
+      this.render();
+    }
+  }
+
+  copyAnalysis() {
+    if (!this.analysisResult) return;
+    const data = this.analysisResult;
+
+    let text = '📊 ANALYSE DE NEWSLETTER\n\n';
+
+    if (data.structure) {
+      text += '🏗️ STRUCTURE\n' + (data.structure.summary || '') + '\n';
+      if (data.structure.sections?.length) text += 'Sections : ' + data.structure.sections.join(' → ') + '\n';
+      text += '\n';
+    }
+    if (data.hook) {
+      text += '🪝 HOOK / ACCROCHE\n';
+      if (data.hook.subject_analysis) text += 'Objet : ' + data.hook.subject_analysis + '\n';
+      if (data.hook.opening_analysis) text += 'Accroche : ' + data.hook.opening_analysis + '\n';
+      if (data.hook.score) text += 'Score : ' + data.hook.score + '\n';
+      if (data.hook.why) text += data.hook.why + '\n';
+      text += '\n';
+    }
+    if (data.tone) {
+      text += '🎤 TON & VOIX\n';
+      if (data.tone.register) text += 'Registre : ' + data.tone.register + '\n';
+      if (data.tone.personality) text += 'Personnalité : ' + data.tone.personality + '\n';
+      if (data.tone.proximity) text += 'Proximité : ' + data.tone.proximity + '\n';
+      if (data.tone.details) text += data.tone.details + '\n';
+      text += '\n';
+    }
+    if (data.copywriting) {
+      text += '✍️ COPYWRITING\n';
+      if (data.copywriting.techniques?.length) text += 'Techniques : ' + data.copywriting.techniques.join(', ') + '\n';
+      if (data.copywriting.details) text += data.copywriting.details + '\n';
+      text += '\n';
+    }
+    if (data.cta) {
+      text += '🎯 CTA\n';
+      if (data.cta.formulation) text += 'Texte : "' + data.cta.formulation + '"\n';
+      if (data.cta.type) text += 'Type : ' + data.cta.type + '\n';
+      if (data.cta.effectiveness) text += 'Efficacité : ' + data.cta.effectiveness + '\n';
+      text += '\n';
+    }
+    if (data.strengths?.length) {
+      text += '✅ POINTS FORTS\n' + data.strengths.map(s => '• ' + s).join('\n') + '\n\n';
+    }
+    if (data.improvements?.length) {
+      text += '⚠️ AMÉLIORATIONS\n' + data.improvements.map(s => '• ' + s).join('\n') + '\n\n';
+    }
+    if (data.actionable_rules?.length) {
+      text += '💡 RÈGLES ACTIONNABLES\n' + data.actionable_rules.map(r =>
+        `[${r.category}] ${r.rule}${r.example ? ' — Ex: "' + r.example + '"' : ''}`
+      ).join('\n') + '\n';
+    }
+
+    this.copy(text.trim());
   }
 
   renderProgressSteps() {
